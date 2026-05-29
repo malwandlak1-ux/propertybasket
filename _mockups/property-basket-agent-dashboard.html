@@ -1,0 +1,2218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Property Basket — Agent Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: {
+          sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+          mono: ['"JetBrains Mono"', 'monospace'],
+        },
+        colors: {
+          brand: {
+            DEFAULT: '#5B3DF5',
+            50:  '#F2EFFE',
+            100: '#E4DEFD',
+            500: '#5B3DF5',
+            600: '#4A2EE0',
+            700: '#3A23B8',
+          },
+          ink: {
+            900: '#0B0B0F',
+            800: '#1A1A22',
+            700: '#2A2A35',
+            500: '#6B7280',
+            400: '#9CA3AF',
+            300: '#D1D5DB',
+            200: '#E5E7EB',
+            100: '#F3F4F6',
+            50:  '#F9FAFB',
+          },
+          success: '#10B981',
+          warning: '#F59E0B',
+          danger:  '#EF4444',
+        },
+        boxShadow: {
+          'soft': '0 1px 2px rgba(15, 23, 42, 0.04), 0 1px 3px rgba(15, 23, 42, 0.06)',
+          'card': '0 4px 12px rgba(15, 23, 42, 0.04), 0 1px 3px rgba(15, 23, 42, 0.06)',
+          'lift': '0 12px 32px rgba(15, 23, 42, 0.10)',
+        },
+      }
+    }
+  }
+</script>
+<style>
+  body { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }
+  .nav-item.active { background-color: #F3F4F6; color: #0B0B0F; }
+  .nav-item.active .nav-icon { color: #5B3DF5; }
+  .view { display: none; }
+  .view.active { display: block; }
+  /* Subtle dot grid for empty kanban columns */
+  .dot-grid {
+    background-image: radial-gradient(circle, #E5E7EB 1px, transparent 1px);
+    background-size: 14px 14px;
+  }
+  /* Skeleton shimmer for fun touches */
+  .bar { transition: all .35s ease; }
+  /* Mini sparkline animation */
+  .spark path { stroke-dasharray: 1000; stroke-dashoffset: 1000; animation: dash 1.5s ease-out forwards; }
+  @keyframes dash { to { stroke-dashoffset: 0; } }
+  /* Calendar grid */
+  .cal-cell { min-height: 96px; }
+  /* Kanban card drag affordance */
+  .kanban-card { cursor: grab; }
+  .kanban-card:active { cursor: grabbing; }
+  /* Tooltip */
+  [data-tip] { position: relative; }
+  [data-tip]:hover::after {
+    content: attr(data-tip);
+    position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%);
+    background: #0B0B0F; color: white; padding: 4px 8px; border-radius: 6px;
+    font-size: 11px; white-space: nowrap; margin-bottom: 6px; z-index: 50;
+  }
+</style>
+</head>
+<body class="bg-ink-50 text-ink-900">
+
+<div class="flex min-h-screen">
+
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="w-[240px] shrink-0 bg-white border-r border-ink-200 flex flex-col">
+    <!-- Logo -->
+    <div class="px-5 pt-5 pb-6 flex items-center gap-2">
+      <div class="w-8 h-8 rounded-lg bg-ink-900 flex items-center justify-center">
+        <svg viewBox="0 0 24 24" class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M3 10.5L12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-7h-6v7H4a1 1 0 0 1-1-1V10.5z" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <span class="font-bold text-[15px] tracking-tight">Property Basket</span>
+    </div>
+
+    <!-- Nav -->
+    <nav class="px-3 flex-1 overflow-y-auto">
+      <p class="px-3 text-[10px] font-semibold text-ink-400 tracking-[0.12em] mb-2">WORKSPACE</p>
+      <a href="#" data-view="overview" class="nav-item active flex items-center gap-3 px-3 py-2 rounded-lg text-[13.5px] text-ink-500 hover:bg-ink-100 transition mb-0.5">
+        <svg class="nav-icon w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+        Dashboard
+      </a>
+      <a href="#" data-view="pipeline" class="nav-item flex items-center gap-3 px-3 py-2 rounded-lg text-[13.5px] text-ink-500 hover:bg-ink-100 transition mb-0.5">
+        <svg class="nav-icon w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7h4v13H3zM10 4h4v16h-4zM17 11h4v9h-4z"/></svg>
+        Pipeline
+        <span class="ml-auto text-[10px] bg-brand-50 text-brand-700 px-1.5 py-0.5 rounded-full font-semibold">12</span>
+      </a>
+      <a href="#" data-view="listings" class="nav-item flex items-center gap-3 px-3 py-2 rounded-lg text-[13.5px] text-ink-500 hover:bg-ink-100 transition mb-0.5">
+        <svg class="nav-icon w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21V10l9-7 9 7v11H3z"/><path d="M9 21v-7h6v7"/></svg>
+        Listings
+      </a>
+      <a href="#" data-view="viewings" class="nav-item flex items-center gap-3 px-3 py-2 rounded-lg text-[13.5px] text-ink-500 hover:bg-ink-100 transition mb-0.5">
+        <svg class="nav-icon w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/></svg>
+        Viewings
+        <span class="ml-auto w-1.5 h-1.5 rounded-full bg-danger"></span>
+      </a>
+      <a href="#" data-view="inspections" class="nav-item flex items-center gap-3 px-3 py-2 rounded-lg text-[13.5px] text-ink-500 hover:bg-ink-100 transition mb-0.5">
+        <svg class="nav-icon w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><path d="M21 12c0 1-1 11-9 11s-9-10-9-11V5l9-3 9 3z"/></svg>
+        Inspections
+        <span class="ml-auto text-[10px] bg-brand-50 text-brand-700 px-1.5 py-0.5 rounded-full font-semibold">2</span>
+      </a>
+      <a href="#" data-view="messages" class="nav-item flex items-center gap-3 px-3 py-2 rounded-lg text-[13.5px] text-ink-500 hover:bg-ink-100 transition mb-0.5">
+        <svg class="nav-icon w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.6-.8L3 21l1.9-5.7a8.5 8.5 0 0 1 16.1-3.8z"/></svg>
+        Messages
+        <span class="ml-auto text-[10px] bg-danger text-white px-1.5 py-0.5 rounded-full font-semibold">3</span>
+      </a>
+      <a href="#" data-view="commission" class="nav-item flex items-center gap-3 px-3 py-2 rounded-lg text-[13.5px] text-ink-500 hover:bg-ink-100 transition mb-0.5">
+        <svg class="nav-icon w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        Commission
+      </a>
+      <a href="#" data-view="analytics" class="nav-item flex items-center gap-3 px-3 py-2 rounded-lg text-[13.5px] text-ink-500 hover:bg-ink-100 transition mb-0.5">
+        <svg class="nav-icon w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 4 4 6-6"/></svg>
+        Analytics
+      </a>
+
+      <p class="px-3 mt-6 text-[10px] font-semibold text-ink-400 tracking-[0.12em] mb-2">CLIENTS</p>
+      <a href="#" class="nav-item flex items-center gap-3 px-3 py-2 rounded-lg text-[13.5px] text-ink-500 hover:bg-ink-100 transition mb-0.5">
+        <svg class="nav-icon w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Leads
+      </a>
+      <a href="#" class="nav-item flex items-center gap-3 px-3 py-2 rounded-lg text-[13.5px] text-ink-500 hover:bg-ink-100 transition mb-0.5">
+        <svg class="nav-icon w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18"/></svg>
+        Tenants
+      </a>
+      <a href="#" class="nav-item flex items-center gap-3 px-3 py-2 rounded-lg text-[13.5px] text-ink-500 hover:bg-ink-100 transition mb-0.5">
+        <svg class="nav-icon w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 0 0-16 0"/></svg>
+        Landlords
+      </a>
+
+      <p class="px-3 mt-6 text-[10px] font-semibold text-ink-400 tracking-[0.12em] mb-2">AGENT ACCOUNT</p>
+      <a href="#" class="nav-item flex items-center gap-3 px-3 py-2 rounded-lg text-[13.5px] text-ink-500 hover:bg-ink-100 transition mb-0.5">
+        <svg class="nav-icon w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        FFC & Compliance
+        <span class="ml-auto text-[10px] bg-success/15 text-success px-1.5 py-0.5 rounded-full font-semibold">✓</span>
+      </a>
+      <a href="#" class="nav-item flex items-center gap-3 px-3 py-2 rounded-lg text-[13.5px] text-ink-500 hover:bg-ink-100 transition mb-0.5">
+        <svg class="nav-icon w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        Settings
+      </a>
+    </nav>
+
+    <!-- Agent profile -->
+    <div class="border-t border-ink-200 p-3">
+      <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-ink-100 cursor-pointer">
+        <div class="w-9 h-9 rounded-full bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center text-white font-semibold text-sm">MK</div>
+        <div class="flex-1 min-w-0">
+          <p class="text-[13px] font-semibold truncate">Malwandla Khosa</p>
+          <p class="text-[11px] text-ink-400 truncate">Agent · Property Basket</p>
+        </div>
+        <svg class="w-4 h-4 text-ink-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 15l5 5 5-5M7 9l5-5 5 5"/></svg>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ============ MAIN ============ -->
+  <main class="flex-1 min-w-0">
+
+    <!-- Top bar -->
+    <header class="h-16 border-b border-ink-200 bg-white flex items-center px-8 gap-6 sticky top-0 z-30">
+      <div id="breadcrumb" class="text-[13px] text-ink-500">
+        <span>My Agency</span>
+        <span class="mx-2 text-ink-300">/</span>
+        <span class="text-ink-900 font-medium" id="crumb-page">Dashboard</span>
+      </div>
+      <div class="flex-1 max-w-xl mx-auto">
+        <div class="relative">
+          <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+          <input class="w-full bg-ink-50 border border-ink-200 rounded-lg pl-10 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition" placeholder="Search listings, leads, viewings...">
+        </div>
+      </div>
+      <button class="w-9 h-9 rounded-lg hover:bg-ink-100 flex items-center justify-center transition" data-tip="Quick add">
+        <svg class="w-4 h-4 text-ink-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>
+      </button>
+      <button class="w-9 h-9 rounded-lg hover:bg-ink-100 flex items-center justify-center relative transition" data-tip="Notifications">
+        <svg class="w-4 h-4 text-ink-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+        <span class="absolute top-1.5 right-2 w-2 h-2 rounded-full bg-danger"></span>
+      </button>
+    </header>
+
+    <!-- ====== VIEW: OVERVIEW ====== -->
+    <section id="view-overview" class="view active px-8 py-7">
+      <!-- Greeting -->
+      <div class="flex items-end justify-between mb-7">
+        <div>
+          <p class="text-[13px] text-ink-500">Monday, 18 May 2026</p>
+          <h1 class="text-3xl font-bold tracking-tight mt-1">Good morning, Malwandla 👋</h1>
+          <p class="text-[14px] text-ink-500 mt-1">You have <span class="font-semibold text-ink-900">3 viewings</span> today and <span class="font-semibold text-ink-900">2 leads</span> waiting on a response.</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button class="px-3.5 py-2 text-[13px] border border-ink-200 rounded-lg hover:bg-ink-100 transition flex items-center gap-2">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+            New Lead
+          </button>
+          <button class="px-3.5 py-2 text-[13px] bg-ink-900 text-white rounded-lg hover:bg-ink-800 transition flex items-center gap-2">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>
+            Create Listing
+          </button>
+        </div>
+      </div>
+
+      <!-- KPI Grid -->
+      <div class="grid grid-cols-4 gap-4 mb-6">
+        <!-- Card 1 -->
+        <div class="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-[11px] text-ink-500 uppercase tracking-wider font-semibold">Active Listings</span>
+            <span class="w-7 h-7 rounded-lg bg-brand-50 flex items-center justify-center">
+              <svg class="w-3.5 h-3.5 text-brand-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 21V10l9-7 9 7v11H3z"/></svg>
+            </span>
+          </div>
+          <div class="flex items-baseline gap-2">
+            <span class="text-3xl font-bold">14</span>
+            <span class="text-xs text-success font-semibold">+2 this week</span>
+          </div>
+          <svg class="spark w-full h-8 mt-3" viewBox="0 0 100 30" preserveAspectRatio="none">
+            <path d="M0,22 L15,18 L30,20 L45,12 L60,14 L75,8 L100,4" fill="none" stroke="#5B3DF5" stroke-width="2"/>
+          </svg>
+        </div>
+        <!-- Card 2 -->
+        <div class="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-[11px] text-ink-500 uppercase tracking-wider font-semibold">Open Leads</span>
+            <span class="w-7 h-7 rounded-lg bg-amber-50 flex items-center justify-center">
+              <svg class="w-3.5 h-3.5 text-warning" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+            </span>
+          </div>
+          <div class="flex items-baseline gap-2">
+            <span class="text-3xl font-bold">23</span>
+            <span class="text-xs text-success font-semibold">+8 vs last month</span>
+          </div>
+          <svg class="spark w-full h-8 mt-3" viewBox="0 0 100 30" preserveAspectRatio="none">
+            <path d="M0,20 L15,22 L30,16 L45,18 L60,12 L75,10 L100,6" fill="none" stroke="#F59E0B" stroke-width="2"/>
+          </svg>
+        </div>
+        <!-- Card 3 -->
+        <div class="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-[11px] text-ink-500 uppercase tracking-wider font-semibold">YTD Commission</span>
+            <span class="w-7 h-7 rounded-lg bg-emerald-50 flex items-center justify-center">
+              <svg class="w-3.5 h-3.5 text-success" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            </span>
+          </div>
+          <div class="flex items-baseline gap-2">
+            <span class="text-3xl font-bold">R 287k</span>
+            <span class="text-xs text-success font-semibold">↑ 18%</span>
+          </div>
+          <svg class="spark w-full h-8 mt-3" viewBox="0 0 100 30" preserveAspectRatio="none">
+            <path d="M0,25 L15,22 L30,24 L45,18 L60,15 L75,12 L100,4" fill="none" stroke="#10B981" stroke-width="2"/>
+          </svg>
+        </div>
+        <!-- Card 4 -->
+        <div class="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-[11px] text-ink-500 uppercase tracking-wider font-semibold">Conversion Rate</span>
+            <span class="w-7 h-7 rounded-lg bg-violet-50 flex items-center justify-center">
+              <svg class="w-3.5 h-3.5 text-brand-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 3v18h18"/><path d="M7 14l4-4 4 4 6-6"/></svg>
+            </span>
+          </div>
+          <div class="flex items-baseline gap-2">
+            <span class="text-3xl font-bold">22.4%</span>
+            <span class="text-xs text-danger font-semibold">↓ 2.1%</span>
+          </div>
+          <svg class="spark w-full h-8 mt-3" viewBox="0 0 100 30" preserveAspectRatio="none">
+            <path d="M0,8 L15,12 L30,10 L45,14 L60,18 L75,16 L100,20" fill="none" stroke="#EF4444" stroke-width="2"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Two-column body -->
+      <div class="grid grid-cols-3 gap-4">
+        <!-- LEFT: Pipeline preview -->
+        <div class="col-span-2 bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h2 class="text-base font-semibold">Pipeline Snapshot</h2>
+              <p class="text-xs text-ink-500 mt-0.5">12 active deals · R 4.2m potential commission</p>
+            </div>
+            <a href="#" data-view="pipeline" class="nav-item text-[12px] font-medium text-brand-600 hover:underline">View pipeline →</a>
+          </div>
+
+          <!-- Funnel bars -->
+          <div class="space-y-3">
+            <div class="flex items-center gap-3">
+              <span class="w-24 text-[12px] text-ink-500">New Lead</span>
+              <div class="flex-1 h-7 bg-ink-100 rounded-md overflow-hidden">
+                <div class="h-full bg-brand-500 flex items-center justify-end px-3 text-[11px] font-semibold text-white" style="width: 100%">8 leads</div>
+              </div>
+              <span class="w-20 text-right text-[12px] font-mono">R 2.4m</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="w-24 text-[12px] text-ink-500">Qualified</span>
+              <div class="flex-1 h-7 bg-ink-100 rounded-md overflow-hidden">
+                <div class="h-full bg-brand-500 flex items-center justify-end px-3 text-[11px] font-semibold text-white" style="width: 75%">6 leads</div>
+              </div>
+              <span class="w-20 text-right text-[12px] font-mono">R 1.8m</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="w-24 text-[12px] text-ink-500">Viewing</span>
+              <div class="flex-1 h-7 bg-ink-100 rounded-md overflow-hidden">
+                <div class="h-full bg-brand-500 flex items-center justify-end px-3 text-[11px] font-semibold text-white" style="width: 50%">4 leads</div>
+              </div>
+              <span class="w-20 text-right text-[12px] font-mono">R 1.2m</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="w-24 text-[12px] text-ink-500">Offer</span>
+              <div class="flex-1 h-7 bg-ink-100 rounded-md overflow-hidden">
+                <div class="h-full bg-brand-500 flex items-center justify-end px-3 text-[11px] font-semibold text-white" style="width: 25%">2 leads</div>
+              </div>
+              <span class="w-20 text-right text-[12px] font-mono">R 620k</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="w-24 text-[12px] text-ink-500">Closed</span>
+              <div class="flex-1 h-7 bg-ink-100 rounded-md overflow-hidden">
+                <div class="h-full bg-success flex items-center justify-end px-3 text-[11px] font-semibold text-white" style="width: 12.5%">1 lead</div>
+              </div>
+              <span class="w-20 text-right text-[12px] font-mono">R 180k</span>
+            </div>
+          </div>
+
+          <div class="mt-5 pt-5 border-t border-ink-200 grid grid-cols-3 gap-4 text-center">
+            <div>
+              <p class="text-[11px] text-ink-500 uppercase tracking-wider">Avg. Days to Close</p>
+              <p class="text-xl font-bold mt-1">28</p>
+            </div>
+            <div>
+              <p class="text-[11px] text-ink-500 uppercase tracking-wider">Win Rate</p>
+              <p class="text-xl font-bold mt-1 text-success">34%</p>
+            </div>
+            <div>
+              <p class="text-[11px] text-ink-500 uppercase tracking-wider">Avg. Deal Size</p>
+              <p class="text-xl font-bold mt-1">R 18,400</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT: Today / Upcoming -->
+        <div class="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-base font-semibold">Today's Schedule</h2>
+            <a href="#" data-view="viewings" class="nav-item text-[12px] font-medium text-brand-600 hover:underline">All →</a>
+          </div>
+          <div class="space-y-3">
+            <div class="flex gap-3 p-3 rounded-lg hover:bg-ink-50 border-l-2 border-brand-500 bg-brand-50/30">
+              <div class="text-center w-12">
+                <p class="text-[10px] text-ink-500 uppercase">10:00</p>
+                <p class="text-[10px] text-ink-400">SAST</p>
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="text-[13px] font-semibold truncate">Viewing — Sandton 2-bed</p>
+                <p class="text-[11px] text-ink-500 truncate">Thandi Mokoena · 12 Rivonia Rd</p>
+              </div>
+            </div>
+            <div class="flex gap-3 p-3 rounded-lg hover:bg-ink-50">
+              <div class="text-center w-12">
+                <p class="text-[10px] text-ink-500 uppercase">13:30</p>
+                <p class="text-[10px] text-ink-400">SAST</p>
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="text-[13px] font-semibold truncate">Lease signing</p>
+                <p class="text-[11px] text-ink-500 truncate">Property Basket Tenant · Andeon</p>
+              </div>
+            </div>
+            <div class="flex gap-3 p-3 rounded-lg hover:bg-ink-50">
+              <div class="text-center w-12">
+                <p class="text-[10px] text-ink-500 uppercase">16:00</p>
+                <p class="text-[10px] text-ink-400">SAST</p>
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="text-[13px] font-semibold truncate">Viewing — Fourways townhouse</p>
+                <p class="text-[11px] text-ink-500 truncate">Sipho Ndlovu · The Reeds</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-5 pt-4 border-t border-ink-200">
+            <p class="text-[11px] text-ink-500 uppercase tracking-wider font-semibold mb-2">Hot Leads</p>
+            <div class="space-y-2">
+              <div class="flex items-center justify-between p-2 rounded-md hover:bg-ink-50">
+                <div class="flex items-center gap-2 min-w-0">
+                  <div class="w-7 h-7 rounded-full bg-gradient-to-br from-rose-400 to-rose-600 flex items-center justify-center text-white text-[10px] font-bold shrink-0">NV</div>
+                  <div class="min-w-0">
+                    <p class="text-[12px] font-semibold truncate">Naledi van Wyk</p>
+                    <p class="text-[10px] text-ink-500">3 viewings · R 1.4m budget</p>
+                  </div>
+                </div>
+                <span class="text-[10px] bg-danger/10 text-danger px-1.5 py-0.5 rounded-full font-semibold">HOT</span>
+              </div>
+              <div class="flex items-center justify-between p-2 rounded-md hover:bg-ink-50">
+                <div class="flex items-center gap-2 min-w-0">
+                  <div class="w-7 h-7 rounded-full bg-gradient-to-br from-sky-400 to-sky-600 flex items-center justify-center text-white text-[10px] font-bold shrink-0">RP</div>
+                  <div class="min-w-0">
+                    <p class="text-[12px] font-semibold truncate">Riaan Pretorius</p>
+                    <p class="text-[10px] text-ink-500">2 viewings · R 850k budget</p>
+                  </div>
+                </div>
+                <span class="text-[10px] bg-warning/10 text-warning px-1.5 py-0.5 rounded-full font-semibold">WARM</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom strip: Listing performance -->
+      <div class="mt-4 bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <h2 class="text-base font-semibold">Listing Performance</h2>
+            <p class="text-xs text-ink-500 mt-0.5">Last 30 days</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button class="text-[12px] px-3 py-1.5 rounded-md bg-ink-100 font-medium">30d</button>
+            <button class="text-[12px] px-3 py-1.5 rounded-md hover:bg-ink-100 text-ink-500">90d</button>
+            <button class="text-[12px] px-3 py-1.5 rounded-md hover:bg-ink-100 text-ink-500">YTD</button>
+          </div>
+        </div>
+        <table class="w-full">
+          <thead>
+            <tr class="text-left text-[11px] uppercase text-ink-500 tracking-wider border-b border-ink-200">
+              <th class="font-semibold py-2">Property</th>
+              <th class="font-semibold py-2">Type</th>
+              <th class="font-semibold py-2 text-right">Views</th>
+              <th class="font-semibold py-2 text-right">Inquiries</th>
+              <th class="font-semibold py-2 text-right">Viewings</th>
+              <th class="font-semibold py-2 text-right">Days on Market</th>
+              <th class="font-semibold py-2 text-right">Price</th>
+            </tr>
+          </thead>
+          <tbody class="text-[13px]">
+            <tr class="border-b border-ink-100 hover:bg-ink-50">
+              <td class="py-3">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-md bg-gradient-to-br from-amber-200 to-amber-400"></div>
+                  <div>
+                    <p class="font-medium">2-bed apt, Andeon</p>
+                    <p class="text-[11px] text-ink-500">Pretoria · For Rent</p>
+                  </div>
+                </div>
+              </td>
+              <td><span class="text-[11px] px-2 py-0.5 rounded-full bg-brand-50 text-brand-700 font-semibold">RENT</span></td>
+              <td class="text-right font-mono">1,247</td>
+              <td class="text-right font-mono">34</td>
+              <td class="text-right font-mono">8</td>
+              <td class="text-right font-mono">12</td>
+              <td class="text-right font-mono font-semibold">R 8,000<span class="text-ink-400 font-normal">/mo</span></td>
+            </tr>
+            <tr class="border-b border-ink-100 hover:bg-ink-50">
+              <td class="py-3">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-md bg-gradient-to-br from-sky-200 to-sky-400"></div>
+                  <div>
+                    <p class="font-medium">3-bed house, Fourways</p>
+                    <p class="text-[11px] text-ink-500">Johannesburg · For Sale</p>
+                  </div>
+                </div>
+              </td>
+              <td><span class="text-[11px] px-2 py-0.5 rounded-full bg-emerald-50 text-success font-semibold">SALE</span></td>
+              <td class="text-right font-mono">3,012</td>
+              <td class="text-right font-mono">52</td>
+              <td class="text-right font-mono">14</td>
+              <td class="text-right font-mono">28</td>
+              <td class="text-right font-mono font-semibold">R 2,450,000</td>
+            </tr>
+            <tr class="border-b border-ink-100 hover:bg-ink-50">
+              <td class="py-3">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-md bg-gradient-to-br from-rose-200 to-rose-400"></div>
+                  <div>
+                    <p class="font-medium">Loft, Maboneng</p>
+                    <p class="text-[11px] text-ink-500">Johannesburg · Short-term</p>
+                  </div>
+                </div>
+              </td>
+              <td><span class="text-[11px] px-2 py-0.5 rounded-full bg-violet-50 text-brand-700 font-semibold">STAY</span></td>
+              <td class="text-right font-mono">892</td>
+              <td class="text-right font-mono">18</td>
+              <td class="text-right font-mono">3</td>
+              <td class="text-right font-mono">5</td>
+              <td class="text-right font-mono font-semibold">R 1,200<span class="text-ink-400 font-normal">/night</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ====== VIEW: PIPELINE (Kanban) ====== -->
+    <section id="view-pipeline" class="view px-8 py-7">
+      <div class="flex items-center justify-between mb-6">
+        <div>
+          <h1 class="text-2xl font-bold tracking-tight">Sales Pipeline</h1>
+          <p class="text-[14px] text-ink-500 mt-1">Drag deals across stages. R 4.2m in pipeline value.</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <div class="flex items-center bg-white border border-ink-200 rounded-lg p-1">
+            <button class="text-[12px] px-3 py-1.5 rounded-md bg-ink-100 font-semibold">Kanban</button>
+            <button class="text-[12px] px-3 py-1.5 rounded-md text-ink-500 hover:bg-ink-50">Table</button>
+          </div>
+          <button class="px-3.5 py-2 text-[13px] bg-ink-900 text-white rounded-lg flex items-center gap-2">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+            Add Deal
+          </button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-5 gap-3 min-h-[600px]">
+
+        <!-- Column 1 -->
+        <div class="bg-ink-100/50 rounded-xl p-3">
+          <div class="flex items-center justify-between mb-3 px-1">
+            <div class="flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-ink-400"></span>
+              <p class="text-[12px] font-semibold uppercase tracking-wide">New Lead</p>
+              <span class="text-[11px] bg-white px-1.5 py-0.5 rounded-full font-bold">8</span>
+            </div>
+            <span class="text-[11px] text-ink-500 font-mono">R 2.4m</span>
+          </div>
+
+          <div class="space-y-2">
+            <div class="kanban-card bg-white rounded-lg p-3 shadow-soft border border-ink-200">
+              <p class="text-[13px] font-semibold mb-1.5">Thandi Mokoena</p>
+              <p class="text-[11px] text-ink-500 mb-2">2-bed apt · Sandton</p>
+              <div class="flex items-center justify-between">
+                <span class="text-[11px] font-mono font-semibold">R 12,500<span class="text-ink-400 font-normal">/mo</span></span>
+                <div class="flex -space-x-1">
+                  <div class="w-5 h-5 rounded-full bg-brand-500 ring-2 ring-white"></div>
+                </div>
+              </div>
+            </div>
+            <div class="kanban-card bg-white rounded-lg p-3 shadow-soft border border-ink-200">
+              <div class="flex items-center gap-2 mb-1.5">
+                <p class="text-[13px] font-semibold">Riaan Pretorius</p>
+                <span class="text-[9px] bg-warning/15 text-warning px-1 rounded font-bold">WARM</span>
+              </div>
+              <p class="text-[11px] text-ink-500 mb-2">House sale · Fourways</p>
+              <div class="flex items-center justify-between">
+                <span class="text-[11px] font-mono font-semibold">R 850,000</span>
+                <span class="text-[10px] text-ink-400">3d ago</span>
+              </div>
+            </div>
+            <div class="kanban-card bg-white rounded-lg p-3 shadow-soft border border-ink-200">
+              <p class="text-[13px] font-semibold mb-1.5">Lerato Sithole</p>
+              <p class="text-[11px] text-ink-500 mb-2">Studio rental · Braam</p>
+              <div class="flex items-center justify-between">
+                <span class="text-[11px] font-mono font-semibold">R 6,200<span class="text-ink-400 font-normal">/mo</span></span>
+                <span class="text-[10px] text-ink-400">5h ago</span>
+              </div>
+            </div>
+            <div class="dot-grid rounded-lg h-16 flex items-center justify-center text-[11px] text-ink-400 cursor-pointer hover:text-ink-700">
+              + Add deal
+            </div>
+          </div>
+        </div>
+
+        <!-- Column 2 -->
+        <div class="bg-ink-100/50 rounded-xl p-3">
+          <div class="flex items-center justify-between mb-3 px-1">
+            <div class="flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-sky-500"></span>
+              <p class="text-[12px] font-semibold uppercase tracking-wide">Qualified</p>
+              <span class="text-[11px] bg-white px-1.5 py-0.5 rounded-full font-bold">6</span>
+            </div>
+            <span class="text-[11px] text-ink-500 font-mono">R 1.8m</span>
+          </div>
+          <div class="space-y-2">
+            <div class="kanban-card bg-white rounded-lg p-3 shadow-soft border border-ink-200 border-l-2 border-l-danger">
+              <div class="flex items-center gap-2 mb-1.5">
+                <p class="text-[13px] font-semibold">Naledi van Wyk</p>
+                <span class="text-[9px] bg-danger/15 text-danger px-1 rounded font-bold">HOT</span>
+              </div>
+              <p class="text-[11px] text-ink-500 mb-2">3-bed house · Centurion</p>
+              <div class="flex items-center justify-between">
+                <span class="text-[11px] font-mono font-semibold">R 1,400,000</span>
+                <span class="text-[10px] text-success">FICA ✓</span>
+              </div>
+            </div>
+            <div class="kanban-card bg-white rounded-lg p-3 shadow-soft border border-ink-200">
+              <p class="text-[13px] font-semibold mb-1.5">Sipho Ndlovu</p>
+              <p class="text-[11px] text-ink-500 mb-2">Townhouse · The Reeds</p>
+              <div class="flex items-center justify-between">
+                <span class="text-[11px] font-mono font-semibold">R 11,000<span class="text-ink-400 font-normal">/mo</span></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Column 3 -->
+        <div class="bg-ink-100/50 rounded-xl p-3">
+          <div class="flex items-center justify-between mb-3 px-1">
+            <div class="flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-brand-500"></span>
+              <p class="text-[12px] font-semibold uppercase tracking-wide">Viewing</p>
+              <span class="text-[11px] bg-white px-1.5 py-0.5 rounded-full font-bold">4</span>
+            </div>
+            <span class="text-[11px] text-ink-500 font-mono">R 1.2m</span>
+          </div>
+          <div class="space-y-2">
+            <div class="kanban-card bg-white rounded-lg p-3 shadow-soft border border-ink-200">
+              <p class="text-[13px] font-semibold mb-1.5">Jessica Adams</p>
+              <p class="text-[11px] text-ink-500 mb-2">Penthouse · Sandton</p>
+              <div class="bg-brand-50 rounded p-1.5 mb-2 flex items-center gap-1.5">
+                <svg class="w-3 h-3 text-brand-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/></svg>
+                <span class="text-[10px] text-brand-700 font-semibold">Tomorrow · 10:00</span>
+              </div>
+              <span class="text-[11px] font-mono font-semibold">R 950,000</span>
+            </div>
+            <div class="kanban-card bg-white rounded-lg p-3 shadow-soft border border-ink-200">
+              <p class="text-[13px] font-semibold mb-1.5">Tebogo Maseko</p>
+              <p class="text-[11px] text-ink-500 mb-2">2-bed apt · Rosebank</p>
+              <span class="text-[11px] font-mono font-semibold">R 9,500<span class="text-ink-400 font-normal">/mo</span></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Column 4 -->
+        <div class="bg-ink-100/50 rounded-xl p-3">
+          <div class="flex items-center justify-between mb-3 px-1">
+            <div class="flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-warning"></span>
+              <p class="text-[12px] font-semibold uppercase tracking-wide">Offer</p>
+              <span class="text-[11px] bg-white px-1.5 py-0.5 rounded-full font-bold">2</span>
+            </div>
+            <span class="text-[11px] text-ink-500 font-mono">R 620k</span>
+          </div>
+          <div class="space-y-2">
+            <div class="kanban-card bg-white rounded-lg p-3 shadow-soft border border-ink-200">
+              <p class="text-[13px] font-semibold mb-1.5">Karabo Modise</p>
+              <p class="text-[11px] text-ink-500 mb-2">Apt sale · Hatfield</p>
+              <div class="bg-warning/10 rounded p-1.5 mb-2">
+                <p class="text-[10px] text-warning font-semibold">Offer pending: R 620,000</p>
+              </div>
+              <span class="text-[11px] text-ink-500">Awaiting landlord</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Column 5 -->
+        <div class="bg-ink-100/50 rounded-xl p-3">
+          <div class="flex items-center justify-between mb-3 px-1">
+            <div class="flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-success"></span>
+              <p class="text-[12px] font-semibold uppercase tracking-wide">Closed Won</p>
+              <span class="text-[11px] bg-white px-1.5 py-0.5 rounded-full font-bold">1</span>
+            </div>
+            <span class="text-[11px] text-ink-500 font-mono">R 180k</span>
+          </div>
+          <div class="space-y-2">
+            <div class="kanban-card bg-white rounded-lg p-3 shadow-soft border border-success/30 bg-success/5">
+              <div class="flex items-center gap-2 mb-1.5">
+                <p class="text-[13px] font-semibold">Property Basket Tenant</p>
+                <svg class="w-3.5 h-3.5 text-success" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 13l4 4L19 7"/></svg>
+              </div>
+              <p class="text-[11px] text-ink-500 mb-2">2-bed Andeon · Lease signed</p>
+              <div class="flex items-center justify-between">
+                <span class="text-[11px] font-mono font-semibold text-success">Commission: R 7,200</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====== VIEW: LISTINGS ====== -->
+    <section id="view-listings" class="view px-8 py-7">
+      <div class="flex items-center justify-between mb-6">
+        <div>
+          <h1 class="text-2xl font-bold tracking-tight">My Listings</h1>
+          <p class="text-[14px] text-ink-500 mt-1">14 active properties · 2 awaiting approval</p>
+        </div>
+        <button class="px-3.5 py-2 text-[13px] bg-ink-900 text-white rounded-lg flex items-center gap-2">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+          New Listing
+        </button>
+      </div>
+
+      <div class="flex items-center gap-2 mb-4">
+        <button class="text-[12px] px-3 py-1.5 rounded-full bg-ink-900 text-white font-medium">All · 14</button>
+        <button class="text-[12px] px-3 py-1.5 rounded-full bg-white border border-ink-200 hover:bg-ink-100">For Sale · 4</button>
+        <button class="text-[12px] px-3 py-1.5 rounded-full bg-white border border-ink-200 hover:bg-ink-100">For Rent · 8</button>
+        <button class="text-[12px] px-3 py-1.5 rounded-full bg-white border border-ink-200 hover:bg-ink-100">Short-stay · 2</button>
+        <div class="ml-auto flex items-center gap-2">
+          <select class="text-[12px] bg-white border border-ink-200 rounded-md px-3 py-1.5">
+            <option>Sort: Most Recent</option>
+            <option>Most Inquiries</option>
+            <option>Days on Market</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-3 gap-4">
+        <!-- Listing card -->
+        <div class="bg-white rounded-xl border border-ink-200 overflow-hidden shadow-soft hover:shadow-lift transition cursor-pointer">
+          <div class="aspect-[4/3] bg-gradient-to-br from-amber-300 via-amber-200 to-orange-300 relative">
+            <div class="absolute top-3 left-3 flex gap-1.5">
+              <span class="text-[10px] bg-white/90 backdrop-blur px-2 py-1 rounded-md font-bold">FOR RENT</span>
+              <span class="text-[10px] bg-success text-white px-2 py-1 rounded-md font-bold">ACTIVE</span>
+            </div>
+            <button class="absolute top-3 right-3 w-7 h-7 rounded-md bg-white/90 backdrop-blur flex items-center justify-center">
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+            </button>
+          </div>
+          <div class="p-4">
+            <p class="text-[15px] font-bold mb-1">2-bed apartment, Andeon</p>
+            <p class="text-[12px] text-ink-500 mb-3">607 Fred Messenger Ave, Pretoria</p>
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-xl font-bold">R 8,000<span class="text-[12px] text-ink-400 font-normal">/mo</span></span>
+              <span class="text-[11px] text-ink-500 font-mono">12 days</span>
+            </div>
+            <div class="flex items-center justify-between pt-3 border-t border-ink-100 text-[11px] text-ink-500">
+              <span>👁 1,247 views</span>
+              <span>📩 34 inquiries</span>
+              <span>📅 8 viewings</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-xl border border-ink-200 overflow-hidden shadow-soft hover:shadow-lift transition cursor-pointer">
+          <div class="aspect-[4/3] bg-gradient-to-br from-sky-300 via-sky-200 to-cyan-300 relative">
+            <div class="absolute top-3 left-3 flex gap-1.5">
+              <span class="text-[10px] bg-white/90 backdrop-blur px-2 py-1 rounded-md font-bold">FOR SALE</span>
+              <span class="text-[10px] bg-success text-white px-2 py-1 rounded-md font-bold">ACTIVE</span>
+            </div>
+          </div>
+          <div class="p-4">
+            <p class="text-[15px] font-bold mb-1">3-bed house, Fourways</p>
+            <p class="text-[12px] text-ink-500 mb-3">Cedar Rd, Johannesburg</p>
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-xl font-bold">R 2,450,000</span>
+              <span class="text-[11px] text-ink-500 font-mono">28 days</span>
+            </div>
+            <div class="flex items-center justify-between pt-3 border-t border-ink-100 text-[11px] text-ink-500">
+              <span>👁 3,012</span>
+              <span>📩 52</span>
+              <span>📅 14</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-xl border border-ink-200 overflow-hidden shadow-soft hover:shadow-lift transition cursor-pointer">
+          <div class="aspect-[4/3] bg-gradient-to-br from-rose-300 via-rose-200 to-pink-300 relative">
+            <div class="absolute top-3 left-3 flex gap-1.5">
+              <span class="text-[10px] bg-white/90 backdrop-blur px-2 py-1 rounded-md font-bold">SHORT-STAY</span>
+              <span class="text-[10px] bg-warning text-white px-2 py-1 rounded-md font-bold">DRAFT</span>
+            </div>
+          </div>
+          <div class="p-4">
+            <p class="text-[15px] font-bold mb-1">Loft, Maboneng</p>
+            <p class="text-[12px] text-ink-500 mb-3">Fox St, Johannesburg</p>
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-xl font-bold">R 1,200<span class="text-[12px] text-ink-400 font-normal">/night</span></span>
+              <span class="text-[11px] text-ink-500 font-mono">5 days</span>
+            </div>
+            <div class="flex items-center justify-between pt-3 border-t border-ink-100 text-[11px] text-ink-500">
+              <span>👁 892</span>
+              <span>📩 18</span>
+              <span>📅 3</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====== VIEW: VIEWINGS ====== -->
+    <section id="view-viewings" class="view px-8 py-7">
+      <div class="flex items-center justify-between mb-6">
+        <div>
+          <h1 class="text-2xl font-bold tracking-tight">Viewings Calendar</h1>
+          <p class="text-[14px] text-ink-500 mt-1">May 2026 · 12 viewings scheduled this week</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <div class="flex items-center bg-white border border-ink-200 rounded-lg p-1">
+            <button class="text-[12px] px-3 py-1.5 rounded-md hover:bg-ink-50 text-ink-500">Day</button>
+            <button class="text-[12px] px-3 py-1.5 rounded-md bg-ink-100 font-semibold">Week</button>
+            <button class="text-[12px] px-3 py-1.5 rounded-md hover:bg-ink-50 text-ink-500">Month</button>
+          </div>
+          <button class="px-3.5 py-2 text-[13px] bg-ink-900 text-white rounded-lg flex items-center gap-2">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+            Schedule
+          </button>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-xl border border-ink-200 shadow-soft overflow-hidden">
+        <!-- Week header -->
+        <div class="grid grid-cols-7 border-b border-ink-200">
+          <div class="p-3 text-center border-r border-ink-200">
+            <p class="text-[10px] text-ink-500 uppercase tracking-wider">Mon</p>
+            <p class="text-lg font-bold mt-0.5 text-brand-600">18</p>
+          </div>
+          <div class="p-3 text-center border-r border-ink-200">
+            <p class="text-[10px] text-ink-500 uppercase tracking-wider">Tue</p>
+            <p class="text-lg font-bold mt-0.5">19</p>
+          </div>
+          <div class="p-3 text-center border-r border-ink-200">
+            <p class="text-[10px] text-ink-500 uppercase tracking-wider">Wed</p>
+            <p class="text-lg font-bold mt-0.5">20</p>
+          </div>
+          <div class="p-3 text-center border-r border-ink-200">
+            <p class="text-[10px] text-ink-500 uppercase tracking-wider">Thu</p>
+            <p class="text-lg font-bold mt-0.5">21</p>
+          </div>
+          <div class="p-3 text-center border-r border-ink-200">
+            <p class="text-[10px] text-ink-500 uppercase tracking-wider">Fri</p>
+            <p class="text-lg font-bold mt-0.5">22</p>
+          </div>
+          <div class="p-3 text-center border-r border-ink-200">
+            <p class="text-[10px] text-ink-500 uppercase tracking-wider">Sat</p>
+            <p class="text-lg font-bold mt-0.5">23</p>
+          </div>
+          <div class="p-3 text-center">
+            <p class="text-[10px] text-ink-500 uppercase tracking-wider">Sun</p>
+            <p class="text-lg font-bold mt-0.5">24</p>
+          </div>
+        </div>
+
+        <!-- Cells -->
+        <div class="grid grid-cols-7">
+          <!-- Monday -->
+          <div class="cal-cell border-r border-b border-ink-100 p-2 space-y-1">
+            <div class="bg-brand-500 text-white rounded-md p-1.5 text-[10px]">
+              <p class="font-bold">10:00</p>
+              <p class="opacity-90 truncate">Thandi M.</p>
+            </div>
+            <div class="bg-brand-500 text-white rounded-md p-1.5 text-[10px]">
+              <p class="font-bold">13:30</p>
+              <p class="opacity-90 truncate">Lease sign</p>
+            </div>
+            <div class="bg-warning text-white rounded-md p-1.5 text-[10px]">
+              <p class="font-bold">16:00</p>
+              <p class="opacity-90 truncate">Sipho N.</p>
+            </div>
+          </div>
+          <!-- Tuesday -->
+          <div class="cal-cell border-r border-b border-ink-100 p-2 space-y-1">
+            <div class="bg-brand-500 text-white rounded-md p-1.5 text-[10px]">
+              <p class="font-bold">11:00</p>
+              <p class="opacity-90 truncate">Jessica A.</p>
+            </div>
+          </div>
+          <!-- Wed -->
+          <div class="cal-cell border-r border-b border-ink-100 p-2 space-y-1">
+            <div class="bg-brand-500 text-white rounded-md p-1.5 text-[10px]">
+              <p class="font-bold">09:30</p>
+              <p class="opacity-90 truncate">Naledi vW.</p>
+            </div>
+            <div class="bg-brand-500 text-white rounded-md p-1.5 text-[10px]">
+              <p class="font-bold">14:00</p>
+              <p class="opacity-90 truncate">Tebogo M.</p>
+            </div>
+          </div>
+          <!-- Thu -->
+          <div class="cal-cell border-r border-b border-ink-100 p-2">
+            <div class="bg-brand-500 text-white rounded-md p-1.5 text-[10px]">
+              <p class="font-bold">15:00</p>
+              <p class="opacity-90 truncate">Karabo M.</p>
+            </div>
+          </div>
+          <!-- Fri -->
+          <div class="cal-cell border-r border-b border-ink-100 p-2 space-y-1">
+            <div class="bg-brand-500 text-white rounded-md p-1.5 text-[10px]">
+              <p class="font-bold">10:00</p>
+              <p class="opacity-90 truncate">Group view</p>
+            </div>
+            <div class="bg-brand-500 text-white rounded-md p-1.5 text-[10px]">
+              <p class="font-bold">12:00</p>
+              <p class="opacity-90 truncate">Riaan P.</p>
+            </div>
+          </div>
+          <!-- Sat -->
+          <div class="cal-cell border-r border-b border-ink-100 p-2 space-y-1">
+            <div class="bg-success text-white rounded-md p-1.5 text-[10px]">
+              <p class="font-bold">11:00</p>
+              <p class="opacity-90 truncate">Show day · Sandton</p>
+            </div>
+          </div>
+          <!-- Sun -->
+          <div class="cal-cell border-b border-ink-100 p-2 dot-grid">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====== VIEW: INSPECTIONS ====== -->
+    <section id="view-inspections" class="view px-8 py-7">
+      <div class="flex items-end justify-between mb-6">
+        <div>
+          <h1 class="text-2xl font-bold tracking-tight">Inspections</h1>
+          <p class="text-[14px] text-ink-500 mt-1">Document property condition at move-in and move-out. Reports auto-emailed to tenant & landlord.</p>
+        </div>
+        <button class="px-3.5 py-2 text-[13px] bg-ink-900 text-white rounded-lg flex items-center gap-2">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+          New Inspection
+        </button>
+      </div>
+
+      <!-- Sub-tab toggle -->
+      <div class="flex items-center gap-1 mb-6 bg-white border border-ink-200 rounded-lg p-1 w-fit">
+        <button class="insp-tab insp-active text-[13px] px-4 py-2 rounded-md bg-ink-900 text-white font-semibold flex items-center gap-2" data-insp="movein">
+          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/></svg>
+          Move-in Inspections
+          <span class="text-[10px] bg-white/20 px-1.5 py-0.5 rounded-full font-bold">5</span>
+        </button>
+        <button class="insp-tab text-[13px] px-4 py-2 rounded-md text-ink-500 hover:bg-ink-100 font-semibold flex items-center gap-2" data-insp="moveout">
+          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+          Move-out Inspections
+          <span class="text-[10px] bg-ink-100 px-1.5 py-0.5 rounded-full font-bold text-ink-700">3</span>
+        </button>
+      </div>
+
+      <!-- ============ MOVE-IN TAB ============ -->
+      <div id="insp-movein" class="insp-pane">
+
+        <!-- Action banner -->
+        <div class="bg-gradient-to-r from-brand-50 to-violet-50 border border-brand-100 rounded-xl p-4 mb-6 flex items-center gap-4">
+          <div class="w-10 h-10 rounded-lg bg-brand-500 flex items-center justify-center text-white shrink-0">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+          </div>
+          <div class="flex-1">
+            <p class="text-[13px] font-semibold">1 inspection due this week</p>
+            <p class="text-[12px] text-ink-500">Property Basket Tenant · Andeon apt · lease starts 25 May 2026</p>
+          </div>
+          <button class="px-3 py-1.5 text-[12px] bg-ink-900 text-white rounded-md font-semibold">Start inspection</button>
+        </div>
+
+        <!-- Inspection cards -->
+        <div class="grid grid-cols-3 gap-4 mb-6">
+          <!-- ACTIVE / IN PROGRESS -->
+          <div class="bg-white rounded-xl border-2 border-brand-500 overflow-hidden shadow-card cursor-pointer hover:shadow-lift transition" onclick="document.getElementById('insp-active-view').scrollIntoView({behavior:'smooth'})">
+            <div class="aspect-[4/3] bg-gradient-to-br from-amber-300 via-amber-200 to-orange-300 relative">
+              <div class="absolute top-3 left-3">
+                <span class="text-[10px] bg-brand-500 text-white px-2 py-1 rounded-md font-bold">IN PROGRESS</span>
+              </div>
+              <div class="absolute bottom-3 left-3 right-3 bg-white/95 backdrop-blur rounded-md p-2">
+                <p class="text-[12px] font-semibold">8 of 12 rooms · 67%</p>
+                <div class="h-1.5 bg-ink-100 rounded-full mt-1.5 overflow-hidden">
+                  <div class="h-full bg-brand-500" style="width: 67%"></div>
+                </div>
+              </div>
+            </div>
+            <div class="p-4">
+              <p class="text-[14px] font-bold">2-bed apt, Andeon</p>
+              <p class="text-[11px] text-ink-500 mb-3">Property Basket Tenant · MOVE-IN</p>
+              <div class="flex items-center justify-between text-[11px] text-ink-500 pt-3 border-t border-ink-100">
+                <span>📅 Started today</span>
+                <span class="text-brand-600 font-semibold">Continue →</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- COMPLETED -->
+          <div class="bg-white rounded-xl border border-ink-200 overflow-hidden shadow-soft cursor-pointer hover:shadow-lift transition">
+            <div class="aspect-[4/3] bg-gradient-to-br from-sky-300 via-sky-200 to-cyan-300 relative">
+              <div class="absolute top-3 left-3 flex gap-1.5">
+                <span class="text-[10px] bg-success text-white px-2 py-1 rounded-md font-bold">COMPLETED</span>
+                <span class="text-[10px] bg-white/90 backdrop-blur px-2 py-1 rounded-md font-bold">✍ SIGNED</span>
+              </div>
+              <div class="absolute bottom-3 right-3 bg-white/95 backdrop-blur rounded-md px-2 py-1">
+                <p class="text-[10px] font-bold">📸 47 photos</p>
+              </div>
+            </div>
+            <div class="p-4">
+              <p class="text-[14px] font-bold">Sandton penthouse</p>
+              <p class="text-[11px] text-ink-500 mb-3">Jessica Adams · MOVE-IN</p>
+              <div class="flex items-center justify-between text-[11px] text-ink-500 pt-3 border-t border-ink-100">
+                <span>📅 12 Apr 2026</span>
+                <span>📄 PDF emailed</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- COMPLETED -->
+          <div class="bg-white rounded-xl border border-ink-200 overflow-hidden shadow-soft cursor-pointer hover:shadow-lift transition">
+            <div class="aspect-[4/3] bg-gradient-to-br from-emerald-300 via-emerald-200 to-teal-300 relative">
+              <div class="absolute top-3 left-3 flex gap-1.5">
+                <span class="text-[10px] bg-success text-white px-2 py-1 rounded-md font-bold">COMPLETED</span>
+                <span class="text-[10px] bg-white/90 backdrop-blur px-2 py-1 rounded-md font-bold">✍ SIGNED</span>
+              </div>
+              <div class="absolute bottom-3 right-3 bg-white/95 backdrop-blur rounded-md px-2 py-1">
+                <p class="text-[10px] font-bold">📸 38 photos</p>
+              </div>
+            </div>
+            <div class="p-4">
+              <p class="text-[14px] font-bold">Rosebank 2-bed</p>
+              <p class="text-[11px] text-ink-500 mb-3">Tebogo Maseko · MOVE-IN</p>
+              <div class="flex items-center justify-between text-[11px] text-ink-500 pt-3 border-t border-ink-100">
+                <span>📅 28 Mar 2026</span>
+                <span>📄 PDF emailed</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- AWAITING SIGNATURE -->
+          <div class="bg-white rounded-xl border border-warning/40 overflow-hidden shadow-soft cursor-pointer hover:shadow-lift transition">
+            <div class="aspect-[4/3] bg-gradient-to-br from-rose-300 via-rose-200 to-pink-300 relative">
+              <div class="absolute top-3 left-3">
+                <span class="text-[10px] bg-warning text-white px-2 py-1 rounded-md font-bold">AWAITING SIGNATURE</span>
+              </div>
+              <div class="absolute bottom-3 right-3 bg-white/95 backdrop-blur rounded-md px-2 py-1">
+                <p class="text-[10px] font-bold">📸 41 photos</p>
+              </div>
+            </div>
+            <div class="p-4">
+              <p class="text-[14px] font-bold">Hatfield studio</p>
+              <p class="text-[11px] text-ink-500 mb-3">Lerato Sithole · MOVE-IN</p>
+              <div class="flex items-center justify-between text-[11px] text-ink-500 pt-3 border-t border-ink-100">
+                <span>📅 15 May 2026</span>
+                <span class="text-warning font-semibold">Send reminder →</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- COMPLETED -->
+          <div class="bg-white rounded-xl border border-ink-200 overflow-hidden shadow-soft cursor-pointer hover:shadow-lift transition">
+            <div class="aspect-[4/3] bg-gradient-to-br from-violet-300 via-violet-200 to-purple-300 relative">
+              <div class="absolute top-3 left-3 flex gap-1.5">
+                <span class="text-[10px] bg-success text-white px-2 py-1 rounded-md font-bold">COMPLETED</span>
+                <span class="text-[10px] bg-white/90 backdrop-blur px-2 py-1 rounded-md font-bold">✍ SIGNED</span>
+              </div>
+              <div class="absolute bottom-3 right-3 bg-white/95 backdrop-blur rounded-md px-2 py-1">
+                <p class="text-[10px] font-bold">📸 32 photos</p>
+              </div>
+            </div>
+            <div class="p-4">
+              <p class="text-[14px] font-bold">Fourways townhouse</p>
+              <p class="text-[11px] text-ink-500 mb-3">Sipho Ndlovu · MOVE-IN</p>
+              <div class="flex items-center justify-between text-[11px] text-ink-500 pt-3 border-t border-ink-100">
+                <span>📅 02 Feb 2026</span>
+                <span>📄 PDF emailed</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== Active inspection room-by-room view ===== -->
+        <div id="insp-active-view" class="bg-white rounded-xl border border-ink-200 shadow-soft overflow-hidden">
+          <!-- Inspection header -->
+          <div class="p-5 border-b border-ink-200 flex items-center justify-between">
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="text-[10px] bg-brand-500 text-white px-2 py-0.5 rounded-md font-bold">IN PROGRESS</span>
+                <p class="text-base font-bold">Move-in Inspection · 2-bed apt, Andeon</p>
+              </div>
+              <p class="text-[12px] text-ink-500 mt-1">Property Basket Tenant · Lease starts 25 May 2026 · Agent: Malwandla Khosa</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <button class="px-3 py-1.5 text-[12px] border border-ink-200 rounded-md hover:bg-ink-100">Save draft</button>
+              <button class="px-3 py-1.5 text-[12px] bg-success text-white rounded-md font-semibold">Complete & sign →</button>
+            </div>
+          </div>
+
+          <!-- Progress strip -->
+          <div class="px-5 py-3 bg-ink-50 border-b border-ink-200 flex items-center gap-4">
+            <div class="flex-1">
+              <div class="flex items-center justify-between mb-1.5">
+                <span class="text-[11px] text-ink-500 font-semibold uppercase tracking-wider">Inspection progress</span>
+                <span class="text-[12px] font-mono font-semibold">8 of 12 rooms · 67%</span>
+              </div>
+              <div class="h-2 bg-ink-200 rounded-full overflow-hidden">
+                <div class="h-full bg-brand-500" style="width: 67%"></div>
+              </div>
+            </div>
+            <div class="text-right">
+              <p class="text-[11px] text-ink-500">Total photos</p>
+              <p class="text-base font-bold font-mono">32</p>
+            </div>
+          </div>
+
+          <!-- Room sidebar + content -->
+          <div class="flex">
+            <!-- Room list -->
+            <div class="w-56 border-r border-ink-200 p-3 bg-ink-50/50">
+              <div class="flex items-center justify-between mb-3 px-1">
+                <p class="text-[11px] uppercase tracking-wider text-ink-500 font-semibold">Rooms</p>
+                <button class="text-brand-600" data-tip="Add room">
+                  <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+                </button>
+              </div>
+              <div class="space-y-1">
+                <button class="w-full text-left px-3 py-2 rounded-md hover:bg-white text-[12px] flex items-center gap-2">
+                  <svg class="w-3.5 h-3.5 text-success" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/></svg>
+                  Entrance / Hallway
+                  <span class="ml-auto text-[10px] text-ink-400">4</span>
+                </button>
+                <button class="w-full text-left px-3 py-2 rounded-md bg-brand-500 text-white text-[12px] flex items-center gap-2 font-semibold">
+                  <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/></svg>
+                  Living Room
+                  <span class="ml-auto text-[10px] bg-white/20 px-1 rounded">5</span>
+                </button>
+                <button class="w-full text-left px-3 py-2 rounded-md hover:bg-white text-[12px] flex items-center gap-2">
+                  <svg class="w-3.5 h-3.5 text-success" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/></svg>
+                  Kitchen
+                  <span class="ml-auto text-[10px] text-ink-400">6</span>
+                </button>
+                <button class="w-full text-left px-3 py-2 rounded-md hover:bg-white text-[12px] flex items-center gap-2">
+                  <svg class="w-3.5 h-3.5 text-success" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/></svg>
+                  Bedroom 1 (Main)
+                  <span class="ml-auto text-[10px] text-ink-400">5</span>
+                </button>
+                <button class="w-full text-left px-3 py-2 rounded-md hover:bg-white text-[12px] flex items-center gap-2">
+                  <svg class="w-3.5 h-3.5 text-success" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/></svg>
+                  Bedroom 2
+                  <span class="ml-auto text-[10px] text-ink-400">4</span>
+                </button>
+                <button class="w-full text-left px-3 py-2 rounded-md hover:bg-white text-[12px] flex items-center gap-2">
+                  <svg class="w-3.5 h-3.5 text-success" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/></svg>
+                  Main Bathroom
+                  <span class="ml-auto text-[10px] text-ink-400">3</span>
+                </button>
+                <button class="w-full text-left px-3 py-2 rounded-md hover:bg-white text-[12px] flex items-center gap-2">
+                  <svg class="w-3.5 h-3.5 text-success" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/></svg>
+                  Guest Bathroom
+                  <span class="ml-auto text-[10px] text-ink-400">2</span>
+                </button>
+                <button class="w-full text-left px-3 py-2 rounded-md hover:bg-white text-[12px] flex items-center gap-2">
+                  <svg class="w-3.5 h-3.5 text-success" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/></svg>
+                  Balcony
+                  <span class="ml-auto text-[10px] text-ink-400">3</span>
+                </button>
+                <button class="w-full text-left px-3 py-2 rounded-md hover:bg-white text-[12px] flex items-center gap-2 text-ink-400">
+                  <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>
+                  Parking Bay
+                </button>
+                <button class="w-full text-left px-3 py-2 rounded-md hover:bg-white text-[12px] flex items-center gap-2 text-ink-400">
+                  <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>
+                  Storeroom
+                </button>
+                <button class="w-full text-left px-3 py-2 rounded-md hover:bg-white text-[12px] flex items-center gap-2 text-ink-400">
+                  <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>
+                  Garden / Exterior
+                </button>
+                <button class="w-full text-left px-3 py-2 rounded-md hover:bg-white text-[12px] flex items-center gap-2 text-ink-400">
+                  <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>
+                  Meters & Utilities
+                </button>
+              </div>
+
+              <div class="mt-4 pt-4 border-t border-ink-200">
+                <p class="text-[11px] uppercase tracking-wider text-ink-500 font-semibold mb-2 px-1">Attendees</p>
+                <div class="flex items-center gap-2 px-1">
+                  <div class="w-7 h-7 rounded-full bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center text-white text-[9px] font-bold">MK</div>
+                  <div class="w-7 h-7 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white text-[9px] font-bold">PT</div>
+                  <button class="w-7 h-7 rounded-full border border-dashed border-ink-300 flex items-center justify-center text-ink-400 hover:text-ink-700">
+                    <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Room content: Living Room -->
+            <div class="flex-1 p-6">
+              <div class="flex items-end justify-between mb-4">
+                <div>
+                  <h3 class="text-lg font-bold">Living Room</h3>
+                  <p class="text-[12px] text-ink-500 mt-0.5">5 photos · Captured 09:42 – 09:58</p>
+                </div>
+                <div class="flex items-center gap-2">
+                  <button class="px-3 py-2 text-[12px] border border-ink-200 rounded-md hover:bg-ink-100 flex items-center gap-2">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+                    Upload photos
+                  </button>
+                  <button class="px-3 py-2 text-[12px] bg-brand-500 text-white rounded-md flex items-center gap-2 font-semibold">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                    Take photo
+                  </button>
+                </div>
+              </div>
+
+              <!-- Photo grid -->
+              <div class="grid grid-cols-4 gap-3 mb-5">
+                <div class="aspect-square rounded-lg bg-gradient-to-br from-amber-100 to-amber-200 relative group cursor-pointer overflow-hidden">
+                  <div class="absolute inset-0 bg-gradient-to-br from-amber-300/40 to-orange-300/40"></div>
+                  <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2">
+                    <p class="text-[10px] text-white font-semibold">Wall (south)</p>
+                  </div>
+                  <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition flex gap-1">
+                    <button class="w-6 h-6 rounded-full bg-white/90 flex items-center justify-center" data-tip="View">
+                      <svg class="w-3 h-3 text-ink-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/></svg>
+                    </button>
+                    <button class="w-6 h-6 rounded-full bg-white/90 flex items-center justify-center" data-tip="Delete">
+                      <svg class="w-3 h-3 text-danger" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                    </button>
+                  </div>
+                </div>
+                <div class="aspect-square rounded-lg bg-gradient-to-br from-slate-100 to-slate-300 relative group cursor-pointer overflow-hidden">
+                  <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2">
+                    <p class="text-[10px] text-white font-semibold">Floor / Tiles</p>
+                  </div>
+                </div>
+                <div class="aspect-square rounded-lg bg-gradient-to-br from-sky-100 to-sky-200 relative group cursor-pointer overflow-hidden">
+                  <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2">
+                    <p class="text-[10px] text-white font-semibold">Window / Sliding door</p>
+                  </div>
+                </div>
+                <div class="aspect-square rounded-lg bg-gradient-to-br from-stone-100 to-stone-300 relative group cursor-pointer overflow-hidden">
+                  <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2">
+                    <p class="text-[10px] text-white font-semibold">Ceiling / Light fittings</p>
+                  </div>
+                </div>
+                <div class="aspect-square rounded-lg bg-gradient-to-br from-rose-100 to-rose-200 relative group cursor-pointer overflow-hidden border-2 border-warning">
+                  <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2">
+                    <p class="text-[10px] text-white font-semibold">⚠ Small scuff (skirting)</p>
+                  </div>
+                </div>
+                <button class="aspect-square rounded-lg border-2 border-dashed border-ink-300 flex flex-col items-center justify-center text-ink-400 hover:border-brand-500 hover:text-brand-600 transition">
+                  <svg class="w-6 h-6 mb-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                  <span class="text-[10px] font-semibold">Add photo</span>
+                </button>
+              </div>
+
+              <!-- Notes -->
+              <div class="bg-ink-50 rounded-lg p-4">
+                <div class="flex items-center justify-between mb-2">
+                  <label class="text-[12px] font-semibold text-ink-700">Room notes</label>
+                  <span class="text-[10px] text-ink-400">Auto-saved · 09:58</span>
+                </div>
+                <textarea class="w-full bg-white border border-ink-200 rounded-md p-3 text-[13px] focus:outline-none focus:ring-2 focus:ring-brand/20" rows="3" placeholder="Add notes about this room...">Living room overall in good condition. Walls freshly painted. One small scuff mark noted on the skirting board near the south wall (photo 5) — agreed with tenant this is pre-existing and not a deductible item. All sliding door tracks functional, no cracks on tiles.</textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- Signature panel -->
+          <div class="border-t border-ink-200 bg-ink-50/40 p-5">
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <p class="text-[13px] font-semibold">Final step · Signatures</p>
+                <p class="text-[11px] text-ink-500">Available once all 12 rooms are completed. Both signatures required.</p>
+              </div>
+              <span class="text-[10px] px-2 py-1 rounded-full bg-warning/15 text-warning font-bold">4 ROOMS REMAINING</span>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <div class="bg-white border border-ink-200 rounded-lg p-4 opacity-60">
+                <div class="flex items-center gap-2 mb-3">
+                  <div class="w-7 h-7 rounded-full bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center text-white text-[10px] font-bold">MK</div>
+                  <div>
+                    <p class="text-[12px] font-semibold">Malwandla Khosa</p>
+                    <p class="text-[10px] text-ink-500">Agent · FFC: 2025/8847</p>
+                  </div>
+                </div>
+                <div class="aspect-[3/1] border-2 border-dashed border-ink-300 rounded-md flex items-center justify-center text-[11px] text-ink-400">
+                  Sign here on device
+                </div>
+              </div>
+              <div class="bg-white border border-ink-200 rounded-lg p-4 opacity-60">
+                <div class="flex items-center gap-2 mb-3">
+                  <div class="w-7 h-7 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white text-[10px] font-bold">PT</div>
+                  <div>
+                    <p class="text-[12px] font-semibold">Property Basket Tenant</p>
+                    <p class="text-[10px] text-ink-500">Tenant · ID verified ✓</p>
+                  </div>
+                </div>
+                <div class="aspect-[3/1] border-2 border-dashed border-ink-300 rounded-md flex items-center justify-center text-[11px] text-ink-400">
+                  Pass to tenant
+                </div>
+              </div>
+            </div>
+            <div class="mt-4 flex items-center gap-2 text-[11px] text-ink-500">
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              On completion, a PDF is auto-generated and emailed to <span class="font-semibold">Property Basket Tenant</span>, <span class="font-semibold">Landlord</span>, and stored on the lease record. POPIA-compliant retention: 5 years.
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ============ MOVE-OUT TAB ============ -->
+      <div id="insp-moveout" class="insp-pane hidden">
+
+        <!-- Action banner -->
+        <div class="bg-gradient-to-r from-warning/10 to-amber-50 border border-warning/30 rounded-xl p-4 mb-6 flex items-center gap-4">
+          <div class="w-10 h-10 rounded-lg bg-warning flex items-center justify-center text-white shrink-0">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+          </div>
+          <div class="flex-1">
+            <p class="text-[13px] font-semibold">2 leases expiring in the next 14 days</p>
+            <p class="text-[12px] text-ink-500">Schedule move-out inspections to release deposits within legal 14-day window (CPA / Rental Housing Act)</p>
+          </div>
+          <button class="px-3 py-1.5 text-[12px] bg-ink-900 text-white rounded-md font-semibold">Schedule</button>
+        </div>
+
+        <!-- Move-out cards -->
+        <div class="grid grid-cols-3 gap-4 mb-6">
+
+          <!-- DEPOSIT DEDUCTION FLAGGED -->
+          <div class="bg-white rounded-xl border-2 border-danger/40 overflow-hidden shadow-card cursor-pointer hover:shadow-lift transition" onclick="document.getElementById('moveout-compare').scrollIntoView({behavior:'smooth'})">
+            <div class="aspect-[4/3] bg-gradient-to-br from-sky-300 via-sky-200 to-cyan-300 relative">
+              <div class="absolute top-3 left-3 flex gap-1.5">
+                <span class="text-[10px] bg-danger text-white px-2 py-1 rounded-md font-bold">DEDUCTIONS FLAGGED</span>
+              </div>
+              <div class="absolute bottom-3 left-3 right-3 bg-white/95 backdrop-blur rounded-md p-2">
+                <div class="flex items-center justify-between">
+                  <span class="text-[11px] font-semibold">Deposit held</span>
+                  <span class="text-[12px] font-mono font-bold">R 24,000</span>
+                </div>
+                <div class="flex items-center justify-between mt-0.5">
+                  <span class="text-[11px] text-danger font-semibold">Damage est.</span>
+                  <span class="text-[12px] font-mono font-bold text-danger">- R 3,400</span>
+                </div>
+              </div>
+            </div>
+            <div class="p-4">
+              <p class="text-[14px] font-bold">Sandton penthouse</p>
+              <p class="text-[11px] text-ink-500 mb-3">Jessica Adams · MOVE-OUT</p>
+              <div class="flex items-center justify-between text-[11px] text-ink-500 pt-3 border-t border-ink-100">
+                <span>📅 14 May 2026</span>
+                <span class="text-danger font-semibold">Review →</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- DEPOSIT REFUNDED -->
+          <div class="bg-white rounded-xl border border-ink-200 overflow-hidden shadow-soft cursor-pointer hover:shadow-lift transition">
+            <div class="aspect-[4/3] bg-gradient-to-br from-emerald-300 via-emerald-200 to-teal-300 relative">
+              <div class="absolute top-3 left-3 flex gap-1.5">
+                <span class="text-[10px] bg-success text-white px-2 py-1 rounded-md font-bold">DEPOSIT REFUNDED</span>
+                <span class="text-[10px] bg-white/90 backdrop-blur px-2 py-1 rounded-md font-bold">✍ SIGNED</span>
+              </div>
+              <div class="absolute bottom-3 left-3 right-3 bg-white/95 backdrop-blur rounded-md p-2">
+                <div class="flex items-center justify-between">
+                  <span class="text-[11px] font-semibold">Full deposit refunded</span>
+                  <span class="text-[12px] font-mono font-bold text-success">R 18,000</span>
+                </div>
+              </div>
+            </div>
+            <div class="p-4">
+              <p class="text-[14px] font-bold">Rosebank 2-bed</p>
+              <p class="text-[11px] text-ink-500 mb-3">Karabo Modise · MOVE-OUT</p>
+              <div class="flex items-center justify-between text-[11px] text-ink-500 pt-3 border-t border-ink-100">
+                <span>📅 28 Feb 2026</span>
+                <span>📄 PDF emailed</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- SCHEDULED -->
+          <div class="bg-white rounded-xl border border-brand-200 overflow-hidden shadow-soft cursor-pointer hover:shadow-lift transition">
+            <div class="aspect-[4/3] bg-gradient-to-br from-violet-300 via-violet-200 to-purple-300 relative">
+              <div class="absolute top-3 left-3">
+                <span class="text-[10px] bg-brand-500 text-white px-2 py-1 rounded-md font-bold">SCHEDULED</span>
+              </div>
+              <div class="absolute bottom-3 left-3 right-3 bg-white/95 backdrop-blur rounded-md p-2">
+                <p class="text-[11px] font-semibold">📅 Thursday 21 May · 10:00</p>
+                <p class="text-[10px] text-ink-500 mt-0.5">Lease ends 22 May</p>
+              </div>
+            </div>
+            <div class="p-4">
+              <p class="text-[14px] font-bold">Hatfield studio</p>
+              <p class="text-[11px] text-ink-500 mb-3">Lerato Sithole · MOVE-OUT</p>
+              <div class="flex items-center justify-between text-[11px] text-ink-500 pt-3 border-t border-ink-100">
+                <span>🔔 Reminder set</span>
+                <span class="text-brand-600 font-semibold">View →</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== Side-by-side comparison view ===== -->
+        <div id="moveout-compare" class="bg-white rounded-xl border border-ink-200 shadow-soft overflow-hidden">
+          <!-- Header -->
+          <div class="p-5 border-b border-ink-200 flex items-center justify-between">
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="text-[10px] bg-danger text-white px-2 py-0.5 rounded-md font-bold">DEDUCTIONS FLAGGED</span>
+                <p class="text-base font-bold">Move-out Comparison · Sandton penthouse</p>
+              </div>
+              <p class="text-[12px] text-ink-500 mt-1">Jessica Adams · Lease 14 Apr 2025 – 14 May 2026 · Deposit R 24,000 held in trust</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <button class="px-3 py-1.5 text-[12px] border border-ink-200 rounded-md hover:bg-ink-100">Generate PDF</button>
+              <button class="px-3 py-1.5 text-[12px] bg-ink-900 text-white rounded-md font-semibold">Issue deposit refund →</button>
+            </div>
+          </div>
+
+          <!-- Comparison summary -->
+          <div class="grid grid-cols-4 divide-x divide-ink-200 border-b border-ink-200 bg-ink-50/40">
+            <div class="p-4">
+              <p class="text-[10px] text-ink-500 uppercase tracking-wider font-semibold">Move-in date</p>
+              <p class="text-base font-bold mt-1">14 Apr 2025</p>
+              <p class="text-[11px] text-ink-500">38 photos · 11 rooms</p>
+            </div>
+            <div class="p-4">
+              <p class="text-[10px] text-ink-500 uppercase tracking-wider font-semibold">Move-out date</p>
+              <p class="text-base font-bold mt-1">14 May 2026</p>
+              <p class="text-[11px] text-ink-500">42 photos · 11 rooms</p>
+            </div>
+            <div class="p-4">
+              <p class="text-[10px] text-ink-500 uppercase tracking-wider font-semibold">Rooms with issues</p>
+              <p class="text-base font-bold mt-1 text-danger">3 of 11</p>
+              <p class="text-[11px] text-danger">Bedroom 1 · Kitchen · Balcony</p>
+            </div>
+            <div class="p-4 bg-warning/5">
+              <p class="text-[10px] text-warning uppercase tracking-wider font-semibold">Estimated deductions</p>
+              <p class="text-base font-bold mt-1 text-danger">R 3,400.00</p>
+              <p class="text-[11px] text-ink-500">From R 24,000 deposit</p>
+            </div>
+          </div>
+
+          <div class="flex">
+            <!-- Room list -->
+            <div class="w-56 border-r border-ink-200 p-3 bg-ink-50/50">
+              <p class="text-[11px] uppercase tracking-wider text-ink-500 font-semibold mb-3 px-1">Compare by room</p>
+              <div class="space-y-1">
+                <button class="w-full text-left px-3 py-2 rounded-md hover:bg-white text-[12px] flex items-center gap-2">
+                  <svg class="w-3.5 h-3.5 text-success" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 13l4 4L19 7"/></svg>
+                  Entrance
+                </button>
+                <button class="w-full text-left px-3 py-2 rounded-md hover:bg-white text-[12px] flex items-center gap-2">
+                  <svg class="w-3.5 h-3.5 text-success" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 13l4 4L19 7"/></svg>
+                  Living Room
+                </button>
+                <button class="w-full text-left px-3 py-2 rounded-md bg-danger text-white text-[12px] flex items-center gap-2 font-semibold">
+                  <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+                  Kitchen
+                  <span class="ml-auto text-[10px] bg-white/20 px-1 rounded font-bold">R 1.2k</span>
+                </button>
+                <button class="w-full text-left px-3 py-2 rounded-md hover:bg-white text-[12px] flex items-center gap-2 text-danger">
+                  <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+                  Bedroom 1
+                  <span class="ml-auto text-[10px] bg-danger/15 px-1 rounded font-bold">R 1.8k</span>
+                </button>
+                <button class="w-full text-left px-3 py-2 rounded-md hover:bg-white text-[12px] flex items-center gap-2">
+                  <svg class="w-3.5 h-3.5 text-success" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 13l4 4L19 7"/></svg>
+                  Bedroom 2
+                </button>
+                <button class="w-full text-left px-3 py-2 rounded-md hover:bg-white text-[12px] flex items-center gap-2">
+                  <svg class="w-3.5 h-3.5 text-success" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 13l4 4L19 7"/></svg>
+                  Main Bathroom
+                </button>
+                <button class="w-full text-left px-3 py-2 rounded-md hover:bg-white text-[12px] flex items-center gap-2 text-danger">
+                  <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+                  Balcony
+                  <span class="ml-auto text-[10px] bg-danger/15 px-1 rounded font-bold">R 400</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Comparison content -->
+            <div class="flex-1 p-6">
+              <div class="flex items-end justify-between mb-4">
+                <div>
+                  <div class="flex items-center gap-2">
+                    <h3 class="text-lg font-bold">Kitchen</h3>
+                    <span class="text-[10px] bg-danger/15 text-danger px-2 py-0.5 rounded-full font-bold">DAMAGE FLAGGED</span>
+                  </div>
+                  <p class="text-[12px] text-ink-500 mt-0.5">Estimated deduction: <span class="text-danger font-semibold">R 1,200.00</span></p>
+                </div>
+                <div class="flex items-center gap-2">
+                  <button class="px-3 py-1.5 text-[12px] border border-ink-200 rounded-md hover:bg-ink-100">Dispute</button>
+                  <button class="px-3 py-1.5 text-[12px] bg-danger text-white rounded-md font-semibold">Confirm deduction</button>
+                </div>
+              </div>
+
+              <!-- Side-by-side: Move-in vs Move-out -->
+              <div class="grid grid-cols-2 gap-4 mb-5">
+                <!-- Move-in column -->
+                <div>
+                  <div class="flex items-center gap-2 mb-2">
+                    <span class="text-[10px] bg-success/15 text-success px-2 py-0.5 rounded-full font-bold">MOVE-IN · 14 APR 2025</span>
+                  </div>
+                  <div class="grid grid-cols-3 gap-2">
+                    <div class="aspect-square rounded-lg bg-gradient-to-br from-stone-100 to-stone-300 relative">
+                      <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-1.5">
+                        <p class="text-[9px] text-white font-semibold">Cabinets</p>
+                      </div>
+                    </div>
+                    <div class="aspect-square rounded-lg bg-gradient-to-br from-slate-100 to-slate-200 relative">
+                      <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-1.5">
+                        <p class="text-[9px] text-white font-semibold">Counter top</p>
+                      </div>
+                    </div>
+                    <div class="aspect-square rounded-lg bg-gradient-to-br from-zinc-100 to-zinc-300 relative">
+                      <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-1.5">
+                        <p class="text-[9px] text-white font-semibold">Stove top</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="bg-success/5 border border-success/20 rounded-md p-3 mt-3">
+                    <p class="text-[11px] text-ink-700"><span class="font-semibold">Move-in notes:</span> Kitchen in excellent condition. Counter tops new. All cabinet doors aligned. Stove top spotless. No marks or chips.</p>
+                  </div>
+                </div>
+
+                <!-- Move-out column -->
+                <div>
+                  <div class="flex items-center gap-2 mb-2">
+                    <span class="text-[10px] bg-danger/15 text-danger px-2 py-0.5 rounded-full font-bold">MOVE-OUT · 14 MAY 2026</span>
+                  </div>
+                  <div class="grid grid-cols-3 gap-2">
+                    <div class="aspect-square rounded-lg bg-gradient-to-br from-stone-100 to-stone-300 relative border-2 border-danger">
+                      <div class="absolute top-1.5 right-1.5 w-5 h-5 rounded-full bg-danger flex items-center justify-center text-white text-[9px] font-bold">!</div>
+                      <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-danger/80 to-transparent p-1.5">
+                        <p class="text-[9px] text-white font-semibold">⚠ Burn mark</p>
+                      </div>
+                    </div>
+                    <div class="aspect-square rounded-lg bg-gradient-to-br from-slate-100 to-slate-200 relative">
+                      <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-1.5">
+                        <p class="text-[9px] text-white font-semibold">Counter top</p>
+                      </div>
+                    </div>
+                    <div class="aspect-square rounded-lg bg-gradient-to-br from-zinc-100 to-zinc-300 relative border-2 border-danger">
+                      <div class="absolute top-1.5 right-1.5 w-5 h-5 rounded-full bg-danger flex items-center justify-center text-white text-[9px] font-bold">!</div>
+                      <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-danger/80 to-transparent p-1.5">
+                        <p class="text-[9px] text-white font-semibold">⚠ Chipped enamel</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="bg-danger/5 border border-danger/20 rounded-md p-3 mt-3">
+                    <p class="text-[11px] text-ink-700"><span class="font-semibold">Move-out notes:</span> Burn mark visible on cabinet door near stove (photo 1). Stove top has chipped enamel — likely from heavy pot. Counter top clean and undamaged.</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Deduction breakdown -->
+              <div class="bg-ink-50 rounded-lg p-4">
+                <p class="text-[12px] font-semibold mb-3">Proposed deduction breakdown</p>
+                <div class="space-y-2 text-[13px]">
+                  <div class="flex items-center justify-between py-1.5 border-b border-ink-200">
+                    <span>Cabinet door refinishing (burn mark)</span>
+                    <span class="font-mono">R 800.00</span>
+                  </div>
+                  <div class="flex items-center justify-between py-1.5 border-b border-ink-200">
+                    <span>Stove top enamel touch-up</span>
+                    <span class="font-mono">R 400.00</span>
+                  </div>
+                  <div class="flex items-center justify-between py-2 font-bold">
+                    <span>Subtotal · Kitchen</span>
+                    <span class="font-mono text-danger">R 1,200.00</span>
+                  </div>
+                </div>
+                <p class="text-[11px] text-ink-500 mt-3 italic">Per Rental Housing Act §5(3)(c): Landlord must provide invoices/quotes for any deductions. Add quote on tenant review.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Trust account deduction routing -->
+          <div class="border-t border-ink-200 bg-ink-50/40 p-5">
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <p class="text-[13px] font-semibold">Deposit Refund · From Section 32 Trust Account</p>
+                <p class="text-[11px] text-ink-500">Auto-calculated. Final amount routed via Paystack to tenant after both signatures.</p>
+              </div>
+              <span class="text-[10px] px-2 py-1 rounded-full bg-warning/15 text-warning font-bold">PENDING TENANT REVIEW</span>
+            </div>
+            <div class="grid grid-cols-4 gap-3 mb-4">
+              <div class="bg-white border border-ink-200 rounded-lg p-3">
+                <p class="text-[10px] text-ink-500 uppercase tracking-wider font-semibold">Deposit Held</p>
+                <p class="text-lg font-bold font-mono mt-1">R 24,000.00</p>
+                <p class="text-[10px] text-ink-500">Trust ***4892</p>
+              </div>
+              <div class="bg-white border border-ink-200 rounded-lg p-3">
+                <p class="text-[10px] text-ink-500 uppercase tracking-wider font-semibold">Interest Earned</p>
+                <p class="text-lg font-bold font-mono mt-1 text-success">+ R 1,820.00</p>
+                <p class="text-[10px] text-ink-500">Per Rental Housing Act</p>
+              </div>
+              <div class="bg-white border border-danger/30 rounded-lg p-3 bg-danger/5">
+                <p class="text-[10px] text-danger uppercase tracking-wider font-semibold">Deductions</p>
+                <p class="text-lg font-bold font-mono mt-1 text-danger">- R 3,400.00</p>
+                <p class="text-[10px] text-ink-500">3 rooms · breakdown above</p>
+              </div>
+              <div class="bg-success/5 border border-success/30 rounded-lg p-3">
+                <p class="text-[10px] text-success uppercase tracking-wider font-semibold">Net Refund</p>
+                <p class="text-lg font-bold font-mono mt-1 text-success">R 22,420.00</p>
+                <p class="text-[10px] text-ink-500">→ Tenant bank account</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-2 text-[11px] text-ink-500">
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+              Legal deadline · Refund must be issued within 14 days of inspection (Rental Housing Act §5(3)(g)). <span class="text-warning font-semibold ml-1">12 days remaining</span>.
+            </div>
+          </div>
+
+          <!-- Signature panel for move-out -->
+          <div class="border-t border-ink-200 p-5">
+            <p class="text-[13px] font-semibold mb-1">Final step · Signatures</p>
+            <p class="text-[11px] text-ink-500 mb-4">Both signatures finalise the refund. A PDF copy is emailed to all parties.</p>
+            <div class="grid grid-cols-2 gap-4">
+              <div class="bg-white border border-ink-200 rounded-lg p-4">
+                <div class="flex items-center gap-2 mb-3">
+                  <div class="w-7 h-7 rounded-full bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center text-white text-[10px] font-bold">MK</div>
+                  <div>
+                    <p class="text-[12px] font-semibold">Malwandla Khosa</p>
+                    <p class="text-[10px] text-ink-500">Agent · FFC: 2025/8847</p>
+                  </div>
+                  <span class="ml-auto text-[10px] px-2 py-0.5 rounded-full bg-success/15 text-success font-bold">SIGNED</span>
+                </div>
+                <div class="aspect-[3/1] bg-ink-50 rounded-md flex items-center justify-center">
+                  <span class="text-[24px] font-bold italic text-ink-700" style="font-family: 'Brush Script MT', cursive;">Malwandla K.</span>
+                </div>
+                <p class="text-[10px] text-ink-400 mt-2">Signed 14 May 2026 · 11:42 SAST · IP 196.42.81.x</p>
+              </div>
+              <div class="bg-white border border-warning/40 rounded-lg p-4">
+                <div class="flex items-center gap-2 mb-3">
+                  <div class="w-7 h-7 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-white text-[10px] font-bold">JA</div>
+                  <div>
+                    <p class="text-[12px] font-semibold">Jessica Adams</p>
+                    <p class="text-[10px] text-ink-500">Tenant</p>
+                  </div>
+                  <span class="ml-auto text-[10px] px-2 py-0.5 rounded-full bg-warning/15 text-warning font-bold">AWAITING</span>
+                </div>
+                <div class="aspect-[3/1] border-2 border-dashed border-ink-300 rounded-md flex items-center justify-center text-[11px] text-ink-400">
+                  Tenant has 7 days to review & sign
+                </div>
+                <p class="text-[10px] text-ink-400 mt-2">Email sent · Awaiting signature on portal</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ====== VIEW: MESSAGES ====== -->
+    <section id="view-messages" class="view">
+      <div class="flex h-[calc(100vh-64px)]">
+        <!-- Threads list -->
+        <div class="w-80 border-r border-ink-200 bg-white overflow-y-auto">
+          <div class="p-4 border-b border-ink-200">
+            <h1 class="text-lg font-bold">Messages</h1>
+            <div class="relative mt-3">
+              <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-ink-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+              <input class="w-full bg-ink-50 border border-ink-200 rounded-md pl-9 pr-3 py-1.5 text-sm" placeholder="Search conversations">
+            </div>
+          </div>
+          <div>
+            <div class="flex items-start gap-3 p-4 border-b border-ink-100 bg-brand-50/40 border-l-2 border-l-brand-500 cursor-pointer">
+              <div class="w-10 h-10 rounded-full bg-gradient-to-br from-rose-400 to-rose-600 flex items-center justify-center text-white text-xs font-bold shrink-0">NV</div>
+              <div class="min-w-0 flex-1">
+                <div class="flex items-center justify-between">
+                  <p class="text-[13px] font-semibold truncate">Naledi van Wyk</p>
+                  <span class="text-[10px] text-ink-400">2m</span>
+                </div>
+                <p class="text-[11px] text-ink-500 truncate mt-0.5">Can we move tomorrow's viewing to 11am instead?</p>
+                <span class="text-[10px] inline-block mt-1.5 bg-danger text-white px-1.5 rounded-full font-bold">3 unread</span>
+              </div>
+            </div>
+            <div class="flex items-start gap-3 p-4 border-b border-ink-100 hover:bg-ink-50 cursor-pointer">
+              <div class="w-10 h-10 rounded-full bg-gradient-to-br from-sky-400 to-sky-600 flex items-center justify-center text-white text-xs font-bold shrink-0">RP</div>
+              <div class="min-w-0 flex-1">
+                <div class="flex items-center justify-between">
+                  <p class="text-[13px] font-semibold truncate">Riaan Pretorius</p>
+                  <span class="text-[10px] text-ink-400">1h</span>
+                </div>
+                <p class="text-[11px] text-ink-500 truncate mt-0.5">Sounds good. Will bring the FICA docs.</p>
+              </div>
+            </div>
+            <div class="flex items-start gap-3 p-4 border-b border-ink-100 hover:bg-ink-50 cursor-pointer">
+              <div class="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white text-xs font-bold shrink-0">PB</div>
+              <div class="min-w-0 flex-1">
+                <div class="flex items-center justify-between">
+                  <p class="text-[13px] font-semibold truncate">Property Basket Tenant</p>
+                  <span class="text-[10px] text-ink-400">3h</span>
+                </div>
+                <p class="text-[11px] text-ink-500 truncate mt-0.5">Thanks for the welcome pack!</p>
+              </div>
+            </div>
+            <div class="flex items-start gap-3 p-4 border-b border-ink-100 hover:bg-ink-50 cursor-pointer">
+              <div class="w-10 h-10 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-white text-xs font-bold shrink-0">JA</div>
+              <div class="min-w-0 flex-1">
+                <div class="flex items-center justify-between">
+                  <p class="text-[13px] font-semibold truncate">Jessica Adams</p>
+                  <span class="text-[10px] text-ink-400">Yesterday</span>
+                </div>
+                <p class="text-[11px] text-ink-500 truncate mt-0.5">Looking forward to Tuesday's viewing</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Active conversation -->
+        <div class="flex-1 flex flex-col bg-ink-50">
+          <div class="h-16 bg-white border-b border-ink-200 px-6 flex items-center gap-3">
+            <div class="w-9 h-9 rounded-full bg-gradient-to-br from-rose-400 to-rose-600 flex items-center justify-center text-white text-xs font-bold">NV</div>
+            <div class="flex-1">
+              <p class="text-[14px] font-semibold">Naledi van Wyk</p>
+              <p class="text-[11px] text-success">● Online now</p>
+            </div>
+            <button class="w-9 h-9 rounded-lg hover:bg-ink-100 flex items-center justify-center" data-tip="Call">
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            </button>
+            <button class="w-9 h-9 rounded-lg hover:bg-ink-100 flex items-center justify-center" data-tip="View profile">
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+
+          <div class="flex-1 overflow-y-auto p-6 space-y-4">
+            <div class="text-center text-[11px] text-ink-400">Yesterday · 14:32</div>
+            <div class="flex gap-2">
+              <div class="w-7 h-7 rounded-full bg-gradient-to-br from-rose-400 to-rose-600 shrink-0"></div>
+              <div class="max-w-md">
+                <div class="bg-white border border-ink-200 rounded-2xl rounded-tl-md p-3">
+                  <p class="text-[13px]">Hi Malwandla! I'm really interested in the Centurion 3-bed. Is it still available?</p>
+                </div>
+                <p class="text-[10px] text-ink-400 mt-1 ml-1">14:32</p>
+              </div>
+            </div>
+            <div class="flex gap-2 justify-end">
+              <div class="max-w-md">
+                <div class="bg-brand-500 text-white rounded-2xl rounded-tr-md p-3">
+                  <p class="text-[13px]">Hi Naledi! Yes, still available. Would you like to book a viewing this week?</p>
+                </div>
+                <p class="text-[10px] text-ink-400 mt-1 mr-1 text-right">14:35 · ✓✓</p>
+              </div>
+            </div>
+
+            <div class="text-center text-[11px] text-ink-400">Today · 10:14</div>
+            <div class="flex gap-2">
+              <div class="w-7 h-7 rounded-full bg-gradient-to-br from-rose-400 to-rose-600 shrink-0"></div>
+              <div class="max-w-md">
+                <div class="bg-white border border-ink-200 rounded-2xl rounded-tl-md p-3">
+                  <p class="text-[13px]">Can we move tomorrow's viewing to 11am instead? Something came up at work.</p>
+                </div>
+                <p class="text-[10px] text-ink-400 mt-1 ml-1">10:14</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-white border-t border-ink-200 p-4">
+            <div class="flex items-end gap-2 bg-ink-50 border border-ink-200 rounded-xl p-3">
+              <button class="text-ink-400 hover:text-ink-700">
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+              </button>
+              <input class="flex-1 bg-transparent border-0 focus:outline-none text-[14px]" placeholder="Type a message...">
+              <button class="px-3 py-1.5 bg-brand-500 text-white text-[12px] rounded-md font-medium">Send</button>
+            </div>
+            <p class="text-[10px] text-ink-400 mt-2">POPIA: Conversations are encrypted and retained per your agency's data policy.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====== VIEW: COMMISSION ====== -->
+    <section id="view-commission" class="view px-8 py-7">
+      <div class="flex items-end justify-between mb-6">
+        <div>
+          <h1 class="text-2xl font-bold tracking-tight">Commission Tracker</h1>
+          <p class="text-[14px] text-ink-500 mt-1">FY 2026 · YTD earnings R 287,400</p>
+        </div>
+        <button class="px-3.5 py-2 text-[13px] border border-ink-200 rounded-lg hover:bg-ink-100 flex items-center gap-2">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+          Export statement
+        </button>
+      </div>
+
+      <!-- Top stats -->
+      <div class="grid grid-cols-4 gap-4 mb-6">
+        <div class="bg-gradient-to-br from-brand-500 to-brand-700 rounded-xl p-5 text-white shadow-card">
+          <p class="text-[11px] uppercase tracking-wider opacity-80 font-semibold">YTD Earned</p>
+          <p class="text-3xl font-bold mt-2">R 287,400</p>
+          <p class="text-[11px] opacity-80 mt-1">+ R 42,800 this month</p>
+        </div>
+        <div class="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+          <p class="text-[11px] text-ink-500 uppercase tracking-wider font-semibold">Annual Target</p>
+          <p class="text-3xl font-bold mt-2">R 600,000</p>
+          <div class="mt-3 h-2 bg-ink-100 rounded-full overflow-hidden">
+            <div class="h-full bg-brand-500 rounded-full" style="width: 48%"></div>
+          </div>
+          <p class="text-[11px] text-ink-500 mt-1.5">48% of target</p>
+        </div>
+        <div class="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+          <p class="text-[11px] text-ink-500 uppercase tracking-wider font-semibold">Pipeline Value</p>
+          <p class="text-3xl font-bold mt-2">R 156,200</p>
+          <p class="text-[11px] text-warning mt-1">Estimated · 12 deals</p>
+        </div>
+        <div class="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+          <p class="text-[11px] text-ink-500 uppercase tracking-wider font-semibold">Pending Payout</p>
+          <p class="text-3xl font-bold mt-2">R 18,400</p>
+          <p class="text-[11px] text-success mt-1">Due 25 May 2026</p>
+        </div>
+      </div>
+
+      <!-- Chart + table -->
+      <div class="grid grid-cols-3 gap-4">
+        <div class="col-span-2 bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-base font-semibold">Monthly Commission</h2>
+            <div class="flex items-center gap-3 text-[11px]">
+              <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-sm bg-brand-500"></span>Earned</span>
+              <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-sm bg-ink-200"></span>Target</span>
+            </div>
+          </div>
+          <!-- Simple bar chart -->
+          <div class="flex items-end gap-3 h-48 px-2">
+            <div class="flex-1 flex flex-col items-center gap-1">
+              <div class="w-full flex items-end justify-center gap-1 h-44">
+                <div class="bg-brand-500 rounded-t w-5" style="height: 35%"></div>
+                <div class="bg-ink-200 rounded-t w-5" style="height: 60%"></div>
+              </div>
+              <span class="text-[10px] text-ink-500">Jan</span>
+            </div>
+            <div class="flex-1 flex flex-col items-center gap-1">
+              <div class="w-full flex items-end justify-center gap-1 h-44">
+                <div class="bg-brand-500 rounded-t w-5" style="height: 52%"></div>
+                <div class="bg-ink-200 rounded-t w-5" style="height: 60%"></div>
+              </div>
+              <span class="text-[10px] text-ink-500">Feb</span>
+            </div>
+            <div class="flex-1 flex flex-col items-center gap-1">
+              <div class="w-full flex items-end justify-center gap-1 h-44">
+                <div class="bg-brand-500 rounded-t w-5" style="height: 41%"></div>
+                <div class="bg-ink-200 rounded-t w-5" style="height: 60%"></div>
+              </div>
+              <span class="text-[10px] text-ink-500">Mar</span>
+            </div>
+            <div class="flex-1 flex flex-col items-center gap-1">
+              <div class="w-full flex items-end justify-center gap-1 h-44">
+                <div class="bg-brand-500 rounded-t w-5" style="height: 68%"></div>
+                <div class="bg-ink-200 rounded-t w-5" style="height: 60%"></div>
+              </div>
+              <span class="text-[10px] text-ink-500">Apr</span>
+            </div>
+            <div class="flex-1 flex flex-col items-center gap-1">
+              <div class="w-full flex items-end justify-center gap-1 h-44">
+                <div class="bg-brand-500 rounded-t w-5" style="height: 82%"></div>
+                <div class="bg-ink-200 rounded-t w-5" style="height: 60%"></div>
+              </div>
+              <span class="text-[10px] font-semibold text-brand-600">May</span>
+            </div>
+            <div class="flex-1 flex flex-col items-center gap-1 opacity-40">
+              <div class="w-full flex items-end justify-center gap-1 h-44">
+                <div class="bg-brand-500/40 rounded-t w-5" style="height: 0%"></div>
+                <div class="bg-ink-200 rounded-t w-5" style="height: 60%"></div>
+              </div>
+              <span class="text-[10px] text-ink-500">Jun</span>
+            </div>
+            <div class="flex-1 flex flex-col items-center gap-1 opacity-40">
+              <div class="w-full flex items-end justify-center gap-1 h-44">
+                <div class="bg-brand-500/40 rounded-t w-5" style="height: 0%"></div>
+                <div class="bg-ink-200 rounded-t w-5" style="height: 60%"></div>
+              </div>
+              <span class="text-[10px] text-ink-500">Jul</span>
+            </div>
+            <div class="flex-1 flex flex-col items-center gap-1 opacity-40">
+              <div class="w-full flex items-end justify-center gap-1 h-44">
+                <div class="bg-brand-500/40 rounded-t w-5" style="height: 0%"></div>
+                <div class="bg-ink-200 rounded-t w-5" style="height: 60%"></div>
+              </div>
+              <span class="text-[10px] text-ink-500">Aug</span>
+            </div>
+            <div class="flex-1 flex flex-col items-center gap-1 opacity-40">
+              <div class="w-full flex items-end justify-center gap-1 h-44">
+                <div class="bg-brand-500/40 rounded-t w-5" style="height: 0%"></div>
+                <div class="bg-ink-200 rounded-t w-5" style="height: 60%"></div>
+              </div>
+              <span class="text-[10px] text-ink-500">Sep</span>
+            </div>
+            <div class="flex-1 flex flex-col items-center gap-1 opacity-40">
+              <div class="w-full flex items-end justify-center gap-1 h-44">
+                <div class="bg-brand-500/40 rounded-t w-5" style="height: 0%"></div>
+                <div class="bg-ink-200 rounded-t w-5" style="height: 60%"></div>
+              </div>
+              <span class="text-[10px] text-ink-500">Oct</span>
+            </div>
+            <div class="flex-1 flex flex-col items-center gap-1 opacity-40">
+              <div class="w-full flex items-end justify-center gap-1 h-44">
+                <div class="bg-brand-500/40 rounded-t w-5" style="height: 0%"></div>
+                <div class="bg-ink-200 rounded-t w-5" style="height: 60%"></div>
+              </div>
+              <span class="text-[10px] text-ink-500">Nov</span>
+            </div>
+            <div class="flex-1 flex flex-col items-center gap-1 opacity-40">
+              <div class="w-full flex items-end justify-center gap-1 h-44">
+                <div class="bg-brand-500/40 rounded-t w-5" style="height: 0%"></div>
+                <div class="bg-ink-200 rounded-t w-5" style="height: 60%"></div>
+              </div>
+              <span class="text-[10px] text-ink-500">Dec</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+          <h2 class="text-base font-semibold mb-1">Top Deals (FY)</h2>
+          <p class="text-[11px] text-ink-500 mb-4">By commission earned</p>
+          <div class="space-y-3">
+            <div class="flex items-center justify-between p-2 rounded-md hover:bg-ink-50">
+              <div class="min-w-0">
+                <p class="text-[13px] font-semibold truncate">Fourways house sale</p>
+                <p class="text-[10px] text-ink-500">Apr 2026</p>
+              </div>
+              <span class="text-[12px] font-mono font-bold text-success">R 74,500</span>
+            </div>
+            <div class="flex items-center justify-between p-2 rounded-md hover:bg-ink-50">
+              <div class="min-w-0">
+                <p class="text-[13px] font-semibold truncate">Sandton penthouse lease</p>
+                <p class="text-[10px] text-ink-500">Mar 2026</p>
+              </div>
+              <span class="text-[12px] font-mono font-bold text-success">R 28,400</span>
+            </div>
+            <div class="flex items-center justify-between p-2 rounded-md hover:bg-ink-50">
+              <div class="min-w-0">
+                <p class="text-[13px] font-semibold truncate">Hatfield apt lease</p>
+                <p class="text-[10px] text-ink-500">Feb 2026</p>
+              </div>
+              <span class="text-[12px] font-mono font-bold text-success">R 19,200</span>
+            </div>
+            <div class="flex items-center justify-between p-2 rounded-md hover:bg-ink-50">
+              <div class="min-w-0">
+                <p class="text-[13px] font-semibold truncate">Andeon apt lease</p>
+                <p class="text-[10px] text-ink-500">May 2026</p>
+              </div>
+              <span class="text-[12px] font-mono font-bold text-success">R 7,200</span>
+            </div>
+          </div>
+          <button class="w-full mt-4 py-2 text-[12px] border border-ink-200 rounded-md hover:bg-ink-100 transition">View all transactions</button>
+        </div>
+      </div>
+
+      <!-- Commission ledger -->
+      <div class="mt-4 bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+        <h2 class="text-base font-semibold mb-4">Commission Ledger</h2>
+        <table class="w-full">
+          <thead>
+            <tr class="text-left text-[11px] uppercase text-ink-500 tracking-wider border-b border-ink-200">
+              <th class="font-semibold py-2">Date</th>
+              <th class="font-semibold py-2">Property</th>
+              <th class="font-semibold py-2">Type</th>
+              <th class="font-semibold py-2">Deal Value</th>
+              <th class="font-semibold py-2">Commission %</th>
+              <th class="font-semibold py-2 text-right">Earned</th>
+              <th class="font-semibold py-2 text-right">Status</th>
+            </tr>
+          </thead>
+          <tbody class="text-[13px]">
+            <tr class="border-b border-ink-100">
+              <td class="py-3 text-ink-500 font-mono text-[12px]">2026/05/12</td>
+              <td>Andeon apt lease</td>
+              <td><span class="text-[11px] px-2 py-0.5 rounded-full bg-brand-50 text-brand-700 font-semibold">RENT</span></td>
+              <td class="font-mono">R 96,000</td>
+              <td class="font-mono">7.5%</td>
+              <td class="text-right font-mono font-semibold">R 7,200</td>
+              <td class="text-right"><span class="text-[10px] px-2 py-0.5 rounded-full bg-warning/15 text-warning font-bold">PENDING</span></td>
+            </tr>
+            <tr class="border-b border-ink-100">
+              <td class="py-3 text-ink-500 font-mono text-[12px]">2026/04/28</td>
+              <td>Fourways 3-bed sale</td>
+              <td><span class="text-[11px] px-2 py-0.5 rounded-full bg-emerald-50 text-success font-semibold">SALE</span></td>
+              <td class="font-mono">R 2,450,000</td>
+              <td class="font-mono">3.0%</td>
+              <td class="text-right font-mono font-semibold">R 74,500</td>
+              <td class="text-right"><span class="text-[10px] px-2 py-0.5 rounded-full bg-success/15 text-success font-bold">PAID</span></td>
+            </tr>
+            <tr class="border-b border-ink-100">
+              <td class="py-3 text-ink-500 font-mono text-[12px]">2026/03/15</td>
+              <td>Sandton penthouse</td>
+              <td><span class="text-[11px] px-2 py-0.5 rounded-full bg-brand-50 text-brand-700 font-semibold">RENT</span></td>
+              <td class="font-mono">R 384,000</td>
+              <td class="font-mono">7.5%</td>
+              <td class="text-right font-mono font-semibold">R 28,400</td>
+              <td class="text-right"><span class="text-[10px] px-2 py-0.5 rounded-full bg-success/15 text-success font-bold">PAID</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ====== VIEW: ANALYTICS ====== -->
+    <section id="view-analytics" class="view px-8 py-7">
+      <div class="flex items-end justify-between mb-6">
+        <div>
+          <h1 class="text-2xl font-bold tracking-tight">My Analytics</h1>
+          <p class="text-[14px] text-ink-500 mt-1">Deep insights into your performance · Last 90 days</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <select class="text-[12px] bg-white border border-ink-200 rounded-md px-3 py-1.5">
+            <option>Last 90 days</option>
+            <option>This year</option>
+            <option>All time</option>
+          </select>
+          <button class="px-3.5 py-2 text-[13px] border border-ink-200 rounded-lg hover:bg-ink-100">Export PDF</button>
+        </div>
+      </div>
+
+      <!-- Performance scorecard -->
+      <div class="grid grid-cols-3 gap-4 mb-4">
+        <div class="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+          <div class="flex items-center justify-between mb-3">
+            <p class="text-[11px] text-ink-500 uppercase tracking-wider font-semibold">Avg. Response Time</p>
+            <span class="text-[10px] bg-success/10 text-success px-2 py-0.5 rounded-full font-bold">EXCELLENT</span>
+          </div>
+          <p class="text-3xl font-bold">42 min</p>
+          <p class="text-[12px] text-ink-500 mt-1">Agency avg: 2.5 hrs · You're <span class="text-success font-semibold">73% faster</span></p>
+        </div>
+        <div class="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+          <div class="flex items-center justify-between mb-3">
+            <p class="text-[11px] text-ink-500 uppercase tracking-wider font-semibold">Inquiry → Viewing</p>
+            <span class="text-[10px] bg-warning/10 text-warning px-2 py-0.5 rounded-full font-bold">ROOM TO GROW</span>
+          </div>
+          <p class="text-3xl font-bold">38%</p>
+          <p class="text-[12px] text-ink-500 mt-1">Agency avg: 45% · Target: 50%</p>
+        </div>
+        <div class="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+          <div class="flex items-center justify-between mb-3">
+            <p class="text-[11px] text-ink-500 uppercase tracking-wider font-semibold">Viewing → Offer</p>
+            <span class="text-[10px] bg-brand-50 text-brand-700 px-2 py-0.5 rounded-full font-bold">ABOVE AVG</span>
+          </div>
+          <p class="text-3xl font-bold">58%</p>
+          <p class="text-[12px] text-ink-500 mt-1">Agency avg: 48% · Top performer 🎯</p>
+        </div>
+      </div>
+
+      <!-- Funnel + Lead sources -->
+      <div class="grid grid-cols-3 gap-4 mb-4">
+        <div class="col-span-2 bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+          <h2 class="text-base font-semibold mb-4">Conversion Funnel (90 days)</h2>
+          <div class="space-y-1">
+            <div class="relative h-12 bg-brand-500 rounded-md flex items-center px-4 text-white" style="width: 100%">
+              <span class="text-[13px] font-semibold">Inquiries</span>
+              <span class="ml-auto font-mono font-bold">142</span>
+            </div>
+            <div class="relative h-12 bg-brand-500 rounded-md flex items-center px-4 text-white mx-auto" style="width: 78%">
+              <span class="text-[13px] font-semibold">Qualified</span>
+              <span class="ml-auto font-mono font-bold">110 · 77%</span>
+            </div>
+            <div class="relative h-12 bg-brand-500/80 rounded-md flex items-center px-4 text-white mx-auto" style="width: 54%">
+              <span class="text-[13px] font-semibold">Viewing booked</span>
+              <span class="ml-auto font-mono font-bold">54 · 38%</span>
+            </div>
+            <div class="relative h-12 bg-brand-500/60 rounded-md flex items-center px-4 text-white mx-auto" style="width: 31%">
+              <span class="text-[13px] font-semibold">Offer made</span>
+              <span class="ml-auto font-mono font-bold">31 · 22%</span>
+            </div>
+            <div class="relative h-12 bg-success rounded-md flex items-center px-4 text-white mx-auto" style="width: 22%">
+              <span class="text-[13px] font-semibold">Closed</span>
+              <span class="ml-auto font-mono font-bold">22 · 15%</span>
+            </div>
+          </div>
+          <p class="text-[11px] text-ink-500 mt-4 italic">💡 You lose the most leads between Qualified and Viewing — consider a faster viewing-booking flow.</p>
+        </div>
+
+        <div class="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+          <h2 class="text-base font-semibold mb-4">Lead Sources</h2>
+          <div class="space-y-3">
+            <div>
+              <div class="flex items-center justify-between mb-1">
+                <span class="text-[12px]">Property Basket</span>
+                <span class="text-[12px] font-mono font-semibold">68</span>
+              </div>
+              <div class="h-2 bg-ink-100 rounded-full overflow-hidden">
+                <div class="h-full bg-brand-500" style="width: 48%"></div>
+              </div>
+            </div>
+            <div>
+              <div class="flex items-center justify-between mb-1">
+                <span class="text-[12px]">Property24</span>
+                <span class="text-[12px] font-mono font-semibold">34</span>
+              </div>
+              <div class="h-2 bg-ink-100 rounded-full overflow-hidden">
+                <div class="h-full bg-brand-500/80" style="width: 24%"></div>
+              </div>
+            </div>
+            <div>
+              <div class="flex items-center justify-between mb-1">
+                <span class="text-[12px]">Private Property</span>
+                <span class="text-[12px] font-mono font-semibold">21</span>
+              </div>
+              <div class="h-2 bg-ink-100 rounded-full overflow-hidden">
+                <div class="h-full bg-brand-500/60" style="width: 15%"></div>
+              </div>
+            </div>
+            <div>
+              <div class="flex items-center justify-between mb-1">
+                <span class="text-[12px]">Referrals</span>
+                <span class="text-[12px] font-mono font-semibold">12</span>
+              </div>
+              <div class="h-2 bg-ink-100 rounded-full overflow-hidden">
+                <div class="h-full bg-brand-500/40" style="width: 8%"></div>
+              </div>
+            </div>
+            <div>
+              <div class="flex items-center justify-between mb-1">
+                <span class="text-[12px]">Walk-in / other</span>
+                <span class="text-[12px] font-mono font-semibold">7</span>
+              </div>
+              <div class="h-2 bg-ink-100 rounded-full overflow-hidden">
+                <div class="h-full bg-brand-500/30" style="width: 5%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Property-type performance -->
+      <div class="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+        <h2 class="text-base font-semibold mb-4">Performance by Property Type</h2>
+        <table class="w-full">
+          <thead>
+            <tr class="text-left text-[11px] uppercase text-ink-500 tracking-wider border-b border-ink-200">
+              <th class="font-semibold py-2">Type</th>
+              <th class="font-semibold py-2 text-right">Listings</th>
+              <th class="font-semibold py-2 text-right">Avg Days on Market</th>
+              <th class="font-semibold py-2 text-right">Inquiries</th>
+              <th class="font-semibold py-2 text-right">Conversion</th>
+              <th class="font-semibold py-2 text-right">Commission Earned</th>
+            </tr>
+          </thead>
+          <tbody class="text-[13px]">
+            <tr class="border-b border-ink-100">
+              <td class="py-3 font-medium">Apartments · Rent</td>
+              <td class="text-right font-mono">8</td>
+              <td class="text-right font-mono">14</td>
+              <td class="text-right font-mono">78</td>
+              <td class="text-right font-mono text-success">28%</td>
+              <td class="text-right font-mono font-semibold">R 64,800</td>
+            </tr>
+            <tr class="border-b border-ink-100">
+              <td class="py-3 font-medium">Houses · Sale</td>
+              <td class="text-right font-mono">4</td>
+              <td class="text-right font-mono">42</td>
+              <td class="text-right font-mono">52</td>
+              <td class="text-right font-mono">18%</td>
+              <td class="text-right font-mono font-semibold">R 198,400</td>
+            </tr>
+            <tr class="border-b border-ink-100">
+              <td class="py-3 font-medium">Short-term stays</td>
+              <td class="text-right font-mono">2</td>
+              <td class="text-right font-mono">8</td>
+              <td class="text-right font-mono">12</td>
+              <td class="text-right font-mono">35%</td>
+              <td class="text-right font-mono font-semibold">R 24,200</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+  // Simple view switcher
+  const navItems = document.querySelectorAll('.nav-item');
+  const views = document.querySelectorAll('.view');
+  const crumb = document.getElementById('crumb-page');
+
+  const labels = {
+    overview: 'Dashboard',
+    pipeline: 'Pipeline',
+    listings: 'Listings',
+    viewings: 'Viewings',
+    inspections: 'Inspections',
+    messages: 'Messages',
+    commission: 'Commission',
+    analytics: 'Analytics',
+  };
+
+  navItems.forEach(item => {
+    item.addEventListener('click', (e) => {
+      const view = item.getAttribute('data-view');
+      if (!view) return;
+      e.preventDefault();
+
+      // Update active state on sidebar items only
+      document.querySelectorAll('aside .nav-item').forEach(n => n.classList.remove('active'));
+      const sidebarMatch = document.querySelector(`aside .nav-item[data-view="${view}"]`);
+      if (sidebarMatch) sidebarMatch.classList.add('active');
+
+      // Show matching view
+      views.forEach(v => v.classList.remove('active'));
+      const target = document.getElementById('view-' + view);
+      if (target) {
+        target.classList.add('active');
+        crumb.textContent = labels[view] || 'Dashboard';
+      }
+
+      // Scroll to top
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  });
+
+  // Inspections sub-tabs: Move-in / Move-out
+  document.querySelectorAll('.insp-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      const target = tab.getAttribute('data-insp');
+      // Toggle tab buttons
+      document.querySelectorAll('.insp-tab').forEach(t => {
+        t.classList.remove('insp-active', 'bg-ink-900', 'text-white');
+        t.classList.add('text-ink-500', 'hover:bg-ink-100');
+        const badge = t.querySelector('span');
+        if (badge) {
+          badge.classList.remove('bg-white/20');
+          badge.classList.add('bg-ink-100', 'text-ink-700');
+        }
+      });
+      tab.classList.add('insp-active', 'bg-ink-900', 'text-white');
+      tab.classList.remove('text-ink-500', 'hover:bg-ink-100');
+      const activeBadge = tab.querySelector('span');
+      if (activeBadge) {
+        activeBadge.classList.add('bg-white/20');
+        activeBadge.classList.remove('bg-ink-100', 'text-ink-700');
+      }
+      // Toggle panes
+      document.querySelectorAll('.insp-pane').forEach(p => p.classList.add('hidden'));
+      const pane = document.getElementById('insp-' + target);
+      if (pane) pane.classList.remove('hidden');
+    });
+  });
+</script>
+
+</body>
+</html>

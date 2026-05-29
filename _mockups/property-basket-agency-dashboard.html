@@ -1,0 +1,1894 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Property Basket — Agency Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: {
+          sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+          mono: ['"JetBrains Mono"', 'monospace'],
+        },
+        colors: {
+          brand: { DEFAULT: '#5B3DF5', 50: '#F2EFFE', 100: '#E4DEFD', 500: '#5B3DF5', 600: '#4A2EE0', 700: '#3A23B8' },
+          ink: { 900: '#0B0B0F', 800: '#1A1A22', 700: '#2A2A35', 500: '#6B7280', 400: '#9CA3AF', 300: '#D1D5DB', 200: '#E5E7EB', 100: '#F3F4F6', 50: '#F9FAFB' },
+          success: '#10B981',
+          warning: '#F59E0B',
+          danger:  '#EF4444',
+        },
+        boxShadow: {
+          'soft': '0 1px 2px rgba(15, 23, 42, 0.04), 0 1px 3px rgba(15, 23, 42, 0.06)',
+          'card': '0 4px 12px rgba(15, 23, 42, 0.04), 0 1px 3px rgba(15, 23, 42, 0.06)',
+          'lift': '0 12px 32px rgba(15, 23, 42, 0.10)',
+        },
+      }
+    }
+  }
+</script>
+<style>
+  body { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }
+  .nav-item.active { background-color: #F3F4F6; color: #0B0B0F; }
+  .nav-item.active .nav-icon { color: #5B3DF5; }
+  .view { display: none; }
+  .view.active { display: block; }
+  .dot-grid { background-image: radial-gradient(circle, #E5E7EB 1px, transparent 1px); background-size: 14px 14px; }
+  .spark path { stroke-dasharray: 1000; stroke-dashoffset: 1000; animation: dash 1.5s ease-out forwards; }
+  @keyframes dash { to { stroke-dashoffset: 0; } }
+  /* toggle */
+  .toggle { position: relative; width: 40px; height: 22px; background: #E5E7EB; border-radius: 999px; cursor: pointer; transition: background .2s; }
+  .toggle::after { content: ''; position: absolute; top: 2px; left: 2px; width: 18px; height: 18px; background: white; border-radius: 50%; box-shadow: 0 1px 3px rgba(0,0,0,.15); transition: .2s; }
+  .toggle.on { background: #5B3DF5; }
+  .toggle.on::after { transform: translateX(18px); }
+  [data-tip] { position: relative; }
+  [data-tip]:hover::after { content: attr(data-tip); position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); background: #0B0B0F; color: white; padding: 4px 8px; border-radius: 6px; font-size: 11px; white-space: nowrap; margin-bottom: 6px; z-index: 50; }
+  /* Medal colors */
+  .medal-gold { background: linear-gradient(135deg, #FCD34D, #F59E0B); }
+  .medal-silver { background: linear-gradient(135deg, #E5E7EB, #9CA3AF); }
+  .medal-bronze { background: linear-gradient(135deg, #FED7AA, #C2410C); }
+</style>
+</head>
+<body class="bg-ink-50 text-ink-900">
+
+<div class="flex min-h-screen">
+
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="w-[240px] shrink-0 bg-white border-r border-ink-200 flex flex-col">
+    <div class="px-5 pt-5 pb-6 flex items-center gap-2">
+      <div class="w-8 h-8 rounded-lg bg-ink-900 flex items-center justify-center">
+        <svg viewBox="0 0 24 24" class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M3 10.5L12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-7h-6v7H4a1 1 0 0 1-1-1V10.5z" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <span class="font-bold text-[15px] tracking-tight">Property Basket</span>
+    </div>
+
+    <nav class="px-3 flex-1 overflow-y-auto">
+      <p class="px-3 text-[10px] font-semibold text-ink-400 tracking-[0.12em] mb-2">WORKSPACE</p>
+      <a href="#" data-view="overview" class="nav-item active flex items-center gap-3 px-3 py-2 rounded-lg text-[13.5px] text-ink-500 hover:bg-ink-100 transition mb-0.5">
+        <svg class="nav-icon w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+        Dashboard
+      </a>
+      <a href="#" data-view="pipeline" class="nav-item flex items-center gap-3 px-3 py-2 rounded-lg text-[13.5px] text-ink-500 hover:bg-ink-100 transition mb-0.5">
+        <svg class="nav-icon w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7h4v13H3zM10 4h4v16h-4zM17 11h4v9h-4z"/></svg>
+        Pipeline
+        <span class="ml-auto text-[10px] bg-brand-50 text-brand-700 px-1.5 py-0.5 rounded-full font-semibold">47</span>
+      </a>
+      <a href="#" data-view="listings" class="nav-item flex items-center gap-3 px-3 py-2 rounded-lg text-[13.5px] text-ink-500 hover:bg-ink-100 transition mb-0.5">
+        <svg class="nav-icon w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21V10l9-7 9 7v11H3z"/><path d="M9 21v-7h6v7"/></svg>
+        Listings & Leads
+      </a>
+      <a href="#" data-view="messages" class="nav-item flex items-center gap-3 px-3 py-2 rounded-lg text-[13.5px] text-ink-500 hover:bg-ink-100 transition mb-0.5">
+        <svg class="nav-icon w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.6-.8L3 21l1.9-5.7a8.5 8.5 0 0 1 16.1-3.8z"/></svg>
+        Team Messages
+        <span class="ml-auto text-[10px] bg-danger text-white px-1.5 py-0.5 rounded-full font-semibold">5</span>
+      </a>
+
+      <p class="px-3 mt-6 text-[10px] font-semibold text-ink-400 tracking-[0.12em] mb-2">TEAM</p>
+      <a href="#" data-view="agents" class="nav-item flex items-center gap-3 px-3 py-2 rounded-lg text-[13.5px] text-ink-500 hover:bg-ink-100 transition mb-0.5">
+        <svg class="nav-icon w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+        Agents
+        <span class="ml-auto text-[10px] text-ink-500">8</span>
+      </a>
+      <a href="#" class="nav-item flex items-center gap-3 px-3 py-2 rounded-lg text-[13.5px] text-ink-500 hover:bg-ink-100 transition mb-0.5">
+        <svg class="nav-icon w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18"/></svg>
+        Tenants
+      </a>
+      <a href="#" class="nav-item flex items-center gap-3 px-3 py-2 rounded-lg text-[13.5px] text-ink-500 hover:bg-ink-100 transition mb-0.5">
+        <svg class="nav-icon w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 0 0-16 0"/></svg>
+        Landlords
+      </a>
+      <a href="#" class="nav-item flex items-center gap-3 px-3 py-2 rounded-lg text-[13.5px] text-ink-500 hover:bg-ink-100 transition mb-0.5">
+        <svg class="nav-icon w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 6.5a2 2 0 1 0-4 0M9 12l-7 7 3 3 7-7M14 12l4-4 4 4-4 4z"/></svg>
+        Contractors
+      </a>
+
+      <p class="px-3 mt-6 text-[10px] font-semibold text-ink-400 tracking-[0.12em] mb-2">FINANCE</p>
+      <a href="#" data-view="commission" class="nav-item flex items-center gap-3 px-3 py-2 rounded-lg text-[13.5px] text-ink-500 hover:bg-ink-100 transition mb-0.5">
+        <svg class="nav-icon w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        Commission & Payouts
+        <span class="ml-auto w-1.5 h-1.5 rounded-full bg-warning"></span>
+      </a>
+      <a href="#" data-view="reports" class="nav-item flex items-center gap-3 px-3 py-2 rounded-lg text-[13.5px] text-ink-500 hover:bg-ink-100 transition mb-0.5">
+        <svg class="nav-icon w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>
+        Financial Reports
+      </a>
+      <a href="#" class="nav-item flex items-center gap-3 px-3 py-2 rounded-lg text-[13.5px] text-ink-500 hover:bg-ink-100 transition mb-0.5">
+        <svg class="nav-icon w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M2 10h20M6 14h.01M10 14h.01"/></svg>
+        Trust Account
+      </a>
+
+      <p class="px-3 mt-6 text-[10px] font-semibold text-ink-400 tracking-[0.12em] mb-2">AGENCY ACCOUNT</p>
+      <a href="#" data-view="settings" class="nav-item flex items-center gap-3 px-3 py-2 rounded-lg text-[13.5px] text-ink-500 hover:bg-ink-100 transition mb-0.5">
+        <svg class="nav-icon w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        Settings
+      </a>
+      <a href="#" class="nav-item flex items-center gap-3 px-3 py-2 rounded-lg text-[13.5px] text-ink-500 hover:bg-ink-100 transition mb-0.5">
+        <svg class="nav-icon w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+        Billing & Plan
+      </a>
+    </nav>
+
+    <div class="border-t border-ink-200 p-3">
+      <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-ink-100 cursor-pointer">
+        <div class="w-9 h-9 rounded-lg bg-ink-900 flex items-center justify-center text-white font-bold text-sm">PB</div>
+        <div class="flex-1 min-w-0">
+          <p class="text-[13px] font-semibold truncate">Property Basket</p>
+          <p class="text-[11px] text-ink-400 truncate">Agency Admin</p>
+        </div>
+        <svg class="w-4 h-4 text-ink-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 15l5 5 5-5M7 9l5-5 5 5"/></svg>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ============ MAIN ============ -->
+  <main class="flex-1 min-w-0">
+
+    <header class="h-16 border-b border-ink-200 bg-white flex items-center px-8 gap-6 sticky top-0 z-30">
+      <div class="text-[13px] text-ink-500">
+        <span>My Agency</span>
+        <span class="mx-2 text-ink-300">/</span>
+        <span class="text-ink-900 font-medium" id="crumb-page">Dashboard</span>
+      </div>
+      <div class="flex-1 max-w-xl mx-auto">
+        <div class="relative">
+          <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+          <input class="w-full bg-ink-50 border border-ink-200 rounded-lg pl-10 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition" placeholder="Search agents, listings, deals...">
+        </div>
+      </div>
+      <button class="w-9 h-9 rounded-lg hover:bg-ink-100 flex items-center justify-center transition" data-tip="Quick add">
+        <svg class="w-4 h-4 text-ink-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>
+      </button>
+      <button class="w-9 h-9 rounded-lg hover:bg-ink-100 flex items-center justify-center relative transition" data-tip="Notifications">
+        <svg class="w-4 h-4 text-ink-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+        <span class="absolute top-1.5 right-2 w-2 h-2 rounded-full bg-danger"></span>
+      </button>
+    </header>
+
+    <!-- ================== VIEW: OVERVIEW ================== -->
+    <section id="view-overview" class="view active px-8 py-7">
+      <div class="flex items-end justify-between mb-7">
+        <div>
+          <p class="text-[13px] text-ink-500">Monday, 18 May 2026</p>
+          <h1 class="text-3xl font-bold tracking-tight mt-1">Property Basket Agency</h1>
+          <p class="text-[14px] text-ink-500 mt-1">8 agents · 47 active deals · <span class="font-semibold text-ink-900">R 132,400</span> due on payout day (25 May)</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button class="px-3.5 py-2 text-[13px] border border-ink-200 rounded-lg hover:bg-ink-100 transition flex items-center gap-2">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/></svg>
+            Invite Agent
+          </button>
+          <button class="px-3.5 py-2 text-[13px] bg-ink-900 text-white rounded-lg hover:bg-ink-800 transition flex items-center gap-2">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>
+            Create Listing
+          </button>
+        </div>
+      </div>
+
+      <!-- KPI Grid -->
+      <div class="grid grid-cols-4 gap-4 mb-6">
+        <div class="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-[11px] text-ink-500 uppercase tracking-wider font-semibold">YTD Revenue</span>
+            <span class="w-7 h-7 rounded-lg bg-emerald-50 flex items-center justify-center">
+              <svg class="w-3.5 h-3.5 text-success" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            </span>
+          </div>
+          <div class="flex items-baseline gap-2">
+            <span class="text-3xl font-bold">R 3.4m</span>
+            <span class="text-xs text-success font-semibold">↑ 24%</span>
+          </div>
+          <p class="text-[11px] text-ink-500 mt-1">vs FY 2025</p>
+          <svg class="spark w-full h-8 mt-2" viewBox="0 0 100 30" preserveAspectRatio="none">
+            <path d="M0,25 L15,22 L30,24 L45,18 L60,15 L75,10 L100,4" fill="none" stroke="#10B981" stroke-width="2"/>
+          </svg>
+        </div>
+        <div class="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-[11px] text-ink-500 uppercase tracking-wider font-semibold">Active Deals</span>
+            <span class="w-7 h-7 rounded-lg bg-brand-50 flex items-center justify-center">
+              <svg class="w-3.5 h-3.5 text-brand-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 7h4v13H3zM10 4h4v16h-4zM17 11h4v9h-4z"/></svg>
+            </span>
+          </div>
+          <div class="flex items-baseline gap-2">
+            <span class="text-3xl font-bold">47</span>
+            <span class="text-xs text-success font-semibold">+8 this week</span>
+          </div>
+          <p class="text-[11px] text-ink-500 mt-1">R 18.2m pipeline value</p>
+          <svg class="spark w-full h-8 mt-2" viewBox="0 0 100 30" preserveAspectRatio="none">
+            <path d="M0,22 L15,18 L30,20 L45,12 L60,14 L75,8 L100,4" fill="none" stroke="#5B3DF5" stroke-width="2"/>
+          </svg>
+        </div>
+        <div class="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-[11px] text-ink-500 uppercase tracking-wider font-semibold">Due to Agents</span>
+            <span class="w-7 h-7 rounded-lg bg-amber-50 flex items-center justify-center">
+              <svg class="w-3.5 h-3.5 text-warning" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 12.79A9 9 0 1 1 11.21 3"/><path d="M22 4L12 14.01l-3-3"/></svg>
+            </span>
+          </div>
+          <div class="flex items-baseline gap-2">
+            <span class="text-3xl font-bold">R 132k</span>
+          </div>
+          <p class="text-[11px] text-warning mt-1">Payout in 7 days</p>
+          <svg class="spark w-full h-8 mt-2" viewBox="0 0 100 30" preserveAspectRatio="none">
+            <path d="M0,20 L15,22 L30,16 L45,18 L60,12 L75,10 L100,8" fill="none" stroke="#F59E0B" stroke-width="2"/>
+          </svg>
+        </div>
+        <div class="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-[11px] text-ink-500 uppercase tracking-wider font-semibold">Trust Balance</span>
+            <span class="w-7 h-7 rounded-lg bg-violet-50 flex items-center justify-center">
+              <svg class="w-3.5 h-3.5 text-brand-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M2 10h20"/></svg>
+            </span>
+          </div>
+          <div class="flex items-baseline gap-2">
+            <span class="text-3xl font-bold">R 482k</span>
+          </div>
+          <p class="text-[11px] text-ink-500 mt-1">Section 32 · Reconciled today</p>
+          <svg class="spark w-full h-8 mt-2" viewBox="0 0 100 30" preserveAspectRatio="none">
+            <path d="M0,18 L15,15 L30,17 L45,14 L60,12 L75,10 L100,8" fill="none" stroke="#5B3DF5" stroke-width="2"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Two-column -->
+      <div class="grid grid-cols-3 gap-4">
+        <!-- LEFT: Revenue chart -->
+        <div class="col-span-2 bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h2 class="text-base font-semibold">Revenue Breakdown</h2>
+              <p class="text-xs text-ink-500 mt-0.5">Sales vs Rental commissions · Last 6 months</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-[11px] flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-sm bg-brand-500"></span>Sales</span>
+              <span class="text-[11px] flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-sm bg-success"></span>Rentals</span>
+            </div>
+          </div>
+          <div class="flex items-end gap-4 h-52 px-2">
+            <div class="flex-1 flex flex-col items-center gap-1">
+              <div class="w-full flex items-end justify-center gap-1 h-48">
+                <div class="bg-brand-500 rounded-t w-6" style="height: 55%"></div>
+                <div class="bg-success rounded-t w-6" style="height: 30%"></div>
+              </div>
+              <span class="text-[10px] text-ink-500">Dec</span>
+            </div>
+            <div class="flex-1 flex flex-col items-center gap-1">
+              <div class="w-full flex items-end justify-center gap-1 h-48">
+                <div class="bg-brand-500 rounded-t w-6" style="height: 48%"></div>
+                <div class="bg-success rounded-t w-6" style="height: 35%"></div>
+              </div>
+              <span class="text-[10px] text-ink-500">Jan</span>
+            </div>
+            <div class="flex-1 flex flex-col items-center gap-1">
+              <div class="w-full flex items-end justify-center gap-1 h-48">
+                <div class="bg-brand-500 rounded-t w-6" style="height: 62%"></div>
+                <div class="bg-success rounded-t w-6" style="height: 38%"></div>
+              </div>
+              <span class="text-[10px] text-ink-500">Feb</span>
+            </div>
+            <div class="flex-1 flex flex-col items-center gap-1">
+              <div class="w-full flex items-end justify-center gap-1 h-48">
+                <div class="bg-brand-500 rounded-t w-6" style="height: 70%"></div>
+                <div class="bg-success rounded-t w-6" style="height: 42%"></div>
+              </div>
+              <span class="text-[10px] text-ink-500">Mar</span>
+            </div>
+            <div class="flex-1 flex flex-col items-center gap-1">
+              <div class="w-full flex items-end justify-center gap-1 h-48">
+                <div class="bg-brand-500 rounded-t w-6" style="height: 78%"></div>
+                <div class="bg-success rounded-t w-6" style="height: 48%"></div>
+              </div>
+              <span class="text-[10px] text-ink-500">Apr</span>
+            </div>
+            <div class="flex-1 flex flex-col items-center gap-1">
+              <div class="w-full flex items-end justify-center gap-1 h-48">
+                <div class="bg-brand-500 rounded-t w-6" style="height: 88%"></div>
+                <div class="bg-success rounded-t w-6" style="height: 55%"></div>
+              </div>
+              <span class="text-[10px] font-semibold text-brand-600">May</span>
+            </div>
+          </div>
+          <div class="grid grid-cols-3 gap-4 pt-4 mt-4 border-t border-ink-200 text-center">
+            <div>
+              <p class="text-[11px] text-ink-500 uppercase tracking-wider">Sales Revenue</p>
+              <p class="text-xl font-bold mt-1">R 2.1m</p>
+              <p class="text-[11px] text-success">↑ 28%</p>
+            </div>
+            <div>
+              <p class="text-[11px] text-ink-500 uppercase tracking-wider">Rental Revenue</p>
+              <p class="text-xl font-bold mt-1">R 1.3m</p>
+              <p class="text-[11px] text-success">↑ 18%</p>
+            </div>
+            <div>
+              <p class="text-[11px] text-ink-500 uppercase tracking-wider">VAT Liability</p>
+              <p class="text-xl font-bold mt-1">R 510k</p>
+              <p class="text-[11px] text-ink-500">15% on R 3.4m</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT: Top performers -->
+        <div class="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-base font-semibold">Top Performers</h2>
+            <a href="#" data-view="agents" class="nav-item text-[12px] font-medium text-brand-600 hover:underline">View all →</a>
+          </div>
+          <div class="space-y-3">
+            <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-ink-50">
+              <div class="w-8 h-8 rounded-full medal-gold flex items-center justify-center text-white text-[11px] font-bold">1</div>
+              <div class="flex-1 min-w-0">
+                <p class="text-[13px] font-semibold truncate">Malwandla Khosa</p>
+                <p class="text-[11px] text-ink-500">14 deals · R 287k commission</p>
+              </div>
+              <span class="text-[10px] bg-success/10 text-success px-1.5 py-0.5 rounded-full font-bold">↑3</span>
+            </div>
+            <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-ink-50">
+              <div class="w-8 h-8 rounded-full medal-silver flex items-center justify-center text-white text-[11px] font-bold">2</div>
+              <div class="flex-1 min-w-0">
+                <p class="text-[13px] font-semibold truncate">Lerato Mbeki</p>
+                <p class="text-[11px] text-ink-500">11 deals · R 218k commission</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-ink-50">
+              <div class="w-8 h-8 rounded-full medal-bronze flex items-center justify-center text-white text-[11px] font-bold">3</div>
+              <div class="flex-1 min-w-0">
+                <p class="text-[13px] font-semibold truncate">Sipho Dlamini</p>
+                <p class="text-[11px] text-ink-500">9 deals · R 178k commission</p>
+              </div>
+              <span class="text-[10px] bg-danger/10 text-danger px-1.5 py-0.5 rounded-full font-bold">↓1</span>
+            </div>
+            <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-ink-50">
+              <div class="w-8 h-8 rounded-full bg-ink-200 flex items-center justify-center text-ink-700 text-[11px] font-bold">4</div>
+              <div class="flex-1 min-w-0">
+                <p class="text-[13px] font-semibold truncate">Anna Botha</p>
+                <p class="text-[11px] text-ink-500">8 deals · R 142k commission</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-ink-50">
+              <div class="w-8 h-8 rounded-full bg-ink-200 flex items-center justify-center text-ink-700 text-[11px] font-bold">5</div>
+              <div class="flex-1 min-w-0">
+                <p class="text-[13px] font-semibold truncate">Themba Zulu</p>
+                <p class="text-[11px] text-ink-500">6 deals · R 98k commission</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-4 pt-4 border-t border-ink-200">
+            <p class="text-[11px] text-ink-500 uppercase tracking-wider font-semibold mb-2">Team Health</p>
+            <div class="grid grid-cols-2 gap-2 text-center">
+              <div class="bg-ink-50 rounded-md p-2">
+                <p class="text-base font-bold">2.1h</p>
+                <p class="text-[10px] text-ink-500">Avg response</p>
+              </div>
+              <div class="bg-ink-50 rounded-md p-2">
+                <p class="text-base font-bold text-success">94%</p>
+                <p class="text-[10px] text-ink-500">FFC valid</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Activity stream -->
+      <div class="mt-4 grid grid-cols-3 gap-4">
+        <div class="col-span-2 bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-base font-semibold">Recent Activity</h2>
+            <a href="#" class="text-[12px] text-brand-600 hover:underline">View log</a>
+          </div>
+          <div class="space-y-3">
+            <div class="flex items-start gap-3 p-2 rounded-md hover:bg-ink-50">
+              <div class="w-8 h-8 rounded-full bg-success/15 flex items-center justify-center shrink-0">
+                <svg class="w-4 h-4 text-success" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 13l4 4L19 7"/></svg>
+              </div>
+              <div class="flex-1">
+                <p class="text-[13px]"><span class="font-semibold">Malwandla Khosa</span> closed <span class="font-semibold">Andeon apt lease</span> · R 7,200 commission</p>
+                <p class="text-[11px] text-ink-500 mt-0.5">2 minutes ago</p>
+              </div>
+            </div>
+            <div class="flex items-start gap-3 p-2 rounded-md hover:bg-ink-50">
+              <div class="w-8 h-8 rounded-full bg-brand-50 flex items-center justify-center shrink-0">
+                <svg class="w-4 h-4 text-brand-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+              </div>
+              <div class="flex-1">
+                <p class="text-[13px]">New lead <span class="font-semibold">Tshepo Khumalo</span> auto-assigned to <span class="font-semibold">Lerato Mbeki</span> (round-robin)</p>
+                <p class="text-[11px] text-ink-500 mt-0.5">12 min ago</p>
+              </div>
+            </div>
+            <div class="flex items-start gap-3 p-2 rounded-md hover:bg-ink-50">
+              <div class="w-8 h-8 rounded-full bg-amber-50 flex items-center justify-center shrink-0">
+                <svg class="w-4 h-4 text-warning" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 21V10l9-7 9 7v11H3z"/></svg>
+              </div>
+              <div class="flex-1">
+                <p class="text-[13px]"><span class="font-semibold">Sipho Dlamini</span> created listing <span class="font-semibold">Fourways 3-bed (For Sale, R 2.45m)</span></p>
+                <p class="text-[11px] text-ink-500 mt-0.5">1 hour ago</p>
+              </div>
+            </div>
+            <div class="flex items-start gap-3 p-2 rounded-md hover:bg-ink-50">
+              <div class="w-8 h-8 rounded-full bg-violet-50 flex items-center justify-center shrink-0">
+                <svg class="w-4 h-4 text-brand-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="6" width="20" height="12" rx="2"/></svg>
+              </div>
+              <div class="flex-1">
+                <p class="text-[13px]">Trust account deposit received: <span class="font-semibold">R 24,000</span> (Property Basket Tenant · damage deposit)</p>
+                <p class="text-[11px] text-ink-500 mt-0.5">3 hours ago</p>
+              </div>
+            </div>
+            <div class="flex items-start gap-3 p-2 rounded-md hover:bg-ink-50">
+              <div class="w-8 h-8 rounded-full bg-rose-50 flex items-center justify-center shrink-0">
+                <svg class="w-4 h-4 text-rose-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+              </div>
+              <div class="flex-1">
+                <p class="text-[13px]"><span class="font-semibold">Anna Botha</span> · FFC expires in 30 days · Renewal required</p>
+                <p class="text-[11px] text-ink-500 mt-0.5">Yesterday</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick actions -->
+        <div class="space-y-4">
+          <div class="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+            <h2 class="text-base font-semibold mb-3">Payout Day</h2>
+            <p class="text-[12px] text-ink-500 mb-4">Next batch · 25 May 2026 · 7 days</p>
+            <div class="bg-gradient-to-br from-brand-500 to-brand-700 rounded-lg p-4 text-white mb-3">
+              <p class="text-[11px] opacity-80 uppercase tracking-wider font-semibold">Queued</p>
+              <p class="text-2xl font-bold mt-1">R 132,400</p>
+              <p class="text-[11px] opacity-80">8 agents · Paystack ready</p>
+            </div>
+            <a href="#" data-view="commission" class="nav-item w-full block text-center py-2 text-[12px] bg-ink-900 text-white rounded-md font-medium">Review batch →</a>
+          </div>
+          <div class="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+            <h2 class="text-base font-semibold mb-3">VAT Period</h2>
+            <p class="text-[12px] text-ink-500 mb-3">Bi-monthly VAT · Period ends 31 May</p>
+            <div class="flex items-baseline gap-2">
+              <span class="text-2xl font-bold">R 87,200</span>
+              <span class="text-xs text-ink-500">due to SARS</span>
+            </div>
+            <div class="mt-3 h-2 bg-ink-100 rounded-full overflow-hidden">
+              <div class="h-full bg-warning" style="width: 78%"></div>
+            </div>
+            <p class="text-[11px] text-ink-500 mt-1.5">22 days remaining</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================== VIEW: AGENTS (Leaderboard + performance) ================== -->
+    <section id="view-agents" class="view px-8 py-7">
+      <div class="flex items-end justify-between mb-6">
+        <div>
+          <h1 class="text-2xl font-bold tracking-tight">Manage Agents</h1>
+          <p class="text-[14px] text-ink-500 mt-1">8 agents · Round-robin lead allocation active · Visible team leaderboard</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button class="px-3.5 py-2 text-[13px] border border-ink-200 rounded-lg hover:bg-ink-100 flex items-center gap-2">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+            Export
+          </button>
+          <button class="px-3.5 py-2 text-[13px] bg-ink-900 text-white rounded-lg flex items-center gap-2">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/></svg>
+            Invite Agent
+          </button>
+        </div>
+      </div>
+
+      <!-- Leaderboard podium -->
+      <div class="bg-gradient-to-br from-ink-900 to-ink-800 rounded-xl p-6 mb-6 text-white shadow-card">
+        <div class="flex items-center justify-between mb-5">
+          <div>
+            <h2 class="text-lg font-bold">May 2026 Leaderboard</h2>
+            <p class="text-[12px] text-white/60 mt-0.5">Closed deals · Top 5 visible to whole team</p>
+          </div>
+          <select class="text-[12px] bg-white/10 border border-white/20 rounded-md px-3 py-1.5 text-white">
+            <option>This month</option>
+            <option>This quarter</option>
+            <option>YTD</option>
+          </select>
+        </div>
+        <div class="grid grid-cols-3 gap-4 items-end">
+          <!-- 2nd -->
+          <div class="text-center">
+            <div class="w-16 h-16 rounded-full mx-auto medal-silver border-4 border-white/20 flex items-center justify-center text-2xl font-bold">LM</div>
+            <p class="text-[14px] font-bold mt-3">Lerato Mbeki</p>
+            <p class="text-[11px] text-white/60">11 deals</p>
+            <div class="bg-white/10 rounded-lg p-3 mt-3 h-24 flex flex-col justify-end">
+              <p class="text-[10px] text-white/60 uppercase tracking-wider">Commission</p>
+              <p class="text-lg font-bold font-mono">R 218k</p>
+            </div>
+          </div>
+          <!-- 1st -->
+          <div class="text-center -mt-4">
+            <div class="text-2xl mb-1">👑</div>
+            <div class="w-20 h-20 rounded-full mx-auto medal-gold border-4 border-white/20 flex items-center justify-center text-2xl font-bold">MK</div>
+            <p class="text-[15px] font-bold mt-3">Malwandla Khosa</p>
+            <p class="text-[11px] text-white/60">14 deals · win rate 38%</p>
+            <div class="bg-gradient-to-br from-yellow-500/30 to-amber-500/30 rounded-lg p-3 mt-3 h-32 flex flex-col justify-end border border-yellow-400/30">
+              <p class="text-[10px] text-white/80 uppercase tracking-wider">Commission</p>
+              <p class="text-2xl font-bold font-mono">R 287k</p>
+            </div>
+          </div>
+          <!-- 3rd -->
+          <div class="text-center">
+            <div class="w-16 h-16 rounded-full mx-auto medal-bronze border-4 border-white/20 flex items-center justify-center text-2xl font-bold">SD</div>
+            <p class="text-[14px] font-bold mt-3">Sipho Dlamini</p>
+            <p class="text-[11px] text-white/60">9 deals</p>
+            <div class="bg-white/10 rounded-lg p-3 mt-3 h-24 flex flex-col justify-end">
+              <p class="text-[10px] text-white/60 uppercase tracking-wider">Commission</p>
+              <p class="text-lg font-bold font-mono">R 178k</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Agent table -->
+      <div class="bg-white rounded-xl border border-ink-200 shadow-soft overflow-hidden">
+        <div class="p-5 border-b border-ink-200 flex items-center justify-between">
+          <h2 class="text-base font-semibold">All Agents</h2>
+          <div class="flex items-center gap-2">
+            <input class="text-[12px] bg-ink-50 border border-ink-200 rounded-md px-3 py-1.5 w-48" placeholder="Search agent...">
+            <select class="text-[12px] bg-white border border-ink-200 rounded-md px-3 py-1.5">
+              <option>All statuses</option>
+              <option>Active</option>
+              <option>Pending</option>
+            </select>
+          </div>
+        </div>
+        <table class="w-full">
+          <thead>
+            <tr class="text-left text-[11px] uppercase text-ink-500 tracking-wider border-b border-ink-200 bg-ink-50">
+              <th class="font-semibold px-5 py-3">Agent</th>
+              <th class="font-semibold py-3">Speciality</th>
+              <th class="font-semibold py-3 text-right">Split</th>
+              <th class="font-semibold py-3 text-right">Listings</th>
+              <th class="font-semibold py-3 text-right">Deals (MTD)</th>
+              <th class="font-semibold py-3 text-right">Commission</th>
+              <th class="font-semibold py-3">FFC</th>
+              <th class="font-semibold py-3">Paystack</th>
+              <th class="font-semibold py-3 text-right pr-5">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="text-[13px]">
+            <tr class="border-b border-ink-100 hover:bg-ink-50">
+              <td class="px-5 py-4">
+                <div class="flex items-center gap-3">
+                  <div class="w-9 h-9 rounded-full bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center text-white text-xs font-bold">MK</div>
+                  <div>
+                    <p class="font-semibold">Malwandla Khosa</p>
+                    <p class="text-[11px] text-ink-500">agent@propertybasket.co.za</p>
+                  </div>
+                </div>
+              </td>
+              <td><span class="text-[11px] px-2 py-0.5 rounded-full bg-ink-100 text-ink-700 font-medium">Sandton · Sales</span></td>
+              <td class="text-right font-mono font-semibold">70/30</td>
+              <td class="text-right font-mono">14</td>
+              <td class="text-right font-mono font-semibold">5</td>
+              <td class="text-right font-mono font-semibold">R 287,400</td>
+              <td><span class="text-[10px] px-2 py-0.5 rounded-full bg-success/15 text-success font-bold">VALID</span></td>
+              <td><span class="text-[10px] px-2 py-0.5 rounded-full bg-success/15 text-success font-bold">LINKED</span></td>
+              <td class="text-right pr-5"><button class="text-ink-400 hover:text-ink-900">⋯</button></td>
+            </tr>
+            <tr class="border-b border-ink-100 hover:bg-ink-50">
+              <td class="px-5 py-4">
+                <div class="flex items-center gap-3">
+                  <div class="w-9 h-9 rounded-full bg-gradient-to-br from-rose-400 to-rose-600 flex items-center justify-center text-white text-xs font-bold">LM</div>
+                  <div>
+                    <p class="font-semibold">Lerato Mbeki</p>
+                    <p class="text-[11px] text-ink-500">lerato@propertybasket.co.za</p>
+                  </div>
+                </div>
+              </td>
+              <td><span class="text-[11px] px-2 py-0.5 rounded-full bg-ink-100 text-ink-700 font-medium">Pretoria · Rentals</span></td>
+              <td class="text-right font-mono font-semibold">65/35</td>
+              <td class="text-right font-mono">11</td>
+              <td class="text-right font-mono font-semibold">4</td>
+              <td class="text-right font-mono font-semibold">R 218,200</td>
+              <td><span class="text-[10px] px-2 py-0.5 rounded-full bg-success/15 text-success font-bold">VALID</span></td>
+              <td><span class="text-[10px] px-2 py-0.5 rounded-full bg-success/15 text-success font-bold">LINKED</span></td>
+              <td class="text-right pr-5"><button class="text-ink-400 hover:text-ink-900">⋯</button></td>
+            </tr>
+            <tr class="border-b border-ink-100 hover:bg-ink-50">
+              <td class="px-5 py-4">
+                <div class="flex items-center gap-3">
+                  <div class="w-9 h-9 rounded-full bg-gradient-to-br from-sky-400 to-sky-600 flex items-center justify-center text-white text-xs font-bold">SD</div>
+                  <div>
+                    <p class="font-semibold">Sipho Dlamini</p>
+                    <p class="text-[11px] text-ink-500">sipho@propertybasket.co.za</p>
+                  </div>
+                </div>
+              </td>
+              <td><span class="text-[11px] px-2 py-0.5 rounded-full bg-ink-100 text-ink-700 font-medium">JHB North · Sales</span></td>
+              <td class="text-right font-mono font-semibold">60/40</td>
+              <td class="text-right font-mono">9</td>
+              <td class="text-right font-mono font-semibold">3</td>
+              <td class="text-right font-mono font-semibold">R 178,400</td>
+              <td><span class="text-[10px] px-2 py-0.5 rounded-full bg-success/15 text-success font-bold">VALID</span></td>
+              <td><span class="text-[10px] px-2 py-0.5 rounded-full bg-success/15 text-success font-bold">LINKED</span></td>
+              <td class="text-right pr-5"><button class="text-ink-400 hover:text-ink-900">⋯</button></td>
+            </tr>
+            <tr class="border-b border-ink-100 hover:bg-ink-50">
+              <td class="px-5 py-4">
+                <div class="flex items-center gap-3">
+                  <div class="w-9 h-9 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white text-xs font-bold">AB</div>
+                  <div>
+                    <p class="font-semibold">Anna Botha</p>
+                    <p class="text-[11px] text-ink-500">anna@propertybasket.co.za</p>
+                  </div>
+                </div>
+              </td>
+              <td><span class="text-[11px] px-2 py-0.5 rounded-full bg-ink-100 text-ink-700 font-medium">Centurion · Mixed</span></td>
+              <td class="text-right font-mono font-semibold">60/40</td>
+              <td class="text-right font-mono">7</td>
+              <td class="text-right font-mono font-semibold">3</td>
+              <td class="text-right font-mono font-semibold">R 142,800</td>
+              <td><span class="text-[10px] px-2 py-0.5 rounded-full bg-warning/15 text-warning font-bold">EXPIRES 30d</span></td>
+              <td><span class="text-[10px] px-2 py-0.5 rounded-full bg-success/15 text-success font-bold">LINKED</span></td>
+              <td class="text-right pr-5"><button class="text-ink-400 hover:text-ink-900">⋯</button></td>
+            </tr>
+            <tr class="border-b border-ink-100 hover:bg-ink-50">
+              <td class="px-5 py-4">
+                <div class="flex items-center gap-3">
+                  <div class="w-9 h-9 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-white text-xs font-bold">TZ</div>
+                  <div>
+                    <p class="font-semibold">Themba Zulu</p>
+                    <p class="text-[11px] text-ink-500">themba@propertybasket.co.za</p>
+                  </div>
+                </div>
+              </td>
+              <td><span class="text-[11px] px-2 py-0.5 rounded-full bg-ink-100 text-ink-700 font-medium">Rosebank · Rentals</span></td>
+              <td class="text-right font-mono font-semibold">55/45</td>
+              <td class="text-right font-mono">5</td>
+              <td class="text-right font-mono font-semibold">2</td>
+              <td class="text-right font-mono font-semibold">R 98,400</td>
+              <td><span class="text-[10px] px-2 py-0.5 rounded-full bg-success/15 text-success font-bold">VALID</span></td>
+              <td><span class="text-[10px] px-2 py-0.5 rounded-full bg-danger/15 text-danger font-bold">MISSING</span></td>
+              <td class="text-right pr-5"><button class="text-ink-400 hover:text-ink-900">⋯</button></td>
+            </tr>
+            <tr class="border-b border-ink-100 hover:bg-ink-50">
+              <td class="px-5 py-4">
+                <div class="flex items-center gap-3">
+                  <div class="w-9 h-9 rounded-full bg-gradient-to-br from-violet-400 to-violet-600 flex items-center justify-center text-white text-xs font-bold">NK</div>
+                  <div>
+                    <p class="font-semibold">Nomvula Khumalo</p>
+                    <p class="text-[11px] text-ink-500">nomvula@propertybasket.co.za</p>
+                  </div>
+                </div>
+              </td>
+              <td><span class="text-[11px] px-2 py-0.5 rounded-full bg-ink-100 text-ink-700 font-medium">Hatfield · Rentals</span></td>
+              <td class="text-right font-mono font-semibold">55/45</td>
+              <td class="text-right font-mono">4</td>
+              <td class="text-right font-mono font-semibold">2</td>
+              <td class="text-right font-mono font-semibold">R 78,200</td>
+              <td><span class="text-[10px] px-2 py-0.5 rounded-full bg-success/15 text-success font-bold">VALID</span></td>
+              <td><span class="text-[10px] px-2 py-0.5 rounded-full bg-success/15 text-success font-bold">LINKED</span></td>
+              <td class="text-right pr-5"><button class="text-ink-400 hover:text-ink-900">⋯</button></td>
+            </tr>
+            <tr class="border-b border-ink-100 hover:bg-ink-50">
+              <td class="px-5 py-4">
+                <div class="flex items-center gap-3">
+                  <div class="w-9 h-9 rounded-full bg-ink-200 flex items-center justify-center text-ink-700 text-xs font-bold">JD</div>
+                  <div>
+                    <p class="font-semibold">James du Plessis</p>
+                    <p class="text-[11px] text-ink-500">james@propertybasket.co.za</p>
+                  </div>
+                </div>
+              </td>
+              <td><span class="text-[11px] px-2 py-0.5 rounded-full bg-ink-100 text-ink-700 font-medium">—</span></td>
+              <td class="text-right font-mono text-ink-400">—</td>
+              <td class="text-right font-mono">0</td>
+              <td class="text-right font-mono">0</td>
+              <td class="text-right font-mono text-ink-400">R 0</td>
+              <td><span class="text-[10px] px-2 py-0.5 rounded-full bg-ink-100 text-ink-500 font-bold">PENDING</span></td>
+              <td><span class="text-[10px] px-2 py-0.5 rounded-full bg-ink-100 text-ink-500 font-bold">PENDING</span></td>
+              <td class="text-right pr-5"><button class="text-ink-400 hover:text-ink-900">⋯</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ================== VIEW: LISTINGS & LEAD ALLOCATION ================== -->
+    <section id="view-listings" class="view px-8 py-7">
+      <div class="flex items-end justify-between mb-6">
+        <div>
+          <h1 class="text-2xl font-bold tracking-tight">Listings & Lead Allocation</h1>
+          <p class="text-[14px] text-ink-500 mt-1">14 active listings · Auto-allocation: <span class="font-semibold text-ink-900">Round-robin</span> across 8 agents</p>
+        </div>
+        <button class="px-3.5 py-2 text-[13px] bg-ink-900 text-white rounded-lg flex items-center gap-2">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+          New Listing
+        </button>
+      </div>
+
+      <!-- Allocation rule banner -->
+      <div class="bg-gradient-to-r from-brand-50 to-violet-50 border border-brand-100 rounded-xl p-4 mb-6 flex items-center gap-4">
+        <div class="w-10 h-10 rounded-lg bg-brand-500 flex items-center justify-center text-white">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9M21 3v6h-6M21 12a9 9 0 0 1-9 9m-9-9h6M12 8v4l3 2"/></svg>
+        </div>
+        <div class="flex-1">
+          <p class="text-[13px] font-semibold">Round-robin allocation is ON</p>
+          <p class="text-[12px] text-ink-500">New leads rotate evenly across active agents. Manual override available per lead.</p>
+        </div>
+        <p class="text-[11px] text-ink-500 font-mono">Next up: <span class="font-bold text-brand-700">Anna Botha</span></p>
+        <button class="px-3 py-1.5 text-[12px] bg-white border border-ink-200 rounded-md hover:bg-ink-100">Configure</button>
+      </div>
+
+      <div class="grid grid-cols-3 gap-4">
+        <!-- Listing card with allocation -->
+        <div class="bg-white rounded-xl border border-ink-200 overflow-hidden shadow-soft">
+          <div class="aspect-[4/3] bg-gradient-to-br from-amber-300 via-amber-200 to-orange-300 relative">
+            <div class="absolute top-3 left-3 flex gap-1.5">
+              <span class="text-[10px] bg-white/90 backdrop-blur px-2 py-1 rounded-md font-bold">FOR RENT</span>
+            </div>
+          </div>
+          <div class="p-4">
+            <p class="text-[15px] font-bold">2-bed apartment, Andeon</p>
+            <p class="text-[12px] text-ink-500 mb-3">Pretoria · R 8,000/mo</p>
+            <div class="bg-ink-50 rounded-lg p-3 mb-3">
+              <p class="text-[10px] text-ink-500 uppercase tracking-wider font-semibold mb-2">Assigned Agent</p>
+              <div class="flex items-center gap-2">
+                <div class="w-7 h-7 rounded-full bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center text-white text-[10px] font-bold">MK</div>
+                <div class="flex-1 min-w-0">
+                  <p class="text-[12px] font-semibold truncate">Malwandla Khosa</p>
+                  <p class="text-[10px] text-ink-500">Split: 70/30</p>
+                </div>
+                <button class="text-[10px] text-brand-600 font-semibold">Change</button>
+              </div>
+            </div>
+            <div class="grid grid-cols-3 gap-2 text-center">
+              <div class="bg-ink-50 rounded p-1.5">
+                <p class="text-[11px] font-bold">34</p>
+                <p class="text-[9px] text-ink-500">Inquiries</p>
+              </div>
+              <div class="bg-ink-50 rounded p-1.5">
+                <p class="text-[11px] font-bold">8</p>
+                <p class="text-[9px] text-ink-500">Viewings</p>
+              </div>
+              <div class="bg-ink-50 rounded p-1.5">
+                <p class="text-[11px] font-bold">1</p>
+                <p class="text-[9px] text-ink-500">Offers</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-xl border border-ink-200 overflow-hidden shadow-soft">
+          <div class="aspect-[4/3] bg-gradient-to-br from-sky-300 via-sky-200 to-cyan-300 relative">
+            <div class="absolute top-3 left-3 flex gap-1.5">
+              <span class="text-[10px] bg-white/90 backdrop-blur px-2 py-1 rounded-md font-bold">FOR SALE</span>
+            </div>
+          </div>
+          <div class="p-4">
+            <p class="text-[15px] font-bold">3-bed house, Fourways</p>
+            <p class="text-[12px] text-ink-500 mb-3">Johannesburg · R 2,450,000</p>
+            <div class="bg-ink-50 rounded-lg p-3 mb-3">
+              <p class="text-[10px] text-ink-500 uppercase tracking-wider font-semibold mb-2">Assigned Agent</p>
+              <div class="flex items-center gap-2">
+                <div class="w-7 h-7 rounded-full bg-gradient-to-br from-sky-400 to-sky-600 flex items-center justify-center text-white text-[10px] font-bold">SD</div>
+                <div class="flex-1 min-w-0">
+                  <p class="text-[12px] font-semibold truncate">Sipho Dlamini</p>
+                  <p class="text-[10px] text-ink-500">Split: 60/40 · Deal override</p>
+                </div>
+                <button class="text-[10px] text-brand-600 font-semibold">Change</button>
+              </div>
+            </div>
+            <div class="grid grid-cols-3 gap-2 text-center">
+              <div class="bg-ink-50 rounded p-1.5">
+                <p class="text-[11px] font-bold">52</p>
+                <p class="text-[9px] text-ink-500">Inquiries</p>
+              </div>
+              <div class="bg-ink-50 rounded p-1.5">
+                <p class="text-[11px] font-bold">14</p>
+                <p class="text-[9px] text-ink-500">Viewings</p>
+              </div>
+              <div class="bg-ink-50 rounded p-1.5">
+                <p class="text-[11px] font-bold">2</p>
+                <p class="text-[9px] text-ink-500">Offers</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Unallocated -->
+        <div class="bg-white rounded-xl border border-warning/40 overflow-hidden shadow-soft">
+          <div class="aspect-[4/3] bg-gradient-to-br from-rose-300 via-rose-200 to-pink-300 relative">
+            <div class="absolute top-3 left-3 flex gap-1.5">
+              <span class="text-[10px] bg-white/90 backdrop-blur px-2 py-1 rounded-md font-bold">SHORT-STAY</span>
+              <span class="text-[10px] bg-warning text-white px-2 py-1 rounded-md font-bold">UNASSIGNED</span>
+            </div>
+          </div>
+          <div class="p-4">
+            <p class="text-[15px] font-bold">Loft, Maboneng</p>
+            <p class="text-[12px] text-ink-500 mb-3">Johannesburg · R 1,200/night</p>
+            <div class="bg-warning/5 border border-warning/30 rounded-lg p-3 mb-3">
+              <p class="text-[10px] text-warning uppercase tracking-wider font-semibold mb-2">Awaiting Allocation</p>
+              <div class="flex items-center gap-2">
+                <select class="flex-1 text-[12px] bg-white border border-ink-200 rounded-md px-2 py-1.5">
+                  <option>Auto (next in queue: Anna)</option>
+                  <option>Malwandla Khosa</option>
+                  <option>Lerato Mbeki</option>
+                  <option>Sipho Dlamini</option>
+                </select>
+                <button class="px-3 py-1.5 text-[11px] bg-brand-500 text-white rounded-md font-semibold">Assign</button>
+              </div>
+            </div>
+            <div class="grid grid-cols-3 gap-2 text-center">
+              <div class="bg-ink-50 rounded p-1.5">
+                <p class="text-[11px] font-bold">18</p>
+                <p class="text-[9px] text-ink-500">Inquiries</p>
+              </div>
+              <div class="bg-ink-50 rounded p-1.5">
+                <p class="text-[11px] font-bold">3</p>
+                <p class="text-[9px] text-ink-500">Viewings</p>
+              </div>
+              <div class="bg-ink-50 rounded p-1.5">
+                <p class="text-[11px] font-bold">0</p>
+                <p class="text-[9px] text-ink-500">Offers</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Lead queue -->
+      <div class="mt-6 bg-white rounded-xl border border-ink-200 shadow-soft overflow-hidden">
+        <div class="p-5 border-b border-ink-200 flex items-center justify-between">
+          <div>
+            <h2 class="text-base font-semibold">Lead Queue · Round-robin Distribution</h2>
+            <p class="text-[12px] text-ink-500 mt-0.5">Most recent leads · Auto-assigned</p>
+          </div>
+          <button class="text-[12px] px-3 py-1.5 border border-ink-200 rounded-md hover:bg-ink-100">Reassign batch</button>
+        </div>
+        <table class="w-full">
+          <thead>
+            <tr class="text-left text-[11px] uppercase text-ink-500 tracking-wider border-b border-ink-200 bg-ink-50">
+              <th class="font-semibold px-5 py-3">Lead</th>
+              <th class="font-semibold py-3">Property</th>
+              <th class="font-semibold py-3">Source</th>
+              <th class="font-semibold py-3">Assigned to</th>
+              <th class="font-semibold py-3">Status</th>
+              <th class="font-semibold py-3 text-right pr-5">Received</th>
+            </tr>
+          </thead>
+          <tbody class="text-[13px]">
+            <tr class="border-b border-ink-100 hover:bg-ink-50">
+              <td class="px-5 py-3 font-semibold">Tshepo Khumalo</td>
+              <td>Andeon 2-bed</td>
+              <td><span class="text-[11px] px-2 py-0.5 rounded-full bg-brand-50 text-brand-700 font-semibold">Property Basket</span></td>
+              <td>
+                <div class="flex items-center gap-2">
+                  <div class="w-6 h-6 rounded-full bg-gradient-to-br from-rose-400 to-rose-600 flex items-center justify-center text-white text-[9px] font-bold">LM</div>
+                  <span class="text-[12px]">Lerato Mbeki</span>
+                  <span class="text-[9px] bg-brand-50 text-brand-700 px-1.5 py-0.5 rounded font-bold">AUTO</span>
+                </div>
+              </td>
+              <td><span class="text-[10px] px-2 py-0.5 rounded-full bg-success/15 text-success font-bold">NEW</span></td>
+              <td class="text-right pr-5 text-[11px] text-ink-500 font-mono">12 min ago</td>
+            </tr>
+            <tr class="border-b border-ink-100 hover:bg-ink-50">
+              <td class="px-5 py-3 font-semibold">Karabo Modise</td>
+              <td>Fourways 3-bed</td>
+              <td><span class="text-[11px] px-2 py-0.5 rounded-full bg-sky-50 text-sky-700 font-semibold">Property24</span></td>
+              <td>
+                <div class="flex items-center gap-2">
+                  <div class="w-6 h-6 rounded-full bg-gradient-to-br from-sky-400 to-sky-600 flex items-center justify-center text-white text-[9px] font-bold">SD</div>
+                  <span class="text-[12px]">Sipho Dlamini</span>
+                  <span class="text-[9px] bg-ink-100 text-ink-700 px-1.5 py-0.5 rounded font-bold">MANUAL</span>
+                </div>
+              </td>
+              <td><span class="text-[10px] px-2 py-0.5 rounded-full bg-brand-50 text-brand-700 font-bold">QUALIFIED</span></td>
+              <td class="text-right pr-5 text-[11px] text-ink-500 font-mono">1h ago</td>
+            </tr>
+            <tr class="border-b border-ink-100 hover:bg-ink-50">
+              <td class="px-5 py-3 font-semibold">Naledi van Wyk</td>
+              <td>Centurion 3-bed</td>
+              <td><span class="text-[11px] px-2 py-0.5 rounded-full bg-brand-50 text-brand-700 font-semibold">Property Basket</span></td>
+              <td>
+                <div class="flex items-center gap-2">
+                  <div class="w-6 h-6 rounded-full bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center text-white text-[9px] font-bold">MK</div>
+                  <span class="text-[12px]">Malwandla Khosa</span>
+                  <span class="text-[9px] bg-brand-50 text-brand-700 px-1.5 py-0.5 rounded font-bold">AUTO</span>
+                </div>
+              </td>
+              <td><span class="text-[10px] px-2 py-0.5 rounded-full bg-danger/15 text-danger font-bold">HOT</span></td>
+              <td class="text-right pr-5 text-[11px] text-ink-500 font-mono">3h ago</td>
+            </tr>
+            <tr class="border-b border-ink-100 hover:bg-ink-50">
+              <td class="px-5 py-3 font-semibold">Riaan Pretorius</td>
+              <td>Fourways 3-bed</td>
+              <td><span class="text-[11px] px-2 py-0.5 rounded-full bg-emerald-50 text-success font-semibold">Referral</span></td>
+              <td>
+                <div class="flex items-center gap-2">
+                  <div class="w-6 h-6 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white text-[9px] font-bold">AB</div>
+                  <span class="text-[12px]">Anna Botha</span>
+                  <span class="text-[9px] bg-brand-50 text-brand-700 px-1.5 py-0.5 rounded font-bold">AUTO</span>
+                </div>
+              </td>
+              <td><span class="text-[10px] px-2 py-0.5 rounded-full bg-warning/15 text-warning font-bold">WARM</span></td>
+              <td class="text-right pr-5 text-[11px] text-ink-500 font-mono">Yesterday</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ================== VIEW: PIPELINE (cross-agent) ================== -->
+    <section id="view-pipeline" class="view px-8 py-7">
+      <div class="flex items-end justify-between mb-6">
+        <div>
+          <h1 class="text-2xl font-bold tracking-tight">Agency Pipeline</h1>
+          <p class="text-[14px] text-ink-500 mt-1">All deals across all agents · R 18.2m total pipeline value</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <select class="text-[12px] bg-white border border-ink-200 rounded-md px-3 py-1.5">
+            <option>All agents</option>
+            <option>Malwandla Khosa</option>
+            <option>Lerato Mbeki</option>
+          </select>
+          <select class="text-[12px] bg-white border border-ink-200 rounded-md px-3 py-1.5">
+            <option>All types</option>
+            <option>Sales only</option>
+            <option>Rentals only</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-5 gap-3 min-h-[600px]">
+        <div class="bg-ink-100/50 rounded-xl p-3">
+          <div class="flex items-center justify-between mb-3 px-1">
+            <div class="flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-ink-400"></span>
+              <p class="text-[12px] font-semibold uppercase tracking-wide">New Lead</p>
+              <span class="text-[11px] bg-white px-1.5 py-0.5 rounded-full font-bold">18</span>
+            </div>
+            <span class="text-[11px] text-ink-500 font-mono">R 6.4m</span>
+          </div>
+          <div class="space-y-2">
+            <div class="bg-white rounded-lg p-3 shadow-soft border border-ink-200">
+              <p class="text-[13px] font-semibold mb-1">Tshepo Khumalo</p>
+              <p class="text-[11px] text-ink-500 mb-2">Andeon 2-bed</p>
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-1.5">
+                  <div class="w-5 h-5 rounded-full bg-gradient-to-br from-rose-400 to-rose-600 flex items-center justify-center text-white text-[8px] font-bold">LM</div>
+                  <span class="text-[10px] text-ink-500">Lerato</span>
+                </div>
+                <span class="text-[11px] font-mono font-semibold">R 8,000</span>
+              </div>
+            </div>
+            <div class="bg-white rounded-lg p-3 shadow-soft border border-ink-200">
+              <p class="text-[13px] font-semibold mb-1">Mpho Nkosi</p>
+              <p class="text-[11px] text-ink-500 mb-2">Hatfield apt</p>
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-1.5">
+                  <div class="w-5 h-5 rounded-full bg-gradient-to-br from-violet-400 to-violet-600 flex items-center justify-center text-white text-[8px] font-bold">NK</div>
+                  <span class="text-[10px] text-ink-500">Nomvula</span>
+                </div>
+                <span class="text-[11px] font-mono font-semibold">R 7,200</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-ink-100/50 rounded-xl p-3">
+          <div class="flex items-center justify-between mb-3 px-1">
+            <div class="flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-sky-500"></span>
+              <p class="text-[12px] font-semibold uppercase tracking-wide">Qualified</p>
+              <span class="text-[11px] bg-white px-1.5 py-0.5 rounded-full font-bold">14</span>
+            </div>
+            <span class="text-[11px] text-ink-500 font-mono">R 4.8m</span>
+          </div>
+          <div class="space-y-2">
+            <div class="bg-white rounded-lg p-3 shadow-soft border border-ink-200 border-l-2 border-l-danger">
+              <div class="flex items-center gap-2 mb-1">
+                <p class="text-[13px] font-semibold">Naledi van Wyk</p>
+                <span class="text-[9px] bg-danger/15 text-danger px-1 rounded font-bold">HOT</span>
+              </div>
+              <p class="text-[11px] text-ink-500 mb-2">Centurion 3-bed</p>
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-1.5">
+                  <div class="w-5 h-5 rounded-full bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center text-white text-[8px] font-bold">MK</div>
+                  <span class="text-[10px] text-ink-500">Malwandla</span>
+                </div>
+                <span class="text-[11px] font-mono font-semibold">R 1.4m</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-ink-100/50 rounded-xl p-3">
+          <div class="flex items-center justify-between mb-3 px-1">
+            <div class="flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-brand-500"></span>
+              <p class="text-[12px] font-semibold uppercase tracking-wide">Viewing</p>
+              <span class="text-[11px] bg-white px-1.5 py-0.5 rounded-full font-bold">9</span>
+            </div>
+            <span class="text-[11px] text-ink-500 font-mono">R 3.6m</span>
+          </div>
+          <div class="space-y-2">
+            <div class="bg-white rounded-lg p-3 shadow-soft border border-ink-200">
+              <p class="text-[13px] font-semibold mb-1">Jessica Adams</p>
+              <p class="text-[11px] text-ink-500 mb-2">Sandton penthouse</p>
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-1.5">
+                  <div class="w-5 h-5 rounded-full bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center text-white text-[8px] font-bold">MK</div>
+                  <span class="text-[10px] text-ink-500">Malwandla</span>
+                </div>
+                <span class="text-[11px] font-mono font-semibold">R 950k</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-ink-100/50 rounded-xl p-3">
+          <div class="flex items-center justify-between mb-3 px-1">
+            <div class="flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-warning"></span>
+              <p class="text-[12px] font-semibold uppercase tracking-wide">Offer</p>
+              <span class="text-[11px] bg-white px-1.5 py-0.5 rounded-full font-bold">4</span>
+            </div>
+            <span class="text-[11px] text-ink-500 font-mono">R 2.1m</span>
+          </div>
+          <div class="space-y-2">
+            <div class="bg-white rounded-lg p-3 shadow-soft border border-ink-200">
+              <p class="text-[13px] font-semibold mb-1">Karabo Modise</p>
+              <p class="text-[11px] text-ink-500 mb-2">Hatfield apt sale</p>
+              <div class="bg-warning/10 rounded p-1.5 mb-2">
+                <p class="text-[10px] text-warning font-semibold">Offer: R 620k</p>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <div class="w-5 h-5 rounded-full bg-gradient-to-br from-sky-400 to-sky-600 flex items-center justify-center text-white text-[8px] font-bold">SD</div>
+                <span class="text-[10px] text-ink-500">Sipho</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-ink-100/50 rounded-xl p-3">
+          <div class="flex items-center justify-between mb-3 px-1">
+            <div class="flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-success"></span>
+              <p class="text-[12px] font-semibold uppercase tracking-wide">Closed (MTD)</p>
+              <span class="text-[11px] bg-white px-1.5 py-0.5 rounded-full font-bold">2</span>
+            </div>
+            <span class="text-[11px] text-ink-500 font-mono">R 1.3m</span>
+          </div>
+          <div class="space-y-2">
+            <div class="bg-white rounded-lg p-3 shadow-soft border border-success/30 bg-success/5">
+              <div class="flex items-center gap-2 mb-1">
+                <p class="text-[13px] font-semibold">PB Tenant</p>
+                <svg class="w-3 h-3 text-success" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 13l4 4L19 7"/></svg>
+              </div>
+              <p class="text-[11px] text-ink-500 mb-2">Andeon lease signed</p>
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-1.5">
+                  <div class="w-5 h-5 rounded-full bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center text-white text-[8px] font-bold">MK</div>
+                  <span class="text-[10px] text-ink-500">Malwandla</span>
+                </div>
+                <span class="text-[10px] font-mono text-success font-bold">+R 7,200</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================== VIEW: COMMISSION & PAYOUTS ================== -->
+    <section id="view-commission" class="view px-8 py-7">
+      <div class="flex items-end justify-between mb-6">
+        <div>
+          <h1 class="text-2xl font-bold tracking-tight">Commission & Payouts</h1>
+          <p class="text-[14px] text-ink-500 mt-1">Monthly payout day: <span class="font-semibold text-ink-900">25th of each month</span> · Paystack connected ✓</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button class="px-3.5 py-2 text-[13px] border border-ink-200 rounded-lg hover:bg-ink-100 flex items-center gap-2">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+            Export ledger
+          </button>
+          <button class="px-3.5 py-2 text-[13px] bg-brand-500 text-white rounded-lg hover:bg-brand-600 flex items-center gap-2">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M8 12h8M12 8v8"/></svg>
+            Run Payout Batch
+          </button>
+        </div>
+      </div>
+
+      <!-- Stat strip -->
+      <div class="grid grid-cols-4 gap-4 mb-6">
+        <div class="bg-gradient-to-br from-brand-500 to-brand-700 rounded-xl p-5 text-white shadow-card">
+          <p class="text-[11px] uppercase tracking-wider opacity-80 font-semibold">Next Payout</p>
+          <p class="text-3xl font-bold mt-2">R 132,400</p>
+          <p class="text-[11px] opacity-80 mt-1">25 May 2026 · 7 days</p>
+          <div class="mt-3 flex items-center gap-2">
+            <div class="flex-1 h-1.5 bg-white/20 rounded-full overflow-hidden">
+              <div class="h-full bg-white" style="width: 77%"></div>
+            </div>
+            <span class="text-[10px] font-semibold">8/8 agents</span>
+          </div>
+        </div>
+        <div class="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+          <p class="text-[11px] text-ink-500 uppercase tracking-wider font-semibold">Paid YTD</p>
+          <p class="text-3xl font-bold mt-2">R 1,089,400</p>
+          <p class="text-[11px] text-success mt-1">↑ 24% vs FY 2025</p>
+        </div>
+        <div class="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+          <p class="text-[11px] text-ink-500 uppercase tracking-wider font-semibold">Agency Retained</p>
+          <p class="text-3xl font-bold mt-2">R 542,800</p>
+          <p class="text-[11px] text-ink-500 mt-1">Avg split: ~62/38</p>
+        </div>
+        <div class="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+          <p class="text-[11px] text-ink-500 uppercase tracking-wider font-semibold">VAT on Commission</p>
+          <p class="text-3xl font-bold mt-2">R 244,200</p>
+          <p class="text-[11px] text-ink-500 mt-1">15% · Reportable to SARS</p>
+        </div>
+      </div>
+
+      <!-- Payout queue -->
+      <div class="bg-white rounded-xl border border-ink-200 shadow-soft overflow-hidden mb-6">
+        <div class="p-5 border-b border-ink-200 flex items-center justify-between">
+          <div>
+            <h2 class="text-base font-semibold">May Payout Queue</h2>
+            <p class="text-[12px] text-ink-500 mt-0.5">Review and approve each agent's commission before batch run</p>
+          </div>
+          <div class="flex items-center gap-3">
+            <span class="text-[12px] text-ink-500">Selected: <span class="font-semibold text-ink-900">5 of 8</span></span>
+            <button class="px-3 py-1.5 text-[12px] bg-success/10 text-success rounded-md font-semibold">Approve selected</button>
+          </div>
+        </div>
+        <table class="w-full">
+          <thead>
+            <tr class="text-left text-[11px] uppercase text-ink-500 tracking-wider border-b border-ink-200 bg-ink-50">
+              <th class="font-semibold px-5 py-3 w-10"><input type="checkbox"></th>
+              <th class="font-semibold py-3">Agent</th>
+              <th class="font-semibold py-3 text-right">Gross Commission</th>
+              <th class="font-semibold py-3 text-right">Split %</th>
+              <th class="font-semibold py-3 text-right">VAT (15%)</th>
+              <th class="font-semibold py-3 text-right">Agent Net</th>
+              <th class="font-semibold py-3">Paystack</th>
+              <th class="font-semibold py-3">Status</th>
+            </tr>
+          </thead>
+          <tbody class="text-[13px]">
+            <tr class="border-b border-ink-100 hover:bg-ink-50">
+              <td class="px-5 py-3"><input type="checkbox" checked></td>
+              <td>
+                <div class="flex items-center gap-3">
+                  <div class="w-8 h-8 rounded-full bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center text-white text-[10px] font-bold">MK</div>
+                  <span class="font-semibold">Malwandla Khosa</span>
+                </div>
+              </td>
+              <td class="text-right font-mono">R 51,000</td>
+              <td class="text-right font-mono">70%</td>
+              <td class="text-right font-mono text-ink-500">R 5,355</td>
+              <td class="text-right font-mono font-bold text-success">R 35,700</td>
+              <td><span class="text-[10px] px-2 py-0.5 rounded-full bg-success/15 text-success font-bold">VERIFIED</span></td>
+              <td><span class="text-[10px] px-2 py-0.5 rounded-full bg-brand-50 text-brand-700 font-bold">APPROVED</span></td>
+            </tr>
+            <tr class="border-b border-ink-100 hover:bg-ink-50">
+              <td class="px-5 py-3"><input type="checkbox" checked></td>
+              <td>
+                <div class="flex items-center gap-3">
+                  <div class="w-8 h-8 rounded-full bg-gradient-to-br from-rose-400 to-rose-600 flex items-center justify-center text-white text-[10px] font-bold">LM</div>
+                  <span class="font-semibold">Lerato Mbeki</span>
+                </div>
+              </td>
+              <td class="text-right font-mono">R 38,400</td>
+              <td class="text-right font-mono">65%</td>
+              <td class="text-right font-mono text-ink-500">R 3,744</td>
+              <td class="text-right font-mono font-bold text-success">R 24,960</td>
+              <td><span class="text-[10px] px-2 py-0.5 rounded-full bg-success/15 text-success font-bold">VERIFIED</span></td>
+              <td><span class="text-[10px] px-2 py-0.5 rounded-full bg-brand-50 text-brand-700 font-bold">APPROVED</span></td>
+            </tr>
+            <tr class="border-b border-ink-100 hover:bg-ink-50">
+              <td class="px-5 py-3"><input type="checkbox" checked></td>
+              <td>
+                <div class="flex items-center gap-3">
+                  <div class="w-8 h-8 rounded-full bg-gradient-to-br from-sky-400 to-sky-600 flex items-center justify-center text-white text-[10px] font-bold">SD</div>
+                  <span class="font-semibold">Sipho Dlamini</span>
+                </div>
+              </td>
+              <td class="text-right font-mono">R 32,100</td>
+              <td class="text-right font-mono">60%</td>
+              <td class="text-right font-mono text-ink-500">R 2,889</td>
+              <td class="text-right font-mono font-bold text-success">R 19,260</td>
+              <td><span class="text-[10px] px-2 py-0.5 rounded-full bg-success/15 text-success font-bold">VERIFIED</span></td>
+              <td><span class="text-[10px] px-2 py-0.5 rounded-full bg-brand-50 text-brand-700 font-bold">APPROVED</span></td>
+            </tr>
+            <tr class="border-b border-ink-100 hover:bg-ink-50">
+              <td class="px-5 py-3"><input type="checkbox" checked></td>
+              <td>
+                <div class="flex items-center gap-3">
+                  <div class="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white text-[10px] font-bold">AB</div>
+                  <span class="font-semibold">Anna Botha</span>
+                </div>
+              </td>
+              <td class="text-right font-mono">R 24,800</td>
+              <td class="text-right font-mono">60%</td>
+              <td class="text-right font-mono text-ink-500">R 2,232</td>
+              <td class="text-right font-mono font-bold text-success">R 14,880</td>
+              <td><span class="text-[10px] px-2 py-0.5 rounded-full bg-success/15 text-success font-bold">VERIFIED</span></td>
+              <td><span class="text-[10px] px-2 py-0.5 rounded-full bg-warning/15 text-warning font-bold">REVIEW</span></td>
+            </tr>
+            <tr class="border-b border-ink-100 hover:bg-ink-50">
+              <td class="px-5 py-3"><input type="checkbox"></td>
+              <td>
+                <div class="flex items-center gap-3">
+                  <div class="w-8 h-8 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-white text-[10px] font-bold">TZ</div>
+                  <span class="font-semibold">Themba Zulu</span>
+                </div>
+              </td>
+              <td class="text-right font-mono">R 18,200</td>
+              <td class="text-right font-mono">55%</td>
+              <td class="text-right font-mono text-ink-500">R 1,501</td>
+              <td class="text-right font-mono font-bold text-ink-400">R 10,010</td>
+              <td><span class="text-[10px] px-2 py-0.5 rounded-full bg-danger/15 text-danger font-bold">MISSING</span></td>
+              <td><span class="text-[10px] px-2 py-0.5 rounded-full bg-danger/15 text-danger font-bold">BLOCKED</span></td>
+            </tr>
+            <tr class="border-b border-ink-100 hover:bg-ink-50">
+              <td class="px-5 py-3"><input type="checkbox"></td>
+              <td>
+                <div class="flex items-center gap-3">
+                  <div class="w-8 h-8 rounded-full bg-gradient-to-br from-violet-400 to-violet-600 flex items-center justify-center text-white text-[10px] font-bold">NK</div>
+                  <span class="font-semibold">Nomvula Khumalo</span>
+                </div>
+              </td>
+              <td class="text-right font-mono">R 14,200</td>
+              <td class="text-right font-mono">55%</td>
+              <td class="text-right font-mono text-ink-500">R 1,171</td>
+              <td class="text-right font-mono font-bold text-success">R 7,810</td>
+              <td><span class="text-[10px] px-2 py-0.5 rounded-full bg-success/15 text-success font-bold">VERIFIED</span></td>
+              <td><span class="text-[10px] px-2 py-0.5 rounded-full bg-ink-100 text-ink-500 font-bold">PENDING</span></td>
+            </tr>
+          </tbody>
+          <tfoot class="bg-ink-50 border-t-2 border-ink-200">
+            <tr class="text-[13px] font-semibold">
+              <td></td>
+              <td class="px-5 py-3">Batch Total</td>
+              <td class="text-right font-mono py-3">R 178,700</td>
+              <td></td>
+              <td class="text-right font-mono py-3">R 16,892</td>
+              <td class="text-right font-mono text-success font-bold py-3">R 112,620</td>
+              <td colspan="2"></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+
+      <!-- Paystack integration card -->
+      <div class="grid grid-cols-3 gap-4">
+        <div class="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+          <div class="flex items-center justify-between mb-3">
+            <div class="flex items-center gap-2">
+              <div class="w-8 h-8 rounded-lg bg-sky-50 flex items-center justify-center">
+                <svg class="w-4 h-4 text-sky-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+              </div>
+              <h3 class="text-base font-semibold">Paystack</h3>
+            </div>
+            <span class="text-[10px] px-2 py-0.5 rounded-full bg-success/15 text-success font-bold">CONNECTED</span>
+          </div>
+          <p class="text-[12px] text-ink-500 mb-3">Source account · pay.propertybasket.co.za</p>
+          <div class="bg-ink-50 rounded-lg p-3 text-[11px] font-mono text-ink-700 space-y-1">
+            <p>Balance: <span class="font-semibold text-ink-900">R 645,200</span></p>
+            <p>Last sync: <span class="text-ink-500">2 minutes ago</span></p>
+            <p>Webhook: <span class="text-success">healthy ✓</span></p>
+          </div>
+          <button class="w-full mt-3 py-2 text-[12px] border border-ink-200 rounded-md hover:bg-ink-100 transition">Manage integration</button>
+        </div>
+        <div class="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+          <h3 class="text-base font-semibold mb-3">Recent Transfers</h3>
+          <div class="space-y-2 text-[12px]">
+            <div class="flex items-center justify-between py-1.5 border-b border-ink-100">
+              <span class="text-ink-700">Apr payout · 8 agents</span>
+              <span class="font-mono font-semibold text-success">R 124,800</span>
+            </div>
+            <div class="flex items-center justify-between py-1.5 border-b border-ink-100">
+              <span class="text-ink-700">Mar payout · 7 agents</span>
+              <span class="font-mono font-semibold text-success">R 108,200</span>
+            </div>
+            <div class="flex items-center justify-between py-1.5 border-b border-ink-100">
+              <span class="text-ink-700">Feb payout · 7 agents</span>
+              <span class="font-mono font-semibold text-success">R 96,400</span>
+            </div>
+            <div class="flex items-center justify-between py-1.5">
+              <span class="text-ink-700">Jan payout · 6 agents</span>
+              <span class="font-mono font-semibold text-success">R 84,100</span>
+            </div>
+          </div>
+        </div>
+        <div class="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+          <h3 class="text-base font-semibold mb-3">Payout Settings</h3>
+          <div class="space-y-3 text-[12px]">
+            <div class="flex items-center justify-between py-1.5 border-b border-ink-100">
+              <span class="text-ink-500">Cycle</span>
+              <span class="font-semibold">Monthly</span>
+            </div>
+            <div class="flex items-center justify-between py-1.5 border-b border-ink-100">
+              <span class="text-ink-500">Day of month</span>
+              <span class="font-semibold">25th</span>
+            </div>
+            <div class="flex items-center justify-between py-1.5 border-b border-ink-100">
+              <span class="text-ink-500">Auto-approve</span>
+              <span class="toggle"></span>
+            </div>
+            <div class="flex items-center justify-between py-1.5">
+              <span class="text-ink-500">Email statement</span>
+              <span class="toggle on"></span>
+            </div>
+          </div>
+          <a href="#" data-view="settings" class="nav-item w-full block text-center mt-3 py-2 text-[12px] border border-ink-200 rounded-md hover:bg-ink-100 transition">Edit settings</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================== VIEW: FINANCIAL REPORTS ================== -->
+    <section id="view-reports" class="view px-8 py-7">
+      <div class="flex items-end justify-between mb-6">
+        <div>
+          <h1 class="text-2xl font-bold tracking-tight">Financial Reports</h1>
+          <p class="text-[14px] text-ink-500 mt-1">Cash flow · VAT · Trust account · Sales & rental breakdown</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <select class="text-[12px] bg-white border border-ink-200 rounded-md px-3 py-1.5">
+            <option>FY 2026 (Mar 26 – Feb 27)</option>
+            <option>YTD calendar</option>
+            <option>Custom range</option>
+          </select>
+          <button class="px-3.5 py-2 text-[13px] border border-ink-200 rounded-lg hover:bg-ink-100 flex items-center gap-2">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+            Download PDF
+          </button>
+        </div>
+      </div>
+
+      <!-- P&L summary -->
+      <div class="bg-white rounded-xl border border-ink-200 shadow-soft overflow-hidden mb-6">
+        <div class="p-5 border-b border-ink-200">
+          <h2 class="text-base font-semibold">Income Statement Summary</h2>
+          <p class="text-[12px] text-ink-500 mt-0.5">FY 2026 · YTD</p>
+        </div>
+        <div class="grid grid-cols-4 divide-x divide-ink-200">
+          <div class="p-5">
+            <p class="text-[11px] text-ink-500 uppercase tracking-wider font-semibold">Gross Commission Income</p>
+            <p class="text-2xl font-bold mt-2">R 3,431,800</p>
+            <p class="text-[12px] text-success mt-1">↑ 24% YoY</p>
+          </div>
+          <div class="p-5">
+            <p class="text-[11px] text-ink-500 uppercase tracking-wider font-semibold">Less: Agent Payouts</p>
+            <p class="text-2xl font-bold mt-2 text-ink-700">- R 1,089,400</p>
+            <p class="text-[12px] text-ink-500 mt-1">31.7% of gross</p>
+          </div>
+          <div class="p-5">
+            <p class="text-[11px] text-ink-500 uppercase tracking-wider font-semibold">Less: VAT Liability</p>
+            <p class="text-2xl font-bold mt-2 text-ink-700">- R 510,400</p>
+            <p class="text-[12px] text-ink-500 mt-1">15% on commission</p>
+          </div>
+          <div class="p-5 bg-success/5">
+            <p class="text-[11px] text-success uppercase tracking-wider font-semibold">Net to Agency</p>
+            <p class="text-2xl font-bold mt-2 text-success">R 1,832,000</p>
+            <p class="text-[12px] text-success mt-1">53.4% net margin</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cash flow chart -->
+      <div class="grid grid-cols-3 gap-4 mb-6">
+        <div class="col-span-2 bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+          <h2 class="text-base font-semibold mb-1">Cash Flow Trend</h2>
+          <p class="text-[12px] text-ink-500 mb-4">Inflow vs Outflow · Last 6 months</p>
+          <div class="flex items-end gap-4 h-52 px-2">
+            <div class="flex-1 flex flex-col items-center gap-1">
+              <div class="w-full flex items-end justify-center gap-1 h-48">
+                <div class="bg-success rounded-t w-6" style="height: 65%"></div>
+                <div class="bg-danger/60 rounded-t w-6" style="height: 32%"></div>
+              </div>
+              <span class="text-[10px] text-ink-500">Dec</span>
+            </div>
+            <div class="flex-1 flex flex-col items-center gap-1">
+              <div class="w-full flex items-end justify-center gap-1 h-48">
+                <div class="bg-success rounded-t w-6" style="height: 58%"></div>
+                <div class="bg-danger/60 rounded-t w-6" style="height: 28%"></div>
+              </div>
+              <span class="text-[10px] text-ink-500">Jan</span>
+            </div>
+            <div class="flex-1 flex flex-col items-center gap-1">
+              <div class="w-full flex items-end justify-center gap-1 h-48">
+                <div class="bg-success rounded-t w-6" style="height: 70%"></div>
+                <div class="bg-danger/60 rounded-t w-6" style="height: 34%"></div>
+              </div>
+              <span class="text-[10px] text-ink-500">Feb</span>
+            </div>
+            <div class="flex-1 flex flex-col items-center gap-1">
+              <div class="w-full flex items-end justify-center gap-1 h-48">
+                <div class="bg-success rounded-t w-6" style="height: 78%"></div>
+                <div class="bg-danger/60 rounded-t w-6" style="height: 38%"></div>
+              </div>
+              <span class="text-[10px] text-ink-500">Mar</span>
+            </div>
+            <div class="flex-1 flex flex-col items-center gap-1">
+              <div class="w-full flex items-end justify-center gap-1 h-48">
+                <div class="bg-success rounded-t w-6" style="height: 86%"></div>
+                <div class="bg-danger/60 rounded-t w-6" style="height: 42%"></div>
+              </div>
+              <span class="text-[10px] text-ink-500">Apr</span>
+            </div>
+            <div class="flex-1 flex flex-col items-center gap-1">
+              <div class="w-full flex items-end justify-center gap-1 h-48">
+                <div class="bg-success rounded-t w-6" style="height: 95%"></div>
+                <div class="bg-danger/60 rounded-t w-6" style="height: 48%"></div>
+              </div>
+              <span class="text-[10px] font-semibold text-brand-600">May</span>
+            </div>
+          </div>
+          <div class="flex items-center gap-4 mt-4 text-[11px]">
+            <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-sm bg-success"></span>Inflow (commissions earned)</span>
+            <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-sm bg-danger/60"></span>Outflow (agent payouts + ops)</span>
+          </div>
+        </div>
+
+        <!-- Trust account snapshot -->
+        <div class="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+          <div class="flex items-center justify-between mb-3">
+            <h2 class="text-base font-semibold">Trust Account</h2>
+            <span class="text-[10px] px-2 py-0.5 rounded-full bg-success/15 text-success font-bold">RECONCILED</span>
+          </div>
+          <p class="text-[11px] text-ink-500 mb-3">FNB Section 32 · ***4892</p>
+          <div class="bg-gradient-to-br from-ink-900 to-ink-800 rounded-lg p-4 text-white mb-4">
+            <p class="text-[10px] uppercase tracking-wider opacity-70 font-semibold">Current Balance</p>
+            <p class="text-3xl font-bold mt-1 font-mono">R 482,180</p>
+            <p class="text-[11px] opacity-70 mt-2">Last reconciled · Today 09:14</p>
+          </div>
+          <div class="space-y-2 text-[12px]">
+            <div class="flex justify-between"><span class="text-ink-500">Deposits held</span><span class="font-mono font-semibold">R 384,000</span></div>
+            <div class="flex justify-between"><span class="text-ink-500">Rent in transit</span><span class="font-mono font-semibold">R 98,180</span></div>
+            <div class="flex justify-between text-ink-400 pt-2 border-t border-ink-100"><span>Agency commission (clearing)</span><span class="font-mono">R 0</span></div>
+          </div>
+          <button class="w-full mt-4 py-2 text-[12px] border border-ink-200 rounded-md hover:bg-ink-100 transition">Open ledger</button>
+        </div>
+      </div>
+
+      <!-- Per-agent revenue contribution -->
+      <div class="bg-white rounded-xl border border-ink-200 p-5 shadow-soft mb-6">
+        <h2 class="text-base font-semibold mb-4">Revenue Contribution by Agent</h2>
+        <table class="w-full">
+          <thead>
+            <tr class="text-left text-[11px] uppercase text-ink-500 tracking-wider border-b border-ink-200">
+              <th class="font-semibold py-2">Agent</th>
+              <th class="font-semibold py-2 text-right">Sales (GMV)</th>
+              <th class="font-semibold py-2 text-right">Rentals (GMV)</th>
+              <th class="font-semibold py-2 text-right">Gross Commission</th>
+              <th class="font-semibold py-2 text-right">Paid to Agent</th>
+              <th class="font-semibold py-2 text-right">Agency Net</th>
+              <th class="font-semibold py-2 text-right">% of Revenue</th>
+            </tr>
+          </thead>
+          <tbody class="text-[13px]">
+            <tr class="border-b border-ink-100">
+              <td class="py-3 font-medium">Malwandla Khosa</td>
+              <td class="text-right font-mono">R 6,824,000</td>
+              <td class="text-right font-mono">R 1,128,000</td>
+              <td class="text-right font-mono font-semibold">R 287,400</td>
+              <td class="text-right font-mono text-ink-500">R 201,180</td>
+              <td class="text-right font-mono text-success font-semibold">R 86,220</td>
+              <td class="text-right font-mono">28%</td>
+            </tr>
+            <tr class="border-b border-ink-100">
+              <td class="py-3 font-medium">Lerato Mbeki</td>
+              <td class="text-right font-mono">R 2,890,000</td>
+              <td class="text-right font-mono">R 1,840,000</td>
+              <td class="text-right font-mono font-semibold">R 218,200</td>
+              <td class="text-right font-mono text-ink-500">R 141,830</td>
+              <td class="text-right font-mono text-success font-semibold">R 76,370</td>
+              <td class="text-right font-mono">21%</td>
+            </tr>
+            <tr class="border-b border-ink-100">
+              <td class="py-3 font-medium">Sipho Dlamini</td>
+              <td class="text-right font-mono">R 4,920,000</td>
+              <td class="text-right font-mono">R 482,000</td>
+              <td class="text-right font-mono font-semibold">R 178,400</td>
+              <td class="text-right font-mono text-ink-500">R 107,040</td>
+              <td class="text-right font-mono text-success font-semibold">R 71,360</td>
+              <td class="text-right font-mono">17%</td>
+            </tr>
+            <tr class="border-b border-ink-100">
+              <td class="py-3 font-medium">Anna Botha</td>
+              <td class="text-right font-mono">R 2,100,000</td>
+              <td class="text-right font-mono">R 924,000</td>
+              <td class="text-right font-mono font-semibold">R 142,800</td>
+              <td class="text-right font-mono text-ink-500">R 85,680</td>
+              <td class="text-right font-mono text-success font-semibold">R 57,120</td>
+              <td class="text-right font-mono">14%</td>
+            </tr>
+            <tr class="border-b border-ink-100">
+              <td class="py-3 font-medium">Others (4 agents)</td>
+              <td class="text-right font-mono">R 1,840,000</td>
+              <td class="text-right font-mono">R 1,420,000</td>
+              <td class="text-right font-mono font-semibold">R 412,200</td>
+              <td class="text-right font-mono text-ink-500">R 247,320</td>
+              <td class="text-right font-mono text-success font-semibold">R 164,880</td>
+              <td class="text-right font-mono">20%</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- VAT panel -->
+      <div class="bg-gradient-to-r from-warning/5 to-amber-50 border border-warning/30 rounded-xl p-5">
+        <div class="flex items-start gap-4">
+          <div class="w-10 h-10 rounded-lg bg-warning/15 flex items-center justify-center shrink-0">
+            <svg class="w-5 h-5 text-warning" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+          </div>
+          <div class="flex-1">
+            <p class="text-[14px] font-semibold">SARS VAT Return Due</p>
+            <p class="text-[12px] text-ink-700 mt-1">Bi-monthly period ends <span class="font-semibold">31 May 2026</span>. Output VAT R 87,200 on commission earned in Apr–May.</p>
+            <p class="text-[11px] text-ink-500 mt-2 font-mono">Filing deadline: 25 Jun 2026 (eFiling)</p>
+          </div>
+          <button class="px-3.5 py-2 text-[12px] bg-ink-900 text-white rounded-md font-semibold">Generate VAT 201</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================== VIEW: MESSAGES (team) ================== -->
+    <section id="view-messages" class="view">
+      <div class="flex h-[calc(100vh-64px)]">
+        <div class="w-80 border-r border-ink-200 bg-white overflow-y-auto">
+          <div class="p-4 border-b border-ink-200">
+            <h1 class="text-lg font-bold">Team Messages</h1>
+            <div class="flex items-center gap-2 mt-3">
+              <button class="text-[11px] px-2.5 py-1 rounded-full bg-ink-900 text-white font-medium">All</button>
+              <button class="text-[11px] px-2.5 py-1 rounded-full bg-ink-100">Agents</button>
+              <button class="text-[11px] px-2.5 py-1 rounded-full bg-ink-100">Broadcast</button>
+            </div>
+          </div>
+          <div>
+            <div class="flex items-start gap-3 p-4 border-b border-ink-100 bg-brand-50/40 border-l-2 border-l-brand-500 cursor-pointer">
+              <div class="w-10 h-10 rounded-full bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center text-white text-xs font-bold shrink-0">MK</div>
+              <div class="min-w-0 flex-1">
+                <div class="flex items-center justify-between">
+                  <p class="text-[13px] font-semibold truncate">Malwandla Khosa</p>
+                  <span class="text-[10px] text-ink-400">5m</span>
+                </div>
+                <p class="text-[11px] text-ink-500 truncate mt-0.5">Can we discuss the Centurion deal split?</p>
+                <span class="text-[10px] inline-block mt-1.5 bg-danger text-white px-1.5 rounded-full font-bold">2</span>
+              </div>
+            </div>
+            <div class="flex items-start gap-3 p-4 border-b border-ink-100 hover:bg-ink-50 cursor-pointer">
+              <div class="w-10 h-10 rounded-full bg-ink-900 flex items-center justify-center text-white text-xs font-bold shrink-0">📢</div>
+              <div class="min-w-0 flex-1">
+                <div class="flex items-center justify-between">
+                  <p class="text-[13px] font-semibold truncate">Team Broadcast</p>
+                  <span class="text-[10px] text-ink-400">2h</span>
+                </div>
+                <p class="text-[11px] text-ink-500 truncate mt-0.5">May leaderboard published — Malwandla #1!</p>
+              </div>
+            </div>
+            <div class="flex items-start gap-3 p-4 border-b border-ink-100 hover:bg-ink-50 cursor-pointer">
+              <div class="w-10 h-10 rounded-full bg-gradient-to-br from-rose-400 to-rose-600 flex items-center justify-center text-white text-xs font-bold shrink-0">LM</div>
+              <div class="min-w-0 flex-1">
+                <div class="flex items-center justify-between">
+                  <p class="text-[13px] font-semibold truncate">Lerato Mbeki</p>
+                  <span class="text-[10px] text-ink-400">3h</span>
+                </div>
+                <p class="text-[11px] text-ink-500 truncate mt-0.5">Pretoria leads queue is dry, can we boost ads?</p>
+              </div>
+            </div>
+            <div class="flex items-start gap-3 p-4 border-b border-ink-100 hover:bg-ink-50 cursor-pointer">
+              <div class="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white text-xs font-bold shrink-0">AB</div>
+              <div class="min-w-0 flex-1">
+                <div class="flex items-center justify-between">
+                  <p class="text-[13px] font-semibold truncate">Anna Botha</p>
+                  <span class="text-[10px] text-ink-400">Yest</span>
+                </div>
+                <p class="text-[11px] text-ink-500 truncate mt-0.5">FFC renewal docs uploaded</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="p-3 border-t border-ink-200 mt-2">
+            <button class="w-full py-2 text-[12px] bg-ink-900 text-white rounded-md font-medium">+ New broadcast</button>
+          </div>
+        </div>
+
+        <div class="flex-1 flex flex-col bg-ink-50">
+          <div class="h-16 bg-white border-b border-ink-200 px-6 flex items-center gap-3">
+            <div class="w-9 h-9 rounded-full bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center text-white text-xs font-bold">MK</div>
+            <div class="flex-1">
+              <p class="text-[14px] font-semibold">Malwandla Khosa</p>
+              <p class="text-[11px] text-success">● Online · Sandton</p>
+            </div>
+            <button class="px-3 py-1.5 text-[11px] border border-ink-200 rounded-md hover:bg-ink-100 font-medium">View profile</button>
+          </div>
+
+          <div class="flex-1 overflow-y-auto p-6 space-y-4">
+            <div class="text-center text-[11px] text-ink-400">Today · 14:32</div>
+            <div class="flex gap-2">
+              <div class="w-7 h-7 rounded-full bg-gradient-to-br from-brand-500 to-brand-700 shrink-0"></div>
+              <div class="max-w-md">
+                <div class="bg-white border border-ink-200 rounded-2xl rounded-tl-md p-3">
+                  <p class="text-[13px]">Hi! The Centurion R 1.4m deal — Naledi is asking for a 4% commission instead of 5%. Can we override the split to 75/25 for me on this one?</p>
+                </div>
+                <p class="text-[10px] text-ink-400 mt-1 ml-1">14:32</p>
+              </div>
+            </div>
+            <div class="flex gap-2 justify-end">
+              <div class="max-w-md">
+                <div class="bg-brand-500 text-white rounded-2xl rounded-tr-md p-3">
+                  <p class="text-[13px]">Approved 👍 4% commission, 75/25 split for this deal only. Just push it through Pipeline and it'll reflect in the May payout.</p>
+                </div>
+                <p class="text-[10px] text-ink-400 mt-1 mr-1 text-right">14:35 · ✓✓</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-white border-t border-ink-200 p-4">
+            <div class="flex items-end gap-2 bg-ink-50 border border-ink-200 rounded-xl p-3">
+              <input class="flex-1 bg-transparent border-0 focus:outline-none text-[14px]" placeholder="Message Malwandla...">
+              <button class="px-3 py-1.5 bg-brand-500 text-white text-[12px] rounded-md font-medium">Send</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================== VIEW: SETTINGS ================== -->
+    <section id="view-settings" class="view px-8 py-7">
+      <div class="mb-6">
+        <h1 class="text-2xl font-bold tracking-tight">Settings</h1>
+        <p class="text-[14px] text-ink-500 mt-1">Configure VAT, trust account, payouts, and integrations</p>
+      </div>
+
+      <div class="grid grid-cols-4 gap-6">
+        <!-- Settings nav -->
+        <aside class="space-y-1">
+          <button class="w-full text-left px-3 py-2 rounded-lg bg-ink-900 text-white text-[13px] font-semibold">General Profile</button>
+          <button class="w-full text-left px-3 py-2 rounded-lg hover:bg-ink-100 text-[13px] text-ink-700">VAT & Tax</button>
+          <button class="w-full text-left px-3 py-2 rounded-lg hover:bg-ink-100 text-[13px] text-ink-700">Trust Account</button>
+          <button class="w-full text-left px-3 py-2 rounded-lg hover:bg-ink-100 text-[13px] text-ink-700">Commission Splits</button>
+          <button class="w-full text-left px-3 py-2 rounded-lg hover:bg-ink-100 text-[13px] text-ink-700">Payouts & Paystack</button>
+          <button class="w-full text-left px-3 py-2 rounded-lg hover:bg-ink-100 text-[13px] text-ink-700">Lead Allocation</button>
+          <button class="w-full text-left px-3 py-2 rounded-lg hover:bg-ink-100 text-[13px] text-ink-700">EAAB & Compliance</button>
+          <button class="w-full text-left px-3 py-2 rounded-lg hover:bg-ink-100 text-[13px] text-ink-700">Appearance</button>
+        </aside>
+
+        <!-- Settings body -->
+        <div class="col-span-3 space-y-6">
+
+          <!-- VAT panel -->
+          <div class="bg-white rounded-xl border border-ink-200 p-6 shadow-soft">
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <h2 class="text-base font-bold">VAT & Tax Settings</h2>
+                <p class="text-[12px] text-ink-500 mt-0.5">Configure how the system calculates and reports VAT</p>
+              </div>
+              <span class="text-[10px] px-2 py-1 rounded-full bg-success/15 text-success font-bold">ACTIVE</span>
+            </div>
+            <div class="space-y-4">
+              <div class="flex items-center justify-between py-3 border-b border-ink-100">
+                <div>
+                  <p class="text-[13px] font-semibold">VAT Registered</p>
+                  <p class="text-[11px] text-ink-500">Apply 15% VAT to commission invoices</p>
+                </div>
+                <span class="toggle on"></span>
+              </div>
+              <div class="grid grid-cols-2 gap-4 py-3 border-b border-ink-100">
+                <div>
+                  <label class="text-[12px] text-ink-500 mb-1 block">VAT Number</label>
+                  <input class="w-full bg-ink-50 border border-ink-200 rounded-md px-3 py-2 text-[13px] font-mono" value="4 7 5 0 2 8 4 0 1 9">
+                </div>
+                <div>
+                  <label class="text-[12px] text-ink-500 mb-1 block">VAT Rate</label>
+                  <div class="relative">
+                    <input class="w-full bg-ink-50 border border-ink-200 rounded-md px-3 py-2 text-[13px] font-mono" value="15">
+                    <span class="absolute right-3 top-1/2 -translate-y-1/2 text-ink-400 text-[13px]">%</span>
+                  </div>
+                </div>
+              </div>
+              <div class="flex items-center justify-between py-3 border-b border-ink-100">
+                <div>
+                  <p class="text-[13px] font-semibold">VAT Period</p>
+                  <p class="text-[11px] text-ink-500">SARS reporting frequency</p>
+                </div>
+                <select class="text-[12px] bg-ink-50 border border-ink-200 rounded-md px-3 py-1.5">
+                  <option>Bi-monthly (Category A)</option>
+                  <option>Bi-monthly (Category B)</option>
+                  <option>Monthly</option>
+                </select>
+              </div>
+              <div class="flex items-center justify-between py-3">
+                <div>
+                  <p class="text-[13px] font-semibold">Auto-include VAT on agent invoices</p>
+                  <p class="text-[11px] text-ink-500">Calculate VAT on agent commission slips</p>
+                </div>
+                <span class="toggle on"></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Trust account panel -->
+          <div class="bg-white rounded-xl border border-ink-200 p-6 shadow-soft">
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <h2 class="text-base font-bold">Trust Account (Section 32)</h2>
+                <p class="text-[12px] text-ink-500 mt-0.5">EAAB-mandated separate account for rental income & deposits</p>
+              </div>
+              <span class="text-[10px] px-2 py-1 rounded-full bg-success/15 text-success font-bold">RECONCILED</span>
+            </div>
+            <div class="space-y-4">
+              <div class="grid grid-cols-2 gap-4 py-3 border-b border-ink-100">
+                <div>
+                  <label class="text-[12px] text-ink-500 mb-1 block">Bank</label>
+                  <select class="w-full bg-ink-50 border border-ink-200 rounded-md px-3 py-2 text-[13px]">
+                    <option>First National Bank (FNB)</option>
+                    <option>Standard Bank</option>
+                    <option>ABSA</option>
+                    <option>Nedbank</option>
+                    <option>Capitec</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="text-[12px] text-ink-500 mb-1 block">Branch Code</label>
+                  <input class="w-full bg-ink-50 border border-ink-200 rounded-md px-3 py-2 text-[13px] font-mono" value="250 655">
+                </div>
+              </div>
+              <div class="grid grid-cols-2 gap-4 py-3 border-b border-ink-100">
+                <div>
+                  <label class="text-[12px] text-ink-500 mb-1 block">Account Number</label>
+                  <input class="w-full bg-ink-50 border border-ink-200 rounded-md px-3 py-2 text-[13px] font-mono" value="6242 0844 892">
+                </div>
+                <div>
+                  <label class="text-[12px] text-ink-500 mb-1 block">Account Name</label>
+                  <input class="w-full bg-ink-50 border border-ink-200 rounded-md px-3 py-2 text-[13px]" value="Property Basket Trust">
+                </div>
+              </div>
+              <div class="flex items-center justify-between py-3 border-b border-ink-100">
+                <div>
+                  <p class="text-[13px] font-semibold">Auto-reconciliation</p>
+                  <p class="text-[11px] text-ink-500">Sync daily transactions from bank feed</p>
+                </div>
+                <span class="toggle on"></span>
+              </div>
+              <div class="flex items-center justify-between py-3">
+                <div>
+                  <p class="text-[13px] font-semibold">Send monthly trust statement to EAAB</p>
+                  <p class="text-[11px] text-ink-500">Auto-generate audit-ready PDF</p>
+                </div>
+                <span class="toggle on"></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Payout config -->
+          <div class="bg-white rounded-xl border border-ink-200 p-6 shadow-soft">
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <h2 class="text-base font-bold">Payouts & Paystack</h2>
+                <p class="text-[12px] text-ink-500 mt-0.5">Configure when and how agents get paid</p>
+              </div>
+              <span class="text-[10px] px-2 py-1 rounded-full bg-success/15 text-success font-bold">CONNECTED</span>
+            </div>
+            <div class="space-y-4">
+              <div class="grid grid-cols-2 gap-4 py-3 border-b border-ink-100">
+                <div>
+                  <label class="text-[12px] text-ink-500 mb-1 block">Payout Cycle</label>
+                  <select class="w-full bg-ink-50 border border-ink-200 rounded-md px-3 py-2 text-[13px]">
+                    <option>Monthly</option>
+                    <option>Bi-weekly</option>
+                    <option>Weekly</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="text-[12px] text-ink-500 mb-1 block">Day of Month</label>
+                  <select class="w-full bg-ink-50 border border-ink-200 rounded-md px-3 py-2 text-[13px]">
+                    <option>25th (current)</option>
+                    <option>Last working day</option>
+                    <option>1st of next month</option>
+                    <option>Custom day...</option>
+                  </select>
+                </div>
+              </div>
+              <div class="bg-ink-50 rounded-lg p-4 flex items-center gap-4">
+                <div class="w-10 h-10 rounded-lg bg-white flex items-center justify-center shrink-0">
+                  <svg class="w-5 h-5 text-sky-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+                </div>
+                <div class="flex-1">
+                  <p class="text-[13px] font-semibold">Paystack Account</p>
+                  <p class="text-[11px] text-ink-500 font-mono">pay.propertybasket.co.za · Linked 12 Jan 2026</p>
+                </div>
+                <button class="text-[12px] px-3 py-1.5 border border-ink-200 rounded-md hover:bg-white">Re-authenticate</button>
+              </div>
+              <div class="flex items-center justify-between py-3 border-b border-ink-100">
+                <div>
+                  <p class="text-[13px] font-semibold">Require approval before payout</p>
+                  <p class="text-[11px] text-ink-500">Admin must approve each batch in queue</p>
+                </div>
+                <span class="toggle on"></span>
+              </div>
+              <div class="flex items-center justify-between py-3">
+                <div>
+                  <p class="text-[13px] font-semibold">Block payout if FFC expired</p>
+                  <p class="text-[11px] text-ink-500">EAAB compliance — agent must hold valid Fidelity Fund Cert</p>
+                </div>
+                <span class="toggle on"></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Save bar -->
+          <div class="flex items-center justify-end gap-2">
+            <button class="px-4 py-2 text-[13px] border border-ink-200 rounded-lg hover:bg-ink-100">Cancel</button>
+            <button class="px-4 py-2 text-[13px] bg-ink-900 text-white rounded-lg hover:bg-ink-800">Save Changes</button>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+  const navItems = document.querySelectorAll('.nav-item');
+  const views = document.querySelectorAll('.view');
+  const crumb = document.getElementById('crumb-page');
+
+  const labels = {
+    overview: 'Dashboard',
+    agents: 'Agents',
+    listings: 'Listings & Leads',
+    pipeline: 'Pipeline',
+    commission: 'Commission & Payouts',
+    reports: 'Financial Reports',
+    messages: 'Team Messages',
+    settings: 'Settings',
+  };
+
+  navItems.forEach(item => {
+    item.addEventListener('click', (e) => {
+      const view = item.getAttribute('data-view');
+      if (!view) return;
+      e.preventDefault();
+      document.querySelectorAll('aside .nav-item').forEach(n => n.classList.remove('active'));
+      const sidebarMatch = document.querySelector(`aside .nav-item[data-view="${view}"]`);
+      if (sidebarMatch) sidebarMatch.classList.add('active');
+      views.forEach(v => v.classList.remove('active'));
+      const target = document.getElementById('view-' + view);
+      if (target) {
+        target.classList.add('active');
+        crumb.textContent = labels[view] || 'Dashboard';
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  });
+
+  // Toggle buttons
+  document.querySelectorAll('.toggle').forEach(t => {
+    t.addEventListener('click', () => t.classList.toggle('on'));
+  });
+</script>
+
+</body>
+</html>

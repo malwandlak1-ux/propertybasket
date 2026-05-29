@@ -1,0 +1,1635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Property Basket — Tenant Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: {
+          sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+          mono: ['"JetBrains Mono"', 'monospace'],
+        },
+        colors: {
+          brand: { DEFAULT: '#5B3DF5', 50: '#F2EFFE', 100: '#E4DEFD', 500: '#5B3DF5', 600: '#4A2EE0', 700: '#3A23B8' },
+          ink: { 900: '#0B0B0F', 800: '#1A1A22', 700: '#2A2A35', 500: '#6B7280', 400: '#9CA3AF', 300: '#D1D5DB', 200: '#E5E7EB', 100: '#F3F4F6', 50: '#F9FAFB' },
+          success: '#10B981',
+          warning: '#F59E0B',
+          danger:  '#EF4444',
+        },
+        boxShadow: {
+          'soft': '0 1px 2px rgba(15, 23, 42, 0.04), 0 1px 3px rgba(15, 23, 42, 0.06)',
+          'card': '0 4px 12px rgba(15, 23, 42, 0.04), 0 1px 3px rgba(15, 23, 42, 0.06)',
+          'lift': '0 12px 32px rgba(15, 23, 42, 0.10)',
+        },
+      }
+    }
+  }
+</script>
+<style>
+  body { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }
+  .nav-item.active { background-color: #F3F4F6; color: #0B0B0F; }
+  .nav-item.active .nav-icon { color: #5B3DF5; }
+  .view { display: none; }
+  .view.active { display: block; }
+  .dot-grid { background-image: radial-gradient(circle, #E5E7EB 1px, transparent 1px); background-size: 14px 14px; }
+  .spark path { stroke-dasharray: 1000; stroke-dashoffset: 1000; animation: dash 1.5s ease-out forwards; }
+  @keyframes dash { to { stroke-dashoffset: 0; } }
+  .toggle { position: relative; width: 40px; height: 22px; background: #E5E7EB; border-radius: 999px; cursor: pointer; transition: background .2s; }
+  .toggle::after { content: ''; position: absolute; top: 2px; left: 2px; width: 18px; height: 18px; background: white; border-radius: 50%; box-shadow: 0 1px 3px rgba(0,0,0,.15); transition: .2s; }
+  .toggle.on { background: #5B3DF5; }
+  .toggle.on::after { transform: translateX(18px); }
+  [data-tip] { position: relative; }
+  [data-tip]:hover::after { content: attr(data-tip); position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); background: #0B0B0F; color: white; padding: 4px 8px; border-radius: 6px; font-size: 11px; white-space: nowrap; margin-bottom: 6px; z-index: 50; }
+  /* Status pulse for live tracking */
+  .pulse-dot { animation: pulse 2s ease-in-out infinite; }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+  /* Sub-tab pane visibility */
+  .insp-pane.hidden { display: none; }
+</style>
+</head>
+<body class="bg-ink-50 text-ink-900">
+
+<div class="flex min-h-screen">
+
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="w-[240px] shrink-0 bg-white border-r border-ink-200 flex flex-col">
+    <div class="px-5 pt-5 pb-6 flex items-center gap-2">
+      <div class="w-8 h-8 rounded-lg bg-ink-900 flex items-center justify-center">
+        <svg viewBox="0 0 24 24" class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M3 10.5L12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-7h-6v7H4a1 1 0 0 1-1-1V10.5z" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <span class="font-bold text-[15px] tracking-tight">Property Basket</span>
+    </div>
+
+    <nav class="px-3 flex-1 overflow-y-auto">
+      <p class="px-3 text-[10px] font-semibold text-ink-400 tracking-[0.12em] mb-2">MY HOME</p>
+      <a href="#" data-view="overview" class="nav-item active flex items-center gap-3 px-3 py-2 rounded-lg text-[13.5px] text-ink-500 hover:bg-ink-100 transition mb-0.5">
+        <svg class="nav-icon w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+        Dashboard
+      </a>
+      <a href="#" data-view="lease" class="nav-item flex items-center gap-3 px-3 py-2 rounded-lg text-[13.5px] text-ink-500 hover:bg-ink-100 transition mb-0.5">
+        <svg class="nav-icon w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+        My Lease
+      </a>
+      <a href="#" data-view="inspections" class="nav-item flex items-center gap-3 px-3 py-2 rounded-lg text-[13.5px] text-ink-500 hover:bg-ink-100 transition mb-0.5">
+        <svg class="nav-icon w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><path d="M21 12c0 1-1 11-9 11s-9-10-9-11V5l9-3 9 3z"/></svg>
+        Inspections
+      </a>
+
+      <p class="px-3 mt-6 text-[10px] font-semibold text-ink-400 tracking-[0.12em] mb-2">PAYMENTS</p>
+      <a href="#" data-view="pay" class="nav-item flex items-center gap-3 px-3 py-2 rounded-lg text-[13.5px] text-ink-500 hover:bg-ink-100 transition mb-0.5">
+        <svg class="nav-icon w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20M6 14h.01M10 14h.01"/></svg>
+        Make Payment
+        <span class="ml-auto w-1.5 h-1.5 rounded-full bg-warning"></span>
+      </a>
+      <a href="#" data-view="history" class="nav-item flex items-center gap-3 px-3 py-2 rounded-lg text-[13.5px] text-ink-500 hover:bg-ink-100 transition mb-0.5">
+        <svg class="nav-icon w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        Payment History
+      </a>
+      <a href="#" data-view="deposit" class="nav-item flex items-center gap-3 px-3 py-2 rounded-lg text-[13.5px] text-ink-500 hover:bg-ink-100 transition mb-0.5">
+        <svg class="nav-icon w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        My Deposit
+      </a>
+
+      <p class="px-3 mt-6 text-[10px] font-semibold text-ink-400 tracking-[0.12em] mb-2">PROPERTY</p>
+      <a href="#" data-view="maintenance" class="nav-item flex items-center gap-3 px-3 py-2 rounded-lg text-[13.5px] text-ink-500 hover:bg-ink-100 transition mb-0.5">
+        <svg class="nav-icon w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 6.5a2 2 0 1 0-4 0M9 12l-7 7 3 3 7-7M14 12l4-4 4 4-4 4z"/></svg>
+        Maintenance
+        <span class="ml-auto text-[10px] bg-brand-50 text-brand-700 px-1.5 py-0.5 rounded-full font-semibold">1</span>
+      </a>
+      <a href="#" data-view="messages" class="nav-item flex items-center gap-3 px-3 py-2 rounded-lg text-[13.5px] text-ink-500 hover:bg-ink-100 transition mb-0.5">
+        <svg class="nav-icon w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.6-.8L3 21l1.9-5.7a8.5 8.5 0 0 1 16.1-3.8z"/></svg>
+        Messages
+        <span class="ml-auto text-[10px] bg-danger text-white px-1.5 py-0.5 rounded-full font-semibold">2</span>
+      </a>
+
+      <p class="px-3 mt-6 text-[10px] font-semibold text-ink-400 tracking-[0.12em] mb-2">ACCOUNT</p>
+      <a href="#" class="nav-item flex items-center gap-3 px-3 py-2 rounded-lg text-[13.5px] text-ink-500 hover:bg-ink-100 transition mb-0.5">
+        <svg class="nav-icon w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        Settings
+      </a>
+      <a href="#" class="nav-item flex items-center gap-3 px-3 py-2 rounded-lg text-[13.5px] text-ink-500 hover:bg-ink-100 transition mb-0.5">
+        <svg class="nav-icon w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3M12 17h.01"/></svg>
+        Help & Support
+      </a>
+    </nav>
+
+    <div class="border-t border-ink-200 p-3">
+      <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-ink-100 cursor-pointer">
+        <div class="w-9 h-9 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white font-semibold text-sm">PT</div>
+        <div class="flex-1 min-w-0">
+          <p class="text-[13px] font-semibold truncate">Property B. Tenant</p>
+          <p class="text-[11px] text-ink-400 truncate">Tenant · Andeon</p>
+        </div>
+        <svg class="w-4 h-4 text-ink-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 15l5 5 5-5M7 9l5-5 5 5"/></svg>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ============ MAIN ============ -->
+  <main class="flex-1 min-w-0">
+
+    <header class="h-16 border-b border-ink-200 bg-white flex items-center px-8 gap-6 sticky top-0 z-30">
+      <div class="text-[13px] text-ink-500">
+        <span>My Home</span>
+        <span class="mx-2 text-ink-300">/</span>
+        <span class="text-ink-900 font-medium" id="crumb-page">Dashboard</span>
+      </div>
+      <div class="flex-1 max-w-xl mx-auto">
+        <div class="relative">
+          <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+          <input class="w-full bg-ink-50 border border-ink-200 rounded-lg pl-10 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition" placeholder="Search payments, requests, documents...">
+        </div>
+      </div>
+      <button class="w-9 h-9 rounded-lg hover:bg-ink-100 flex items-center justify-center relative transition" data-tip="Notifications">
+        <svg class="w-4 h-4 text-ink-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+        <span class="absolute top-1.5 right-2 w-2 h-2 rounded-full bg-danger"></span>
+      </button>
+    </header>
+
+    <!-- ================== VIEW: OVERVIEW ================== -->
+    <section id="view-overview" class="view active px-8 py-7">
+      <div class="flex items-end justify-between mb-7">
+        <div>
+          <p class="text-[13px] text-ink-500">Monday, 18 May 2026</p>
+          <h1 class="text-3xl font-bold tracking-tight mt-1">Hi Property 👋</h1>
+          <p class="text-[14px] text-ink-500 mt-1">Welcome home. Your next rent is due in <span class="font-semibold text-warning">7 days</span>.</p>
+        </div>
+        <button class="px-3.5 py-2 text-[13px] bg-ink-900 text-white rounded-lg hover:bg-ink-800 transition flex items-center gap-2">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+          Pay Rent
+        </button>
+      </div>
+
+      <!-- Hero: Rent due card -->
+      <div class="grid grid-cols-3 gap-4 mb-6">
+        <div class="col-span-2 bg-gradient-to-br from-brand-500 to-brand-700 rounded-xl p-6 text-white shadow-card relative overflow-hidden">
+          <div class="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-32 translate-x-32"></div>
+          <div class="absolute bottom-0 right-12 w-32 h-32 bg-white/5 rounded-full translate-y-16"></div>
+          <div class="relative">
+            <div class="flex items-center justify-between mb-4">
+              <p class="text-[11px] uppercase tracking-wider opacity-80 font-semibold">Next Rent Due</p>
+              <span class="text-[10px] bg-white/20 px-2 py-1 rounded-full font-bold">REMINDER ACTIVE</span>
+            </div>
+            <p class="text-5xl font-bold mb-2">R 8,000.00</p>
+            <div class="flex items-center gap-3 mb-5">
+              <span class="text-[13px] opacity-90">Due 25 May 2026 (Monday)</span>
+              <span class="w-1 h-1 rounded-full bg-white/50"></span>
+              <span class="text-[13px] opacity-90">7 days remaining</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <button class="px-4 py-2 bg-white text-brand-700 text-[13px] rounded-lg font-semibold hover:bg-white/90 flex items-center gap-2">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="5" width="20" height="14" rx="2"/></svg>
+                Pay with Paystack
+              </button>
+              <button class="px-4 py-2 bg-white/10 border border-white/30 text-white text-[13px] rounded-lg font-semibold hover:bg-white/20 backdrop-blur">
+                Set up debit order
+              </button>
+            </div>
+            <div class="mt-5 pt-5 border-t border-white/20 flex items-center gap-6 text-[12px] opacity-90">
+              <span class="flex items-center gap-2">
+                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 13l4 4L19 7"/></svg>
+                14 consecutive on-time payments
+              </span>
+              <span class="flex items-center gap-2">
+                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-5"/></svg>
+                Tenant rating: <span class="font-bold">Excellent</span>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Maintenance + Quick stats -->
+        <div class="space-y-4">
+          <div class="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+            <div class="flex items-center justify-between mb-3">
+              <p class="text-[11px] text-ink-500 uppercase tracking-wider font-semibold">Deposit Held</p>
+              <a href="#" data-view="deposit" class="nav-item text-[11px] text-brand-600 font-medium">View →</a>
+            </div>
+            <p class="text-2xl font-bold">R 8,000<span class="text-ink-400 text-base">.00</span></p>
+            <p class="text-[11px] text-success mt-1">+ R 540 interest earned to date</p>
+            <div class="mt-3 h-1.5 bg-ink-100 rounded-full overflow-hidden">
+              <div class="h-full bg-success" style="width: 6.75%"></div>
+            </div>
+            <p class="text-[10px] text-ink-500 mt-1.5">6.75% p.a. · Section 32 Trust</p>
+          </div>
+
+          <div class="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+            <div class="flex items-center justify-between mb-3">
+              <p class="text-[11px] text-ink-500 uppercase tracking-wider font-semibold">Lease Term</p>
+              <span class="text-[10px] px-2 py-0.5 rounded-full bg-success/15 text-success font-bold">ACTIVE</span>
+            </div>
+            <p class="text-[13px] font-semibold">2026/04/09 — 2027/04/30</p>
+            <div class="mt-3 h-1.5 bg-ink-100 rounded-full overflow-hidden">
+              <div class="h-full bg-brand-500" style="width: 9%"></div>
+            </div>
+            <p class="text-[10px] text-ink-500 mt-1.5">1 month elapsed · 11 months remaining</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Two-column body -->
+      <div class="grid grid-cols-3 gap-4">
+        <!-- LEFT: Maintenance + Activity -->
+        <div class="col-span-2 space-y-4">
+
+          <!-- Active maintenance card -->
+          <div class="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <h2 class="text-base font-semibold">Open Maintenance Request</h2>
+                <p class="text-xs text-ink-500 mt-0.5">Real-time status · Contractor assigned</p>
+              </div>
+              <a href="#" data-view="maintenance" class="nav-item text-[12px] font-medium text-brand-600 hover:underline">All requests →</a>
+            </div>
+
+            <div class="border border-ink-200 rounded-lg overflow-hidden">
+              <div class="p-4 bg-ink-50/40">
+                <div class="flex items-start gap-3">
+                  <div class="w-10 h-10 rounded-lg bg-sky-50 flex items-center justify-center shrink-0">
+                    <svg class="w-5 h-5 text-sky-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h12"/></svg>
+                  </div>
+                  <div class="flex-1">
+                    <div class="flex items-center gap-2">
+                      <p class="text-[14px] font-semibold">Leaking kitchen tap</p>
+                      <span class="text-[10px] px-2 py-0.5 rounded-full bg-warning/15 text-warning font-bold">MEDIUM</span>
+                    </div>
+                    <p class="text-[12px] text-ink-500 mt-0.5">Plumbing · Logged 16 May 2026 · 2 photos</p>
+                  </div>
+                  <span class="text-[10px] px-2 py-1 rounded-full bg-brand-50 text-brand-700 font-bold flex items-center gap-1.5">
+                    <span class="w-1.5 h-1.5 rounded-full bg-brand-500 pulse-dot"></span>
+                    IN PROGRESS
+                  </span>
+                </div>
+              </div>
+
+              <!-- Live status tracker -->
+              <div class="p-4">
+                <div class="flex items-start">
+                  <div class="flex flex-col items-center mr-3">
+                    <div class="w-7 h-7 rounded-full bg-success flex items-center justify-center text-white">
+                      <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 13l4 4L19 7"/></svg>
+                    </div>
+                    <div class="w-0.5 h-12 bg-success"></div>
+                  </div>
+                  <div class="flex-1 pb-3">
+                    <p class="text-[13px] font-semibold">Submitted</p>
+                    <p class="text-[11px] text-ink-500">16 May 2026 · 08:32</p>
+                  </div>
+                </div>
+                <div class="flex items-start">
+                  <div class="flex flex-col items-center mr-3">
+                    <div class="w-7 h-7 rounded-full bg-success flex items-center justify-center text-white">
+                      <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 13l4 4L19 7"/></svg>
+                    </div>
+                    <div class="w-0.5 h-12 bg-success"></div>
+                  </div>
+                  <div class="flex-1 pb-3">
+                    <p class="text-[13px] font-semibold">Assigned to contractor</p>
+                    <p class="text-[11px] text-ink-500">16 May 2026 · 11:14 · By Malwandla Khosa</p>
+                    <div class="flex items-center gap-2 mt-2 bg-ink-50 rounded-md p-2 w-fit">
+                      <div class="w-6 h-6 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center text-white text-[9px] font-bold">JM</div>
+                      <span class="text-[11px] font-semibold">Jacob Mokoena</span>
+                      <span class="text-[10px] text-ink-500">· Mokoena Plumbing</span>
+                      <span class="text-[10px] bg-success/15 text-success px-1.5 py-0.5 rounded font-bold">⭐ 4.8</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="flex items-start">
+                  <div class="flex flex-col items-center mr-3">
+                    <div class="w-7 h-7 rounded-full bg-brand-500 flex items-center justify-center text-white pulse-dot">
+                      <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12h14M12 5v14"/></svg>
+                    </div>
+                    <div class="w-0.5 h-12 bg-ink-200"></div>
+                  </div>
+                  <div class="flex-1 pb-3">
+                    <p class="text-[13px] font-semibold">In progress · Visit scheduled</p>
+                    <p class="text-[11px] text-ink-500">Tomorrow · 19 May 2026 · 10:00 – 11:00</p>
+                    <div class="mt-2 flex items-center gap-2">
+                      <button class="text-[11px] px-2.5 py-1 border border-ink-200 rounded-md hover:bg-ink-100">Reschedule</button>
+                      <button class="text-[11px] px-2.5 py-1 border border-ink-200 rounded-md hover:bg-ink-100">Message contractor</button>
+                    </div>
+                  </div>
+                </div>
+                <div class="flex items-start">
+                  <div class="flex flex-col items-center mr-3">
+                    <div class="w-7 h-7 rounded-full bg-ink-100 flex items-center justify-center text-ink-400">
+                      <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="4"/></svg>
+                    </div>
+                  </div>
+                  <div class="flex-1">
+                    <p class="text-[13px] font-semibold text-ink-400">Completed</p>
+                    <p class="text-[11px] text-ink-400">Awaiting completion · You'll be notified</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Payment history mini -->
+          <div class="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+            <div class="flex items-center justify-between mb-4">
+              <h2 class="text-base font-semibold">Recent Payments</h2>
+              <a href="#" data-view="history" class="nav-item text-[12px] font-medium text-brand-600 hover:underline">Full history →</a>
+            </div>
+            <div class="space-y-2">
+              <div class="flex items-center gap-3 p-2.5 rounded-md hover:bg-ink-50">
+                <div class="w-9 h-9 rounded-lg bg-success/15 flex items-center justify-center">
+                  <svg class="w-4 h-4 text-success" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 13l4 4L19 7"/></svg>
+                </div>
+                <div class="flex-1">
+                  <p class="text-[13px] font-semibold">April rent</p>
+                  <p class="text-[11px] text-ink-500">Paid 25 Apr 2026 · Paystack ref: PYS_27HJ4</p>
+                </div>
+                <span class="text-[13px] font-mono font-semibold text-success">R 8,000</span>
+              </div>
+              <div class="flex items-center gap-3 p-2.5 rounded-md hover:bg-ink-50">
+                <div class="w-9 h-9 rounded-lg bg-success/15 flex items-center justify-center">
+                  <svg class="w-4 h-4 text-success" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 13l4 4L19 7"/></svg>
+                </div>
+                <div class="flex-1">
+                  <p class="text-[13px] font-semibold">Damage deposit</p>
+                  <p class="text-[11px] text-ink-500">Paid 09 Apr 2026 · Trust account ***4892</p>
+                </div>
+                <span class="text-[13px] font-mono font-semibold text-success">R 8,000</span>
+              </div>
+              <div class="flex items-center gap-3 p-2.5 rounded-md hover:bg-ink-50">
+                <div class="w-9 h-9 rounded-lg bg-success/15 flex items-center justify-center">
+                  <svg class="w-4 h-4 text-success" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 13l4 4L19 7"/></svg>
+                </div>
+                <div class="flex-1">
+                  <p class="text-[13px] font-semibold">First month + admin</p>
+                  <p class="text-[11px] text-ink-500">Paid 09 Apr 2026 · Paystack ref: PYS_19FX2</p>
+                </div>
+                <span class="text-[13px] font-mono font-semibold text-success">R 8,500</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT: Quick actions -->
+        <div class="space-y-4">
+          <div class="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+            <h2 class="text-base font-semibold mb-3">Quick Actions</h2>
+            <div class="space-y-2">
+              <a href="#" data-view="maintenance" class="nav-item w-full flex items-center gap-3 p-3 rounded-lg hover:bg-ink-50 border border-ink-200">
+                <div class="w-8 h-8 rounded-lg bg-rose-50 flex items-center justify-center">
+                  <svg class="w-4 h-4 text-rose-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 6.5a2 2 0 1 0-4 0M9 12l-7 7 3 3 7-7M14 12l4-4 4 4-4 4z"/></svg>
+                </div>
+                <div class="flex-1 text-left">
+                  <p class="text-[12px] font-semibold">Report an issue</p>
+                  <p class="text-[10px] text-ink-500">Log maintenance request</p>
+                </div>
+                <svg class="w-3.5 h-3.5 text-ink-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+              </a>
+              <a href="#" data-view="lease" class="nav-item w-full flex items-center gap-3 p-3 rounded-lg hover:bg-ink-50 border border-ink-200">
+                <div class="w-8 h-8 rounded-lg bg-brand-50 flex items-center justify-center">
+                  <svg class="w-4 h-4 text-brand-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg>
+                </div>
+                <div class="flex-1 text-left">
+                  <p class="text-[12px] font-semibold">Download lease</p>
+                  <p class="text-[10px] text-ink-500">PDF · Signed copy</p>
+                </div>
+                <svg class="w-3.5 h-3.5 text-ink-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+              </a>
+              <a href="#" data-view="inspections" class="nav-item w-full flex items-center gap-3 p-3 rounded-lg hover:bg-ink-50 border border-ink-200">
+                <div class="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center">
+                  <svg class="w-4 h-4 text-success" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><path d="M21 12c0 1-1 11-9 11s-9-10-9-11V5l9-3 9 3z"/></svg>
+                </div>
+                <div class="flex-1 text-left">
+                  <p class="text-[12px] font-semibold">Move-in report</p>
+                  <p class="text-[10px] text-ink-500">38 photos · Signed</p>
+                </div>
+                <svg class="w-3.5 h-3.5 text-ink-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+              </a>
+            </div>
+          </div>
+
+          <!-- Agent contact -->
+          <div class="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+            <h2 class="text-base font-semibold mb-3">Your Agent</h2>
+            <div class="flex items-center gap-3 mb-3">
+              <div class="w-12 h-12 rounded-full bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center text-white font-bold">MK</div>
+              <div class="flex-1 min-w-0">
+                <p class="text-[14px] font-semibold">Malwandla Khosa</p>
+                <p class="text-[11px] text-ink-500">Property Basket · FFC valid</p>
+              </div>
+            </div>
+            <div class="space-y-1.5 text-[12px] text-ink-700 mb-3">
+              <div class="flex items-center gap-2">
+                <svg class="w-3.5 h-3.5 text-ink-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                <span class="font-mono">+27 82 555 0142</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <svg class="w-3.5 h-3.5 text-ink-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><path d="M22 6l-10 7L2 6"/></svg>
+                <span>agent@propertybasket.co.za</span>
+              </div>
+            </div>
+            <a href="#" data-view="messages" class="nav-item w-full block text-center py-2 text-[12px] bg-ink-900 text-white rounded-md font-medium">Send message</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================== VIEW: MAKE PAYMENT ================== -->
+    <section id="view-pay" class="view px-8 py-7">
+      <div class="mb-6">
+        <h1 class="text-2xl font-bold tracking-tight">Make Payment</h1>
+        <p class="text-[14px] text-ink-500 mt-1">Pay rent securely via Paystack or set up a recurring debit order</p>
+      </div>
+
+      <div class="grid grid-cols-3 gap-6">
+        <!-- LEFT: Payment form -->
+        <div class="col-span-2 space-y-4">
+          <!-- Amount card -->
+          <div class="bg-white rounded-xl border border-ink-200 p-6 shadow-soft">
+            <p class="text-[11px] text-ink-500 uppercase tracking-wider font-semibold mb-3">Amount Due</p>
+            <div class="flex items-baseline gap-3 mb-1">
+              <span class="text-2xl text-ink-400">R</span>
+              <input class="text-5xl font-bold tracking-tight bg-transparent border-0 focus:outline-none w-64" value="8,000.00">
+            </div>
+            <p class="text-[12px] text-ink-500">May 2026 rent · Due 25 May 2026</p>
+
+            <div class="grid grid-cols-3 gap-2 mt-5">
+              <button class="text-[12px] px-3 py-2 rounded-md border border-ink-200 hover:bg-ink-100 font-medium">Pay full · R 8,000</button>
+              <button class="text-[12px] px-3 py-2 rounded-md border border-ink-200 hover:bg-ink-100 font-medium">Pay half · R 4,000</button>
+              <button class="text-[12px] px-3 py-2 rounded-md border border-ink-200 hover:bg-ink-100 font-medium">Custom amount</button>
+            </div>
+          </div>
+
+          <!-- Payment method selector -->
+          <div class="bg-white rounded-xl border border-ink-200 p-6 shadow-soft">
+            <p class="text-[13px] font-bold mb-4">Payment Method</p>
+
+            <div class="space-y-3">
+              <!-- Paystack option -->
+              <label class="block cursor-pointer">
+                <input type="radio" name="paymethod" class="sr-only peer" checked>
+                <div class="border-2 border-brand-500 bg-brand-50/30 rounded-lg p-4 transition">
+                  <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-lg bg-white flex items-center justify-center shrink-0">
+                      <svg class="w-5 h-5 text-sky-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+                    </div>
+                    <div class="flex-1">
+                      <div class="flex items-center gap-2">
+                        <p class="text-[13px] font-bold">Paystack · Card / Instant EFT</p>
+                        <span class="text-[10px] bg-success/15 text-success px-1.5 py-0.5 rounded font-bold">RECOMMENDED</span>
+                      </div>
+                      <p class="text-[11px] text-ink-500">Pay instantly with debit/credit card or instant EFT. PCI-DSS secure.</p>
+                    </div>
+                    <div class="w-5 h-5 rounded-full border-2 border-brand-500 bg-brand-500 flex items-center justify-center">
+                      <svg class="w-2.5 h-2.5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg>
+                    </div>
+                  </div>
+                  <div class="mt-3 flex items-center gap-2 flex-wrap">
+                    <span class="text-[10px] px-2 py-1 rounded bg-white border border-ink-200 font-semibold">VISA</span>
+                    <span class="text-[10px] px-2 py-1 rounded bg-white border border-ink-200 font-semibold">Mastercard</span>
+                    <span class="text-[10px] px-2 py-1 rounded bg-white border border-ink-200 font-semibold">FNB</span>
+                    <span class="text-[10px] px-2 py-1 rounded bg-white border border-ink-200 font-semibold">Standard Bank</span>
+                    <span class="text-[10px] px-2 py-1 rounded bg-white border border-ink-200 font-semibold">ABSA</span>
+                    <span class="text-[10px] px-2 py-1 rounded bg-white border border-ink-200 font-semibold">Capitec</span>
+                    <span class="text-[10px] px-2 py-1 rounded bg-white border border-ink-200 font-semibold">+ 12 more</span>
+                  </div>
+                </div>
+              </label>
+
+              <!-- Debit order option -->
+              <label class="block cursor-pointer">
+                <input type="radio" name="paymethod" class="sr-only peer">
+                <div class="border border-ink-200 rounded-lg p-4 hover:border-ink-300 transition">
+                  <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-lg bg-ink-50 flex items-center justify-center shrink-0">
+                      <svg class="w-5 h-5 text-ink-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9M21 3v6h-6M21 12a9 9 0 0 1-9 9m-9-9h6M12 8v4l3 2"/></svg>
+                    </div>
+                    <div class="flex-1">
+                      <div class="flex items-center gap-2">
+                        <p class="text-[13px] font-bold">Debit Order · Recurring</p>
+                        <span class="text-[10px] bg-ink-100 text-ink-700 px-1.5 py-0.5 rounded font-bold">SET-AND-FORGET</span>
+                      </div>
+                      <p class="text-[11px] text-ink-500">Auto-debit from your bank account each month. Never miss a payment.</p>
+                    </div>
+                    <div class="w-5 h-5 rounded-full border-2 border-ink-300"></div>
+                  </div>
+                  <p class="text-[11px] text-ink-400 mt-2 ml-13 pl-1">⏱ Takes 5–10 working days to activate. NAEDO-compliant.</p>
+                </div>
+              </label>
+
+              <!-- Manual EFT option -->
+              <label class="block cursor-pointer">
+                <input type="radio" name="paymethod" class="sr-only peer">
+                <div class="border border-ink-200 rounded-lg p-4 hover:border-ink-300 transition">
+                  <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-lg bg-ink-50 flex items-center justify-center shrink-0">
+                      <svg class="w-5 h-5 text-ink-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+                    </div>
+                    <div class="flex-1">
+                      <p class="text-[13px] font-bold">Manual EFT</p>
+                      <p class="text-[11px] text-ink-500">Use your reference to pay via your banking app. We auto-reconcile.</p>
+                    </div>
+                    <div class="w-5 h-5 rounded-full border-2 border-ink-300"></div>
+                  </div>
+                </div>
+              </label>
+            </div>
+
+            <button class="w-full mt-5 py-3 bg-ink-900 hover:bg-ink-800 text-white text-[14px] font-semibold rounded-lg flex items-center justify-center gap-2 transition">
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              Pay R 8,000.00 securely
+            </button>
+            <p class="text-[10px] text-ink-400 text-center mt-2">Encrypted end-to-end · POPIA-compliant · You'll receive a receipt by email</p>
+          </div>
+        </div>
+
+        <!-- RIGHT: Summary -->
+        <div class="space-y-4">
+          <div class="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+            <p class="text-[13px] font-bold mb-3">Payment Summary</p>
+            <div class="space-y-2 text-[12px]">
+              <div class="flex justify-between">
+                <span class="text-ink-500">May rent</span>
+                <span class="font-mono font-semibold">R 8,000.00</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-ink-500">Paystack fee (0%)</span>
+                <span class="font-mono text-ink-400">R 0.00</span>
+              </div>
+              <div class="flex justify-between pt-2 border-t border-ink-200 font-bold text-[13px]">
+                <span>Total to pay</span>
+                <span class="font-mono">R 8,000.00</span>
+              </div>
+            </div>
+            <p class="text-[10px] text-ink-500 mt-3 italic">Agency absorbs Paystack transaction fees.</p>
+          </div>
+
+          <div class="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+            <p class="text-[13px] font-bold mb-3">Paying to</p>
+            <div class="flex items-center gap-3 mb-3">
+              <div class="w-10 h-10 rounded-lg bg-ink-900 flex items-center justify-center text-white font-bold text-sm">PB</div>
+              <div>
+                <p class="text-[13px] font-semibold">Property Basket Trust</p>
+                <p class="text-[10px] text-ink-500">FNB · Section 32</p>
+              </div>
+            </div>
+            <div class="bg-ink-50 rounded-md p-3 space-y-1 text-[11px] font-mono">
+              <p>Account: ***4892</p>
+              <p>Ref: <span class="font-semibold text-ink-900">PT-ANDEON-26052</span></p>
+            </div>
+          </div>
+
+          <div class="bg-warning/5 border border-warning/30 rounded-xl p-4">
+            <div class="flex items-start gap-2">
+              <svg class="w-4 h-4 text-warning shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+              <div>
+                <p class="text-[12px] font-semibold">Rent due in 7 days</p>
+                <p class="text-[11px] text-ink-700 mt-1">Late payments after 7 days from due date may incur interest at 2% per month per your lease agreement.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================== VIEW: PAYMENT HISTORY ================== -->
+    <section id="view-history" class="view px-8 py-7">
+      <div class="flex items-end justify-between mb-6">
+        <div>
+          <h1 class="text-2xl font-bold tracking-tight">Payment History</h1>
+          <p class="text-[14px] text-ink-500 mt-1">All your payments since lease started · 14 consecutive on-time payments</p>
+        </div>
+        <button class="px-3.5 py-2 text-[13px] border border-ink-200 rounded-lg hover:bg-ink-100 flex items-center gap-2">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+          Download statement
+        </button>
+      </div>
+
+      <!-- KPI strip -->
+      <div class="grid grid-cols-4 gap-4 mb-6">
+        <div class="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+          <p class="text-[11px] text-ink-500 uppercase tracking-wider font-semibold">Total paid (lease)</p>
+          <p class="text-2xl font-bold mt-2">R 24,500</p>
+          <p class="text-[11px] text-ink-500 mt-1">3 payments</p>
+        </div>
+        <div class="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+          <p class="text-[11px] text-ink-500 uppercase tracking-wider font-semibold">On-time streak</p>
+          <p class="text-2xl font-bold mt-2 text-success">14 months</p>
+          <p class="text-[11px] text-success mt-1">⭐ Excellent tenant</p>
+        </div>
+        <div class="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+          <p class="text-[11px] text-ink-500 uppercase tracking-wider font-semibold">Avg payment</p>
+          <p class="text-2xl font-bold mt-2">R 8,166</p>
+          <p class="text-[11px] text-ink-500 mt-1">Per month</p>
+        </div>
+        <div class="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+          <p class="text-[11px] text-ink-500 uppercase tracking-wider font-semibold">Outstanding</p>
+          <p class="text-2xl font-bold mt-2 text-success">R 0.00</p>
+          <p class="text-[11px] text-ink-500 mt-1">Up to date</p>
+        </div>
+      </div>
+
+      <!-- Filters -->
+      <div class="flex items-center gap-2 mb-4">
+        <button class="text-[12px] px-3 py-1.5 rounded-full bg-ink-900 text-white font-medium">All</button>
+        <button class="text-[12px] px-3 py-1.5 rounded-full bg-white border border-ink-200 hover:bg-ink-100">Rent</button>
+        <button class="text-[12px] px-3 py-1.5 rounded-full bg-white border border-ink-200 hover:bg-ink-100">Deposit</button>
+        <button class="text-[12px] px-3 py-1.5 rounded-full bg-white border border-ink-200 hover:bg-ink-100">Other</button>
+        <div class="ml-auto flex items-center gap-2">
+          <select class="text-[12px] bg-white border border-ink-200 rounded-md px-3 py-1.5">
+            <option>FY 2026</option>
+            <option>Last 6 months</option>
+            <option>All time</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div class="bg-white rounded-xl border border-ink-200 shadow-soft overflow-hidden">
+        <table class="w-full">
+          <thead>
+            <tr class="text-left text-[11px] uppercase text-ink-500 tracking-wider border-b border-ink-200 bg-ink-50">
+              <th class="font-semibold px-5 py-3">Date</th>
+              <th class="font-semibold py-3">Description</th>
+              <th class="font-semibold py-3">Method</th>
+              <th class="font-semibold py-3">Reference</th>
+              <th class="font-semibold py-3">Status</th>
+              <th class="font-semibold py-3 text-right pr-5">Amount</th>
+              <th class="font-semibold py-3 text-right pr-5">Receipt</th>
+            </tr>
+          </thead>
+          <tbody class="text-[13px]">
+            <tr class="border-b border-ink-100 hover:bg-ink-50">
+              <td class="px-5 py-3 font-mono text-[12px]">2026/04/25</td>
+              <td class="font-semibold">April 2026 rent</td>
+              <td>
+                <div class="flex items-center gap-2">
+                  <svg class="w-4 h-4 text-sky-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/></svg>
+                  <span class="text-[12px]">Paystack · Card</span>
+                </div>
+              </td>
+              <td class="font-mono text-[11px] text-ink-500">PYS_27HJ4F2</td>
+              <td><span class="text-[10px] px-2 py-0.5 rounded-full bg-success/15 text-success font-bold">PAID · ON TIME</span></td>
+              <td class="text-right pr-5 font-mono font-semibold">R 8,000.00</td>
+              <td class="text-right pr-5"><button class="text-brand-600 text-[12px] font-semibold">PDF ↓</button></td>
+            </tr>
+            <tr class="border-b border-ink-100 hover:bg-ink-50">
+              <td class="px-5 py-3 font-mono text-[12px]">2026/04/09</td>
+              <td class="font-semibold">Damage deposit</td>
+              <td>
+                <div class="flex items-center gap-2">
+                  <svg class="w-4 h-4 text-ink-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+                  <span class="text-[12px]">EFT (Trust acc)</span>
+                </div>
+              </td>
+              <td class="font-mono text-[11px] text-ink-500">PT-ANDEON-DEP</td>
+              <td><span class="text-[10px] px-2 py-0.5 rounded-full bg-success/15 text-success font-bold">HELD IN TRUST</span></td>
+              <td class="text-right pr-5 font-mono font-semibold">R 8,000.00</td>
+              <td class="text-right pr-5"><button class="text-brand-600 text-[12px] font-semibold">PDF ↓</button></td>
+            </tr>
+            <tr class="border-b border-ink-100 hover:bg-ink-50">
+              <td class="px-5 py-3 font-mono text-[12px]">2026/04/09</td>
+              <td>
+                <p class="font-semibold">First month + admin</p>
+                <p class="text-[11px] text-ink-500">R 8,000 rent + R 500 admin</p>
+              </td>
+              <td>
+                <div class="flex items-center gap-2">
+                  <svg class="w-4 h-4 text-sky-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/></svg>
+                  <span class="text-[12px]">Paystack · Card</span>
+                </div>
+              </td>
+              <td class="font-mono text-[11px] text-ink-500">PYS_19FX2K4</td>
+              <td><span class="text-[10px] px-2 py-0.5 rounded-full bg-success/15 text-success font-bold">PAID · ON TIME</span></td>
+              <td class="text-right pr-5 font-mono font-semibold">R 8,500.00</td>
+              <td class="text-right pr-5"><button class="text-brand-600 text-[12px] font-semibold">PDF ↓</button></td>
+            </tr>
+          </tbody>
+          <tfoot class="bg-ink-50 border-t-2 border-ink-200">
+            <tr class="text-[13px] font-semibold">
+              <td colspan="5" class="px-5 py-3">Lease total</td>
+              <td class="text-right pr-5 font-mono py-3">R 24,500.00</td>
+              <td></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+
+      <!-- Upcoming -->
+      <div class="mt-6 bg-white rounded-xl border border-ink-200 shadow-soft p-5">
+        <h2 class="text-base font-semibold mb-3">Upcoming Payments</h2>
+        <div class="space-y-2">
+          <div class="flex items-center justify-between p-3 rounded-lg bg-warning/5 border border-warning/30">
+            <div class="flex items-center gap-3">
+              <div class="w-9 h-9 rounded-lg bg-warning/20 flex items-center justify-center">
+                <svg class="w-4 h-4 text-warning" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+              </div>
+              <div>
+                <p class="text-[13px] font-semibold">May 2026 rent</p>
+                <p class="text-[11px] text-ink-500">Due 25 May 2026 · in 7 days</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="font-mono font-semibold">R 8,000.00</span>
+              <a href="#" data-view="pay" class="nav-item px-3 py-1.5 text-[11px] bg-ink-900 text-white rounded-md font-semibold">Pay now</a>
+            </div>
+          </div>
+          <div class="flex items-center justify-between p-3 rounded-lg hover:bg-ink-50">
+            <div class="flex items-center gap-3">
+              <div class="w-9 h-9 rounded-lg bg-ink-100 flex items-center justify-center">
+                <svg class="w-4 h-4 text-ink-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/></svg>
+              </div>
+              <div>
+                <p class="text-[13px] font-semibold">June 2026 rent</p>
+                <p class="text-[11px] text-ink-500">Due 25 Jun 2026 · in 38 days</p>
+              </div>
+            </div>
+            <span class="font-mono font-semibold text-ink-500">R 8,000.00</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================== VIEW: LEASE ================== -->
+    <section id="view-lease" class="view px-8 py-7">
+      <div class="mb-6">
+        <h1 class="text-2xl font-bold tracking-tight">My Lease</h1>
+        <p class="text-[14px] text-ink-500 mt-1">Lease agreement, addendums, and key dates</p>
+      </div>
+
+      <!-- Lease hero -->
+      <div class="bg-gradient-to-br from-ink-900 to-ink-800 rounded-xl p-6 text-white shadow-card mb-6">
+        <div class="flex items-start justify-between mb-5">
+          <div>
+            <span class="text-[10px] bg-success/20 text-success px-2 py-1 rounded-full font-bold">ACTIVE</span>
+            <p class="text-2xl font-bold mt-3">607 Fred Messenger Ave</p>
+            <p class="text-[13px] opacity-70">Andeon AH, Pretoria, 0183 · 2-bed apartment</p>
+          </div>
+          <div class="text-right">
+            <p class="text-[11px] opacity-70 uppercase tracking-wider">Monthly Rent</p>
+            <p class="text-3xl font-bold">R 8,000</p>
+          </div>
+        </div>
+        <div class="grid grid-cols-4 gap-4 pt-5 border-t border-white/10">
+          <div>
+            <p class="text-[10px] opacity-60 uppercase tracking-wider font-semibold">Start Date</p>
+            <p class="text-[13px] font-semibold mt-1 font-mono">2026/04/09</p>
+          </div>
+          <div>
+            <p class="text-[10px] opacity-60 uppercase tracking-wider font-semibold">End Date</p>
+            <p class="text-[13px] font-semibold mt-1 font-mono">2027/04/30</p>
+          </div>
+          <div>
+            <p class="text-[10px] opacity-60 uppercase tracking-wider font-semibold">Notice Period</p>
+            <p class="text-[13px] font-semibold mt-1">1 calendar month</p>
+          </div>
+          <div>
+            <p class="text-[10px] opacity-60 uppercase tracking-wider font-semibold">Rent Escalation</p>
+            <p class="text-[13px] font-semibold mt-1">8% on renewal</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Documents grid -->
+      <div class="grid grid-cols-3 gap-4 mb-6">
+        <div class="bg-white rounded-xl border border-ink-200 p-5 shadow-soft hover:shadow-lift transition cursor-pointer">
+          <div class="flex items-start justify-between mb-3">
+            <div class="w-10 h-10 rounded-lg bg-rose-50 flex items-center justify-center">
+              <svg class="w-5 h-5 text-rose-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+            </div>
+            <span class="text-[10px] px-2 py-0.5 rounded-full bg-success/15 text-success font-bold">SIGNED</span>
+          </div>
+          <p class="text-[14px] font-bold">Lease Agreement</p>
+          <p class="text-[11px] text-ink-500 mt-1">Master lease · 14 pages · 2.4 MB</p>
+          <p class="text-[10px] text-ink-400 mt-2 font-mono">Signed: 09 Apr 2026 · DocuSign</p>
+          <div class="flex items-center gap-2 mt-4 pt-3 border-t border-ink-100">
+            <button class="text-[11px] px-2.5 py-1.5 bg-ink-900 text-white rounded-md font-medium flex items-center gap-1.5">
+              <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+              Download PDF
+            </button>
+            <button class="text-[11px] px-2.5 py-1.5 border border-ink-200 rounded-md hover:bg-ink-100">View online</button>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-xl border border-ink-200 p-5 shadow-soft hover:shadow-lift transition cursor-pointer">
+          <div class="flex items-start justify-between mb-3">
+            <div class="w-10 h-10 rounded-lg bg-brand-50 flex items-center justify-center">
+              <svg class="w-5 h-5 text-brand-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+            </div>
+            <span class="text-[10px] px-2 py-0.5 rounded-full bg-success/15 text-success font-bold">SIGNED</span>
+          </div>
+          <p class="text-[14px] font-bold">Addendum 1 · Pets</p>
+          <p class="text-[11px] text-ink-500 mt-1">1 cat permitted · 2 pages</p>
+          <p class="text-[10px] text-ink-400 mt-2 font-mono">Signed: 09 Apr 2026</p>
+          <div class="flex items-center gap-2 mt-4 pt-3 border-t border-ink-100">
+            <button class="text-[11px] px-2.5 py-1.5 bg-ink-900 text-white rounded-md font-medium flex items-center gap-1.5">
+              <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+              Download
+            </button>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-xl border border-ink-200 p-5 shadow-soft hover:shadow-lift transition cursor-pointer">
+          <div class="flex items-start justify-between mb-3">
+            <div class="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center">
+              <svg class="w-5 h-5 text-success" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 17v-6h6v6"/></svg>
+            </div>
+            <span class="text-[10px] px-2 py-0.5 rounded-full bg-success/15 text-success font-bold">SIGNED</span>
+          </div>
+          <p class="text-[14px] font-bold">House Rules</p>
+          <p class="text-[11px] text-ink-500 mt-1">Body corporate conduct · 4 pages</p>
+          <p class="text-[10px] text-ink-400 mt-2 font-mono">Signed: 09 Apr 2026</p>
+          <div class="flex items-center gap-2 mt-4 pt-3 border-t border-ink-100">
+            <button class="text-[11px] px-2.5 py-1.5 bg-ink-900 text-white rounded-md font-medium flex items-center gap-1.5">
+              <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+              Download
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Key dates -->
+      <div class="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+        <h2 class="text-base font-semibold mb-4">Key Dates & Reminders</h2>
+        <div class="space-y-3">
+          <div class="flex items-center gap-4 p-3 rounded-lg hover:bg-ink-50 border-l-2 border-success">
+            <div class="w-10 h-10 rounded-lg bg-success/15 flex items-center justify-center">
+              <svg class="w-5 h-5 text-success" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 13l4 4L19 7"/></svg>
+            </div>
+            <div class="flex-1">
+              <p class="text-[13px] font-semibold">Move-in Inspection Completed</p>
+              <p class="text-[11px] text-ink-500">09 Apr 2026 · 38 photos signed by both parties</p>
+            </div>
+            <a href="#" data-view="inspections" class="nav-item text-[11px] text-brand-600 font-semibold">View →</a>
+          </div>
+          <div class="flex items-center gap-4 p-3 rounded-lg hover:bg-ink-50 border-l-2 border-brand-500">
+            <div class="w-10 h-10 rounded-lg bg-brand-50 flex items-center justify-center">
+              <svg class="w-5 h-5 text-brand-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/></svg>
+            </div>
+            <div class="flex-1">
+              <p class="text-[13px] font-semibold">Annual Inspection</p>
+              <p class="text-[11px] text-ink-500">Scheduled for 09 Oct 2026 · 5 months from now</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-4 p-3 rounded-lg hover:bg-ink-50 border-l-2 border-warning">
+            <div class="w-10 h-10 rounded-lg bg-warning/15 flex items-center justify-center">
+              <svg class="w-5 h-5 text-warning" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+            </div>
+            <div class="flex-1">
+              <p class="text-[13px] font-semibold">Renewal Decision Window Opens</p>
+              <p class="text-[11px] text-ink-500">31 Jan 2027 · 60 days before lease end</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-4 p-3 rounded-lg hover:bg-ink-50 border-l-2 border-danger">
+            <div class="w-10 h-10 rounded-lg bg-danger/15 flex items-center justify-center">
+              <svg class="w-5 h-5 text-danger" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/></svg>
+            </div>
+            <div class="flex-1">
+              <p class="text-[13px] font-semibold">Lease End</p>
+              <p class="text-[11px] text-ink-500">30 Apr 2027 · Move-out inspection required</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================== VIEW: INSPECTIONS ================== -->
+    <section id="view-inspections" class="view px-8 py-7">
+      <div class="mb-6">
+        <h1 class="text-2xl font-bold tracking-tight">Inspections</h1>
+        <p class="text-[14px] text-ink-500 mt-1">View your move-in report and sign your move-out inspection when due</p>
+      </div>
+
+      <!-- Sub-tab toggle -->
+      <div class="flex items-center gap-1 mb-6 bg-white border border-ink-200 rounded-lg p-1 w-fit">
+        <button class="insp-tab text-[13px] px-4 py-2 rounded-md bg-ink-900 text-white font-semibold flex items-center gap-2" data-insp="movein">
+          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+          Move-in
+          <span class="text-[10px] bg-white/20 px-1.5 py-0.5 rounded-full font-bold">SIGNED</span>
+        </button>
+        <button class="insp-tab text-[13px] px-4 py-2 rounded-md text-ink-500 hover:bg-ink-100 font-semibold flex items-center gap-2" data-insp="moveout">
+          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+          Move-out
+          <span class="text-[10px] bg-ink-100 text-ink-700 px-1.5 py-0.5 rounded-full font-bold">N/A</span>
+        </button>
+      </div>
+
+      <!-- MOVE-IN PANE -->
+      <div id="insp-movein" class="insp-pane">
+        <div class="bg-success/5 border border-success/30 rounded-xl p-4 mb-6 flex items-center gap-4">
+          <div class="w-10 h-10 rounded-lg bg-success flex items-center justify-center text-white shrink-0">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 13l4 4L19 7"/></svg>
+          </div>
+          <div class="flex-1">
+            <p class="text-[13px] font-semibold">Move-in inspection signed</p>
+            <p class="text-[12px] text-ink-500">Conducted 09 Apr 2026 with agent Malwandla Khosa · Signed by both parties · PDF emailed</p>
+          </div>
+          <button class="px-3 py-1.5 text-[12px] bg-ink-900 text-white rounded-md font-semibold flex items-center gap-2">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+            Download PDF
+          </button>
+        </div>
+
+        <!-- Room photos -->
+        <div class="bg-white rounded-xl border border-ink-200 shadow-soft overflow-hidden">
+          <div class="p-5 border-b border-ink-200 flex items-center justify-between">
+            <div>
+              <h2 class="text-base font-semibold">Move-in Photos by Room</h2>
+              <p class="text-[12px] text-ink-500 mt-0.5">38 photos · 11 rooms</p>
+            </div>
+            <select class="text-[12px] bg-white border border-ink-200 rounded-md px-3 py-1.5">
+              <option>All rooms</option>
+              <option>Living Room</option>
+              <option>Kitchen</option>
+              <option>Bedrooms</option>
+            </select>
+          </div>
+
+          <div class="p-5 space-y-6">
+            <!-- Living Room -->
+            <div>
+              <div class="flex items-center justify-between mb-3">
+                <p class="text-[13px] font-bold">Living Room</p>
+                <span class="text-[11px] text-ink-500">5 photos</span>
+              </div>
+              <div class="grid grid-cols-5 gap-3">
+                <div class="aspect-square rounded-lg bg-gradient-to-br from-amber-100 to-amber-200 relative cursor-pointer hover:scale-105 transition">
+                  <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-1.5">
+                    <p class="text-[9px] text-white font-semibold">Wall (south)</p>
+                  </div>
+                </div>
+                <div class="aspect-square rounded-lg bg-gradient-to-br from-slate-100 to-slate-300 relative cursor-pointer hover:scale-105 transition">
+                  <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-1.5">
+                    <p class="text-[9px] text-white font-semibold">Floor / Tiles</p>
+                  </div>
+                </div>
+                <div class="aspect-square rounded-lg bg-gradient-to-br from-sky-100 to-sky-200 relative cursor-pointer hover:scale-105 transition">
+                  <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-1.5">
+                    <p class="text-[9px] text-white font-semibold">Window</p>
+                  </div>
+                </div>
+                <div class="aspect-square rounded-lg bg-gradient-to-br from-stone-100 to-stone-300 relative cursor-pointer hover:scale-105 transition">
+                  <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-1.5">
+                    <p class="text-[9px] text-white font-semibold">Ceiling</p>
+                  </div>
+                </div>
+                <div class="aspect-square rounded-lg bg-gradient-to-br from-rose-100 to-rose-200 relative cursor-pointer hover:scale-105 transition border-2 border-warning">
+                  <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-1.5">
+                    <p class="text-[9px] text-white font-semibold">⚠ Pre-existing scuff</p>
+                  </div>
+                </div>
+              </div>
+              <p class="text-[11px] text-ink-500 mt-2 italic">Note: One small scuff mark noted on skirting board, agreed as pre-existing.</p>
+            </div>
+
+            <!-- Kitchen -->
+            <div class="pt-6 border-t border-ink-100">
+              <div class="flex items-center justify-between mb-3">
+                <p class="text-[13px] font-bold">Kitchen</p>
+                <span class="text-[11px] text-ink-500">6 photos</span>
+              </div>
+              <div class="grid grid-cols-6 gap-3">
+                <div class="aspect-square rounded-lg bg-gradient-to-br from-stone-100 to-stone-300"></div>
+                <div class="aspect-square rounded-lg bg-gradient-to-br from-slate-100 to-slate-200"></div>
+                <div class="aspect-square rounded-lg bg-gradient-to-br from-zinc-100 to-zinc-300"></div>
+                <div class="aspect-square rounded-lg bg-gradient-to-br from-neutral-100 to-neutral-300"></div>
+                <div class="aspect-square rounded-lg bg-gradient-to-br from-gray-100 to-gray-300"></div>
+                <div class="aspect-square rounded-lg bg-gradient-to-br from-amber-100 to-amber-200"></div>
+              </div>
+            </div>
+
+            <!-- Bedroom 1 -->
+            <div class="pt-6 border-t border-ink-100">
+              <div class="flex items-center justify-between mb-3">
+                <p class="text-[13px] font-bold">Bedroom 1 (Main)</p>
+                <span class="text-[11px] text-ink-500">5 photos</span>
+              </div>
+              <div class="grid grid-cols-5 gap-3">
+                <div class="aspect-square rounded-lg bg-gradient-to-br from-sky-100 to-sky-200"></div>
+                <div class="aspect-square rounded-lg bg-gradient-to-br from-violet-100 to-violet-200"></div>
+                <div class="aspect-square rounded-lg bg-gradient-to-br from-rose-100 to-rose-200"></div>
+                <div class="aspect-square rounded-lg bg-gradient-to-br from-emerald-100 to-emerald-200"></div>
+                <div class="aspect-square rounded-lg bg-gradient-to-br from-orange-100 to-orange-200"></div>
+              </div>
+            </div>
+
+            <button class="w-full py-3 text-[12px] text-brand-600 font-semibold hover:bg-ink-50 rounded-lg">View all 11 rooms →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- MOVE-OUT PANE -->
+      <div id="insp-moveout" class="insp-pane hidden">
+        <div class="bg-white rounded-xl border border-ink-200 p-12 shadow-soft text-center">
+          <div class="w-16 h-16 mx-auto rounded-full bg-ink-100 flex items-center justify-center mb-4">
+            <svg class="w-7 h-7 text-ink-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/></svg>
+          </div>
+          <h2 class="text-lg font-bold">Move-out inspection not yet scheduled</h2>
+          <p class="text-[13px] text-ink-500 mt-2 max-w-md mx-auto">Your lease ends 30 Apr 2027. A move-out inspection will be scheduled by your agent in the final 7 days. You'll receive a notification when it's time to sign.</p>
+          <div class="bg-ink-50 rounded-lg p-4 mt-6 max-w-md mx-auto text-left">
+            <p class="text-[11px] font-semibold uppercase tracking-wider text-ink-500 mb-2">What to expect</p>
+            <ul class="text-[12px] text-ink-700 space-y-1.5">
+              <li class="flex gap-2">
+                <span class="text-brand-600 font-bold">1.</span>
+                <span>Agent will book a time within 7 days of lease end</span>
+              </li>
+              <li class="flex gap-2">
+                <span class="text-brand-600 font-bold">2.</span>
+                <span>Both attend the inspection together at the property</span>
+              </li>
+              <li class="flex gap-2">
+                <span class="text-brand-600 font-bold">3.</span>
+                <span>Compare each room to your move-in photos</span>
+              </li>
+              <li class="flex gap-2">
+                <span class="text-brand-600 font-bold">4.</span>
+                <span>You'll have 7 days to sign or dispute deductions</span>
+              </li>
+              <li class="flex gap-2">
+                <span class="text-brand-600 font-bold">5.</span>
+                <span>Deposit (+ interest) refunded within 14 days · Rental Housing Act §5(3)(g)</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================== VIEW: DEPOSIT ================== -->
+    <section id="view-deposit" class="view px-8 py-7">
+      <div class="flex items-end justify-between mb-6">
+        <div>
+          <h1 class="text-2xl font-bold tracking-tight">My Deposit</h1>
+          <p class="text-[14px] text-ink-500 mt-1">Held in Section 32 Trust · Earns interest per Rental Housing Act</p>
+        </div>
+        <button class="px-3.5 py-2 text-[13px] border border-ink-200 rounded-lg hover:bg-ink-100 flex items-center gap-2">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+          Trust statement
+        </button>
+      </div>
+
+      <!-- Big balance card -->
+      <div class="bg-gradient-to-br from-success to-emerald-700 rounded-xl p-6 text-white shadow-card mb-6 relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-32 translate-x-32"></div>
+        <div class="relative grid grid-cols-3 gap-8">
+          <div>
+            <p class="text-[11px] uppercase tracking-wider opacity-80 font-semibold">Total Held</p>
+            <p class="text-5xl font-bold mt-2 font-mono">R 8,540<span class="text-2xl opacity-80">.32</span></p>
+            <p class="text-[12px] opacity-80 mt-2">FNB Trust ***4892 · Section 32</p>
+          </div>
+          <div>
+            <p class="text-[11px] uppercase tracking-wider opacity-80 font-semibold">Original Deposit</p>
+            <p class="text-3xl font-bold mt-2 font-mono">R 8,000.00</p>
+            <p class="text-[12px] opacity-80 mt-2">Paid 09 Apr 2026</p>
+          </div>
+          <div>
+            <p class="text-[11px] uppercase tracking-wider opacity-80 font-semibold">Interest Earned</p>
+            <p class="text-3xl font-bold mt-2 font-mono">R 540.32</p>
+            <p class="text-[12px] opacity-80 mt-2">@ 6.75% p.a. compound</p>
+          </div>
+        </div>
+        <div class="mt-6 pt-5 border-t border-white/20 flex items-center justify-between">
+          <p class="text-[12px] opacity-80">Interest accrues monthly · Tax-free under Rental Housing Act §5(3)(d)</p>
+          <p class="text-[12px] font-semibold">Projected at lease end (Apr 2027): <span class="font-mono">R 9,082.40</span></p>
+        </div>
+      </div>
+
+      <!-- Two-col body -->
+      <div class="grid grid-cols-3 gap-4 mb-6">
+        <!-- Accumulation chart -->
+        <div class="col-span-2 bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h2 class="text-base font-semibold">Deposit Growth</h2>
+              <p class="text-xs text-ink-500 mt-0.5">Monthly compounding interest accrual</p>
+            </div>
+            <span class="text-[11px] flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-sm bg-success"></span>Balance over time</span>
+          </div>
+          <div class="flex items-end gap-2 h-44 px-2">
+            <!-- Apr 26 to Apr 27 (12 bars) -->
+            <div class="flex-1 flex flex-col items-center gap-1">
+              <div class="bg-success/60 rounded-t w-full" style="height: 88%"></div>
+              <span class="text-[9px] text-ink-500">Apr</span>
+            </div>
+            <div class="flex-1 flex flex-col items-center gap-1">
+              <div class="bg-success/60 rounded-t w-full" style="height: 89%"></div>
+              <span class="text-[9px] text-ink-500">May</span>
+            </div>
+            <div class="flex-1 flex flex-col items-center gap-1 opacity-50">
+              <div class="bg-success/40 rounded-t w-full" style="height: 90%"></div>
+              <span class="text-[9px] text-ink-500">Jun</span>
+            </div>
+            <div class="flex-1 flex flex-col items-center gap-1 opacity-50">
+              <div class="bg-success/40 rounded-t w-full" style="height: 91%"></div>
+              <span class="text-[9px] text-ink-500">Jul</span>
+            </div>
+            <div class="flex-1 flex flex-col items-center gap-1 opacity-50">
+              <div class="bg-success/40 rounded-t w-full" style="height: 92%"></div>
+              <span class="text-[9px] text-ink-500">Aug</span>
+            </div>
+            <div class="flex-1 flex flex-col items-center gap-1 opacity-50">
+              <div class="bg-success/40 rounded-t w-full" style="height: 93%"></div>
+              <span class="text-[9px] text-ink-500">Sep</span>
+            </div>
+            <div class="flex-1 flex flex-col items-center gap-1 opacity-50">
+              <div class="bg-success/40 rounded-t w-full" style="height: 94%"></div>
+              <span class="text-[9px] text-ink-500">Oct</span>
+            </div>
+            <div class="flex-1 flex flex-col items-center gap-1 opacity-50">
+              <div class="bg-success/40 rounded-t w-full" style="height: 95%"></div>
+              <span class="text-[9px] text-ink-500">Nov</span>
+            </div>
+            <div class="flex-1 flex flex-col items-center gap-1 opacity-50">
+              <div class="bg-success/40 rounded-t w-full" style="height: 96%"></div>
+              <span class="text-[9px] text-ink-500">Dec</span>
+            </div>
+            <div class="flex-1 flex flex-col items-center gap-1 opacity-50">
+              <div class="bg-success/40 rounded-t w-full" style="height: 97%"></div>
+              <span class="text-[9px] text-ink-500">Jan</span>
+            </div>
+            <div class="flex-1 flex flex-col items-center gap-1 opacity-50">
+              <div class="bg-success/40 rounded-t w-full" style="height: 98%"></div>
+              <span class="text-[9px] text-ink-500">Feb</span>
+            </div>
+            <div class="flex-1 flex flex-col items-center gap-1 opacity-50">
+              <div class="bg-success/40 rounded-t w-full" style="height: 99%"></div>
+              <span class="text-[9px] text-ink-500">Mar</span>
+            </div>
+            <div class="flex-1 flex flex-col items-center gap-1 opacity-50">
+              <div class="bg-success rounded-t w-full" style="height: 100%"></div>
+              <span class="text-[9px] font-bold text-success">Apr ★</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick facts -->
+        <div class="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+          <h2 class="text-base font-semibold mb-4">How This Works</h2>
+          <div class="space-y-3 text-[12px]">
+            <div>
+              <p class="font-semibold mb-1">🏦 Held in Trust</p>
+              <p class="text-ink-500">Your deposit is held in the agency's EAAB-regulated Section 32 Trust Account — never mixed with operating funds.</p>
+            </div>
+            <div class="pt-3 border-t border-ink-100">
+              <p class="font-semibold mb-1">📈 Earns Interest</p>
+              <p class="text-ink-500">By law, your deposit must earn interest at the rate paid by the bank. All interest belongs to you.</p>
+            </div>
+            <div class="pt-3 border-t border-ink-100">
+              <p class="font-semibold mb-1">⏱ 14-Day Refund</p>
+              <p class="text-ink-500">After move-out inspection, balance (plus interest, less agreed deductions) is refunded within 14 days.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Ledger -->
+      <div class="bg-white rounded-xl border border-ink-200 shadow-soft overflow-hidden">
+        <div class="p-5 border-b border-ink-200">
+          <h2 class="text-base font-semibold">Trust Ledger</h2>
+          <p class="text-[12px] text-ink-500 mt-0.5">Full transaction history for your deposit</p>
+        </div>
+        <table class="w-full">
+          <thead>
+            <tr class="text-left text-[11px] uppercase text-ink-500 tracking-wider border-b border-ink-200 bg-ink-50">
+              <th class="font-semibold px-5 py-3">Date</th>
+              <th class="font-semibold py-3">Description</th>
+              <th class="font-semibold py-3">Type</th>
+              <th class="font-semibold py-3 text-right">Amount</th>
+              <th class="font-semibold py-3 text-right pr-5">Balance</th>
+            </tr>
+          </thead>
+          <tbody class="text-[13px]">
+            <tr class="border-b border-ink-100 hover:bg-ink-50">
+              <td class="px-5 py-3 font-mono text-[12px]">2026/05/01</td>
+              <td>Monthly interest accrual</td>
+              <td><span class="text-[10px] px-2 py-0.5 rounded-full bg-success/15 text-success font-bold">INTEREST</span></td>
+              <td class="text-right font-mono text-success">+ R 45.16</td>
+              <td class="text-right pr-5 font-mono font-semibold">R 8,540.32</td>
+            </tr>
+            <tr class="border-b border-ink-100 hover:bg-ink-50">
+              <td class="px-5 py-3 font-mono text-[12px]">2026/04/30</td>
+              <td>Monthly interest accrual</td>
+              <td><span class="text-[10px] px-2 py-0.5 rounded-full bg-success/15 text-success font-bold">INTEREST</span></td>
+              <td class="text-right font-mono text-success">+ R 45.00</td>
+              <td class="text-right pr-5 font-mono font-semibold">R 8,495.16</td>
+            </tr>
+            <tr class="border-b border-ink-100 hover:bg-ink-50">
+              <td class="px-5 py-3 font-mono text-[12px]">2026/04/30</td>
+              <td>Bank fee (FNB Section 32)</td>
+              <td><span class="text-[10px] px-2 py-0.5 rounded-full bg-ink-100 text-ink-700 font-bold">FEE</span></td>
+              <td class="text-right font-mono text-ink-500">— R 4.84</td>
+              <td class="text-right pr-5 font-mono font-semibold">R 8,450.16</td>
+            </tr>
+            <tr class="border-b border-ink-100 hover:bg-ink-50">
+              <td class="px-5 py-3 font-mono text-[12px]">2026/04/09</td>
+              <td>
+                <p class="font-semibold">Damage deposit</p>
+                <p class="text-[11px] text-ink-500">Lease commencement</p>
+              </td>
+              <td><span class="text-[10px] px-2 py-0.5 rounded-full bg-brand-50 text-brand-700 font-bold">DEPOSIT</span></td>
+              <td class="text-right font-mono text-success">+ R 8,000.00</td>
+              <td class="text-right pr-5 font-mono font-semibold">R 8,455.00</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ================== VIEW: MAINTENANCE ================== -->
+    <section id="view-maintenance" class="view px-8 py-7">
+      <div class="flex items-end justify-between mb-6">
+        <div>
+          <h1 class="text-2xl font-bold tracking-tight">Maintenance</h1>
+          <p class="text-[14px] text-ink-500 mt-1">Report issues. Your agency receives the request and assigns a verified contractor.</p>
+        </div>
+        <button class="px-3.5 py-2 text-[13px] bg-ink-900 text-white rounded-lg flex items-center gap-2">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+          New Request
+        </button>
+      </div>
+
+      <!-- New request form -->
+      <div class="bg-white rounded-xl border border-ink-200 shadow-soft overflow-hidden mb-6">
+        <div class="p-5 border-b border-ink-200 bg-gradient-to-r from-brand-50 to-violet-50">
+          <p class="text-[13px] font-bold">Report a new issue</p>
+          <p class="text-[11px] text-ink-500 mt-0.5">Fill in the details — your agency will assign a contractor and notify you.</p>
+        </div>
+        <div class="p-5 grid grid-cols-2 gap-5">
+          <!-- Left col -->
+          <div class="space-y-4">
+            <div>
+              <label class="text-[12px] font-semibold text-ink-700 mb-1.5 block">Issue title</label>
+              <input class="w-full bg-ink-50 border border-ink-200 rounded-md px-3 py-2 text-[13px]" placeholder="e.g. Leaking kitchen tap">
+            </div>
+            <div>
+              <label class="text-[12px] font-semibold text-ink-700 mb-1.5 block">Category</label>
+              <div class="grid grid-cols-3 gap-2">
+                <button class="text-[11px] px-2 py-2 rounded-md border border-ink-200 hover:border-brand-500 hover:bg-brand-50 flex flex-col items-center gap-1">
+                  <svg class="w-4 h-4 text-sky-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h12"/></svg>
+                  Plumbing
+                </button>
+                <button class="text-[11px] px-2 py-2 rounded-md border border-ink-200 hover:border-brand-500 hover:bg-brand-50 flex flex-col items-center gap-1">
+                  <svg class="w-4 h-4 text-amber-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9z"/></svg>
+                  Electrical
+                </button>
+                <button class="text-[11px] px-2 py-2 rounded-md border border-ink-200 hover:border-brand-500 hover:bg-brand-50 flex flex-col items-center gap-1">
+                  <svg class="w-4 h-4 text-rose-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 5V3M17 5V3"/></svg>
+                  Appliances
+                </button>
+                <button class="text-[11px] px-2 py-2 rounded-md border border-ink-200 hover:border-brand-500 hover:bg-brand-50 flex flex-col items-center gap-1">
+                  <svg class="w-4 h-4 text-stone-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21V10l9-7 9 7v11H3z"/></svg>
+                  Structural
+                </button>
+                <button class="text-[11px] px-2 py-2 rounded-md border border-ink-200 hover:border-brand-500 hover:bg-brand-50 flex flex-col items-center gap-1">
+                  <svg class="w-4 h-4 text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"/></svg>
+                  Garden
+                </button>
+                <button class="text-[11px] px-2 py-2 rounded-md border border-ink-200 hover:border-brand-500 hover:bg-brand-50 flex flex-col items-center gap-1">
+                  <svg class="w-4 h-4 text-ink-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="9"/></svg>
+                  Other
+                </button>
+              </div>
+            </div>
+            <div>
+              <label class="text-[12px] font-semibold text-ink-700 mb-1.5 block">Urgency</label>
+              <div class="grid grid-cols-4 gap-2">
+                <button class="text-[11px] px-2 py-2 rounded-md border border-ink-200 hover:bg-ink-100 font-semibold">Low</button>
+                <button class="text-[11px] px-2 py-2 rounded-md border border-brand-500 bg-brand-50 text-brand-700 font-semibold">Medium</button>
+                <button class="text-[11px] px-2 py-2 rounded-md border border-ink-200 hover:bg-ink-100 font-semibold">High</button>
+                <button class="text-[11px] px-2 py-2 rounded-md border border-danger/30 bg-danger/5 text-danger font-semibold">🚨 Emergency</button>
+              </div>
+              <p class="text-[10px] text-ink-500 mt-1.5 italic">Emergency = water/gas leak, electrical fault, security breach. 4-hour response SLA.</p>
+            </div>
+          </div>
+          <!-- Right col -->
+          <div class="space-y-4">
+            <div>
+              <label class="text-[12px] font-semibold text-ink-700 mb-1.5 block">Description</label>
+              <textarea class="w-full bg-ink-50 border border-ink-200 rounded-md px-3 py-2 text-[13px]" rows="4" placeholder="Describe the issue in detail..."></textarea>
+            </div>
+            <div>
+              <label class="text-[12px] font-semibold text-ink-700 mb-1.5 block">Photos (up to 5)</label>
+              <div class="grid grid-cols-5 gap-2">
+                <div class="aspect-square rounded-md bg-gradient-to-br from-sky-100 to-sky-200 relative">
+                  <button class="absolute top-1 right-1 w-4 h-4 bg-white rounded-full flex items-center justify-center text-[10px]">×</button>
+                </div>
+                <div class="aspect-square rounded-md bg-gradient-to-br from-rose-100 to-rose-200 relative">
+                  <button class="absolute top-1 right-1 w-4 h-4 bg-white rounded-full flex items-center justify-center text-[10px]">×</button>
+                </div>
+                <button class="aspect-square rounded-md border-2 border-dashed border-ink-300 flex flex-col items-center justify-center text-ink-400 hover:border-brand-500 hover:text-brand-600 transition">
+                  <svg class="w-4 h-4 mb-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+                  <span class="text-[9px]">Add</span>
+                </button>
+                <div class="aspect-square"></div>
+                <div class="aspect-square"></div>
+              </div>
+            </div>
+            <div>
+              <label class="text-[12px] font-semibold text-ink-700 mb-1.5 block">Preferred visit slot</label>
+              <div class="grid grid-cols-2 gap-2">
+                <input type="date" class="bg-ink-50 border border-ink-200 rounded-md px-3 py-2 text-[12px]" value="2026-05-19">
+                <select class="bg-ink-50 border border-ink-200 rounded-md px-3 py-2 text-[12px]">
+                  <option>Morning (08:00 – 12:00)</option>
+                  <option>Afternoon (12:00 – 17:00)</option>
+                  <option>After hours (17:00 – 20:00)</option>
+                </select>
+              </div>
+              <p class="text-[10px] text-ink-500 mt-1.5">Contractor will confirm or propose alternative.</p>
+            </div>
+          </div>
+        </div>
+        <div class="p-5 bg-ink-50 border-t border-ink-200 flex items-center justify-between">
+          <p class="text-[11px] text-ink-500">Submitted requests go to your agency for contractor assignment.</p>
+          <div class="flex items-center gap-2">
+            <button class="px-3 py-2 text-[12px] border border-ink-200 rounded-md hover:bg-white">Save draft</button>
+            <button class="px-4 py-2 text-[13px] bg-ink-900 text-white rounded-md font-semibold">Submit request →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Active requests -->
+      <h2 class="text-base font-semibold mb-3">My Requests</h2>
+
+      <div class="grid grid-cols-2 gap-4">
+        <!-- Active -->
+        <div class="bg-white rounded-xl border-2 border-brand-500 shadow-card overflow-hidden">
+          <div class="p-5 border-b border-ink-200">
+            <div class="flex items-start gap-3">
+              <div class="w-10 h-10 rounded-lg bg-sky-50 flex items-center justify-center shrink-0">
+                <svg class="w-5 h-5 text-sky-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h12"/></svg>
+              </div>
+              <div class="flex-1">
+                <div class="flex items-center gap-2">
+                  <p class="text-[14px] font-bold">Leaking kitchen tap</p>
+                  <span class="text-[10px] px-2 py-0.5 rounded-full bg-warning/15 text-warning font-bold">MEDIUM</span>
+                </div>
+                <p class="text-[11px] text-ink-500 mt-0.5">Plumbing · Logged 16 May 2026 · 2 photos</p>
+              </div>
+              <span class="text-[10px] px-2 py-1 rounded-full bg-brand-50 text-brand-700 font-bold flex items-center gap-1.5">
+                <span class="w-1.5 h-1.5 rounded-full bg-brand-500 pulse-dot"></span>
+                IN PROGRESS
+              </span>
+            </div>
+          </div>
+
+          <div class="p-5">
+            <p class="text-[12px] font-semibold mb-3">Status tracker</p>
+            <div class="flex items-start">
+              <div class="flex flex-col items-center mr-3">
+                <div class="w-6 h-6 rounded-full bg-success flex items-center justify-center text-white">
+                  <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 13l4 4L19 7"/></svg>
+                </div>
+                <div class="w-0.5 h-8 bg-success"></div>
+              </div>
+              <div class="flex-1 pb-2">
+                <p class="text-[12px] font-semibold">Submitted</p>
+                <p class="text-[10px] text-ink-500">16 May · 08:32</p>
+              </div>
+            </div>
+            <div class="flex items-start">
+              <div class="flex flex-col items-center mr-3">
+                <div class="w-6 h-6 rounded-full bg-success flex items-center justify-center text-white">
+                  <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 13l4 4L19 7"/></svg>
+                </div>
+                <div class="w-0.5 h-12 bg-success"></div>
+              </div>
+              <div class="flex-1 pb-2">
+                <p class="text-[12px] font-semibold">Assigned</p>
+                <p class="text-[10px] text-ink-500">By agency · 11:14</p>
+                <div class="bg-ink-50 rounded-md p-2 mt-1.5 flex items-center gap-2">
+                  <div class="w-5 h-5 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center text-white text-[8px] font-bold">JM</div>
+                  <span class="text-[11px] font-semibold">Jacob Mokoena</span>
+                  <span class="text-[10px] text-ink-500">⭐ 4.8</span>
+                </div>
+              </div>
+            </div>
+            <div class="flex items-start">
+              <div class="flex flex-col items-center mr-3">
+                <div class="w-6 h-6 rounded-full bg-brand-500 flex items-center justify-center text-white pulse-dot">
+                  <svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12h14M12 5v14"/></svg>
+                </div>
+                <div class="w-0.5 h-8 bg-ink-200"></div>
+              </div>
+              <div class="flex-1 pb-2">
+                <p class="text-[12px] font-semibold">In progress</p>
+                <p class="text-[10px] text-ink-500">Visit: tomorrow 10:00 – 11:00</p>
+              </div>
+            </div>
+            <div class="flex items-start">
+              <div class="flex flex-col items-center mr-3">
+                <div class="w-6 h-6 rounded-full bg-ink-100"></div>
+              </div>
+              <div class="flex-1">
+                <p class="text-[12px] font-semibold text-ink-400">Completed</p>
+              </div>
+            </div>
+
+            <div class="mt-4 pt-3 border-t border-ink-100 flex gap-2">
+              <button class="flex-1 text-[11px] px-2.5 py-1.5 border border-ink-200 rounded-md hover:bg-ink-50">Message contractor</button>
+              <button class="flex-1 text-[11px] px-2.5 py-1.5 border border-ink-200 rounded-md hover:bg-ink-50">Reschedule</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Completed -->
+        <div class="bg-white rounded-xl border border-ink-200 shadow-soft overflow-hidden">
+          <div class="p-5 border-b border-ink-200">
+            <div class="flex items-start gap-3">
+              <div class="w-10 h-10 rounded-lg bg-amber-50 flex items-center justify-center shrink-0">
+                <svg class="w-5 h-5 text-amber-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9z"/></svg>
+              </div>
+              <div class="flex-1">
+                <div class="flex items-center gap-2">
+                  <p class="text-[14px] font-bold">Bedroom light not working</p>
+                  <span class="text-[10px] px-2 py-0.5 rounded-full bg-ink-100 text-ink-700 font-bold">LOW</span>
+                </div>
+                <p class="text-[11px] text-ink-500 mt-0.5">Electrical · Logged 28 Apr · Resolved 30 Apr</p>
+              </div>
+              <span class="text-[10px] px-2 py-1 rounded-full bg-success/15 text-success font-bold">COMPLETED</span>
+            </div>
+          </div>
+          <div class="p-5">
+            <div class="bg-ink-50 rounded-md p-3 mb-3">
+              <p class="text-[11px] font-semibold mb-1">Contractor notes</p>
+              <p class="text-[12px] text-ink-700">Replaced faulty light bulb and ceiling rose. Tested working. Replaced under maintenance budget — no cost to tenant.</p>
+            </div>
+            <div class="flex items-center justify-between mb-3">
+              <div class="flex items-center gap-2">
+                <div class="w-6 h-6 rounded-full bg-gradient-to-br from-violet-400 to-violet-600 flex items-center justify-center text-white text-[8px] font-bold">SE</div>
+                <div>
+                  <p class="text-[12px] font-semibold">Sipho Electrician</p>
+                  <p class="text-[10px] text-ink-500">Volt Solutions · ⭐ 4.9</p>
+                </div>
+              </div>
+              <span class="text-[10px] px-2 py-0.5 rounded-full bg-success/15 text-success font-bold">⭐ YOU RATED 5</span>
+            </div>
+            <button class="w-full text-[11px] px-2.5 py-2 border border-ink-200 rounded-md hover:bg-ink-50">View full job report</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================== VIEW: MESSAGES ================== -->
+    <section id="view-messages" class="view">
+      <div class="flex h-[calc(100vh-64px)]">
+        <div class="w-80 border-r border-ink-200 bg-white overflow-y-auto">
+          <div class="p-4 border-b border-ink-200">
+            <h1 class="text-lg font-bold">Messages</h1>
+            <p class="text-[11px] text-ink-500 mt-1">Talk to your agent or assigned contractor</p>
+          </div>
+          <div>
+            <div class="flex items-start gap-3 p-4 border-b border-ink-100 bg-brand-50/40 border-l-2 border-l-brand-500 cursor-pointer">
+              <div class="w-10 h-10 rounded-full bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center text-white text-xs font-bold shrink-0">MK</div>
+              <div class="min-w-0 flex-1">
+                <div class="flex items-center justify-between">
+                  <p class="text-[13px] font-semibold truncate">Malwandla Khosa</p>
+                  <span class="text-[10px] text-ink-400">5m</span>
+                </div>
+                <p class="text-[11px] text-ink-500 truncate mt-0.5">Re: leaking tap — Jacob will arrive at 10am</p>
+                <span class="text-[10px] inline-block mt-1.5 bg-danger text-white px-1.5 rounded-full font-bold">2</span>
+              </div>
+            </div>
+            <div class="flex items-start gap-3 p-4 border-b border-ink-100 hover:bg-ink-50 cursor-pointer">
+              <div class="w-10 h-10 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center text-white text-xs font-bold shrink-0">JM</div>
+              <div class="min-w-0 flex-1">
+                <div class="flex items-center justify-between">
+                  <p class="text-[13px] font-semibold truncate">Jacob Mokoena · Contractor</p>
+                  <span class="text-[10px] text-ink-400">1h</span>
+                </div>
+                <p class="text-[11px] text-ink-500 truncate mt-0.5">I'll bring spares — see you tomorrow 👍</p>
+              </div>
+            </div>
+            <div class="flex items-start gap-3 p-4 border-b border-ink-100 hover:bg-ink-50 cursor-pointer">
+              <div class="w-10 h-10 rounded-full bg-ink-900 flex items-center justify-center text-white text-xs font-bold shrink-0">PB</div>
+              <div class="min-w-0 flex-1">
+                <div class="flex items-center justify-between">
+                  <p class="text-[13px] font-semibold truncate">Property Basket · System</p>
+                  <span class="text-[10px] text-ink-400">7d</span>
+                </div>
+                <p class="text-[11px] text-ink-500 truncate mt-0.5">Reminder: Rent due in 7 days (R 8,000)</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex-1 flex flex-col bg-ink-50">
+          <div class="h-16 bg-white border-b border-ink-200 px-6 flex items-center gap-3">
+            <div class="w-9 h-9 rounded-full bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center text-white text-xs font-bold">MK</div>
+            <div class="flex-1">
+              <p class="text-[14px] font-semibold">Malwandla Khosa</p>
+              <p class="text-[11px] text-success">● Online · Your agent</p>
+            </div>
+          </div>
+
+          <div class="flex-1 overflow-y-auto p-6 space-y-4">
+            <div class="text-center text-[11px] text-ink-400">Today · 11:14</div>
+            <div class="flex gap-2">
+              <div class="w-7 h-7 rounded-full bg-gradient-to-br from-brand-500 to-brand-700 shrink-0"></div>
+              <div class="max-w-md">
+                <div class="bg-white border border-ink-200 rounded-2xl rounded-tl-md p-3">
+                  <p class="text-[13px]">Hi! Re: the leaking kitchen tap — I've assigned Jacob Mokoena from Mokoena Plumbing. He's confirmed for tomorrow 10am.</p>
+                </div>
+                <p class="text-[10px] text-ink-400 mt-1 ml-1">11:14</p>
+              </div>
+            </div>
+            <div class="flex gap-2 justify-end">
+              <div class="max-w-md">
+                <div class="bg-brand-500 text-white rounded-2xl rounded-tr-md p-3">
+                  <p class="text-[13px]">Perfect, thanks! I'll be home from 09:30. Should I prepare anything?</p>
+                </div>
+                <p class="text-[10px] text-ink-400 mt-1 mr-1 text-right">11:21 · ✓✓</p>
+              </div>
+            </div>
+            <div class="flex gap-2">
+              <div class="w-7 h-7 rounded-full bg-gradient-to-br from-brand-500 to-brand-700 shrink-0"></div>
+              <div class="max-w-md">
+                <div class="bg-white border border-ink-200 rounded-2xl rounded-tl-md p-3">
+                  <p class="text-[13px]">Just clear the under-sink cabinet so he can access the pipes. Jacob will bring all spares.</p>
+                </div>
+                <p class="text-[10px] text-ink-400 mt-1 ml-1">11:24</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-white border-t border-ink-200 p-4">
+            <div class="flex items-end gap-2 bg-ink-50 border border-ink-200 rounded-xl p-3">
+              <input class="flex-1 bg-transparent border-0 focus:outline-none text-[14px]" placeholder="Type a message...">
+              <button class="px-3 py-1.5 bg-brand-500 text-white text-[12px] rounded-md font-medium">Send</button>
+            </div>
+            <p class="text-[10px] text-ink-400 mt-2">Conversations are encrypted and retained per agency policy (POPIA-compliant).</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+  const navItems = document.querySelectorAll('.nav-item');
+  const views = document.querySelectorAll('.view');
+  const crumb = document.getElementById('crumb-page');
+
+  const labels = {
+    overview: 'Dashboard',
+    pay: 'Make Payment',
+    history: 'Payment History',
+    lease: 'My Lease',
+    inspections: 'Inspections',
+    deposit: 'My Deposit',
+    maintenance: 'Maintenance',
+    messages: 'Messages',
+  };
+
+  navItems.forEach(item => {
+    item.addEventListener('click', (e) => {
+      const view = item.getAttribute('data-view');
+      if (!view) return;
+      e.preventDefault();
+      document.querySelectorAll('aside .nav-item').forEach(n => n.classList.remove('active'));
+      const sidebarMatch = document.querySelector(`aside .nav-item[data-view="${view}"]`);
+      if (sidebarMatch) sidebarMatch.classList.add('active');
+      views.forEach(v => v.classList.remove('active'));
+      const target = document.getElementById('view-' + view);
+      if (target) {
+        target.classList.add('active');
+        crumb.textContent = labels[view] || 'Dashboard';
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  });
+
+  // Inspections sub-tabs
+  document.querySelectorAll('.insp-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      const target = tab.getAttribute('data-insp');
+      document.querySelectorAll('.insp-tab').forEach(t => {
+        t.classList.remove('bg-ink-900', 'text-white');
+        t.classList.add('text-ink-500', 'hover:bg-ink-100');
+        const badge = t.querySelector('span');
+        if (badge) {
+          badge.classList.remove('bg-white/20');
+          badge.classList.add('bg-ink-100', 'text-ink-700');
+        }
+      });
+      tab.classList.add('bg-ink-900', 'text-white');
+      tab.classList.remove('text-ink-500', 'hover:bg-ink-100');
+      const activeBadge = tab.querySelector('span');
+      if (activeBadge) {
+        activeBadge.classList.add('bg-white/20');
+        activeBadge.classList.remove('bg-ink-100', 'text-ink-700');
+      }
+      document.querySelectorAll('.insp-pane').forEach(p => p.classList.add('hidden'));
+      const pane = document.getElementById('insp-' + target);
+      if (pane) pane.classList.remove('hidden');
+    });
+  });
+</script>
+
+</body>
+</html>

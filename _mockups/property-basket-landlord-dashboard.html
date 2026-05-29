@@ -1,0 +1,1532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Property Basket — Landlord Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: { sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'], mono: ['"JetBrains Mono"', 'monospace'] },
+        colors: {
+          brand: { DEFAULT: '#5B3DF5', 50: '#F2EFFE', 100: '#E4DEFD', 500: '#5B3DF5', 600: '#4A2EE0', 700: '#3A23B8' },
+          ink: { 900: '#0B0B0F', 800: '#1A1A22', 700: '#2A2A35', 500: '#6B7280', 400: '#9CA3AF', 300: '#D1D5DB', 200: '#E5E7EB', 100: '#F3F4F6', 50: '#F9FAFB' },
+          success: '#10B981', warning: '#F59E0B', danger: '#EF4444',
+        },
+        boxShadow: {
+          'soft': '0 1px 2px rgba(15, 23, 42, 0.04), 0 1px 3px rgba(15, 23, 42, 0.06)',
+          'card': '0 4px 12px rgba(15, 23, 42, 0.04), 0 1px 3px rgba(15, 23, 42, 0.06)',
+          'lift': '0 12px 32px rgba(15, 23, 42, 0.10)',
+        },
+      }
+    }
+  }
+</script>
+<style>
+  body { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }
+  .nav-item.active { background-color: #F3F4F6; color: #0B0B0F; }
+  .nav-item.active .nav-icon { color: #5B3DF5; }
+  .view { display: none; }
+  .view.active { display: block; }
+  .dot-grid { background-image: radial-gradient(circle, #E5E7EB 1px, transparent 1px); background-size: 14px 14px; }
+  .spark path { stroke-dasharray: 1000; stroke-dashoffset: 1000; animation: dash 1.5s ease-out forwards; }
+  @keyframes dash { to { stroke-dashoffset: 0; } }
+  .toggle { position: relative; width: 40px; height: 22px; background: #E5E7EB; border-radius: 999px; cursor: pointer; transition: background .2s; }
+  .toggle::after { content: ''; position: absolute; top: 2px; left: 2px; width: 18px; height: 18px; background: white; border-radius: 50%; box-shadow: 0 1px 3px rgba(0,0,0,.15); transition: .2s; }
+  .toggle.on { background: #5B3DF5; }
+  .toggle.on::after { transform: translateX(18px); }
+  [data-tip] { position: relative; }
+  [data-tip]:hover::after { content: attr(data-tip); position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); background: #0B0B0F; color: white; padding: 4px 8px; border-radius: 6px; font-size: 11px; white-space: nowrap; margin-bottom: 6px; z-index: 50; }
+  .pulse-dot { animation: pulse 2s ease-in-out infinite; }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+  .insp-pane.hidden { display: none; }
+  .siren-ripple { position: relative; }
+  .siren-ripple::before { content: ''; position: absolute; inset: -4px; border-radius: 50%; border: 2px solid #EF4444; animation: ripple 1.5s ease-out infinite; }
+  @keyframes ripple { 0% { opacity: 1; transform: scale(0.8); } 100% { opacity: 0; transform: scale(1.6); } }
+</style>
+</head>
+<body class="bg-ink-50 text-ink-900">
+
+<div class="flex min-h-screen">
+
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="w-[240px] shrink-0 bg-white border-r border-ink-200 flex flex-col">
+    <div class="px-5 pt-5 pb-6 flex items-center gap-2">
+      <div class="w-8 h-8 rounded-lg bg-ink-900 flex items-center justify-center">
+        <svg viewBox="0 0 24 24" class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 10.5L12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-7h-6v7H4a1 1 0 0 1-1-1V10.5z" stroke-linejoin="round"/></svg>
+      </div>
+      <span class="font-bold text-[15px] tracking-tight">Property Basket</span>
+    </div>
+
+    <nav class="px-3 flex-1 overflow-y-auto">
+      <p class="px-3 text-[10px] font-semibold text-ink-400 tracking-[0.12em] mb-2">WORKSPACE</p>
+      <a href="#" data-view="overview" class="nav-item active flex items-center gap-3 px-3 py-2 rounded-lg text-[13.5px] text-ink-500 hover:bg-ink-100 transition mb-0.5">
+        <svg class="nav-icon w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+        Dashboard
+      </a>
+      <a href="#" data-view="properties" class="nav-item flex items-center gap-3 px-3 py-2 rounded-lg text-[13.5px] text-ink-500 hover:bg-ink-100 transition mb-0.5">
+        <svg class="nav-icon w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21V10l9-7 9 7v11H3z"/><path d="M9 21v-7h6v7"/></svg>
+        Properties
+        <span class="ml-auto text-[10px] bg-brand-50 text-brand-700 px-1.5 py-0.5 rounded-full font-semibold">3/5</span>
+      </a>
+      <a href="#" data-view="inspections" class="nav-item flex items-center gap-3 px-3 py-2 rounded-lg text-[13.5px] text-ink-500 hover:bg-ink-100 transition mb-0.5">
+        <svg class="nav-icon w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><path d="M21 12c0 1-1 11-9 11s-9-10-9-11V5l9-3 9 3z"/></svg>
+        Inspections
+      </a>
+      <a href="#" data-view="maintenance" class="nav-item flex items-center gap-3 px-3 py-2 rounded-lg text-[13.5px] text-ink-500 hover:bg-ink-100 transition mb-0.5">
+        <svg class="nav-icon w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 6.5a2 2 0 1 0-4 0M9 12l-7 7 3 3 7-7M14 12l4-4 4 4-4 4z"/></svg>
+        Maintenance
+        <span class="ml-auto text-[10px] bg-danger text-white px-1.5 py-0.5 rounded-full font-semibold">2</span>
+      </a>
+
+      <p class="px-3 mt-6 text-[10px] font-semibold text-ink-400 tracking-[0.12em] mb-2">PEOPLE</p>
+      <a href="#" data-view="tenants" class="nav-item flex items-center gap-3 px-3 py-2 rounded-lg text-[13.5px] text-ink-500 hover:bg-ink-100 transition mb-0.5">
+        <svg class="nav-icon w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18"/></svg>
+        Tenants
+      </a>
+      <a href="#" data-view="contractors" class="nav-item flex items-center gap-3 px-3 py-2 rounded-lg text-[13.5px] text-ink-500 hover:bg-ink-100 transition mb-0.5">
+        <svg class="nav-icon w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 6.5a2 2 0 1 0-4 0M9 12l-7 7 3 3 7-7M14 12l4-4 4 4-4 4z"/></svg>
+        Contractors
+      </a>
+      <a href="#" data-view="messages" class="nav-item flex items-center gap-3 px-3 py-2 rounded-lg text-[13.5px] text-ink-500 hover:bg-ink-100 transition mb-0.5">
+        <svg class="nav-icon w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.6-.8L3 21l1.9-5.7a8.5 8.5 0 0 1 16.1-3.8z"/></svg>
+        Messages
+        <span class="ml-auto text-[10px] bg-danger text-white px-1.5 py-0.5 rounded-full font-semibold">3</span>
+      </a>
+
+      <p class="px-3 mt-6 text-[10px] font-semibold text-ink-400 tracking-[0.12em] mb-2">FINANCE</p>
+      <a href="#" data-view="finance" class="nav-item flex items-center gap-3 px-3 py-2 rounded-lg text-[13.5px] text-ink-500 hover:bg-ink-100 transition mb-0.5">
+        <svg class="nav-icon w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 4 4 6-6"/></svg>
+        Finance
+      </a>
+      <a href="#" data-view="payments" class="nav-item flex items-center gap-3 px-3 py-2 rounded-lg text-[13.5px] text-ink-500 hover:bg-ink-100 transition mb-0.5">
+        <svg class="nav-icon w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+        Rent & Payouts
+        <span class="ml-auto w-1.5 h-1.5 rounded-full bg-warning"></span>
+      </a>
+
+      <p class="px-3 mt-6 text-[10px] font-semibold text-ink-400 tracking-[0.12em] mb-2">ACCOUNT</p>
+      <a href="#" data-view="settings" class="nav-item flex items-center gap-3 px-3 py-2 rounded-lg text-[13.5px] text-ink-500 hover:bg-ink-100 transition mb-0.5">
+        <svg class="nav-icon w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        Settings
+      </a>
+      <a href="#" class="nav-item flex items-center gap-3 px-3 py-2 rounded-lg text-[13.5px] text-ink-500 hover:bg-ink-100 transition mb-0.5">
+        <svg class="nav-icon w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3M12 17h.01"/></svg>
+        Help & Support
+      </a>
+    </nav>
+
+    <!-- Upgrade prompt (5 property cap) -->
+    <div class="px-3 pb-2">
+      <div class="bg-gradient-to-br from-brand-500 to-brand-700 rounded-xl p-4 text-white">
+        <p class="text-[12px] font-bold">3 of 5 properties used</p>
+        <div class="mt-2 h-1.5 bg-white/20 rounded-full overflow-hidden">
+          <div class="h-full bg-white" style="width: 60%"></div>
+        </div>
+        <p class="text-[10px] opacity-80 mt-2">Managing more than 5? Upgrade to an Agency account.</p>
+        <button class="w-full mt-2 py-1.5 bg-white text-brand-700 text-[11px] rounded-md font-bold">Learn more</button>
+      </div>
+    </div>
+
+    <div class="border-t border-ink-200 p-3">
+      <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-ink-100 cursor-pointer">
+        <div class="w-9 h-9 rounded-full bg-gradient-to-br from-sky-500 to-sky-700 flex items-center justify-center text-white font-semibold text-sm">SB</div>
+        <div class="flex-1 min-w-0">
+          <p class="text-[13px] font-semibold truncate">Sarah Botha</p>
+          <p class="text-[11px] text-ink-400 truncate">Private Landlord</p>
+        </div>
+        <svg class="w-4 h-4 text-ink-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 15l5 5 5-5M7 9l5-5 5 5"/></svg>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ============ MAIN ============ -->
+  <main class="flex-1 min-w-0">
+
+    <header class="h-16 border-b border-ink-200 bg-white flex items-center px-8 gap-6 sticky top-0 z-30">
+      <div class="text-[13px] text-ink-500">
+        <span>My Portfolio</span>
+        <span class="mx-2 text-ink-300">/</span>
+        <span class="text-ink-900 font-medium" id="crumb-page">Dashboard</span>
+      </div>
+      <div class="flex-1 max-w-xl mx-auto">
+        <div class="relative">
+          <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+          <input class="w-full bg-ink-50 border border-ink-200 rounded-lg pl-10 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition" placeholder="Search properties, tenants, requests...">
+        </div>
+      </div>
+      <button class="w-9 h-9 rounded-lg hover:bg-ink-100 flex items-center justify-center relative transition" data-tip="Notifications">
+        <svg class="w-4 h-4 text-ink-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+        <span class="absolute top-1.5 right-2 w-2 h-2 rounded-full bg-danger"></span>
+      </button>
+    </header>
+
+    <!-- ============= VIEW: OVERVIEW ============= -->
+    <section id="view-overview" class="view active px-8 py-7">
+      <div class="flex items-end justify-between mb-7">
+        <div>
+          <p class="text-[13px] text-ink-500">Monday, 18 May 2026</p>
+          <h1 class="text-3xl font-bold tracking-tight mt-1">Welcome, Sarah 🏡</h1>
+          <p class="text-[14px] text-ink-500 mt-1">3 properties · <span class="font-semibold text-success">100% occupied</span> · <span class="font-semibold text-ink-900">R 26,500</span> rent due this month</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button class="px-3.5 py-2 text-[13px] border border-ink-200 rounded-lg hover:bg-ink-100 transition flex items-center gap-2">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18"/></svg>
+            Invite Tenant
+          </button>
+          <button class="px-3.5 py-2 text-[13px] bg-ink-900 text-white rounded-lg hover:bg-ink-800 transition flex items-center gap-2">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+            Add Property
+          </button>
+        </div>
+      </div>
+
+      <!-- KPI Grid -->
+      <div class="grid grid-cols-4 gap-4 mb-6">
+        <div class="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-[11px] text-ink-500 uppercase tracking-wider font-semibold">Monthly Rent Roll</span>
+            <span class="w-7 h-7 rounded-lg bg-emerald-50 flex items-center justify-center">
+              <svg class="w-3.5 h-3.5 text-success" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            </span>
+          </div>
+          <div class="flex items-baseline gap-2">
+            <span class="text-3xl font-bold">R 26,500</span>
+          </div>
+          <p class="text-[11px] text-ink-500 mt-1">Across 3 properties</p>
+          <svg class="spark w-full h-8 mt-2" viewBox="0 0 100 30" preserveAspectRatio="none"><path d="M0,20 L25,18 L50,15 L75,12 L100,8" fill="none" stroke="#10B981" stroke-width="2"/></svg>
+        </div>
+        <div class="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-[11px] text-ink-500 uppercase tracking-wider font-semibold">Net Yield (avg)</span>
+            <span class="w-7 h-7 rounded-lg bg-brand-50 flex items-center justify-center">
+              <svg class="w-3.5 h-3.5 text-brand-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 3v18h18"/><path d="M7 14l4-4 4 4 6-6"/></svg>
+            </span>
+          </div>
+          <div class="flex items-baseline gap-2">
+            <span class="text-3xl font-bold">8.4%</span>
+            <span class="text-xs text-success font-semibold">↑ 0.6%</span>
+          </div>
+          <p class="text-[11px] text-ink-500 mt-1">After expenses</p>
+          <svg class="spark w-full h-8 mt-2" viewBox="0 0 100 30" preserveAspectRatio="none"><path d="M0,22 L25,18 L50,16 L75,12 L100,8" fill="none" stroke="#5B3DF5" stroke-width="2"/></svg>
+        </div>
+        <div class="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-[11px] text-ink-500 uppercase tracking-wider font-semibold">Occupancy</span>
+            <span class="w-7 h-7 rounded-lg bg-emerald-50 flex items-center justify-center">
+              <svg class="w-3.5 h-3.5 text-success" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 21V10l9-7 9 7v11H3z"/></svg>
+            </span>
+          </div>
+          <div class="flex items-baseline gap-2">
+            <span class="text-3xl font-bold">100%</span>
+          </div>
+          <p class="text-[11px] text-ink-500 mt-1">3 of 3 let</p>
+          <svg class="spark w-full h-8 mt-2" viewBox="0 0 100 30" preserveAspectRatio="none"><path d="M0,10 L25,10 L50,8 L75,6 L100,4" fill="none" stroke="#10B981" stroke-width="2"/></svg>
+        </div>
+        <div class="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-[11px] text-ink-500 uppercase tracking-wider font-semibold">Open Maintenance</span>
+            <span class="w-7 h-7 rounded-lg bg-amber-50 flex items-center justify-center">
+              <svg class="w-3.5 h-3.5 text-warning" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 6.5a2 2 0 1 0-4 0M9 12l-7 7 3 3 7-7M14 12l4-4 4 4-4 4z"/></svg>
+            </span>
+          </div>
+          <div class="flex items-baseline gap-2">
+            <span class="text-3xl font-bold">2</span>
+            <span class="text-xs text-warning font-semibold">1 needs quote</span>
+          </div>
+          <p class="text-[11px] text-ink-500 mt-1">Across portfolio</p>
+          <svg class="spark w-full h-8 mt-2" viewBox="0 0 100 30" preserveAspectRatio="none"><path d="M0,8 L25,12 L50,10 L75,14 L100,12" fill="none" stroke="#F59E0B" stroke-width="2"/></svg>
+        </div>
+      </div>
+
+      <!-- Two-col -->
+      <div class="grid grid-cols-3 gap-4 mb-4">
+        <!-- LEFT: Properties at a glance -->
+        <div class="col-span-2 bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h2 class="text-base font-semibold">My Properties</h2>
+              <p class="text-xs text-ink-500 mt-0.5">3 of 5 slots used · all occupied</p>
+            </div>
+            <a href="#" data-view="properties" class="nav-item text-[12px] font-medium text-brand-600 hover:underline">Manage →</a>
+          </div>
+          <div class="space-y-3">
+            <div class="flex items-center gap-4 p-3 rounded-lg border border-ink-200 hover:shadow-soft transition">
+              <div class="w-14 h-14 rounded-lg bg-gradient-to-br from-amber-300 to-orange-300 shrink-0"></div>
+              <div class="flex-1 min-w-0">
+                <p class="text-[14px] font-bold truncate">25 Mooi Crescent, Fourways</p>
+                <p class="text-[11px] text-ink-500">2-bed · Tenant: David Nkosi · Lease to Mar 2027</p>
+              </div>
+              <div class="text-right">
+                <p class="text-[14px] font-bold font-mono">R 11,500<span class="text-[11px] text-ink-400 font-normal">/mo</span></p>
+                <span class="text-[10px] px-2 py-0.5 rounded-full bg-success/15 text-success font-bold">PAID</span>
+              </div>
+            </div>
+            <div class="flex items-center gap-4 p-3 rounded-lg border border-ink-200 hover:shadow-soft transition">
+              <div class="w-14 h-14 rounded-lg bg-gradient-to-br from-sky-300 to-cyan-300 shrink-0"></div>
+              <div class="flex-1 min-w-0">
+                <p class="text-[14px] font-bold truncate">8 Rivonia Rd, Sandton</p>
+                <p class="text-[11px] text-ink-500">1-bed · Tenant: Lerato Dube · Lease to Sep 2026</p>
+              </div>
+              <div class="text-right">
+                <p class="text-[14px] font-bold font-mono">R 9,000<span class="text-[11px] text-ink-400 font-normal">/mo</span></p>
+                <span class="text-[10px] px-2 py-0.5 rounded-full bg-warning/15 text-warning font-bold">DUE 25th</span>
+              </div>
+            </div>
+            <div class="flex items-center gap-4 p-3 rounded-lg border border-ink-200 hover:shadow-soft transition">
+              <div class="w-14 h-14 rounded-lg bg-gradient-to-br from-emerald-300 to-teal-300 shrink-0"></div>
+              <div class="flex-1 min-w-0">
+                <p class="text-[14px] font-bold truncate">12 Oak Ave, Centurion</p>
+                <p class="text-[11px] text-ink-500">3-bed house · Tenant: The Williams Family · Lease to Jun 2026</p>
+              </div>
+              <div class="text-right">
+                <p class="text-[14px] font-bold font-mono">R 6,000<span class="text-[11px] text-ink-400 font-normal">/mo</span></p>
+                <span class="text-[10px] px-2 py-0.5 rounded-full bg-danger/15 text-danger font-bold">EXPIRES SOON</span>
+              </div>
+            </div>
+          </div>
+          <!-- Empty slots -->
+          <div class="grid grid-cols-2 gap-3 mt-3">
+            <button class="p-3 rounded-lg border-2 border-dashed border-ink-200 hover:border-brand-500 hover:text-brand-600 text-ink-400 text-[12px] font-semibold flex items-center justify-center gap-2">
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+              Add property (slot 4)
+            </button>
+            <button class="p-3 rounded-lg border-2 border-dashed border-ink-200 hover:border-brand-500 hover:text-brand-600 text-ink-400 text-[12px] font-semibold flex items-center justify-center gap-2">
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+              Add property (slot 5)
+            </button>
+          </div>
+        </div>
+
+        <!-- RIGHT: Action items -->
+        <div class="space-y-4">
+          <div class="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+            <h2 class="text-base font-semibold mb-3">Needs Attention</h2>
+            <div class="space-y-2">
+              <div class="flex items-start gap-3 p-2.5 rounded-lg bg-danger/5 border border-danger/20">
+                <div class="w-8 h-8 rounded-lg bg-danger/15 flex items-center justify-center shrink-0">
+                  <svg class="w-4 h-4 text-danger" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/></svg>
+                </div>
+                <div class="flex-1">
+                  <p class="text-[12px] font-semibold">Lease expiring · Centurion</p>
+                  <p class="text-[10px] text-ink-500">Williams family · 30 Jun 2026 · 43 days</p>
+                </div>
+              </div>
+              <div class="flex items-start gap-3 p-2.5 rounded-lg bg-warning/5 border border-warning/20">
+                <div class="w-8 h-8 rounded-lg bg-warning/15 flex items-center justify-center shrink-0">
+                  <svg class="w-4 h-4 text-warning" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 6.5a2 2 0 1 0-4 0M9 12l-7 7 3 3 7-7"/></svg>
+                </div>
+                <div class="flex-1">
+                  <p class="text-[12px] font-semibold">Maintenance needs quote</p>
+                  <p class="text-[10px] text-ink-500">Geyser · Sandton · 3 quotes requested</p>
+                </div>
+              </div>
+              <div class="flex items-start gap-3 p-2.5 rounded-lg hover:bg-ink-50">
+                <div class="w-8 h-8 rounded-lg bg-brand-50 flex items-center justify-center shrink-0">
+                  <svg class="w-4 h-4 text-brand-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/></svg>
+                </div>
+                <div class="flex-1">
+                  <p class="text-[12px] font-semibold">Rent due in 7 days</p>
+                  <p class="text-[10px] text-ink-500">Sandton · R 9,000 · auto-reminder sent</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+            <h2 class="text-base font-semibold mb-3">This Month</h2>
+            <div class="space-y-2 text-[12px]">
+              <div class="flex justify-between py-1.5 border-b border-ink-100">
+                <span class="text-ink-500">Rent collected</span>
+                <span class="font-mono font-semibold text-success">R 17,500</span>
+              </div>
+              <div class="flex justify-between py-1.5 border-b border-ink-100">
+                <span class="text-ink-500">Rent outstanding</span>
+                <span class="font-mono font-semibold text-warning">R 9,000</span>
+              </div>
+              <div class="flex justify-between py-1.5 border-b border-ink-100">
+                <span class="text-ink-500">Maintenance spend</span>
+                <span class="font-mono font-semibold text-danger">– R 2,116</span>
+              </div>
+              <div class="flex justify-between py-2 font-bold">
+                <span>Net this month</span>
+                <span class="font-mono text-success">R 15,384</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============= VIEW: PROPERTIES ============= -->
+    <section id="view-properties" class="view px-8 py-7">
+      <div class="flex items-end justify-between mb-6">
+        <div>
+          <h1 class="text-2xl font-bold tracking-tight">My Properties</h1>
+          <p class="text-[14px] text-ink-500 mt-1">Managing 3 of 5 properties · Private landlord plan</p>
+        </div>
+        <button class="px-3.5 py-2 text-[13px] bg-ink-900 text-white rounded-lg flex items-center gap-2">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+          Add Property
+        </button>
+      </div>
+
+      <!-- Cap banner -->
+      <div class="bg-gradient-to-r from-brand-50 to-violet-50 border border-brand-100 rounded-xl p-4 mb-6 flex items-center gap-4">
+        <div class="flex-1">
+          <p class="text-[13px] font-semibold">3 of 5 property slots used</p>
+          <div class="mt-2 h-2 bg-white rounded-full overflow-hidden max-w-md">
+            <div class="h-full bg-brand-500" style="width: 60%"></div>
+          </div>
+        </div>
+        <p class="text-[12px] text-ink-500">Need more than 5? <a href="#" class="text-brand-600 font-semibold">Upgrade to Agency →</a></p>
+      </div>
+
+      <div class="grid grid-cols-3 gap-4">
+        <!-- Property 1 -->
+        <div class="bg-white rounded-xl border border-ink-200 overflow-hidden shadow-soft hover:shadow-lift transition">
+          <div class="aspect-[4/3] bg-gradient-to-br from-amber-300 via-amber-200 to-orange-300 relative">
+            <span class="absolute top-3 left-3 text-[10px] bg-success text-white px-2 py-1 rounded-md font-bold">OCCUPIED</span>
+            <span class="absolute top-3 right-3 text-[10px] bg-white/90 backdrop-blur px-2 py-1 rounded-md font-bold">2-BED</span>
+          </div>
+          <div class="p-4">
+            <p class="text-[15px] font-bold">25 Mooi Crescent</p>
+            <p class="text-[12px] text-ink-500 mb-3">Fourways, Johannesburg</p>
+            <div class="bg-ink-50 rounded-lg p-3 mb-3">
+              <div class="flex items-center gap-2">
+                <div class="w-7 h-7 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white text-[10px] font-bold">DN</div>
+                <div class="flex-1 min-w-0">
+                  <p class="text-[12px] font-semibold truncate">David Nkosi</p>
+                  <p class="text-[10px] text-ink-500">Lease to Mar 2027</p>
+                </div>
+                <span class="text-[10px] px-2 py-0.5 rounded-full bg-success/15 text-success font-bold">PAID</span>
+              </div>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-lg font-bold">R 11,500<span class="text-[11px] text-ink-400 font-normal">/mo</span></span>
+              <span class="text-[11px] text-success font-semibold">9.2% yield</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Property 2 -->
+        <div class="bg-white rounded-xl border border-ink-200 overflow-hidden shadow-soft hover:shadow-lift transition">
+          <div class="aspect-[4/3] bg-gradient-to-br from-sky-300 via-sky-200 to-cyan-300 relative">
+            <span class="absolute top-3 left-3 text-[10px] bg-success text-white px-2 py-1 rounded-md font-bold">OCCUPIED</span>
+            <span class="absolute top-3 right-3 text-[10px] bg-white/90 backdrop-blur px-2 py-1 rounded-md font-bold">1-BED</span>
+          </div>
+          <div class="p-4">
+            <p class="text-[15px] font-bold">8 Rivonia Rd</p>
+            <p class="text-[12px] text-ink-500 mb-3">Sandton, Johannesburg</p>
+            <div class="bg-ink-50 rounded-lg p-3 mb-3">
+              <div class="flex items-center gap-2">
+                <div class="w-7 h-7 rounded-full bg-gradient-to-br from-rose-400 to-rose-600 flex items-center justify-center text-white text-[10px] font-bold">LD</div>
+                <div class="flex-1 min-w-0">
+                  <p class="text-[12px] font-semibold truncate">Lerato Dube</p>
+                  <p class="text-[10px] text-ink-500">Lease to Sep 2026</p>
+                </div>
+                <span class="text-[10px] px-2 py-0.5 rounded-full bg-warning/15 text-warning font-bold">DUE</span>
+              </div>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-lg font-bold">R 9,000<span class="text-[11px] text-ink-400 font-normal">/mo</span></span>
+              <span class="text-[11px] text-success font-semibold">7.8% yield</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Property 3 -->
+        <div class="bg-white rounded-xl border border-ink-200 overflow-hidden shadow-soft hover:shadow-lift transition">
+          <div class="aspect-[4/3] bg-gradient-to-br from-emerald-300 via-emerald-200 to-teal-300 relative">
+            <span class="absolute top-3 left-3 text-[10px] bg-success text-white px-2 py-1 rounded-md font-bold">OCCUPIED</span>
+            <span class="absolute top-3 right-3 text-[10px] bg-danger text-white px-2 py-1 rounded-md font-bold">EXPIRES JUN</span>
+          </div>
+          <div class="p-4">
+            <p class="text-[15px] font-bold">12 Oak Ave</p>
+            <p class="text-[12px] text-ink-500 mb-3">Centurion, Pretoria</p>
+            <div class="bg-ink-50 rounded-lg p-3 mb-3">
+              <div class="flex items-center gap-2">
+                <div class="w-7 h-7 rounded-full bg-gradient-to-br from-violet-400 to-violet-600 flex items-center justify-center text-white text-[10px] font-bold">WF</div>
+                <div class="flex-1 min-w-0">
+                  <p class="text-[12px] font-semibold truncate">Williams Family</p>
+                  <p class="text-[10px] text-ink-500">Lease to Jun 2026</p>
+                </div>
+                <span class="text-[10px] px-2 py-0.5 rounded-full bg-success/15 text-success font-bold">PAID</span>
+              </div>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-lg font-bold">R 6,000<span class="text-[11px] text-ink-400 font-normal">/mo</span></span>
+              <span class="text-[11px] text-success font-semibold">8.1% yield</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Empty slots -->
+        <button class="rounded-xl border-2 border-dashed border-ink-200 hover:border-brand-500 hover:text-brand-600 text-ink-400 flex flex-col items-center justify-center py-12 transition">
+          <svg class="w-8 h-8 mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+          <span class="text-[13px] font-semibold">Add property</span>
+          <span class="text-[11px]">Slot 4 of 5</span>
+        </button>
+        <button class="rounded-xl border-2 border-dashed border-ink-200 hover:border-brand-500 hover:text-brand-600 text-ink-400 flex flex-col items-center justify-center py-12 transition">
+          <svg class="w-8 h-8 mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+          <span class="text-[13px] font-semibold">Add property</span>
+          <span class="text-[11px]">Slot 5 of 5</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- ============= VIEW: TENANTS ============= -->
+    <section id="view-tenants" class="view px-8 py-7">
+      <div class="flex items-end justify-between mb-6">
+        <div>
+          <h1 class="text-2xl font-bold tracking-tight">My Tenants</h1>
+          <p class="text-[14px] text-ink-500 mt-1">Invite tenants to the portal once a lease is active</p>
+        </div>
+        <button class="px-3.5 py-2 text-[13px] bg-ink-900 text-white rounded-lg flex items-center gap-2">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6M23 11h-6"/></svg>
+          Invite Tenant
+        </button>
+      </div>
+
+      <div class="bg-brand-50 border border-brand-100 rounded-xl p-4 mb-6 flex items-start gap-3">
+        <svg class="w-5 h-5 text-brand-600 shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+        <p class="text-[12px] text-ink-700">Tenants can only create an account after you invite them — and invites are only available once a lease is active. This keeps the portal secure and lease-gated.</p>
+      </div>
+
+      <div class="bg-white rounded-xl border border-ink-200 shadow-soft overflow-hidden">
+        <div class="p-5 border-b border-ink-200">
+          <h2 class="text-base font-semibold">Active Leases</h2>
+          <p class="text-[12px] text-ink-500 mt-0.5">Tenants currently leasing your properties</p>
+        </div>
+        <table class="w-full">
+          <thead>
+            <tr class="text-left text-[11px] uppercase text-ink-500 tracking-wider border-b border-ink-200 bg-ink-50">
+              <th class="font-semibold px-5 py-3">Tenant</th>
+              <th class="font-semibold py-3">Property</th>
+              <th class="font-semibold py-3">Lease Term</th>
+              <th class="font-semibold py-3 text-right">Rent</th>
+              <th class="font-semibold py-3">Portal</th>
+              <th class="font-semibold py-3">Rent Status</th>
+            </tr>
+          </thead>
+          <tbody class="text-[13px]">
+            <tr class="border-b border-ink-100 hover:bg-ink-50">
+              <td class="px-5 py-4">
+                <div class="flex items-center gap-3">
+                  <div class="w-9 h-9 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white text-xs font-bold">DN</div>
+                  <div>
+                    <p class="font-semibold">David Nkosi</p>
+                    <p class="text-[11px] text-ink-500">david.nkosi@email.com</p>
+                  </div>
+                </div>
+              </td>
+              <td>25 Mooi Crescent, Fourways</td>
+              <td class="font-mono text-[12px]">2025/03/01 – 2027/03/31</td>
+              <td class="text-right font-mono font-semibold">R 11,500</td>
+              <td><span class="text-[10px] px-2 py-0.5 rounded-full bg-success/15 text-success font-bold">ACTIVE</span></td>
+              <td><span class="text-[10px] px-2 py-0.5 rounded-full bg-success/15 text-success font-bold">PAID</span></td>
+            </tr>
+            <tr class="border-b border-ink-100 hover:bg-ink-50">
+              <td class="px-5 py-4">
+                <div class="flex items-center gap-3">
+                  <div class="w-9 h-9 rounded-full bg-gradient-to-br from-rose-400 to-rose-600 flex items-center justify-center text-white text-xs font-bold">LD</div>
+                  <div>
+                    <p class="font-semibold">Lerato Dube</p>
+                    <p class="text-[11px] text-ink-500">lerato.d@email.com</p>
+                  </div>
+                </div>
+              </td>
+              <td>8 Rivonia Rd, Sandton</td>
+              <td class="font-mono text-[12px]">2025/09/01 – 2026/09/30</td>
+              <td class="text-right font-mono font-semibold">R 9,000</td>
+              <td><span class="text-[10px] px-2 py-0.5 rounded-full bg-success/15 text-success font-bold">ACTIVE</span></td>
+              <td><span class="text-[10px] px-2 py-0.5 rounded-full bg-warning/15 text-warning font-bold">DUE 25th</span></td>
+            </tr>
+            <tr class="border-b border-ink-100 hover:bg-ink-50">
+              <td class="px-5 py-4">
+                <div class="flex items-center gap-3">
+                  <div class="w-9 h-9 rounded-full bg-gradient-to-br from-violet-400 to-violet-600 flex items-center justify-center text-white text-xs font-bold">WF</div>
+                  <div>
+                    <p class="font-semibold">Williams Family</p>
+                    <p class="text-[11px] text-ink-500">j.williams@email.com</p>
+                  </div>
+                </div>
+              </td>
+              <td>12 Oak Ave, Centurion</td>
+              <td class="font-mono text-[12px]">2025/06/01 – 2026/06/30</td>
+              <td class="text-right font-mono font-semibold">R 6,000</td>
+              <td><span class="text-[10px] px-2 py-0.5 rounded-full bg-ink-100 text-ink-500 font-bold">INVITE SENT</span></td>
+              <td><span class="text-[10px] px-2 py-0.5 rounded-full bg-success/15 text-success font-bold">PAID</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============= VIEW: MAINTENANCE ============= -->
+    <section id="view-maintenance" class="view px-8 py-7">
+      <div class="flex items-end justify-between mb-6">
+        <div>
+          <h1 class="text-2xl font-bold tracking-tight">Maintenance</h1>
+          <p class="text-[14px] text-ink-500 mt-1">Tenant requests · Assign a contractor or request quotes from the marketplace</p>
+        </div>
+      </div>
+
+      <!-- Emergency banner -->
+      <div class="bg-danger/5 border-2 border-danger rounded-xl p-4 mb-6 flex items-center gap-4">
+        <div class="siren-ripple w-10 h-10 rounded-full bg-danger flex items-center justify-center text-white shrink-0">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4M12 17h.01"/></svg>
+        </div>
+        <div class="flex-1">
+          <p class="text-[13px] font-bold text-danger">No active emergencies</p>
+          <p class="text-[12px] text-ink-700 mt-0.5">If a tenant logs an emergency, you can broadcast it to all available area contractors instantly (4-hour SLA).</p>
+        </div>
+      </div>
+
+      <!-- Kanban -->
+      <div class="grid grid-cols-5 gap-3 min-h-[500px]">
+        <!-- OPEN -->
+        <div class="bg-ink-100/50 rounded-xl p-3">
+          <div class="flex items-center justify-between mb-3 px-1">
+            <div class="flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-warning"></span>
+              <p class="text-[12px] font-semibold uppercase tracking-wide">Open</p>
+              <span class="text-[11px] bg-white px-1.5 py-0.5 rounded-full font-bold">2</span>
+            </div>
+          </div>
+          <div class="space-y-2">
+            <div class="bg-white rounded-lg p-3 shadow-soft border border-ink-200 border-l-2 border-l-warning">
+              <div class="flex items-center gap-1.5 mb-1.5">
+                <span class="text-[9px] bg-warning/15 text-warning px-1 rounded font-bold">MEDIUM</span>
+                <span class="text-[9px] text-ink-500">GEYSER</span>
+              </div>
+              <p class="text-[13px] font-semibold mb-1">Geyser not heating</p>
+              <p class="text-[10px] text-ink-500 mb-2">8 Rivonia Rd · Lerato Dube</p>
+              <p class="text-[10px] text-ink-400 mb-2">Logged 2 days ago · 2 photos</p>
+              <div class="grid grid-cols-2 gap-1.5">
+                <button class="py-1.5 text-[10px] bg-ink-900 text-white rounded font-semibold">Assign</button>
+                <button class="py-1.5 text-[10px] border border-ink-200 rounded font-semibold hover:bg-ink-50">Get Quotes</button>
+              </div>
+            </div>
+            <div class="bg-white rounded-lg p-3 shadow-soft border border-ink-200">
+              <div class="flex items-center gap-1.5 mb-1.5">
+                <span class="text-[9px] bg-ink-100 text-ink-700 px-1 rounded font-bold">LOW</span>
+                <span class="text-[9px] text-ink-500">GARDEN</span>
+              </div>
+              <p class="text-[13px] font-semibold mb-1">Overgrown hedge</p>
+              <p class="text-[10px] text-ink-500 mb-2">12 Oak Ave · Williams</p>
+              <div class="grid grid-cols-2 gap-1.5">
+                <button class="py-1.5 text-[10px] bg-ink-900 text-white rounded font-semibold">Assign</button>
+                <button class="py-1.5 text-[10px] border border-ink-200 rounded font-semibold hover:bg-ink-50">Get Quotes</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- AWAITING QUOTES -->
+        <div class="bg-ink-100/50 rounded-xl p-3">
+          <div class="flex items-center justify-between mb-3 px-1">
+            <div class="flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-sky-500"></span>
+              <p class="text-[12px] font-semibold uppercase tracking-wide">Awaiting Quotes</p>
+              <span class="text-[11px] bg-white px-1.5 py-0.5 rounded-full font-bold">1</span>
+            </div>
+          </div>
+          <div class="space-y-2">
+            <div class="bg-white rounded-lg p-3 shadow-soft border border-sky-200">
+              <p class="text-[13px] font-semibold mb-1">Burst pipe repair</p>
+              <p class="text-[10px] text-ink-500 mb-2">25 Mooi Crescent · David N.</p>
+              <div class="bg-sky-50 rounded p-2 mb-2">
+                <p class="text-[10px] text-sky-700 font-semibold">2 of 3 quotes in</p>
+                <div class="space-y-1 mt-1.5">
+                  <div class="flex items-center justify-between text-[10px]">
+                    <span>Jacob M. ⭐4.8</span>
+                    <span class="font-mono font-bold">R 1,840</span>
+                  </div>
+                  <div class="flex items-center justify-between text-[10px]">
+                    <span>Pipe Pros ⭐4.5</span>
+                    <span class="font-mono font-bold">R 2,200</span>
+                  </div>
+                </div>
+              </div>
+              <button class="w-full py-1.5 text-[10px] bg-brand-500 text-white rounded font-semibold">Compare & Pick</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- IN PROGRESS -->
+        <div class="bg-ink-100/50 rounded-xl p-3">
+          <div class="flex items-center justify-between mb-3 px-1">
+            <div class="flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-brand-500"></span>
+              <p class="text-[12px] font-semibold uppercase tracking-wide">In Progress</p>
+              <span class="text-[11px] bg-white px-1.5 py-0.5 rounded-full font-bold">1</span>
+            </div>
+          </div>
+          <div class="space-y-2">
+            <div class="bg-white rounded-lg p-3 shadow-soft border border-brand-200 border-l-2 border-l-brand-500">
+              <p class="text-[13px] font-semibold mb-1">Replace tap washer</p>
+              <p class="text-[10px] text-ink-500 mb-2">25 Mooi Crescent · David N.</p>
+              <div class="flex items-center gap-1.5 mb-2 bg-ink-50 rounded p-1.5">
+                <div class="w-5 h-5 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center text-white text-[8px] font-bold">JM</div>
+                <span class="text-[10px] font-semibold">Jacob Mokoena</span>
+                <span class="text-[9px] text-ink-500 ml-auto">⭐4.8</span>
+              </div>
+              <p class="text-[10px] text-brand-600 font-semibold">Visit: Today 14:00</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- COMPLETED -->
+        <div class="bg-ink-100/50 rounded-xl p-3">
+          <div class="flex items-center justify-between mb-3 px-1">
+            <div class="flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-success"></span>
+              <p class="text-[12px] font-semibold uppercase tracking-wide">Completed</p>
+              <span class="text-[11px] bg-white px-1.5 py-0.5 rounded-full font-bold">1</span>
+            </div>
+          </div>
+          <div class="space-y-2">
+            <div class="bg-white rounded-lg p-3 shadow-soft border border-ink-200">
+              <div class="flex items-center gap-2 mb-1.5">
+                <p class="text-[13px] font-semibold">Light fitting</p>
+                <svg class="w-3 h-3 text-success" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 13l4 4L19 7"/></svg>
+              </div>
+              <p class="text-[10px] text-ink-500 mb-2">Awaiting invoice approval</p>
+              <button class="w-full py-1.5 text-[10px] border border-ink-200 rounded font-semibold hover:bg-ink-50">Review invoice</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- PAID -->
+        <div class="bg-ink-100/50 rounded-xl p-3">
+          <div class="flex items-center justify-between mb-3 px-1">
+            <div class="flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-emerald-700"></span>
+              <p class="text-[12px] font-semibold uppercase tracking-wide">Paid</p>
+              <span class="text-[11px] bg-white px-1.5 py-0.5 rounded-full font-bold">1</span>
+            </div>
+          </div>
+          <div class="space-y-2">
+            <div class="bg-success/5 rounded-lg p-3 border border-success/30">
+              <p class="text-[13px] font-semibold mb-1">Drain unblock</p>
+              <p class="text-[10px] text-ink-500 mb-2">Centurion · Apr</p>
+              <div class="flex items-center justify-between">
+                <span class="text-[11px] font-mono font-bold text-success">R 1,265</span>
+                <button class="text-[10px] text-brand-600 font-semibold">Rate ⭐</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============= VIEW: INSPECTIONS ============= -->
+    <section id="view-inspections" class="view px-8 py-7">
+      <div class="mb-6">
+        <h1 class="text-2xl font-bold tracking-tight">Inspections</h1>
+        <p class="text-[14px] text-ink-500 mt-1">Conduct your own move-in and move-out inspections with photos and tenant sign-off</p>
+      </div>
+
+      <div class="flex items-center gap-1 mb-6 bg-white border border-ink-200 rounded-lg p-1 w-fit">
+        <button class="insp-tab text-[13px] px-4 py-2 rounded-md bg-ink-900 text-white font-semibold flex items-center gap-2" data-insp="movein">
+          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+          Move-in
+          <span class="text-[10px] bg-white/20 px-1.5 py-0.5 rounded-full font-bold">3</span>
+        </button>
+        <button class="insp-tab text-[13px] px-4 py-2 rounded-md text-ink-500 hover:bg-ink-100 font-semibold flex items-center gap-2" data-insp="moveout">
+          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+          Move-out
+          <span class="text-[10px] bg-ink-100 text-ink-700 px-1.5 py-0.5 rounded-full font-bold">1</span>
+        </button>
+      </div>
+
+      <!-- MOVE-IN -->
+      <div id="insp-movein" class="insp-pane">
+        <div class="bg-gradient-to-r from-brand-50 to-violet-50 border border-brand-100 rounded-xl p-4 mb-6 flex items-center gap-4">
+          <div class="w-10 h-10 rounded-lg bg-brand-500 flex items-center justify-center text-white shrink-0">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+          </div>
+          <div class="flex-1">
+            <p class="text-[13px] font-semibold">As a landlord you conduct inspections yourself</p>
+            <p class="text-[12px] text-ink-500">Take photos room-by-room, add notes, then have the tenant sign on your device. A PDF is emailed to you both.</p>
+          </div>
+          <button class="px-3 py-1.5 text-[12px] bg-ink-900 text-white rounded-md font-semibold">Start inspection</button>
+        </div>
+
+        <div class="grid grid-cols-3 gap-4">
+          <div class="bg-white rounded-xl border border-ink-200 overflow-hidden shadow-soft hover:shadow-lift transition cursor-pointer">
+            <div class="aspect-[4/3] bg-gradient-to-br from-amber-300 to-orange-300 relative">
+              <span class="absolute top-3 left-3 text-[10px] bg-success text-white px-2 py-1 rounded-md font-bold">COMPLETED · SIGNED</span>
+              <span class="absolute bottom-3 right-3 text-[10px] bg-white/95 px-2 py-1 rounded font-bold">📸 34</span>
+            </div>
+            <div class="p-4">
+              <p class="text-[14px] font-bold">25 Mooi Crescent</p>
+              <p class="text-[11px] text-ink-500 mb-3">David Nkosi · MOVE-IN</p>
+              <div class="flex items-center justify-between text-[11px] text-ink-500 pt-3 border-t border-ink-100">
+                <span>📅 01 Mar 2025</span>
+                <span>📄 PDF stored</span>
+              </div>
+            </div>
+          </div>
+          <div class="bg-white rounded-xl border border-ink-200 overflow-hidden shadow-soft hover:shadow-lift transition cursor-pointer">
+            <div class="aspect-[4/3] bg-gradient-to-br from-sky-300 to-cyan-300 relative">
+              <span class="absolute top-3 left-3 text-[10px] bg-success text-white px-2 py-1 rounded-md font-bold">COMPLETED · SIGNED</span>
+              <span class="absolute bottom-3 right-3 text-[10px] bg-white/95 px-2 py-1 rounded font-bold">📸 28</span>
+            </div>
+            <div class="p-4">
+              <p class="text-[14px] font-bold">8 Rivonia Rd</p>
+              <p class="text-[11px] text-ink-500 mb-3">Lerato Dube · MOVE-IN</p>
+              <div class="flex items-center justify-between text-[11px] text-ink-500 pt-3 border-t border-ink-100">
+                <span>📅 01 Sep 2025</span>
+                <span>📄 PDF stored</span>
+              </div>
+            </div>
+          </div>
+          <div class="bg-white rounded-xl border border-ink-200 overflow-hidden shadow-soft hover:shadow-lift transition cursor-pointer">
+            <div class="aspect-[4/3] bg-gradient-to-br from-emerald-300 to-teal-300 relative">
+              <span class="absolute top-3 left-3 text-[10px] bg-success text-white px-2 py-1 rounded-md font-bold">COMPLETED · SIGNED</span>
+              <span class="absolute bottom-3 right-3 text-[10px] bg-white/95 px-2 py-1 rounded font-bold">📸 41</span>
+            </div>
+            <div class="p-4">
+              <p class="text-[14px] font-bold">12 Oak Ave</p>
+              <p class="text-[11px] text-ink-500 mb-3">Williams Family · MOVE-IN</p>
+              <div class="flex items-center justify-between text-[11px] text-ink-500 pt-3 border-t border-ink-100">
+                <span>📅 01 Jun 2025</span>
+                <span>📄 PDF stored</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MOVE-OUT -->
+      <div id="insp-moveout" class="insp-pane hidden">
+        <div class="bg-warning/5 border border-warning/30 rounded-xl p-4 mb-6 flex items-center gap-4">
+          <div class="w-10 h-10 rounded-lg bg-warning flex items-center justify-center text-white shrink-0">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+          </div>
+          <div class="flex-1">
+            <p class="text-[13px] font-semibold">1 lease expiring soon — schedule a move-out inspection</p>
+            <p class="text-[12px] text-ink-500">12 Oak Ave (Williams Family) ends 30 Jun 2026. Compare against move-in photos and refund the deposit within 14 days.</p>
+          </div>
+          <button class="px-3 py-1.5 text-[12px] bg-ink-900 text-white rounded-md font-semibold">Schedule</button>
+        </div>
+
+        <div class="bg-white rounded-xl border border-ink-200 p-12 text-center shadow-soft">
+          <div class="w-16 h-16 mx-auto rounded-full bg-ink-100 flex items-center justify-center mb-4">
+            <svg class="w-7 h-7 text-ink-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+          </div>
+          <h2 class="text-lg font-bold">No move-out inspections in progress</h2>
+          <p class="text-[13px] text-ink-500 mt-2 max-w-md mx-auto">When you schedule a move-out inspection, you'll see your move-in photos side-by-side with the move-out condition, with any deductions auto-calculated from the deposit.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============= VIEW: CONTRACTORS ============= -->
+    <section id="view-contractors" class="view px-8 py-7">
+      <div class="flex items-end justify-between mb-6">
+        <div>
+          <h1 class="text-2xl font-bold tracking-tight">Contractors</h1>
+          <p class="text-[14px] text-ink-500 mt-1">Browse the shared marketplace · Invite your own trusted contractors</p>
+        </div>
+        <button class="px-3.5 py-2 text-[13px] bg-ink-900 text-white rounded-lg flex items-center gap-2">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6M23 11h-6"/></svg>
+          Invite Contractor
+        </button>
+      </div>
+
+      <!-- Marketplace pitch -->
+      <div class="bg-gradient-to-r from-brand-50 to-violet-50 border border-brand-100 rounded-xl p-4 mb-6 flex items-center gap-4">
+        <div class="w-10 h-10 rounded-lg bg-brand-500 flex items-center justify-center text-white shrink-0">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3h18v18H3zM3 9h18M9 21V9"/></svg>
+        </div>
+        <div class="flex-1">
+          <p class="text-[13px] font-semibold">Property Basket Contractor Marketplace</p>
+          <p class="text-[12px] text-ink-500">Every verified contractor on the platform is available to you — no need to hunt for help. Filter by area, speciality, and rating.</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <select class="text-[12px] bg-white border border-ink-200 rounded-md px-3 py-1.5">
+            <option>All specialities</option>
+            <option>Plumbing</option>
+            <option>Electrical</option>
+            <option>Appliances</option>
+          </select>
+          <select class="text-[12px] bg-white border border-ink-200 rounded-md px-3 py-1.5">
+            <option>My areas</option>
+            <option>Fourways</option>
+            <option>Sandton</option>
+            <option>Centurion</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="flex items-center gap-2 mb-4">
+        <button class="text-[12px] px-3 py-1.5 rounded-full bg-ink-900 text-white font-medium">Marketplace · 142</button>
+        <button class="text-[12px] px-3 py-1.5 rounded-full bg-white border border-ink-200 hover:bg-ink-100">My Contractors · 2</button>
+        <button class="text-[12px] px-3 py-1.5 rounded-full bg-white border border-ink-200 hover:bg-ink-100">Top Rated</button>
+      </div>
+
+      <div class="grid grid-cols-3 gap-4">
+        <!-- Contractor card 1 -->
+        <div class="bg-white rounded-xl border border-ink-200 p-5 shadow-soft hover:shadow-lift transition">
+          <div class="flex items-start gap-3 mb-3">
+            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center text-white font-bold">JM</div>
+            <div class="flex-1">
+              <div class="flex items-center gap-1.5">
+                <p class="text-[14px] font-bold">Jacob Mokoena</p>
+                <span class="text-[9px] bg-success/15 text-success px-1.5 py-0.5 rounded font-bold">✓</span>
+              </div>
+              <p class="text-[11px] text-ink-500">Mokoena Plumbing</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2 mb-3 text-[11px]">
+            <span class="text-warning font-bold">⭐ 4.8</span>
+            <span class="text-ink-400">(47)</span>
+            <span class="text-ink-300">·</span>
+            <span class="text-ink-500">147 jobs</span>
+          </div>
+          <div class="flex flex-wrap gap-1 mb-3">
+            <span class="text-[10px] px-2 py-0.5 rounded bg-ink-100 text-ink-700 font-semibold">Plumbing</span>
+            <span class="text-[10px] px-2 py-0.5 rounded bg-ink-100 text-ink-700 font-semibold">Geysers</span>
+            <span class="text-[10px] px-2 py-0.5 rounded bg-ink-100 text-ink-700 font-semibold">Drainage</span>
+          </div>
+          <p class="text-[11px] text-ink-500 mb-3">📍 Pretoria · Centurion · Sandton</p>
+          <div class="grid grid-cols-2 gap-2">
+            <button class="py-2 text-[11px] border border-ink-200 rounded-md hover:bg-ink-100 font-semibold">View profile</button>
+            <button class="py-2 text-[11px] bg-ink-900 text-white rounded-md font-semibold">Add to my list</button>
+          </div>
+        </div>
+
+        <!-- Contractor card 2 -->
+        <div class="bg-white rounded-xl border border-ink-200 p-5 shadow-soft hover:shadow-lift transition">
+          <div class="flex items-start gap-3 mb-3">
+            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-white font-bold">SE</div>
+            <div class="flex-1">
+              <div class="flex items-center gap-1.5">
+                <p class="text-[14px] font-bold">Sipho Electrician</p>
+                <span class="text-[9px] bg-success/15 text-success px-1.5 py-0.5 rounded font-bold">✓</span>
+              </div>
+              <p class="text-[11px] text-ink-500">Volt Solutions</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2 mb-3 text-[11px]">
+            <span class="text-warning font-bold">⭐ 4.9</span>
+            <span class="text-ink-400">(63)</span>
+            <span class="text-ink-300">·</span>
+            <span class="text-ink-500">210 jobs</span>
+          </div>
+          <div class="flex flex-wrap gap-1 mb-3">
+            <span class="text-[10px] px-2 py-0.5 rounded bg-ink-100 text-ink-700 font-semibold">Electrical</span>
+            <span class="text-[10px] px-2 py-0.5 rounded bg-ink-100 text-ink-700 font-semibold">COC</span>
+            <span class="text-[10px] px-2 py-0.5 rounded bg-ink-100 text-ink-700 font-semibold">Solar</span>
+          </div>
+          <p class="text-[11px] text-ink-500 mb-3">📍 Johannesburg · Sandton · Fourways</p>
+          <div class="grid grid-cols-2 gap-2">
+            <button class="py-2 text-[11px] border border-ink-200 rounded-md hover:bg-ink-100 font-semibold">View profile</button>
+            <button class="py-2 text-[11px] bg-ink-900 text-white rounded-md font-semibold">Add to my list</button>
+          </div>
+        </div>
+
+        <!-- Contractor card 3 -->
+        <div class="bg-white rounded-xl border border-ink-200 p-5 shadow-soft hover:shadow-lift transition">
+          <div class="flex items-start gap-3 mb-3">
+            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white font-bold">PP</div>
+            <div class="flex-1">
+              <div class="flex items-center gap-1.5">
+                <p class="text-[14px] font-bold">Pipe Pros</p>
+                <span class="text-[9px] bg-success/15 text-success px-1.5 py-0.5 rounded font-bold">✓</span>
+              </div>
+              <p class="text-[11px] text-ink-500">Pipe Pros (Pty) Ltd</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2 mb-3 text-[11px]">
+            <span class="text-warning font-bold">⭐ 4.5</span>
+            <span class="text-ink-400">(31)</span>
+            <span class="text-ink-300">·</span>
+            <span class="text-ink-500">88 jobs</span>
+          </div>
+          <div class="flex flex-wrap gap-1 mb-3">
+            <span class="text-[10px] px-2 py-0.5 rounded bg-ink-100 text-ink-700 font-semibold">Plumbing</span>
+            <span class="text-[10px] px-2 py-0.5 rounded bg-ink-100 text-ink-700 font-semibold">Geysers</span>
+          </div>
+          <p class="text-[11px] text-ink-500 mb-3">📍 Centurion · Pretoria East</p>
+          <div class="grid grid-cols-2 gap-2">
+            <button class="py-2 text-[11px] border border-ink-200 rounded-md hover:bg-ink-100 font-semibold">View profile</button>
+            <button class="py-2 text-[11px] bg-ink-900 text-white rounded-md font-semibold">Add to my list</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============= VIEW: FINANCE ============= -->
+    <section id="view-finance" class="view px-8 py-7">
+      <div class="flex items-end justify-between mb-6">
+        <div>
+          <h1 class="text-2xl font-bold tracking-tight">Finance</h1>
+          <p class="text-[14px] text-ink-500 mt-1">Income vs expenses · Net yield per property · Investor view</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <select class="text-[12px] bg-white border border-ink-200 rounded-md px-3 py-1.5">
+            <option>FY 2026</option>
+            <option>Last 12 months</option>
+            <option>This tax year</option>
+          </select>
+          <button class="px-3.5 py-2 text-[13px] border border-ink-200 rounded-lg hover:bg-ink-100 flex items-center gap-2">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+            Tax report
+          </button>
+        </div>
+      </div>
+
+      <!-- Income statement summary -->
+      <div class="grid grid-cols-4 gap-4 mb-6">
+        <div class="bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-xl p-5 text-white shadow-card">
+          <p class="text-[11px] uppercase tracking-wider opacity-80 font-semibold">Annual Rent Income</p>
+          <p class="text-3xl font-bold mt-2 font-mono">R 318,000</p>
+          <p class="text-[11px] opacity-80 mt-1">3 properties · 100% collected</p>
+        </div>
+        <div class="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+          <p class="text-[11px] text-ink-500 uppercase tracking-wider font-semibold">Total Expenses</p>
+          <p class="text-3xl font-bold mt-2">R 48,200</p>
+          <p class="text-[11px] text-ink-500 mt-1">Maintenance, rates, levies</p>
+        </div>
+        <div class="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+          <p class="text-[11px] text-ink-500 uppercase tracking-wider font-semibold">Net Income</p>
+          <p class="text-3xl font-bold mt-2 text-success">R 269,800</p>
+          <p class="text-[11px] text-success mt-1">84.8% margin</p>
+        </div>
+        <div class="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+          <p class="text-[11px] text-ink-500 uppercase tracking-wider font-semibold">Portfolio Yield</p>
+          <p class="text-3xl font-bold mt-2">8.4%</p>
+          <p class="text-[11px] text-ink-500 mt-1">Net · on R 3.2m value</p>
+        </div>
+      </div>
+
+      <!-- Income vs expenses chart + per property -->
+      <div class="grid grid-cols-3 gap-4 mb-6">
+        <div class="col-span-2 bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h2 class="text-base font-semibold">Income vs Expenses</h2>
+              <p class="text-xs text-ink-500 mt-0.5">Monthly · Last 6 months</p>
+            </div>
+            <div class="flex items-center gap-3 text-[11px]">
+              <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-sm bg-success"></span>Income</span>
+              <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-sm bg-danger/60"></span>Expenses</span>
+            </div>
+          </div>
+          <div class="flex items-end gap-4 h-52 px-2">
+            <div class="flex-1 flex flex-col items-center gap-1"><div class="w-full flex items-end justify-center gap-1 h-48"><div class="bg-success rounded-t w-6" style="height: 88%"></div><div class="bg-danger/60 rounded-t w-6" style="height: 18%"></div></div><span class="text-[10px] text-ink-500">Dec</span></div>
+            <div class="flex-1 flex flex-col items-center gap-1"><div class="w-full flex items-end justify-center gap-1 h-48"><div class="bg-success rounded-t w-6" style="height: 88%"></div><div class="bg-danger/60 rounded-t w-6" style="height: 12%"></div></div><span class="text-[10px] text-ink-500">Jan</span></div>
+            <div class="flex-1 flex flex-col items-center gap-1"><div class="w-full flex items-end justify-center gap-1 h-48"><div class="bg-success rounded-t w-6" style="height: 88%"></div><div class="bg-danger/60 rounded-t w-6" style="height: 28%"></div></div><span class="text-[10px] text-ink-500">Feb</span></div>
+            <div class="flex-1 flex flex-col items-center gap-1"><div class="w-full flex items-end justify-center gap-1 h-48"><div class="bg-success rounded-t w-6" style="height: 88%"></div><div class="bg-danger/60 rounded-t w-6" style="height: 15%"></div></div><span class="text-[10px] text-ink-500">Mar</span></div>
+            <div class="flex-1 flex flex-col items-center gap-1"><div class="w-full flex items-end justify-center gap-1 h-48"><div class="bg-success rounded-t w-6" style="height: 88%"></div><div class="bg-danger/60 rounded-t w-6" style="height: 22%"></div></div><span class="text-[10px] text-ink-500">Apr</span></div>
+            <div class="flex-1 flex flex-col items-center gap-1"><div class="w-full flex items-end justify-center gap-1 h-48"><div class="bg-success rounded-t w-6" style="height: 66%"></div><div class="bg-danger/60 rounded-t w-6" style="height: 10%"></div></div><span class="text-[10px] font-semibold text-brand-600">May</span></div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+          <h2 class="text-base font-semibold mb-4">Expense Breakdown</h2>
+          <div class="space-y-3">
+            <div>
+              <div class="flex items-center justify-between mb-1">
+                <span class="text-[12px]">Maintenance</span>
+                <span class="text-[12px] font-mono font-semibold">R 22,400</span>
+              </div>
+              <div class="h-2 bg-ink-100 rounded-full overflow-hidden"><div class="h-full bg-danger/60" style="width: 46%"></div></div>
+            </div>
+            <div>
+              <div class="flex items-center justify-between mb-1">
+                <span class="text-[12px]">Rates & taxes</span>
+                <span class="text-[12px] font-mono font-semibold">R 14,800</span>
+              </div>
+              <div class="h-2 bg-ink-100 rounded-full overflow-hidden"><div class="h-full bg-danger/50" style="width: 31%"></div></div>
+            </div>
+            <div>
+              <div class="flex items-center justify-between mb-1">
+                <span class="text-[12px]">Levies (sectional)</span>
+                <span class="text-[12px] font-mono font-semibold">R 8,600</span>
+              </div>
+              <div class="h-2 bg-ink-100 rounded-full overflow-hidden"><div class="h-full bg-danger/40" style="width: 18%"></div></div>
+            </div>
+            <div>
+              <div class="flex items-center justify-between mb-1">
+                <span class="text-[12px]">Insurance</span>
+                <span class="text-[12px] font-mono font-semibold">R 2,400</span>
+              </div>
+              <div class="h-2 bg-ink-100 rounded-full overflow-hidden"><div class="h-full bg-danger/30" style="width: 5%"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Per property table -->
+      <div class="bg-white rounded-xl border border-ink-200 shadow-soft overflow-hidden mb-6">
+        <div class="p-5 border-b border-ink-200">
+          <h2 class="text-base font-semibold">Per-Property Performance</h2>
+          <p class="text-[12px] text-ink-500 mt-0.5">Income, expenses, and net yield for each property</p>
+        </div>
+        <table class="w-full">
+          <thead>
+            <tr class="text-left text-[11px] uppercase text-ink-500 tracking-wider border-b border-ink-200 bg-ink-50">
+              <th class="font-semibold px-5 py-3">Property</th>
+              <th class="font-semibold py-3 text-right">Annual Rent</th>
+              <th class="font-semibold py-3 text-right">Maintenance</th>
+              <th class="font-semibold py-3 text-right">Rates+Levies</th>
+              <th class="font-semibold py-3 text-right">Net Income</th>
+              <th class="font-semibold py-3 text-right">Est. Value</th>
+              <th class="font-semibold py-3 text-right pr-5">Net Yield</th>
+            </tr>
+          </thead>
+          <tbody class="text-[13px]">
+            <tr class="border-b border-ink-100 hover:bg-ink-50">
+              <td class="px-5 py-3 font-medium">25 Mooi Crescent, Fourways</td>
+              <td class="text-right font-mono">R 138,000</td>
+              <td class="text-right font-mono text-danger">R 8,200</td>
+              <td class="text-right font-mono text-danger">R 11,400</td>
+              <td class="text-right font-mono font-semibold text-success">R 118,400</td>
+              <td class="text-right font-mono">R 1,280,000</td>
+              <td class="text-right pr-5 font-mono font-bold">9.2%</td>
+            </tr>
+            <tr class="border-b border-ink-100 hover:bg-ink-50">
+              <td class="px-5 py-3 font-medium">8 Rivonia Rd, Sandton</td>
+              <td class="text-right font-mono">R 108,000</td>
+              <td class="text-right font-mono text-danger">R 9,800</td>
+              <td class="text-right font-mono text-danger">R 9,200</td>
+              <td class="text-right font-mono font-semibold text-success">R 89,000</td>
+              <td class="text-right font-mono">R 1,140,000</td>
+              <td class="text-right pr-5 font-mono font-bold">7.8%</td>
+            </tr>
+            <tr class="border-b border-ink-100 hover:bg-ink-50">
+              <td class="px-5 py-3 font-medium">12 Oak Ave, Centurion</td>
+              <td class="text-right font-mono">R 72,000</td>
+              <td class="text-right font-mono text-danger">R 4,400</td>
+              <td class="text-right font-mono text-danger">R 4,800</td>
+              <td class="text-right font-mono font-semibold text-success">R 62,800</td>
+              <td class="text-right font-mono">R 780,000</td>
+              <td class="text-right pr-5 font-mono font-bold">8.1%</td>
+            </tr>
+          </tbody>
+          <tfoot class="bg-ink-50 border-t-2 border-ink-200">
+            <tr class="text-[13px] font-bold">
+              <td class="px-5 py-3">Portfolio Total</td>
+              <td class="text-right font-mono py-3">R 318,000</td>
+              <td class="text-right font-mono py-3 text-danger">R 22,400</td>
+              <td class="text-right font-mono py-3 text-danger">R 25,400</td>
+              <td class="text-right font-mono py-3 text-success">R 269,800</td>
+              <td class="text-right font-mono py-3">R 3,200,000</td>
+              <td class="text-right pr-5 font-mono py-3">8.4%</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+
+      <!-- Occupancy + Deposit tracking -->
+      <div class="grid grid-cols-2 gap-4">
+        <div class="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+          <h2 class="text-base font-semibold mb-4">Lease Expiry Tracking</h2>
+          <div class="space-y-3">
+            <div class="flex items-center gap-3 p-3 rounded-lg bg-danger/5 border border-danger/20">
+              <div class="text-center w-12">
+                <p class="text-lg font-bold text-danger">43</p>
+                <p class="text-[9px] text-ink-500">days</p>
+              </div>
+              <div class="flex-1">
+                <p class="text-[13px] font-semibold">12 Oak Ave · Williams Family</p>
+                <p class="text-[11px] text-ink-500">Expires 30 Jun 2026 · Decision needed</p>
+              </div>
+              <button class="text-[11px] px-2.5 py-1 bg-ink-900 text-white rounded-md font-semibold">Renew</button>
+            </div>
+            <div class="flex items-center gap-3 p-3 rounded-lg hover:bg-ink-50">
+              <div class="text-center w-12">
+                <p class="text-lg font-bold">135</p>
+                <p class="text-[9px] text-ink-500">days</p>
+              </div>
+              <div class="flex-1">
+                <p class="text-[13px] font-semibold">8 Rivonia Rd · Lerato Dube</p>
+                <p class="text-[11px] text-ink-500">Expires 30 Sep 2026</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-3 p-3 rounded-lg hover:bg-ink-50">
+              <div class="text-center w-12">
+                <p class="text-lg font-bold">316</p>
+                <p class="text-[9px] text-ink-500">days</p>
+              </div>
+              <div class="flex-1">
+                <p class="text-[13px] font-semibold">25 Mooi Crescent · David Nkosi</p>
+                <p class="text-[11px] text-ink-500">Expires 31 Mar 2027</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-base font-semibold">Deposits Held</h2>
+            <span class="text-[10px] px-2 py-0.5 rounded-full bg-brand-50 text-brand-700 font-bold">RHA COMPLIANT</span>
+          </div>
+          <p class="text-[11px] text-ink-500 mb-3">Deposits must earn interest per Rental Housing Act, even for private landlords.</p>
+          <div class="space-y-2">
+            <div class="flex items-center justify-between p-2.5 rounded-md hover:bg-ink-50">
+              <div>
+                <p class="text-[12px] font-semibold">David Nkosi</p>
+                <p class="text-[10px] text-ink-500">+ R 720 interest</p>
+              </div>
+              <span class="text-[13px] font-mono font-semibold">R 23,000</span>
+            </div>
+            <div class="flex items-center justify-between p-2.5 rounded-md hover:bg-ink-50">
+              <div>
+                <p class="text-[12px] font-semibold">Lerato Dube</p>
+                <p class="text-[10px] text-ink-500">+ R 310 interest</p>
+              </div>
+              <span class="text-[13px] font-mono font-semibold">R 18,000</span>
+            </div>
+            <div class="flex items-center justify-between p-2.5 rounded-md hover:bg-ink-50">
+              <div>
+                <p class="text-[12px] font-semibold">Williams Family</p>
+                <p class="text-[10px] text-ink-500">+ R 480 interest</p>
+              </div>
+              <span class="text-[13px] font-mono font-semibold">R 12,000</span>
+            </div>
+            <div class="flex items-center justify-between pt-3 border-t border-ink-200 font-bold">
+              <span class="text-[13px]">Total held</span>
+              <span class="text-[14px] font-mono">R 53,000</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============= VIEW: PAYMENTS (Rent & Payouts) ============= -->
+    <section id="view-payments" class="view px-8 py-7">
+      <div class="flex items-end justify-between mb-6">
+        <div>
+          <h1 class="text-2xl font-bold tracking-tight">Rent & Payouts</h1>
+          <p class="text-[14px] text-ink-500 mt-1">Rent collected via Paystack · Pay contractors from your balance</p>
+        </div>
+        <button class="px-3.5 py-2 text-[13px] border border-ink-200 rounded-lg hover:bg-ink-100 flex items-center gap-2">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+          Statement
+        </button>
+      </div>
+
+      <div class="grid grid-cols-3 gap-4 mb-6">
+        <div class="col-span-2 bg-gradient-to-br from-brand-500 to-brand-700 rounded-xl p-6 text-white shadow-card relative overflow-hidden">
+          <div class="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-32 translate-x-32"></div>
+          <div class="relative">
+            <div class="flex items-center justify-between mb-2">
+              <p class="text-[11px] uppercase tracking-wider opacity-80 font-semibold">Paystack Balance</p>
+              <span class="text-[10px] bg-white/20 px-2 py-1 rounded-full font-bold">LINKED ✓</span>
+            </div>
+            <p class="text-5xl font-bold font-mono">R 17,500.00</p>
+            <p class="text-[12px] opacity-80 mt-2">Rent collected this month · Available to withdraw or pay contractors</p>
+            <div class="flex items-center gap-3 mt-5">
+              <button class="px-4 py-2 bg-white text-brand-700 text-[13px] rounded-lg font-semibold hover:bg-white/90">Withdraw to bank</button>
+              <button class="px-4 py-2 bg-white/10 border border-white/30 text-white text-[13px] rounded-lg font-semibold hover:bg-white/20 backdrop-blur">Pay a contractor</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+          <h2 class="text-base font-semibold mb-3">This Month</h2>
+          <div class="space-y-2 text-[13px]">
+            <div class="flex justify-between py-1.5 border-b border-ink-100">
+              <span class="text-ink-500">Expected rent</span>
+              <span class="font-mono font-semibold">R 26,500</span>
+            </div>
+            <div class="flex justify-between py-1.5 border-b border-ink-100">
+              <span class="text-ink-500">Collected</span>
+              <span class="font-mono font-semibold text-success">R 17,500</span>
+            </div>
+            <div class="flex justify-between py-1.5 border-b border-ink-100">
+              <span class="text-ink-500">Outstanding</span>
+              <span class="font-mono font-semibold text-warning">R 9,000</span>
+            </div>
+            <div class="flex justify-between py-1.5">
+              <span class="text-ink-500">Paid to contractors</span>
+              <span class="font-mono font-semibold text-danger">R 2,116</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Rent collection per tenant -->
+      <div class="bg-white rounded-xl border border-ink-200 shadow-soft overflow-hidden mb-6">
+        <div class="p-5 border-b border-ink-200">
+          <h2 class="text-base font-semibold">Rent Collection</h2>
+          <p class="text-[12px] text-ink-500 mt-0.5">Status per tenant · Auto-reminders sent 7 days before due</p>
+        </div>
+        <table class="w-full">
+          <thead>
+            <tr class="text-left text-[11px] uppercase text-ink-500 tracking-wider border-b border-ink-200 bg-ink-50">
+              <th class="font-semibold px-5 py-3">Tenant</th>
+              <th class="font-semibold py-3">Property</th>
+              <th class="font-semibold py-3">Due Date</th>
+              <th class="font-semibold py-3">Method</th>
+              <th class="font-semibold py-3 text-right">Amount</th>
+              <th class="font-semibold py-3 text-right pr-5">Status</th>
+            </tr>
+          </thead>
+          <tbody class="text-[13px]">
+            <tr class="border-b border-ink-100 hover:bg-ink-50">
+              <td class="px-5 py-3 font-semibold">David Nkosi</td>
+              <td>Fourways</td>
+              <td class="font-mono text-[12px]">01 May 2026</td>
+              <td><span class="text-[11px]">Debit order</span></td>
+              <td class="text-right font-mono font-semibold">R 11,500</td>
+              <td class="text-right pr-5"><span class="text-[10px] px-2 py-0.5 rounded-full bg-success/15 text-success font-bold">PAID</span></td>
+            </tr>
+            <tr class="border-b border-ink-100 hover:bg-ink-50">
+              <td class="px-5 py-3 font-semibold">Williams Family</td>
+              <td>Centurion</td>
+              <td class="font-mono text-[12px]">01 May 2026</td>
+              <td><span class="text-[11px]">Paystack</span></td>
+              <td class="text-right font-mono font-semibold">R 6,000</td>
+              <td class="text-right pr-5"><span class="text-[10px] px-2 py-0.5 rounded-full bg-success/15 text-success font-bold">PAID</span></td>
+            </tr>
+            <tr class="border-b border-ink-100 hover:bg-ink-50">
+              <td class="px-5 py-3 font-semibold">Lerato Dube</td>
+              <td>Sandton</td>
+              <td class="font-mono text-[12px]">25 May 2026</td>
+              <td><span class="text-[11px]">Paystack</span></td>
+              <td class="text-right font-mono font-semibold">R 9,000</td>
+              <td class="text-right pr-5"><span class="text-[10px] px-2 py-0.5 rounded-full bg-warning/15 text-warning font-bold">DUE IN 7d</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============= VIEW: MESSAGES ============= -->
+    <section id="view-messages" class="view">
+      <div class="flex h-[calc(100vh-64px)]">
+        <div class="w-80 border-r border-ink-200 bg-white overflow-y-auto">
+          <div class="p-4 border-b border-ink-200">
+            <h1 class="text-lg font-bold">Messages</h1>
+            <div class="flex items-center gap-2 mt-3">
+              <button class="text-[11px] px-2.5 py-1 rounded-full bg-ink-900 text-white font-medium">All</button>
+              <button class="text-[11px] px-2.5 py-1 rounded-full bg-ink-100">Tenants</button>
+              <button class="text-[11px] px-2.5 py-1 rounded-full bg-ink-100">Contractors</button>
+            </div>
+          </div>
+          <div>
+            <div class="flex items-start gap-3 p-4 border-b border-ink-100 bg-brand-50/40 border-l-2 border-l-brand-500 cursor-pointer">
+              <div class="w-10 h-10 rounded-full bg-gradient-to-br from-rose-400 to-rose-600 flex items-center justify-center text-white text-[10px] font-bold shrink-0">LD</div>
+              <div class="min-w-0 flex-1">
+                <div class="flex items-center justify-between">
+                  <p class="text-[13px] font-semibold truncate">Lerato Dube · Tenant</p>
+                  <span class="text-[10px] text-ink-400">10m</span>
+                </div>
+                <p class="text-[11px] text-ink-500 truncate mt-0.5">The geyser is still not heating up properly</p>
+                <span class="text-[10px] inline-block mt-1.5 bg-danger text-white px-1.5 rounded-full font-bold">2</span>
+              </div>
+            </div>
+            <div class="flex items-start gap-3 p-4 border-b border-ink-100 hover:bg-ink-50 cursor-pointer">
+              <div class="w-10 h-10 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center text-white text-[10px] font-bold shrink-0">JM</div>
+              <div class="min-w-0 flex-1">
+                <div class="flex items-center justify-between">
+                  <p class="text-[13px] font-semibold truncate">Jacob Mokoena · Contractor</p>
+                  <span class="text-[10px] text-ink-400">1h</span>
+                </div>
+                <p class="text-[11px] text-ink-500 truncate mt-0.5">Quote sent for the burst pipe — R 1,840</p>
+              </div>
+            </div>
+            <div class="flex items-start gap-3 p-4 border-b border-ink-100 hover:bg-ink-50 cursor-pointer">
+              <div class="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white text-[10px] font-bold shrink-0">DN</div>
+              <div class="min-w-0 flex-1">
+                <div class="flex items-center justify-between">
+                  <p class="text-[13px] font-semibold truncate">David Nkosi · Tenant</p>
+                  <span class="text-[10px] text-ink-400">Yest</span>
+                </div>
+                <p class="text-[11px] text-ink-500 truncate mt-0.5">Thanks for sorting the tap so quickly!</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex-1 flex flex-col bg-ink-50">
+          <div class="h-16 bg-white border-b border-ink-200 px-6 flex items-center gap-3">
+            <div class="w-9 h-9 rounded-full bg-gradient-to-br from-rose-400 to-rose-600 flex items-center justify-center text-white text-[10px] font-bold">LD</div>
+            <div class="flex-1">
+              <p class="text-[14px] font-semibold">Lerato Dube</p>
+              <p class="text-[11px] text-success">● Tenant · 8 Rivonia Rd</p>
+            </div>
+          </div>
+          <div class="flex-1 overflow-y-auto p-6 space-y-4">
+            <div class="text-center text-[11px] text-ink-400">Today · 09:14</div>
+            <div class="flex gap-2">
+              <div class="w-7 h-7 rounded-full bg-gradient-to-br from-rose-400 to-rose-600 shrink-0"></div>
+              <div class="max-w-md">
+                <div class="bg-white border border-ink-200 rounded-2xl rounded-tl-md p-3">
+                  <p class="text-[13px]">Hi Sarah, the geyser is still not heating properly. I logged it on the app with photos.</p>
+                </div>
+                <p class="text-[10px] text-ink-400 mt-1 ml-1">09:14</p>
+              </div>
+            </div>
+            <div class="flex gap-2 justify-end">
+              <div class="max-w-md">
+                <div class="bg-brand-500 text-white rounded-2xl rounded-tr-md p-3">
+                  <p class="text-[13px]">Thanks Lerato. I've requested quotes from 3 plumbers in your area — will have someone out within 48 hours.</p>
+                </div>
+                <p class="text-[10px] text-ink-400 mt-1 mr-1 text-right">09:21 · ✓✓</p>
+              </div>
+            </div>
+          </div>
+          <div class="bg-white border-t border-ink-200 p-4">
+            <div class="flex items-end gap-2 bg-ink-50 border border-ink-200 rounded-xl p-3">
+              <input class="flex-1 bg-transparent border-0 focus:outline-none text-[14px]" placeholder="Type a message...">
+              <button class="px-3 py-1.5 bg-brand-500 text-white text-[12px] rounded-md font-medium">Send</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============= VIEW: SETTINGS ============= -->
+    <section id="view-settings" class="view px-8 py-7">
+      <div class="mb-6">
+        <h1 class="text-2xl font-bold tracking-tight">Settings</h1>
+        <p class="text-[14px] text-ink-500 mt-1">Profile, Paystack, rent reminders, and plan</p>
+      </div>
+      <div class="grid grid-cols-4 gap-6">
+        <aside class="space-y-1">
+          <button class="w-full text-left px-3 py-2 rounded-lg bg-ink-900 text-white text-[13px] font-semibold">Profile</button>
+          <button class="w-full text-left px-3 py-2 rounded-lg hover:bg-ink-100 text-[13px] text-ink-700">Paystack & Banking</button>
+          <button class="w-full text-left px-3 py-2 rounded-lg hover:bg-ink-100 text-[13px] text-ink-700">Rent Reminders</button>
+          <button class="w-full text-left px-3 py-2 rounded-lg hover:bg-ink-100 text-[13px] text-ink-700">Deposit Settings</button>
+          <button class="w-full text-left px-3 py-2 rounded-lg hover:bg-ink-100 text-[13px] text-ink-700">Plan & Billing</button>
+        </aside>
+
+        <div class="col-span-3 space-y-6">
+          <!-- Paystack -->
+          <div class="bg-white rounded-xl border border-ink-200 p-6 shadow-soft">
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <h2 class="text-base font-bold">Paystack & Banking</h2>
+                <p class="text-[12px] text-ink-500 mt-0.5">Collect rent and pay contractors — no formal trust account needed</p>
+              </div>
+              <span class="text-[10px] px-2 py-1 rounded-full bg-success/15 text-success font-bold">LINKED</span>
+            </div>
+            <div class="bg-ink-50 rounded-lg p-4 flex items-center gap-4 mb-4">
+              <div class="w-10 h-10 rounded-lg bg-white flex items-center justify-center shrink-0">
+                <svg class="w-5 h-5 text-sky-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+              </div>
+              <div class="flex-1">
+                <p class="text-[13px] font-semibold">Standard Bank ***7741</p>
+                <p class="text-[11px] text-ink-500 font-mono">Personal · Verified 8 Feb 2026</p>
+              </div>
+              <button class="text-[12px] px-3 py-1.5 border border-ink-200 rounded-md hover:bg-white">Change</button>
+            </div>
+            <div class="bg-brand-50 rounded-lg p-3 flex items-start gap-2">
+              <svg class="w-4 h-4 text-brand-600 shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+              <p class="text-[11px] text-ink-700">As a private landlord you don't need a Section 32 trust account (that's an EAAB requirement for estate agencies). However, the Rental Housing Act still requires deposits to be invested and earn interest for the tenant.</p>
+            </div>
+          </div>
+
+          <!-- Rent reminders -->
+          <div class="bg-white rounded-xl border border-ink-200 p-6 shadow-soft">
+            <h2 class="text-base font-bold mb-4">Rent Reminders</h2>
+            <div class="space-y-4">
+              <div class="flex items-center justify-between py-3 border-b border-ink-100">
+                <div>
+                  <p class="text-[13px] font-semibold">Auto-remind tenants</p>
+                  <p class="text-[11px] text-ink-500">7 days before rent is due + on overdue</p>
+                </div>
+                <span class="toggle on"></span>
+              </div>
+              <div class="flex items-center justify-between py-3 border-b border-ink-100">
+                <div>
+                  <p class="text-[13px] font-semibold">Email reminders</p>
+                  <p class="text-[11px] text-ink-500">Send to tenant email</p>
+                </div>
+                <span class="toggle on"></span>
+              </div>
+              <div class="flex items-center justify-between py-3">
+                <div>
+                  <p class="text-[13px] font-semibold">In-app reminders</p>
+                  <p class="text-[11px] text-ink-500">Push to tenant dashboard</p>
+                </div>
+                <span class="toggle on"></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Plan -->
+          <div class="bg-white rounded-xl border border-ink-200 p-6 shadow-soft">
+            <h2 class="text-base font-bold mb-4">Plan & Billing</h2>
+            <div class="flex items-center justify-between p-4 bg-gradient-to-r from-brand-50 to-violet-50 rounded-lg border border-brand-100">
+              <div>
+                <p class="text-[14px] font-bold">Private Landlord Plan</p>
+                <p class="text-[12px] text-ink-500 mt-0.5">Up to 5 properties · R 149/mo</p>
+              </div>
+              <div class="text-right">
+                <p class="text-[13px] font-semibold">3 of 5 used</p>
+                <button class="text-[11px] text-brand-600 font-semibold mt-1">Upgrade to Agency →</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-end gap-2">
+            <button class="px-4 py-2 text-[13px] border border-ink-200 rounded-lg hover:bg-ink-100">Cancel</button>
+            <button class="px-4 py-2 text-[13px] bg-ink-900 text-white rounded-lg hover:bg-ink-800">Save Changes</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+  const navItems = document.querySelectorAll('.nav-item');
+  const views = document.querySelectorAll('.view');
+  const crumb = document.getElementById('crumb-page');
+  const labels = {
+    overview: 'Dashboard', properties: 'Properties', inspections: 'Inspections',
+    maintenance: 'Maintenance', tenants: 'Tenants', contractors: 'Contractors',
+    finance: 'Finance', payments: 'Rent & Payouts', messages: 'Messages', settings: 'Settings',
+  };
+  navItems.forEach(item => {
+    item.addEventListener('click', (e) => {
+      const view = item.getAttribute('data-view');
+      if (!view) return;
+      e.preventDefault();
+      document.querySelectorAll('aside .nav-item').forEach(n => n.classList.remove('active'));
+      const sidebarMatch = document.querySelector(`aside .nav-item[data-view="${view}"]`);
+      if (sidebarMatch) sidebarMatch.classList.add('active');
+      views.forEach(v => v.classList.remove('active'));
+      const target = document.getElementById('view-' + view);
+      if (target) { target.classList.add('active'); crumb.textContent = labels[view] || 'Dashboard'; }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  });
+  document.querySelectorAll('.insp-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      const target = tab.getAttribute('data-insp');
+      document.querySelectorAll('.insp-tab').forEach(t => {
+        t.classList.remove('bg-ink-900', 'text-white');
+        t.classList.add('text-ink-500', 'hover:bg-ink-100');
+        const badge = t.querySelector('span');
+        if (badge) { badge.classList.remove('bg-white/20'); badge.classList.add('bg-ink-100', 'text-ink-700'); }
+      });
+      tab.classList.add('bg-ink-900', 'text-white');
+      tab.classList.remove('text-ink-500', 'hover:bg-ink-100');
+      const activeBadge = tab.querySelector('span');
+      if (activeBadge) { activeBadge.classList.add('bg-white/20'); activeBadge.classList.remove('bg-ink-100', 'text-ink-700'); }
+      document.querySelectorAll('.insp-pane').forEach(p => p.classList.add('hidden'));
+      const pane = document.getElementById('insp-' + target);
+      if (pane) pane.classList.remove('hidden');
+    });
+  });
+  document.querySelectorAll('.toggle').forEach(t => t.addEventListener('click', () => t.classList.toggle('on')));
+</script>
+
+</body>
+</html>

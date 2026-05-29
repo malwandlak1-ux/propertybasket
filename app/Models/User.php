@@ -1,0 +1,117 @@
+<?php
+
+namespace App\Models;
+
+use App\Enums\Role;
+use App\Enums\UserStatus;
+use Database\Factories\UserFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+use Spatie\Permission\Traits\HasRoles;
+
+class User extends Authenticatable
+{
+    /** @use HasFactory<UserFactory> */
+    use HasFactory, HasRoles, Notifiable, SoftDeletes;
+
+    protected $fillable = [
+        'name',
+        'email',
+        'email_verified_at',
+        'password',
+        'phone',
+        'avatar',
+        'role',
+        'status',
+        'paystack_recipient_code',
+        'paystack_customer_code',
+        'bank_account_holder',
+        'bank_account_number',
+        'bank_code',
+        'notification_preferences',
+        'invited_by',
+        'invite_token',
+        'invite_accepted_at',
+        'last_active_at',
+    ];
+
+    protected $hidden = [
+        'password',
+        'remember_token',
+        'invite_token',
+    ];
+
+    protected function casts(): array
+    {
+        return [
+            'email_verified_at' => 'datetime',
+            'invite_accepted_at' => 'datetime',
+            'last_active_at' => 'datetime',
+            'password' => 'hashed',
+            'role' => Role::class,
+            'status' => UserStatus::class,
+            'notification_preferences' => 'array',
+        ];
+    }
+
+    public function agency(): HasOne
+    {
+        return $this->hasOne(Agency::class);
+    }
+
+    public function landlord(): HasOne
+    {
+        return $this->hasOne(Landlord::class);
+    }
+
+    public function contractor(): HasOne
+    {
+        return $this->hasOne(Contractor::class);
+    }
+
+    public function agencies(): BelongsToMany
+    {
+        return $this->belongsToMany(Agency::class, 'agency_agents')
+            ->withPivot([
+                'commission_split_percent', 'area_speciality', 'property_type_speciality',
+                'ffc_number', 'ffc_expires_at', 'lead_allocation_position', 'status',
+            ])
+            ->withTimestamps();
+    }
+
+    public function invitedBy(): BelongsTo
+    {
+        return $this->belongsTo(self::class, 'invited_by');
+    }
+
+    public function invitationsSent(): HasMany
+    {
+        return $this->hasMany(Invitation::class, 'invited_by');
+    }
+
+    public function listingsAsAgent(): HasMany
+    {
+        return $this->hasMany(Listing::class, 'agent_id');
+    }
+
+    public function inquiriesAssigned(): HasMany
+    {
+        return $this->hasMany(Inquiry::class, 'assigned_to');
+    }
+
+    public function leasesAsTenant(): HasMany
+    {
+        return $this->hasMany(Lease::class, 'tenant_id');
+    }
+
+    public function isRole(Role $role): bool
+    {
+        return $this->role === $role;
+    }
+}

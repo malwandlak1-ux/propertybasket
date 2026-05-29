@@ -1,0 +1,49 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200..800&display=swap');
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+@source '../**/*.tsx';
+@source '../**/*.ts';
+@source '../**/*.jsx';
+@source '../**/*.js';
+
+@theme {
+    --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif,
+        'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+
+    --color-brand: #5B3DF5;
+    --color-brand-50: #F2EFFE;
+    --color-brand-100: #E4DEFD;
+    --color-brand-500: #5B3DF5;
+    --color-brand-600: #4A2EE0;
+    --color-brand-700: #3A23B8;
+
+    --color-ink-50: #F9FAFB;
+    --color-ink-100: #F3F4F6;
+    --color-ink-200: #E5E7EB;
+    --color-ink-300: #D1D5DB;
+    --color-ink-400: #9CA3AF;
+    --color-ink-500: #6B7280;
+    --color-ink-700: #2A2A35;
+    --color-ink-800: #1A1A22;
+    --color-ink-900: #0B0B0F;
+
+    --color-success: #10B981;
+    --color-warning: #F59E0B;
+    --color-danger: #EF4444;
+
+    --shadow-card: 0 4px 12px rgba(15, 23, 42, 0.06);
+    --shadow-lift: 0 12px 32px rgba(15, 23, 42, 0.10);
+}
+
+body {
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+}
+
+/* ── Animations used by Components/NetworkErrorToast.tsx ─────────────── */
+@keyframes pb-fade-in {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+}

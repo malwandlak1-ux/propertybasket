@@ -64,7 +64,7 @@ class WelcomeUser extends Notification
 
         return $msg
             ->action('Open your dashboard', $url)
-            ->line('Need help? Reply to this email or contact support@propertybasket.co.za')
+            ->line('Need help? Reply to this email or contact [support@propertybasket.co.za](mailto:support@propertybasket.co.za)')
             ->salutation('— The Property Basket team');
     }
 

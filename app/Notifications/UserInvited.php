@@ -38,7 +38,7 @@ class UserInvited extends Notification
         return (new MailMessage)
             ->subject($inviter . ' has invited you to Property Basket')
             ->greeting('Hi there,')
-            ->line($inviter . ' has invited you to join Property Basket as a ' . $roleLabel . '.')
+            ->line($inviter . ' has invited you to join Property Basket as ' . (in_array($roleLabel[0], ['a','e','i','o','u']) ? 'an' : 'a') . ' ' . $roleLabel . '.')
             ->line('Click the button below to set up your account. The invitation expires in 7 days.')
             ->action('Accept invitation', $url)
             ->line('If you weren\'t expecting this invitation, you can safely ignore this email.')

@@ -116,10 +116,28 @@ class AgentsController extends Controller
         $agency = $this->resolveAgency($request);
 
         $data = $request->validate([
-            'email' => ['required', 'email', 'max:180', Rule::unique('users', 'email')],
+            'email' => ['required', 'email', 'max:180'],
             'commission_split_percent' => ['nullable', 'numeric', 'min:0', 'max:100'],
             'area_speciality' => ['nullable', 'string', 'max:200'],
         ]);
+
+        // Allow re-invite for soft-deleted users (admin deleted then agency
+        // re-invites). Block only if an active/non-deleted user already exists.
+        $existingUser = \App\Models\User::withTrashed()
+            ->where('email', $data['email'])
+            ->first();
+
+        if ($existingUser && ! $existingUser->trashed()) {
+            return back()->withErrors([
+                'email' => 'A user with this email already exists.',
+            ])->withInput();
+        }
+
+        // Expire any previous pending invitation for this email
+        Invitation::where('email', $data['email'])
+            ->where('role', 'agent')
+            ->whereNull('accepted_at')
+            ->update(['expires_at' => now()]);
 
         $token = (string) Str::uuid();
 

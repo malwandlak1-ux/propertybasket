@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Enums\Role;
+use App\Enums\UserStatus;
 use App\Http\Controllers\Admin\Concerns\EnsuresSuperAdmin;
 use App\Models\Agency;
 use App\Models\AgencyAgent;
 use App\Models\User;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Inertia\Inertia;
@@ -45,7 +47,9 @@ class UsersController extends Controller
             ->map(fn($p) => $p->agency?->name ?? null)
             ->toArray();
 
-        $rows = $users->map(function ($u) use ($agencyByOwner, $agencyAgentLink) {
+        $currentUserId = $request->user()?->id;
+
+        $rows = $users->map(function ($u) use ($agencyByOwner, $agencyAgentLink, $currentUserId) {
             $belongs = $agencyByOwner[$u->id] ?? $agencyAgentLink[$u->id] ?? null;
             if (! $belongs && in_array($u->role?->value, ['landlord', 'contractor', 'tenant'], true)) {
                 $belongs = 'Independent';
@@ -62,6 +66,8 @@ class UsersController extends Controller
                 'status'     => $u->status?->value ?? 'active',
                 'initials'   => collect(explode(' ', $u->name))->map(fn($s) => $s[0])->slice(0, 2)->implode(''),
                 'joined'     => $u->created_at?->format('d M Y'),
+                'is_self'    => $u->id === $currentUserId,
+                'is_super_admin' => $u->role?->value === 'super_admin',
             ];
         });
 
@@ -81,5 +87,66 @@ class UsersController extends Controller
             'filter'      => $filter ?: 'all',
             'search'      => $search,
         ]);
+    }
+
+    public function activate(Request $request, User $user): RedirectResponse
+    {
+        $this->ensureSuperAdmin($request);
+
+        if ($user->status === UserStatus::Active) {
+            return back()->with('error', "{$user->name} is already active.");
+        }
+
+        $user->update(['status' => UserStatus::Active]);
+
+        return back()->with('success', "{$user->name} activated.");
+    }
+
+    public function suspend(Request $request, User $user): RedirectResponse
+    {
+        $this->ensureSuperAdmin($request);
+
+        if ($user->id === $request->user()?->id) {
+            return back()->with('error', "You can't suspend your own account.");
+        }
+
+        if ($user->role?->value === 'super_admin') {
+            return back()->with('error', "Super admins can't be suspended from this panel.");
+        }
+
+        if ($user->status === UserStatus::Suspended) {
+            return back()->with('error', "{$user->name} is already suspended.");
+        }
+
+        $user->update(['status' => UserStatus::Suspended]);
+
+        return back()->with('success', "{$user->name} suspended.");
+    }
+
+    public function destroy(Request $request, User $user): RedirectResponse
+    {
+        $this->ensureSuperAdmin($request);
+
+        if ($user->id === $request->user()?->id) {
+            return back()->with('error', "You can't delete your own account.");
+        }
+
+        if ($user->role?->value === 'super_admin') {
+            return back()->with('error', "Super admins can't be deleted from this panel.");
+        }
+
+        $name = $user->name;
+
+        // Remove the agency_agents pivot so a future re-invite starts clean.
+        AgencyAgent::where('user_id', $user->id)->delete();
+
+        // Expire any pending invitations for this email.
+        \App\Models\Invitation::where('email', $user->email)
+            ->whereNull('accepted_at')
+            ->update(['expires_at' => now()]);
+
+        $user->delete(); // soft delete — row preserved with deleted_at timestamp
+
+        return back()->with('success', "{$name} deleted.");
     }
 }

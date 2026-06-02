@@ -5,7 +5,11 @@ namespace App\Http\Controllers\Auth;
 use App\Enums\Role;
 use App\Enums\UserStatus;
 use App\Http\Controllers\Controller;
+use App\Models\Agency;
+use App\Models\AgencyAgent;
+use App\Models\Contractor;
 use App\Models\Invitation;
+use App\Models\Landlord;
 use App\Models\User;
 use App\Notifications\WelcomeUser;
 use Illuminate\Http\RedirectResponse;
@@ -45,14 +49,20 @@ class InvitationController extends Controller
 
         $user = DB::transaction(function () use ($invitation, $data) {
             // A tenant invite from an agent pre-creates the pending User (so
-            // the lease has someone to point at). In every other flow no User
-            // exists yet — handle both.
-            $existing = User::where('email', $invitation->email)->first();
+            // the lease has someone to point at). A re-invite after admin
+            // deletion will have a soft-deleted row. Handle all cases.
+            $existing = User::withTrashed()->where('email', $invitation->email)->first();
 
             if ($existing) {
+                // Restore if soft-deleted (admin deleted then agency re-invited)
+                if ($existing->trashed()) {
+                    $existing->restore();
+                }
+
                 $existing->update([
                     'name'               => $data['name'],
                     'password'           => Hash::make($data['password']),
+                    'role'               => Role::from($invitation->role),
                     'status'             => UserStatus::Active,
                     'invited_by'         => $invitation->invited_by,
                     'invite_token'       => $invitation->token,
@@ -76,6 +86,20 @@ class InvitationController extends Controller
                     'email_verified_at'  => now(),
                 ]);
                 $user->assignRole($invitation->role);
+            }
+
+            // ── Link the user to the inviting entity ──────────────────
+            // Agent invites carry invitable_type=Agency — create the
+            // agency_agents pivot so ResolvesAgent won't abort 403.
+            if (
+                $invitation->role === 'agent'
+                && $invitation->invitable_type === Agency::class
+                && $invitation->invitable_id
+            ) {
+                AgencyAgent::firstOrCreate(
+                    ['agency_id' => $invitation->invitable_id, 'user_id' => $user->id],
+                    ['status' => 'active', 'commission_split_percent' => 50.00],
+                );
             }
 
             $invitation->update(['accepted_at' => now()]);

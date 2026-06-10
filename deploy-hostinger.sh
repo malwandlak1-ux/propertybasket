@@ -24,10 +24,13 @@ echo "Syncing code from $SRC -> $APP"
 cp -rf "$SRC/public/build/." "$APP/public/build/"
 
 # Back-end code changed this session.
-cp -f "$SRC/app/Http/Controllers/Public/ListingController.php"   "$APP/app/Http/Controllers/Public/ListingController.php"
-cp -f "$SRC/app/Http/Controllers/Auth/InvitationController.php"  "$APP/app/Http/Controllers/Auth/InvitationController.php"
-cp -f "$SRC/app/Http/Controllers/Agency/AgentsController.php"    "$APP/app/Http/Controllers/Agency/AgentsController.php"
-cp -f "$SRC/app/Http/Controllers/Admin/UsersController.php"      "$APP/app/Http/Controllers/Admin/UsersController.php"
+cp -f "$SRC/app/Http/Controllers/Public/ListingController.php"     "$APP/app/Http/Controllers/Public/ListingController.php"
+cp -f "$SRC/app/Http/Controllers/Public/TourRequestController.php" "$APP/app/Http/Controllers/Public/TourRequestController.php"
+cp -f "$SRC/app/Http/Controllers/Auth/InvitationController.php"    "$APP/app/Http/Controllers/Auth/InvitationController.php"
+cp -f "$SRC/app/Http/Controllers/Agency/AgentsController.php"      "$APP/app/Http/Controllers/Agency/AgentsController.php"
+cp -f "$SRC/app/Http/Controllers/Admin/UsersController.php"        "$APP/app/Http/Controllers/Admin/UsersController.php"
+cp -f "$SRC/app/Services/InquiryService.php"                      "$APP/app/Services/InquiryService.php"
+cp -f "$SRC/routes/web.php"                                       "$APP/routes/web.php"
 
 # Email template redesign + notifications.
 cp -f "$SRC/app/Notifications/WelcomeUser.php"  "$APP/app/Notifications/WelcomeUser.php"
@@ -39,5 +42,6 @@ cd "$APP"
 php artisan view:clear
 php artisan cache:clear
 php artisan config:clear
+php artisan route:clear
 
 echo "SYNC COMPLETE"

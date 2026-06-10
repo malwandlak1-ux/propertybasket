@@ -54,6 +54,60 @@ class InquiryService
         });
     }
 
+    /**
+     * A "Schedule a tour" submission. Routes to the listing's assigned agent
+     * when set (falling back to round-robin / owner), records the requested
+     * viewing slot, and fires the same InquiryReceived notification so it
+     * lands on the agent's dashboard AND their registered email.
+     */
+    public function createTourRequest(array $data): Inquiry
+    {
+        return DB::transaction(function () use ($data) {
+            /** @var Listing $listing */
+            $listing = Listing::with('owner')->findOrFail($data['listing_id']);
+
+            $owner = null;
+            $allocationMethod = null;
+
+            if ($listing->owner_type === Agency::class) {
+                // Prefer the agent who actually holds this listing.
+                if ($listing->agent_id) {
+                    $owner = User::find($listing->agent_id);
+                    $allocationMethod = 'round_robin';
+                }
+                if (! $owner) {
+                    $owner = $this->allocateRoundRobin($listing);
+                    $allocationMethod = $owner ? 'round_robin' : null;
+                }
+            } else {
+                $owner = $listing->owner?->user;
+            }
+
+            $inquiry = Inquiry::create([
+                'listing_id' => $listing->id,
+                'name' => $data['name'],
+                'email' => $data['email'],
+                'phone' => $data['phone'] ?? null,
+                'message' => $data['message'] ?? null,
+                'user_id' => $data['user_id'] ?? null,
+                'assigned_to' => $owner?->id,
+                'source' => 'website',
+                'status' => 'new',
+                'allocated_at' => $owner ? now() : null,
+                'allocation_method' => $allocationMethod,
+                'viewing_scheduled_at' => $data['viewing_scheduled_at'] ?? null,
+            ]);
+
+            $listing->increment('inquiries_count');
+
+            if ($owner) {
+                Notification::send($owner, new InquiryReceived($inquiry));
+            }
+
+            return $inquiry;
+        });
+    }
+
     public function allocateRoundRobin(Listing $listing): ?User
     {
         if ($listing->owner_type !== Agency::class) {

@@ -3,6 +3,7 @@ import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import PublicLayout from '@/Layouts/PublicLayout';
 import FormField from '@/Components/FormField';
 import MortgageCalculator from '@/Components/MortgageCalculator';
+import ScheduleTour from '@/Components/ScheduleTour';
 
 type ListingProps = {
     id: number;
@@ -212,6 +213,8 @@ export default function Show({ listing, contact }: Props) {
                     {listing.listing_type === 'for_sale' && (
                         <MortgageCalculator defaultTotal={listing.sale_price} />
                     )}
+
+                    <ScheduleTour listingId={listing.id} />
 
                     <p className="mt-10 text-[12px] text-ink-400">
                         {listing.views_count} view{listing.views_count === 1 ? '' : 's'} ·{' '}

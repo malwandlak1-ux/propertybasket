@@ -24,7 +24,7 @@ type ListingProps = {
     short_stay_max_guests: number | null;
     primary_image: string | null;
     gallery_images: string[] | null;
-    amenities: { interior?: string[]; kitchen?: string[]; exterior?: string[] } | null;
+    amenities: string[] | { interior?: string[]; kitchen?: string[]; exterior?: string[] } | null;
     views_count: number;
     inquiries_count: number;
 };
@@ -34,9 +34,31 @@ type Contact = {
     name: string | null;
     email: string | null;
     phone: string | null;
+    avatar: string | null;
     agency_name: string | null;
     agency_slug: string | null;
 };
+
+/** Amenities are stored as a flat array; tolerate the older keyed-object shape too. */
+function flattenAmenities(
+    amenities: ListingProps['amenities'],
+): string[] {
+    if (!amenities) return [];
+    if (Array.isArray(amenities)) return amenities.filter(Boolean);
+    return Object.values(amenities)
+        .flat()
+        .filter(Boolean) as string[];
+}
+
+function initials(name: string | null): string {
+    if (!name) return '?';
+    return name
+        .split(' ')
+        .filter(Boolean)
+        .slice(0, 2)
+        .map((w) => w[0]?.toUpperCase())
+        .join('');
+}
 
 type Props = { listing: ListingProps; contact: Contact };
 
@@ -83,6 +105,8 @@ export default function Show({ listing, contact }: Props) {
         listing.primary_image,
         ...(listing.gallery_images ?? []),
     ].filter(Boolean) as string[];
+
+    const amenities = flattenAmenities(listing.amenities);
 
     const priceLine =
         listing.listing_type === 'for_sale'
@@ -170,30 +194,17 @@ export default function Show({ listing, contact }: Props) {
                         </div>
                     )}
 
-                    {listing.amenities && (
+                    {amenities.length > 0 && (
                         <div className="mt-10">
                             <h2 className="text-[18px] font-bold">Amenities</h2>
-                            <div className="mt-4 grid md:grid-cols-3 gap-6">
-                                {(['interior', 'kitchen', 'exterior'] as const).map((key) => {
-                                    const items = listing.amenities?.[key];
-                                    if (!items || items.length === 0) return null;
-                                    return (
-                                        <div key={key}>
-                                            <p className="text-[11px] uppercase tracking-wider text-ink-500 font-semibold">
-                                                {key}
-                                            </p>
-                                            <ul className="mt-2 space-y-1.5 text-[14px] text-ink-700">
-                                                {items.map((item) => (
-                                                    <li key={item} className="flex items-center gap-2">
-                                                        <span className="w-1.5 h-1.5 rounded-full bg-brand" />
-                                                        {item}
-                                                    </li>
-                                                ))}
-                                            </ul>
-                                        </div>
-                                    );
-                                })}
-                            </div>
+                            <ul className="mt-4 grid sm:grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-2 text-[14px] text-ink-700">
+                                {amenities.map((item) => (
+                                    <li key={item} className="flex items-center gap-2">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-brand shrink-0" />
+                                        {item}
+                                    </li>
+                                ))}
+                            </ul>
                         </div>
                     )}
 
@@ -210,15 +221,30 @@ export default function Show({ listing, contact }: Props) {
                         <p className="text-[11px] uppercase tracking-wider text-ink-500 font-semibold">
                             {contact.kind === 'agent' ? 'Listed by agent' : 'Listed by landlord'}
                         </p>
-                        <p className="mt-2 text-[16px] font-bold">{contact.name ?? '—'}</p>
-                        {contact.agency_name && (
-                            <Link
-                                href={`/agencies/${contact.agency_slug}`}
-                                className="block text-[13px] text-brand-700 hover:underline"
-                            >
-                                {contact.agency_name}
-                            </Link>
-                        )}
+                        <div className="mt-2 flex items-center gap-3">
+                            {contact.avatar ? (
+                                <img
+                                    src={contact.avatar}
+                                    alt={contact.name ?? ''}
+                                    className="w-11 h-11 rounded-full object-cover bg-ink-100 shrink-0"
+                                />
+                            ) : (
+                                <span className="w-11 h-11 rounded-full bg-brand-50 text-brand-700 grid place-items-center text-[14px] font-bold shrink-0">
+                                    {initials(contact.name)}
+                                </span>
+                            )}
+                            <div className="min-w-0">
+                                <p className="text-[16px] font-bold truncate">{contact.name ?? '—'}</p>
+                                {contact.agency_name && (
+                                    <Link
+                                        href={`/agencies/${contact.agency_slug}`}
+                                        className="block text-[13px] text-brand-700 hover:underline truncate"
+                                    >
+                                        {contact.agency_name}
+                                    </Link>
+                                )}
+                            </div>
+                        </div>
                         <div className="mt-4 space-y-1.5 text-[13px] text-ink-700">
                             {contact.email && (
                                 <p>

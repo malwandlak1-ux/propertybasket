@@ -96,6 +96,7 @@ class ListingController extends Controller
                 'name' => $agent?->name ?? $agency?->name,
                 'email' => $agent?->email ?? $agency?->email,
                 'phone' => $agent?->phone ?? $agency?->phone,
+                'avatar' => $agent?->avatar ?? $agency?->logo,
                 'agency_name' => $agency?->name,
                 'agency_slug' => $agency?->slug,
             ];
@@ -106,6 +107,7 @@ class ListingController extends Controller
                 'name' => $landlordOwner?->name,
                 'email' => $landlordOwner?->email,
                 'phone' => $landlordOwner?->phone,
+                'avatar' => $landlordOwner?->avatar,
                 'agency_name' => null,
                 'agency_slug' => null,
             ];

@@ -2,6 +2,7 @@ import { FormEvent, useState } from 'react';
 import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import PublicLayout from '@/Layouts/PublicLayout';
 import FormField from '@/Components/FormField';
+import MortgageCalculator from '@/Components/MortgageCalculator';
 
 type ListingProps = {
     id: number;
@@ -206,6 +207,10 @@ export default function Show({ listing, contact }: Props) {
                                 ))}
                             </ul>
                         </div>
+                    )}
+
+                    {listing.listing_type === 'for_sale' && (
+                        <MortgageCalculator defaultTotal={listing.sale_price} />
                     )}
 
                     <p className="mt-10 text-[12px] text-ink-400">

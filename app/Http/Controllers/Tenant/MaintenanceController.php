@@ -9,6 +9,7 @@ use App\Models\MaintenanceRequest;
 use App\Notifications\MaintenanceRequestSubmitted;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -74,7 +75,16 @@ class MaintenanceController extends Controller
             'urgency'              => 'required|in:low,medium,high,emergency',
             'preferred_date'       => 'nullable|date',
             'preferred_time_slot'  => 'nullable|string|max:60',
+            'photos'               => 'nullable|array|max:8',
+            'photos.*'             => 'image|max:8192', // 8 MB per photo (phone cameras)
         ]);
+
+        // Store uploaded photos to the public disk; the contractor + agency
+        // views read these URLs straight from the photos JSON.
+        $photoUrls = [];
+        foreach ($request->file('photos') ?? [] as $photo) {
+            $photoUrls[] = Storage::url($photo->store('maintenance', 'public'));
+        }
 
         $req = MaintenanceRequest::create([
             'property_id'         => $lease->listing_id,
@@ -86,7 +96,7 @@ class MaintenanceController extends Controller
             'urgency'             => $data['urgency'],
             'preferred_date'      => $data['preferred_date'] ?? null,
             'preferred_time_slot' => $data['preferred_time_slot'] ?? null,
-            'photos'              => [],
+            'photos'              => $photoUrls,
             'status'              => 'open',
         ]);
 

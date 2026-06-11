@@ -34,6 +34,7 @@ cp -f "$SRC/app/Http/Controllers/Agent/InspectionsController.php"  "$APP/app/Htt
 cp -f "$SRC/app/Http/Controllers/Landlord/TenantsController.php"   "$APP/app/Http/Controllers/Landlord/TenantsController.php"
 cp -f "$SRC/app/Http/Controllers/Tenant/LeaseController.php"       "$APP/app/Http/Controllers/Tenant/LeaseController.php"
 cp -f "$SRC/app/Http/Controllers/Tenant/DocumentsController.php"   "$APP/app/Http/Controllers/Tenant/DocumentsController.php"
+cp -f "$SRC/app/Http/Controllers/Tenant/MaintenanceController.php" "$APP/app/Http/Controllers/Tenant/MaintenanceController.php"
 cp -f "$SRC/app/Services/InquiryService.php"                      "$APP/app/Services/InquiryService.php"
 cp -f "$SRC/app/Models/Lease.php"                                 "$APP/app/Models/Lease.php"
 cp -f "$SRC/routes/web.php"                                       "$APP/routes/web.php"

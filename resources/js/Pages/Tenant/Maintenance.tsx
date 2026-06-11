@@ -63,12 +63,25 @@ export default function TenantMaintenance({ lease, active, past }: Props) {
         urgency: 'medium' as typeof URGENCIES[number],
         preferred_date: '',
         preferred_time_slot: SLOTS[0] as string,
+        photos: [] as File[],
     });
+
+    const MAX_PHOTOS = 8;
+
+    function addPhotos(files: FileList | null) {
+        if (! files || files.length === 0) return;
+        const picked = Array.from(files);
+        setData('photos', [...data.photos, ...picked].slice(0, MAX_PHOTOS));
+    }
+    function removePhoto(i: number) {
+        setData('photos', data.photos.filter((_, idx) => idx !== i));
+    }
 
     const submit = (e: FormEvent) => {
         e.preventDefault();
         post('/tenant/maintenance', {
             preserveScroll: true,
+            forceFormData: true, // photos are File objects
             onSuccess: () => {
                 reset();
                 setShowForm(false);
@@ -189,6 +202,40 @@ export default function TenantMaintenance({ lease, active, past }: Props) {
                                         </select>
                                     </div>
                                     <p className="text-[10px] text-ink-500 mt-1.5">Contractor will confirm or propose alternative.</p>
+                                </div>
+                                <div>
+                                    <label className="text-[12px] font-semibold text-ink-700 mb-1.5 block">
+                                        Photos <span className="text-ink-400 font-normal">— help the contractor see the problem</span>
+                                    </label>
+                                    <div className="flex items-center gap-2 flex-wrap">
+                                        {data.photos.map((photo, i) => (
+                                            <div key={i} className="relative w-16 h-16 rounded-lg overflow-hidden border border-ink-200 bg-white group">
+                                                <img src={URL.createObjectURL(photo)} alt="" className="w-full h-full object-cover" />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => removePhoto(i)}
+                                                    className="absolute top-0.5 right-0.5 w-4 h-4 rounded-full bg-ink-900/70 text-white text-[10px] leading-none grid place-items-center opacity-0 group-hover:opacity-100 transition"
+                                                    aria-label="Remove photo"
+                                                >
+                                                    ×
+                                                </button>
+                                            </div>
+                                        ))}
+                                        {data.photos.length < MAX_PHOTOS && (
+                                            <>
+                                                <label className="w-16 h-16 rounded-lg border-2 border-dashed border-ink-300 hover:border-brand-400 hover:bg-brand-50/40 cursor-pointer grid place-items-center text-ink-400 hover:text-brand-600 transition" title="Upload photos">
+                                                    <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+                                                    <input type="file" accept="image/*" multiple className="hidden" onChange={(e) => { addPhotos(e.target.files); e.target.value = ''; }} />
+                                                </label>
+                                                <label className="w-16 h-16 rounded-lg border-2 border-dashed border-ink-300 hover:border-brand-400 hover:bg-brand-50/40 cursor-pointer grid place-items-center text-ink-400 hover:text-brand-600 transition" title="Take a photo">
+                                                    <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                                                    <input type="file" accept="image/*" capture="environment" className="hidden" onChange={(e) => { addPhotos(e.target.files); e.target.value = ''; }} />
+                                                </label>
+                                            </>
+                                        )}
+                                    </div>
+                                    <p className="text-[10px] text-ink-500 mt-1.5">{data.photos.length}/{MAX_PHOTOS} photos · upload or capture from your phone</p>
+                                    {errors.photos && <p className="text-[11px] text-danger mt-1">{errors.photos}</p>}
                                 </div>
                             </div>
                         </div>

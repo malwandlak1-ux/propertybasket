@@ -29,6 +29,8 @@ cp -f "$SRC/app/Http/Controllers/Public/TourRequestController.php" "$APP/app/Htt
 cp -f "$SRC/app/Http/Controllers/Auth/InvitationController.php"    "$APP/app/Http/Controllers/Auth/InvitationController.php"
 cp -f "$SRC/app/Http/Controllers/Agency/AgentsController.php"      "$APP/app/Http/Controllers/Agency/AgentsController.php"
 cp -f "$SRC/app/Http/Controllers/Admin/UsersController.php"        "$APP/app/Http/Controllers/Admin/UsersController.php"
+cp -f "$SRC/app/Http/Controllers/Agent/ListingsController.php"     "$APP/app/Http/Controllers/Agent/ListingsController.php"
+cp -f "$SRC/app/Http/Controllers/Landlord/TenantsController.php"   "$APP/app/Http/Controllers/Landlord/TenantsController.php"
 cp -f "$SRC/app/Services/InquiryService.php"                      "$APP/app/Services/InquiryService.php"
 cp -f "$SRC/routes/web.php"                                       "$APP/routes/web.php"
 

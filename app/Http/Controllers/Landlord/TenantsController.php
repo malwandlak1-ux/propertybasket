@@ -114,8 +114,23 @@ class TenantsController extends Controller
             'deposit_amount' => ['nullable', 'numeric', 'min:0'],
         ]);
 
-        DB::transaction(function () use ($data, $listing, $landlord, $user) {
-            $tenant = User::where('email', $data['tenant_email'])->first();
+        $invitation = DB::transaction(function () use ($data, $listing, $landlord, $user) {
+            // withTrashed: the email may belong to a soft-deleted user —
+            // restore it instead of hitting the unique-email constraint (500).
+            $tenant = User::withTrashed()->where('email', $data['tenant_email'])->first();
+            if ($tenant && $tenant->trashed()) {
+                $tenant->restore();
+                $tenant->update([
+                    'name'   => $data['tenant_name'],
+                    'phone'  => $data['tenant_phone'] ?? $tenant->phone,
+                    'role'   => Role::Tenant,
+                    'status' => UserStatus::Pending,
+                    'invite_accepted_at' => null,
+                ]);
+                if (! $tenant->hasRole(Role::Tenant->value)) {
+                    $tenant->assignRole(Role::Tenant->value);
+                }
+            }
             if (! $tenant) {
                 $tenant = User::create([
                     'name'     => $data['tenant_name'],
@@ -141,6 +156,7 @@ class TenantsController extends Controller
                 'status'         => 'pending',
             ]);
 
+            $invitation = null;
             if (! $tenant->invite_accepted_at) {
                 $invitation = Invitation::create([
                     'email'          => $data['tenant_email'],
@@ -151,11 +167,22 @@ class TenantsController extends Controller
                     'token'          => (string) Str::uuid(),
                     'expires_at'     => now()->addDays(14),
                 ]);
-                Notification::route('mail', $data['tenant_email'])->notify(new UserInvited($invitation));
             }
 
             $listing->update(['status' => 'leased']);
+
+            return $invitation;
         });
+
+        // Email outside the transaction: a mail-transport failure must not
+        // roll back (or 500) an otherwise-successful invite.
+        if ($invitation) {
+            try {
+                Notification::route('mail', $invitation->email)->notify(new UserInvited($invitation));
+            } catch (\Throwable $e) {
+                report($e);
+            }
+        }
 
         return redirect()
             ->route('landlord.tenants.index')

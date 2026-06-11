@@ -55,6 +55,11 @@ const ICON_MESSAGES = (
         <path d="M21 11.5a8.38 8.38 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.6-.8L3 21l1.9-5.7a8.5 8.5 0 0 1 16.1-3.8z" />
     </svg>
 );
+const ICON_MAINTENANCE = (
+    <svg className="nav-icon w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+        <path d="M14 6.5a2 2 0 1 0-4 0M9 12l-7 7 3 3 7-7M14 12l4-4 4 4-4 4z" />
+    </svg>
+);
 const ICON_AGENTS = (
     <svg className="nav-icon w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
         <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
@@ -172,6 +177,7 @@ export default function AgencyLayout({ children, crumb = 'Dashboard', agencyName
         { label: 'Pipeline', href: '/agency/pipeline', icon: ICON_PIPELINE },
         { label: 'Listings & Leads', href: '/agency/listings', icon: ICON_LISTINGS },
         { label: 'Team Messages', href: '/agency/messages', icon: ICON_MESSAGES },
+        { label: 'Maintenance', href: '/agency/maintenance', icon: ICON_MAINTENANCE },
     ];
     const team: NavItem[] = [
         { label: 'Agents', href: '/agency/agents', icon: ICON_AGENTS },

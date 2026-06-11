@@ -100,14 +100,19 @@ class MaintenanceController extends Controller
             'status'              => 'open',
         ]);
 
-        // Notify the managing party (agency owner OR direct landlord).
+        // Notify the managing parties: assigned agent, agency owner, landlord.
         $recipients = [];
         if ($lease->agent_id && ($agent = \App\Models\User::find($lease->agent_id))) {
             $recipients[] = $agent;
         }
+        if ($lease->agency_id && ($agencyOwner = Agency::find($lease->agency_id)?->owner)) {
+            $recipients[] = $agencyOwner;
+        }
         if ($lease->landlord_id && ($landlord = \App\Models\User::find($lease->landlord_id))) {
             $recipients[] = $landlord;
         }
+        // De-duplicate (the agency owner can also be the assigned agent).
+        $recipients = collect($recipients)->unique('id')->values()->all();
         if (! empty($recipients)) {
             Notification::send($recipients, new MaintenanceRequestSubmitted($req));
         }

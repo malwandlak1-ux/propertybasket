@@ -91,6 +91,9 @@ Route::middleware('auth')->group(function () {
         Route::get('billing',         [\App\Http\Controllers\Agency\BillingController::class, 'show'])->name('billing.show');
         Route::post('billing/switch', [\App\Http\Controllers\Agency\BillingController::class, 'switch'])->name('billing.switch');
 
+        Route::get('maintenance',                         [\App\Http\Controllers\Agency\MaintenanceController::class, 'index'])->name('maintenance.index');
+        Route::post('maintenance/{maintenanceRequest}/assign',      [\App\Http\Controllers\Agency\MaintenanceController::class, 'assign'])->name('maintenance.assign');
+        Route::post('maintenance/{maintenanceRequest}/marketplace', [\App\Http\Controllers\Agency\MaintenanceController::class, 'marketplace'])->name('maintenance.marketplace');
         Route::get('maintenance/quotes',                  [\App\Http\Controllers\Agency\QuotesController::class, 'index'])->name('maintenance.quotes.index');
         Route::post('maintenance/quotes/{quote}/accept',  [\App\Http\Controllers\Agency\QuotesController::class, 'accept'])->name('maintenance.quotes.accept');
         Route::post('maintenance/quotes/{quote}/reject',  [\App\Http\Controllers\Agency\QuotesController::class, 'reject'])->name('maintenance.quotes.reject');
@@ -141,6 +144,10 @@ Route::middleware('auth')->group(function () {
         });
         Route::get('viewings',    [Agent\ViewingsController::class,  'index'])->name('viewings.index');
         Route::post('viewings',   [Agent\ViewingsController::class,  'store'])->name('viewings.store');
+        Route::get('maintenance',                         [Agent\MaintenanceController::class, 'index'])->name('maintenance.index');
+        Route::post('maintenance/{maintenanceRequest}/assign',      [Agent\MaintenanceController::class, 'assign'])->name('maintenance.assign');
+        Route::post('maintenance/{maintenanceRequest}/marketplace', [Agent\MaintenanceController::class, 'marketplace'])->name('maintenance.marketplace');
+
         Route::get('inspections', [Agent\InspectionsController::class, 'index'])->name('inspections.index');
         Route::get('inspections/create', [Agent\InspectionsController::class, 'create'])->name('inspections.create');
         Route::post('inspections', [Agent\InspectionsController::class, 'store'])->name('inspections.store');

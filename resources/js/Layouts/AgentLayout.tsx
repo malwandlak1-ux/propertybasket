@@ -103,6 +103,15 @@ export default function AgentLayout({ children, crumb = 'Dashboard', agencyName 
         { label: 'Viewings',   href: '/agent/viewings',    icon: I.calendar,  indicator: 'danger' },
         { label: 'Inspections',href: '/agent/inspections', icon: I.inspect,   badge: { text: '2', tone: 'brand' } },
         {
+            label: 'Maintenance',
+            href: '/agent/maintenance',
+            icon: (
+                <svg className="nav-icon w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+                    <path d="M14 6.5a2 2 0 1 0-4 0M9 12l-7 7 3 3 7-7M14 12l4-4 4 4-4 4z" />
+                </svg>
+            ),
+        },
+        {
             label: 'Messages',
             href: '/agent/messages',
             icon: I.messages,

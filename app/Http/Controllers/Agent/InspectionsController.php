@@ -10,6 +10,7 @@ use App\Services\PdfService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -108,13 +109,15 @@ class InspectionsController extends Controller
         $agentRecord = $this->resolveAgentRecord($request);
 
         $data = $request->validate([
-            'lease_id'         => ['required', 'integer', 'exists:leases,id'],
-            'type'             => ['required', Rule::in(['move_in', 'move_out'])],
-            'rooms'            => ['required', 'array', 'min:1'],
-            'rooms.*.name'     => ['required', 'string', 'max:80'],
-            'rooms.*.condition'=> ['required', Rule::in(['excellent', 'good', 'fair', 'poor'])],
-            'rooms.*.notes'    => ['nullable', 'string', 'max:1000'],
-            'general_notes'    => ['nullable', 'string', 'max:2000'],
+            'lease_id'          => ['required', 'integer', 'exists:leases,id'],
+            'type'              => ['required', Rule::in(['move_in', 'move_out'])],
+            'rooms'             => ['required', 'array', 'min:1'],
+            'rooms.*.name'      => ['required', 'string', 'max:80'],
+            'rooms.*.condition' => ['required', Rule::in(['excellent', 'good', 'fair', 'poor'])],
+            'rooms.*.notes'     => ['nullable', 'string', 'max:1000'],
+            'rooms.*.photos'    => ['nullable', 'array', 'max:10'],
+            'rooms.*.photos.*'  => ['image', 'max:8192'], // 8 MB per photo (phone cameras)
+            'general_notes'     => ['nullable', 'string', 'max:2000'],
         ]);
 
         $lease = Lease::with('listing')->findOrFail($data['lease_id']);
@@ -148,6 +151,22 @@ class InspectionsController extends Controller
                 'deduction_total' => 0,
             ]);
         });
+
+        // Store per-room photos (uploaded or captured on the agent's phone)
+        // and persist their public URLs into the rooms JSON. Note: don't use
+        // hasFile('rooms') — it can't see files nested under rooms.N.photos.
+        $dir = "inspections/{$inspection->id}";
+        $hasPhotos = false;
+        foreach (array_keys($rooms) as $i) {
+            foreach ($request->file("rooms.{$i}.photos") ?? [] as $photo) {
+                $path = $photo->store($dir, 'public');
+                $rooms[$i]['photos'][] = Storage::url($path);
+                $hasPhotos = true;
+            }
+        }
+        if ($hasPhotos) {
+            $inspection->update(['rooms' => $rooms]);
+        }
 
         return redirect()
             ->route('agent.inspections.show', $inspection->id)

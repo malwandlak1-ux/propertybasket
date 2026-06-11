@@ -250,6 +250,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/',            [Tenant\DashboardController::class,   'overview'])->name('overview');
         Route::get('lease',        [Tenant\LeaseController::class,       'index'])->name('lease.index');
         Route::get('lease/agreement.pdf', [Tenant\LeaseController::class, 'agreement'])->name('lease.agreement');
+        Route::post('lease/sign',  [Tenant\LeaseController::class,       'sign'])->name('lease.sign');
         Route::get('payments',     [Tenant\PaymentsController::class,    'index'])->name('payments.index');
         Route::get('payments/{payment}/receipt.pdf', [Tenant\PaymentsController::class, 'receipt'])->name('payments.receipt');
         Route::post('payments/pay', [\App\Http\Controllers\Payments\PaystackController::class, 'initialize'])->name('payments.pay');

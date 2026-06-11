@@ -23,15 +23,18 @@ type Room = {
     name: string;
     condition: 'excellent' | 'good' | 'fair' | 'poor';
     notes: string;
+    photos: File[];
 };
 
 const DEFAULT_ROOMS: Room[] = [
-    { name: 'Entrance', condition: 'good', notes: '' },
-    { name: 'Living Room', condition: 'good', notes: '' },
-    { name: 'Kitchen', condition: 'good', notes: '' },
-    { name: 'Master Bedroom', condition: 'good', notes: '' },
-    { name: 'Bathroom', condition: 'good', notes: '' },
+    { name: 'Entrance', condition: 'good', notes: '', photos: [] },
+    { name: 'Living Room', condition: 'good', notes: '', photos: [] },
+    { name: 'Kitchen', condition: 'good', notes: '', photos: [] },
+    { name: 'Master Bedroom', condition: 'good', notes: '', photos: [] },
+    { name: 'Bathroom', condition: 'good', notes: '', photos: [] },
 ];
+
+const MAX_PHOTOS_PER_ROOM = 10;
 
 const CONDITION_OPTIONS: Room['condition'][] = ['excellent', 'good', 'fair', 'poor'];
 
@@ -49,10 +52,25 @@ export default function AgentCreateInspection({ agent, type: initialType, leases
         setRooms((rs) => rs.map((r, idx) => (idx === i ? { ...r, ...patch } : r)));
     }
     function addRoom() {
-        setRooms((rs) => [...rs, { name: '', condition: 'good', notes: '' }]);
+        setRooms((rs) => [...rs, { name: '', condition: 'good', notes: '', photos: [] }]);
     }
     function removeRoom(i: number) {
         setRooms((rs) => rs.filter((_, idx) => idx !== i));
+    }
+    function addPhotos(i: number, files: FileList | null) {
+        if (! files || files.length === 0) return;
+        // Snapshot now — the FileList is live and empties when the input is reset.
+        const picked = Array.from(files);
+        setRooms((rs) => rs.map((r, idx) => {
+            if (idx !== i) return r;
+            const merged = [...r.photos, ...picked].slice(0, MAX_PHOTOS_PER_ROOM);
+            return { ...r, photos: merged };
+        }));
+    }
+    function removePhoto(i: number, p: number) {
+        setRooms((rs) => rs.map((r, idx) =>
+            idx === i ? { ...r, photos: r.photos.filter((_, pi) => pi !== p) } : r,
+        ));
     }
 
     function changeType(nextType: 'move_in' | 'move_out') {
@@ -70,6 +88,7 @@ export default function AgentCreateInspection({ agent, type: initialType, leases
             rooms,
             general_notes: generalNotes,
         }, {
+            forceFormData: true, // room photos are File objects
             onError:    (errs) => setErrors(errs as Record<string, string>),
             onFinish:   () => setProcessing(false),
         });
@@ -158,49 +177,103 @@ export default function AgentCreateInspection({ agent, type: initialType, leases
                         </div>
                         <div className="space-y-3">
                             {rooms.map((room, i) => (
-                                <div key={i} className="grid grid-cols-12 gap-2 items-start bg-ink-50/40 rounded-lg p-3 border border-ink-100">
-                                    <div className="col-span-4">
-                                        <label className="text-[10px] uppercase tracking-wider text-ink-500 font-semibold block mb-1">Room</label>
-                                        <input
-                                            value={room.name}
-                                            onChange={(e) => updateRoom(i, { name: e.target.value })}
-                                            placeholder="e.g. Kitchen"
-                                            required
-                                            className={inputCls}
-                                        />
-                                    </div>
-                                    <div className="col-span-3">
-                                        <label className="text-[10px] uppercase tracking-wider text-ink-500 font-semibold block mb-1">Condition</label>
-                                        <select
-                                            value={room.condition}
-                                            onChange={(e) => updateRoom(i, { condition: e.target.value as Room['condition'] })}
-                                            className={inputCls}
-                                        >
-                                            {CONDITION_OPTIONS.map((c) => (
-                                                <option key={c} value={c}>{c.charAt(0).toUpperCase() + c.slice(1)}</option>
-                                            ))}
-                                        </select>
-                                    </div>
-                                    <div className="col-span-4">
-                                        <label className="text-[10px] uppercase tracking-wider text-ink-500 font-semibold block mb-1">Notes</label>
-                                        <input
-                                            value={room.notes}
-                                            onChange={(e) => updateRoom(i, { notes: e.target.value })}
-                                            placeholder="Visible damage, marks, etc."
-                                            className={inputCls}
-                                        />
-                                    </div>
-                                    <div className="col-span-1 pt-5 flex justify-end">
-                                        {rooms.length > 1 && (
-                                            <button
-                                                type="button"
-                                                onClick={() => removeRoom(i)}
-                                                className="text-ink-400 hover:text-danger p-1"
-                                                aria-label="Remove room"
+                                <div key={i} className="bg-ink-50/40 rounded-lg p-3 border border-ink-100">
+                                    <div className="grid grid-cols-12 gap-2 items-start">
+                                        <div className="col-span-4">
+                                            <label className="text-[10px] uppercase tracking-wider text-ink-500 font-semibold block mb-1">Room</label>
+                                            <input
+                                                value={room.name}
+                                                onChange={(e) => updateRoom(i, { name: e.target.value })}
+                                                placeholder="e.g. Kitchen"
+                                                required
+                                                className={inputCls}
+                                            />
+                                        </div>
+                                        <div className="col-span-3">
+                                            <label className="text-[10px] uppercase tracking-wider text-ink-500 font-semibold block mb-1">Condition</label>
+                                            <select
+                                                value={room.condition}
+                                                onChange={(e) => updateRoom(i, { condition: e.target.value as Room['condition'] })}
+                                                className={inputCls}
                                             >
-                                                ×
-                                            </button>
-                                        )}
+                                                {CONDITION_OPTIONS.map((c) => (
+                                                    <option key={c} value={c}>{c.charAt(0).toUpperCase() + c.slice(1)}</option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                        <div className="col-span-4">
+                                            <label className="text-[10px] uppercase tracking-wider text-ink-500 font-semibold block mb-1">Notes</label>
+                                            <input
+                                                value={room.notes}
+                                                onChange={(e) => updateRoom(i, { notes: e.target.value })}
+                                                placeholder="Visible damage, marks, etc."
+                                                className={inputCls}
+                                            />
+                                        </div>
+                                        <div className="col-span-1 pt-5 flex justify-end">
+                                            {rooms.length > 1 && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => removeRoom(i)}
+                                                    className="text-ink-400 hover:text-danger p-1"
+                                                    aria-label="Remove room"
+                                                >
+                                                    ×
+                                                </button>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    {/* Per-room photos: upload from device or capture with camera */}
+                                    <div className="mt-3 pt-3 border-t border-ink-100">
+                                        <div className="flex items-center gap-2 flex-wrap">
+                                            {room.photos.map((photo, p) => (
+                                                <div key={p} className="relative w-16 h-16 rounded-lg overflow-hidden border border-ink-200 bg-white group">
+                                                    <img
+                                                        src={URL.createObjectURL(photo)}
+                                                        alt=""
+                                                        className="w-full h-full object-cover"
+                                                    />
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => removePhoto(i, p)}
+                                                        className="absolute top-0.5 right-0.5 w-4 h-4 rounded-full bg-ink-900/70 text-white text-[10px] leading-none grid place-items-center opacity-0 group-hover:opacity-100 transition"
+                                                        aria-label="Remove photo"
+                                                    >
+                                                        ×
+                                                    </button>
+                                                </div>
+                                            ))}
+
+                                            {room.photos.length < MAX_PHOTOS_PER_ROOM && (
+                                                <>
+                                                    <label className="w-16 h-16 rounded-lg border-2 border-dashed border-ink-300 hover:border-brand-400 hover:bg-brand-50/40 cursor-pointer grid place-items-center text-ink-400 hover:text-brand-600 transition" title="Upload photos">
+                                                        <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+                                                        <input
+                                                            type="file"
+                                                            accept="image/*"
+                                                            multiple
+                                                            className="hidden"
+                                                            onChange={(e) => { addPhotos(i, e.target.files); e.target.value = ''; }}
+                                                        />
+                                                    </label>
+                                                    <label className="w-16 h-16 rounded-lg border-2 border-dashed border-ink-300 hover:border-brand-400 hover:bg-brand-50/40 cursor-pointer grid place-items-center text-ink-400 hover:text-brand-600 transition" title="Capture with camera">
+                                                        <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                                                        <input
+                                                            type="file"
+                                                            accept="image/*"
+                                                            capture="environment"
+                                                            className="hidden"
+                                                            onChange={(e) => { addPhotos(i, e.target.files); e.target.value = ''; }}
+                                                        />
+                                                    </label>
+                                                </>
+                                            )}
+                                        </div>
+                                        <p className="text-[10px] text-ink-400 mt-1.5">
+                                            {room.photos.length}/{MAX_PHOTOS_PER_ROOM} photos · upload or capture per room
+                                        </p>
+                                        {errors[`rooms.${i}.photos`] && <p className="text-[11px] text-danger mt-1">{errors[`rooms.${i}.photos`]}</p>}
                                     </div>
                                 </div>
                             ))}

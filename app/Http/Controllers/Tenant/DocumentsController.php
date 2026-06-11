@@ -54,15 +54,18 @@ class DocumentsController extends Controller
                 ];
             });
 
-        // Synthetic document set (real upload pipeline is a Phase 9 task)
+        // Synthetic document set (real upload pipeline is a Phase 9 task).
+        // The lease card reflects the real tenant signature state.
         $documents = [
             [
                 'id'       => 'lease',
                 'title'    => 'Lease Agreement',
-                'subtitle' => 'Master lease',
-                'meta'     => $lease->signed_at?->format('d M Y') ?? $start->format('d M Y'),
+                'subtitle' => $lease->tenant_signed_at
+                    ? 'Master lease · Signed by ' . ($lease->tenant_signature ?? $user->name)
+                    : 'Master lease · Awaiting your signature',
+                'meta'     => $lease->tenant_signed_at?->format('d M Y') ?? $start->format('d M Y'),
                 'tone'     => 'rose',
-                'signed'   => true,
+                'signed'   => ! is_null($lease->tenant_signed_at),
                 'category' => 'lease',
             ],
             [
@@ -94,11 +97,13 @@ class DocumentsController extends Controller
                 'name' => $user->name,
             ],
             'lease' => [
-                'id'           => $lease->id,
-                'address'      => $lease->listing?->address ?? $lease->listing?->title ?? '',
-                'monthly_rent' => (float) $lease->monthly_rent,
-                'start_date'   => $start->format('Y/m/d'),
-                'end_date'     => CarbonImmutable::parse($lease->end_date)->format('Y/m/d'),
+                'id'               => $lease->id,
+                'address'          => $lease->listing?->address ?? $lease->listing?->title ?? '',
+                'monthly_rent'     => (float) $lease->monthly_rent,
+                'start_date'       => $start->format('Y/m/d'),
+                'end_date'         => CarbonImmutable::parse($lease->end_date)->format('Y/m/d'),
+                'tenant_signed_at' => $lease->tenant_signed_at?->format('d M Y · H:i'),
+                'tenant_signature' => $lease->tenant_signature,
             ],
             'deposit'     => $depositInfo,
             'ledger'      => $ledger,

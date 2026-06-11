@@ -15,6 +15,7 @@ class Lease extends Model
         'start_date', 'end_date', 'monthly_rent', 'deposit_amount',
         'deposit_interest_rate', 'escalation_percent', 'notice_period_days',
         'status', 'signed_at', 'document_path',
+        'tenant_signed_at', 'tenant_signature',
     ];
 
     protected function casts(): array
@@ -23,6 +24,7 @@ class Lease extends Model
             'start_date' => 'date',
             'end_date' => 'date',
             'signed_at' => 'datetime',
+            'tenant_signed_at' => 'datetime',
             'monthly_rent' => 'decimal:2',
             'deposit_amount' => 'decimal:2',
             'deposit_interest_rate' => 'decimal:2',

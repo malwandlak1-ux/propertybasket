@@ -112,21 +112,43 @@ export default function AgentShowInspection({ agent, inspection, lease, listing 
                             <p className="text-[13px] text-ink-500">No rooms recorded.</p>
                         )}
                         {inspection.rooms.map((room, i) => (
-                            <div key={i} className="grid grid-cols-12 gap-3 items-start bg-ink-50/40 rounded-lg p-3 border border-ink-100">
-                                <div className="col-span-3">
-                                    <p className="text-[10px] uppercase tracking-wider text-ink-500 font-semibold">Room</p>
-                                    <p className="text-[13px] font-semibold mt-0.5">{room.name}</p>
+                            <div key={i} className="bg-ink-50/40 rounded-lg p-3 border border-ink-100">
+                                <div className="grid grid-cols-12 gap-3 items-start">
+                                    <div className="col-span-3">
+                                        <p className="text-[10px] uppercase tracking-wider text-ink-500 font-semibold">Room</p>
+                                        <p className="text-[13px] font-semibold mt-0.5">{room.name}</p>
+                                    </div>
+                                    <div className="col-span-3">
+                                        <p className="text-[10px] uppercase tracking-wider text-ink-500 font-semibold">Condition</p>
+                                        <span className={`inline-block text-[11px] px-2 py-0.5 rounded-md font-bold mt-0.5 capitalize ${CONDITION_COLOR[room.condition] ?? 'bg-ink-100 text-ink-700'}`}>
+                                            {room.condition}
+                                        </span>
+                                    </div>
+                                    <div className="col-span-6">
+                                        <p className="text-[10px] uppercase tracking-wider text-ink-500 font-semibold">Notes</p>
+                                        <p className="text-[13px] mt-0.5 text-ink-700">{room.notes || <span className="text-ink-400 italic">No notes</span>}</p>
+                                    </div>
                                 </div>
-                                <div className="col-span-3">
-                                    <p className="text-[10px] uppercase tracking-wider text-ink-500 font-semibold">Condition</p>
-                                    <span className={`inline-block text-[11px] px-2 py-0.5 rounded-md font-bold mt-0.5 capitalize ${CONDITION_COLOR[room.condition] ?? 'bg-ink-100 text-ink-700'}`}>
-                                        {room.condition}
-                                    </span>
-                                </div>
-                                <div className="col-span-6">
-                                    <p className="text-[10px] uppercase tracking-wider text-ink-500 font-semibold">Notes</p>
-                                    <p className="text-[13px] mt-0.5 text-ink-700">{room.notes || <span className="text-ink-400 italic">No notes</span>}</p>
-                                </div>
+                                {(room.photos?.length ?? 0) > 0 && (
+                                    <div className="mt-3 pt-3 border-t border-ink-100">
+                                        <p className="text-[10px] uppercase tracking-wider text-ink-500 font-semibold mb-1.5">
+                                            Photos ({room.photos!.length})
+                                        </p>
+                                        <div className="flex items-center gap-2 flex-wrap">
+                                            {room.photos!.map((src, p) => (
+                                                <a
+                                                    key={p}
+                                                    href={src}
+                                                    target="_blank"
+                                                    rel="noopener"
+                                                    className="block w-20 h-20 rounded-lg overflow-hidden border border-ink-200 bg-white hover:ring-2 hover:ring-brand/40 transition"
+                                                >
+                                                    <img src={src} alt={`${room.name} photo ${p + 1}`} className="w-full h-full object-cover" />
+                                                </a>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         ))}
                     </div>

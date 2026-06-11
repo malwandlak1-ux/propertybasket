@@ -30,17 +30,24 @@ cp -f "$SRC/app/Http/Controllers/Auth/InvitationController.php"    "$APP/app/Htt
 cp -f "$SRC/app/Http/Controllers/Agency/AgentsController.php"      "$APP/app/Http/Controllers/Agency/AgentsController.php"
 cp -f "$SRC/app/Http/Controllers/Admin/UsersController.php"        "$APP/app/Http/Controllers/Admin/UsersController.php"
 cp -f "$SRC/app/Http/Controllers/Agent/ListingsController.php"     "$APP/app/Http/Controllers/Agent/ListingsController.php"
+cp -f "$SRC/app/Http/Controllers/Agent/InspectionsController.php"  "$APP/app/Http/Controllers/Agent/InspectionsController.php"
 cp -f "$SRC/app/Http/Controllers/Landlord/TenantsController.php"   "$APP/app/Http/Controllers/Landlord/TenantsController.php"
+cp -f "$SRC/app/Http/Controllers/Tenant/LeaseController.php"       "$APP/app/Http/Controllers/Tenant/LeaseController.php"
+cp -f "$SRC/app/Http/Controllers/Tenant/DocumentsController.php"   "$APP/app/Http/Controllers/Tenant/DocumentsController.php"
 cp -f "$SRC/app/Services/InquiryService.php"                      "$APP/app/Services/InquiryService.php"
+cp -f "$SRC/app/Models/Lease.php"                                 "$APP/app/Models/Lease.php"
 cp -f "$SRC/routes/web.php"                                       "$APP/routes/web.php"
 
+# Migrations (append-only; migrate --force below applies new ones).
+cp -rf "$SRC/database/migrations/." "$APP/database/migrations/"
+
 # Email template redesign + notifications.
-cp -f "$SRC/app/Notifications/WelcomeUser.php"  "$APP/app/Notifications/WelcomeUser.php"
-cp -f "$SRC/app/Notifications/UserInvited.php"  "$APP/app/Notifications/UserInvited.php"
+cp -rf "$SRC/app/Notifications/." "$APP/app/Notifications/"
 cp -rf "$SRC/resources/views/vendor/mail/." "$APP/resources/views/vendor/mail/"
 
-# Refresh caches so the new code + views take effect.
+# Apply any new migrations, then refresh caches.
 cd "$APP"
+php artisan migrate --force
 php artisan view:clear
 php artisan cache:clear
 php artisan config:clear

@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Tenant;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Tenant\Concerns\ResolvesTenant;
 use App\Models\Inspection;
+use App\Notifications\LeaseSigned;
 use App\Services\PdfService;
 use Carbon\CarbonImmutable;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -119,5 +121,47 @@ class LeaseController extends Controller
     {
         $lease = $this->resolveLease($request);
         return $pdf->leaseAgreement($lease, download: $request->boolean('download'));
+    }
+
+    /**
+     * POST /tenant/lease/sign — tenant signs the lease electronically by
+     * typing their full name. One-shot: re-signing is rejected. Activates a
+     * pending lease and notifies the agent (and landlord, if any).
+     */
+    public function sign(Request $request): RedirectResponse
+    {
+        $lease = $this->resolveLease($request);
+        $user  = $request->user();
+
+        abort_unless($lease->tenant_id === $user->id, 403, 'Only the lease tenant can sign.');
+
+        if ($lease->tenant_signed_at) {
+            return back()->with('error', 'This lease has already been signed.');
+        }
+
+        $data = $request->validate([
+            'signature' => ['required', 'string', 'max:120'],
+            'agreed'    => ['accepted'],
+        ]);
+
+        $lease->update([
+            'tenant_signed_at' => now(),
+            'tenant_signature' => $data['signature'],
+            'signed_at'        => $lease->signed_at ?? now(),
+            'status'           => $lease->status === 'pending' ? 'active' : $lease->status,
+        ]);
+
+        // Tell the agent (and landlord) the lease is signed.
+        foreach ([$lease->agent, $lease->landlord] as $recipient) {
+            if ($recipient) {
+                try {
+                    $recipient->notify(new LeaseSigned($lease));
+                } catch (\Throwable $e) {
+                    report($e);
+                }
+            }
+        }
+
+        return back()->with('success', 'Lease signed — a copy is available under Lease Documents.');
     }
 }

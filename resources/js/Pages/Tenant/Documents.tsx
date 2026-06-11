@@ -1,4 +1,5 @@
-import { Head, Link } from '@inertiajs/react';
+import { FormEvent, useState } from 'react';
+import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import TenantLayout from '@/Layouts/TenantLayout';
 
 function fmtMoney(n: number): string {
@@ -46,12 +47,22 @@ type InspectionCard = {
 
 type Props = {
     tenant: { id: number; name: string };
-    lease: { id: number; address: string; monthly_rent: number; start_date: string; end_date: string };
+    lease: {
+        id: number;
+        address: string;
+        monthly_rent: number;
+        start_date: string;
+        end_date: string;
+        tenant_signed_at: string | null;
+        tenant_signature: string | null;
+    };
     deposit: DepositInfo;
     ledger: LedgerRow[];
     documents: Document[];
     inspections: InspectionCard[];
 };
+
+type SharedProps = { flash?: { success?: string | null; error?: string | null } };
 
 const docTone = (t: Document['tone']) => {
     if (t === 'rose')    return 'bg-rose-50 text-rose-600';
@@ -65,10 +76,44 @@ const typeTone = (t: LedgerRow['tone']) => {
     return 'bg-ink-100 text-ink-700';
 };
 
-export default function TenantDocuments({ lease, deposit, ledger, documents, inspections }: Props) {
+export default function TenantDocuments({ tenant, lease, deposit, ledger, documents, inspections }: Props) {
+    const { flash } = usePage<SharedProps>().props;
+    const [signOpen, setSignOpen] = useState(false);
+    const leaseSigned = !! lease.tenant_signed_at;
+
     return (
         <TenantLayout crumb="Documents" leaseAddress={lease.address}>
             <Head title="Documents" />
+
+            {/* Sign-lease banner when signature is outstanding */}
+            {! leaseSigned && (
+                <div className="mx-8 mt-6 -mb-1 rounded-xl border border-warning/40 bg-warning/10 px-5 py-4 flex items-center gap-4">
+                    <svg className="w-5 h-5 text-warning shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+                        <path d="M12 9v4M12 17h.01" /><circle cx="12" cy="12" r="10" />
+                    </svg>
+                    <p className="text-[13px] text-ink-700 flex-1">
+                        <span className="font-bold">Your lease is awaiting your signature.</span>{' '}
+                        Review the agreement and sign it electronically to activate your lease.
+                    </p>
+                    <button
+                        onClick={() => setSignOpen(true)}
+                        className="px-4 py-2 bg-ink-900 hover:bg-ink-800 text-white rounded-lg text-[13px] font-semibold shrink-0"
+                    >
+                        Review &amp; sign
+                    </button>
+                </div>
+            )}
+
+            {flash?.success && (
+                <div className="mx-8 mt-6 -mb-1 rounded-xl border border-success/30 bg-success/10 text-success px-5 py-3 text-[13px]">
+                    {flash.success}
+                </div>
+            )}
+            {flash?.error && (
+                <div className="mx-8 mt-6 -mb-1 rounded-xl border border-danger/30 bg-danger/10 text-danger px-5 py-3 text-[13px]">
+                    {flash.error}
+                </div>
+            )}
 
             <div className="px-8 py-7">
                 <div className="flex items-end justify-between mb-6">
@@ -116,16 +161,35 @@ export default function TenantDocuments({ lease, deposit, ledger, documents, ins
                                 <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${docTone(d.tone)}`}>
                                     <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
                                 </div>
-                                {d.signed && (
+                                {d.signed ? (
                                     <span className="text-[10px] px-2 py-0.5 rounded-full bg-success/15 text-success font-bold">SIGNED</span>
+                                ) : (
+                                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-warning/15 text-warning font-bold">AWAITING SIGNATURE</span>
                                 )}
                             </div>
                             <p className="text-[14px] font-bold">{d.title}</p>
                             <p className="text-[11px] text-ink-500 mt-1">{d.subtitle}</p>
-                            <p className="text-[10px] text-ink-400 mt-2 font-mono">Signed: {d.meta}</p>
+                            <p className="text-[10px] text-ink-400 mt-2 font-mono">{d.signed ? 'Signed' : 'Issued'}: {d.meta}</p>
                             <div className="flex items-center gap-2 mt-4 pt-3 border-t border-ink-100">
-                                <button className="text-[11px] px-2.5 py-1.5 bg-ink-900 text-white rounded-md font-medium">Download</button>
-                                <button className="text-[11px] px-2.5 py-1.5 border border-ink-200 rounded-md hover:bg-ink-100">View online</button>
+                                {d.id === 'lease' && ! d.signed && (
+                                    <button
+                                        onClick={() => setSignOpen(true)}
+                                        className="text-[11px] px-2.5 py-1.5 bg-brand-600 hover:bg-brand-700 text-white rounded-md font-bold"
+                                    >
+                                        Sign lease
+                                    </button>
+                                )}
+                                {d.id === 'lease' ? (
+                                    <>
+                                        <a href="/tenant/lease/agreement.pdf?download=1" className="text-[11px] px-2.5 py-1.5 bg-ink-900 text-white rounded-md font-medium">Download</a>
+                                        <a href="/tenant/lease/agreement.pdf" target="_blank" rel="noopener" className="text-[11px] px-2.5 py-1.5 border border-ink-200 rounded-md hover:bg-ink-100">View online</a>
+                                    </>
+                                ) : (
+                                    <>
+                                        <button className="text-[11px] px-2.5 py-1.5 bg-ink-900 text-white rounded-md font-medium">Download</button>
+                                        <button className="text-[11px] px-2.5 py-1.5 border border-ink-200 rounded-md hover:bg-ink-100">View online</button>
+                                    </>
+                                )}
                             </div>
                         </div>
                     ))}
@@ -206,6 +270,109 @@ export default function TenantDocuments({ lease, deposit, ledger, documents, ins
                     Deposit held under EAAB Section 32 Trust account regulations · <Link href="/tenant/lease" className="text-brand-600 font-semibold">View lease for refund terms →</Link>
                 </p>
             </div>
+
+            {signOpen && (
+                <SignLeaseModal
+                    tenantName={tenant.name}
+                    lease={lease}
+                    onClose={() => setSignOpen(false)}
+                />
+            )}
         </TenantLayout>
+    );
+}
+
+function SignLeaseModal({
+    tenantName,
+    lease,
+    onClose,
+}: {
+    tenantName: string;
+    lease: Props['lease'];
+    onClose: () => void;
+}) {
+    const form = useForm({ signature: '', agreed: false as boolean });
+
+    function submit(e: FormEvent) {
+        e.preventDefault();
+        form.post('/tenant/lease/sign', {
+            preserveScroll: true,
+            onSuccess: () => onClose(),
+        });
+    }
+
+    const nameMatches = form.data.signature.trim().toLowerCase() === tenantName.trim().toLowerCase();
+
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div className="absolute inset-0 bg-ink-900/50" onClick={onClose} />
+            <div className="relative bg-white rounded-2xl shadow-card w-full max-w-lg p-6">
+                <div className="flex items-start justify-between">
+                    <div>
+                        <h2 className="text-[18px] font-bold">Sign your lease</h2>
+                        <p className="text-[13px] text-ink-500 mt-1">
+                            {lease.address} · {lease.start_date} — {lease.end_date}
+                        </p>
+                    </div>
+                    <button onClick={onClose} className="text-ink-400 hover:text-ink-700 text-xl leading-none">×</button>
+                </div>
+
+                <div className="mt-4 rounded-lg bg-ink-50 border border-ink-200 px-4 py-3 text-[12px] text-ink-600 space-y-1">
+                    <p>Monthly rent: <span className="font-bold font-mono">R {lease.monthly_rent.toLocaleString('en-ZA')}</span></p>
+                    <p>
+                        Read the full agreement before signing:{' '}
+                        <a href="/tenant/lease/agreement.pdf" target="_blank" rel="noopener" className="text-brand-700 font-semibold hover:underline">
+                            open lease PDF →
+                        </a>
+                    </p>
+                </div>
+
+                <form onSubmit={submit} className="mt-5 space-y-4">
+                    <div>
+                        <label className="text-[12px] font-semibold text-ink-700 mb-1.5 block">
+                            Type your full name as your electronic signature
+                        </label>
+                        <input
+                            value={form.data.signature}
+                            onChange={(e) => form.setData('signature', e.target.value)}
+                            placeholder={tenantName}
+                            className="w-full bg-white border border-ink-200 rounded-lg px-3.5 py-2.5 text-[15px] italic outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition"
+                            style={{ fontFamily: 'Georgia, serif' }}
+                        />
+                        {! nameMatches && form.data.signature.length > 0 && (
+                            <p className="text-[11px] text-warning mt-1.5">Must match your account name: {tenantName}</p>
+                        )}
+                        {form.errors.signature && <p className="text-[11px] text-danger mt-1.5">{form.errors.signature}</p>}
+                    </div>
+
+                    <label className="flex items-start gap-2 text-[12px] text-ink-600">
+                        <input
+                            type="checkbox"
+                            checked={form.data.agreed}
+                            onChange={(e) => form.setData('agreed', e.target.checked)}
+                            className="w-4 h-4 mt-0.5 rounded border-ink-300 text-brand focus:ring-brand/30"
+                        />
+                        <span>
+                            I have read and agree to the terms of the lease agreement. I understand this
+                            electronic signature is legally binding under the ECT Act 25 of 2002.
+                        </span>
+                    </label>
+                    {form.errors.agreed && <p className="text-[11px] text-danger">{form.errors.agreed}</p>}
+
+                    <div className="flex justify-end gap-2 pt-2">
+                        <button type="button" onClick={onClose} className="px-4 py-2 text-[13px] border border-ink-200 rounded-lg hover:bg-ink-100 font-semibold">
+                            Cancel
+                        </button>
+                        <button
+                            type="submit"
+                            disabled={form.processing || ! nameMatches || ! form.data.agreed}
+                            className="px-5 py-2 text-[13px] bg-ink-900 hover:bg-ink-800 disabled:opacity-50 text-white rounded-lg font-semibold"
+                        >
+                            {form.processing ? 'Signing…' : 'Sign lease agreement'}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
     );
 }

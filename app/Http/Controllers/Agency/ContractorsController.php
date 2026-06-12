@@ -7,11 +7,14 @@ use App\Enums\UserStatus;
 use App\Http\Controllers\Agency\Concerns\ResolvesAgency;
 use App\Http\Controllers\Controller;
 use App\Models\Contractor;
+use App\Models\Invitation;
 use App\Models\User;
+use App\Notifications\UserInvited;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -66,8 +69,23 @@ class ContractorsController extends Controller
             'service_areas.*' => ['string', 'max:60'],
         ]);
 
-        DB::transaction(function () use ($data, $agency) {
-            $user = User::where('email', $data['email'])->first();
+        $invitation = DB::transaction(function () use ($data, $agency, $request) {
+            // withTrashed: the email may belong to a soft-deleted user —
+            // restore it instead of hitting the unique-email constraint.
+            $user = User::withTrashed()->where('email', $data['email'])->first();
+            if ($user && $user->trashed()) {
+                $user->restore();
+                $user->update([
+                    'name'   => $data['contact_name'],
+                    'phone'  => $data['phone'] ?? $user->phone,
+                    'role'   => Role::Contractor,
+                    'status' => UserStatus::Pending,
+                    'invite_accepted_at' => null,
+                ]);
+                if (! $user->hasRole(Role::Contractor->value)) {
+                    $user->assignRole(Role::Contractor->value);
+                }
+            }
             if (! $user) {
                 $user = User::create([
                     'name'     => $data['contact_name'],
@@ -80,7 +98,7 @@ class ContractorsController extends Controller
                 $user->assignRole(Role::Contractor->value);
             }
 
-            Contractor::create([
+            $contractor = Contractor::create([
                 'user_id'              => $user->id,
                 'created_by_agency_id' => $agency->id,
                 'business_name'        => $data['business_name'],
@@ -88,11 +106,39 @@ class ContractorsController extends Controller
                 'service_areas'        => $data['service_areas'] ?? [],
                 'status'               => 'active',
             ]);
+
+            // Invite them to set up their account (skip users who already
+            // have a working login — e.g. an existing active contractor).
+            if (! $user->invite_accepted_at) {
+                return Invitation::create([
+                    'email'          => $data['email'],
+                    'role'           => 'contractor',
+                    'invited_by'     => $request->user()->id,
+                    'invitable_type' => Contractor::class,
+                    'invitable_id'   => $contractor->id,
+                    'token'          => (string) Str::uuid(),
+                    'expires_at'     => now()->addDays(14),
+                ]);
+            }
+
+            return null;
         });
+
+        // Email outside the transaction so a mail failure can't roll back
+        // (or 500) an otherwise-successful add.
+        if ($invitation) {
+            try {
+                Notification::route('mail', $invitation->email)->notify(new UserInvited($invitation));
+            } catch (\Throwable $e) {
+                report($e);
+            }
+        }
 
         return redirect()
             ->route('agency.contractors.index', ['tab' => 'mine'])
-            ->with('success', "Added {$data['business_name']} to your contractor list.");
+            ->with('success', $invitation
+                ? "Added {$data['business_name']} — an account invitation has been emailed to {$data['email']}."
+                : "Added {$data['business_name']} to your contractor list.");
     }
 
     private function card(Contractor $c): array

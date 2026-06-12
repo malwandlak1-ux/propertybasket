@@ -29,10 +29,11 @@ class UserInvited extends Notification
         $url = url('/invite/' . $this->invitation->token);
         $inviter = $this->invitation->invitedBy?->name ?? 'Property Basket';
         $roleLabel = match ($this->invitation->role) {
-            'agent'    => 'agent',
-            'tenant'   => 'tenant',
-            'landlord' => 'landlord',
-            default    => 'team member',
+            'agent'      => 'agent',
+            'tenant'     => 'tenant',
+            'landlord'   => 'landlord',
+            'contractor' => 'contractor',
+            default      => 'team member',
         };
 
         return (new MailMessage)

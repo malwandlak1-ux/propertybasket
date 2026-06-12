@@ -103,6 +103,7 @@ Route::middleware('auth')->group(function () {
         Route::post('commissions/approve', [\App\Http\Controllers\Agency\CommissionController::class, 'approve'])->name('commissions.approve');
         Route::post('commissions/payout', [\App\Http\Controllers\Agency\CommissionController::class, 'runPayout'])->name('commissions.payout');
         Route::post('commissions/invoices/{invoice}/pay', [\App\Http\Controllers\Agency\CommissionController::class, 'payInvoice'])->name('commissions.invoices.pay');
+        Route::post('commissions/rates', [\App\Http\Controllers\Agency\CommissionController::class, 'updateRates'])->name('commissions.rates');
 
         Route::get('settings', [\App\Http\Controllers\Agency\SettingsController::class, 'show'])->name('settings.show');
         Route::match(['post', 'patch'], 'settings', [\App\Http\Controllers\Agency\SettingsController::class, 'update'])->name('settings.update');
@@ -143,6 +144,7 @@ Route::middleware('auth')->group(function () {
             Route::post('listings/{listing}',                [Agent\ListingsController::class, 'update'])->name('listings.update');
             Route::post('listings/{listing}/invite-tenant',  [Agent\ListingsController::class, 'inviteTenant'])->name('listings.invite-tenant');
             Route::post('listings/{listing}/reactivate',     [Agent\ListingsController::class, 'reactivate'])->name('listings.reactivate');
+            Route::post('listings/{listing}/mark-sold',      [Agent\ListingsController::class, 'markSold'])->name('listings.mark-sold');
         });
         Route::get('viewings',    [Agent\ViewingsController::class,  'index'])->name('viewings.index');
         Route::post('viewings',   [Agent\ViewingsController::class,  'store'])->name('viewings.store');

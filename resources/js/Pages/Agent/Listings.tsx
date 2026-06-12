@@ -20,6 +20,8 @@ type Listing = {
     monthly_rent: number | null;
     can_invite_tenant: boolean;
     can_reactivate: boolean;
+    can_mark_sold: boolean;
+    sale_price: number | null;
 };
 
 type InvitableListing = { id: number; label: string; monthly_rent: number | null };
@@ -65,6 +67,22 @@ export default function AgentListings({ agent, listings, counts, type_filter, in
         setReactivating(listingId);
         router.post(`/agent/listings/${listingId}/reactivate`, {}, {
             onFinish: () => setReactivating(null),
+        });
+    }
+
+    const [sellingId, setSellingId] = useState<number | null>(null);
+
+    function markSold(l: Listing) {
+        const input = prompt(
+            `Record the final sale price for "${l.title}" (your commission is calculated from this).`,
+            l.sale_price ? String(Math.round(l.sale_price)) : '',
+        );
+        if (input === null) return; // cancelled
+        const price = Number(input.replace(/[^\d.]/g, ''));
+        if (! price || price <= 0) { alert('Enter a valid sale price.'); return; }
+        setSellingId(l.id);
+        router.post(`/agent/listings/${l.id}/mark-sold`, { sale_price: price }, {
+            onFinish: () => setSellingId(null),
         });
     }
 
@@ -183,8 +201,21 @@ export default function AgentListings({ agent, listings, counts, type_filter, in
                                     </div>
                                 </Link>
 
-                                {(l.can_invite_tenant || l.can_reactivate) && (
+                                {(l.can_invite_tenant || l.can_reactivate || l.can_mark_sold) && (
                                     <div className="px-4 pb-4 -mt-1">
+                                        {l.can_mark_sold && (
+                                            <button
+                                                type="button"
+                                                disabled={sellingId === l.id}
+                                                onClick={() => markSold(l)}
+                                                className="w-full text-[12px] font-semibold px-3 py-2 bg-ink-900 text-white hover:bg-ink-800 disabled:opacity-60 rounded-lg transition inline-flex items-center justify-center gap-1.5"
+                                            >
+                                                <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+                                                    <path d="M20 6L9 17l-5-5" />
+                                                </svg>
+                                                {sellingId === l.id ? 'Recording…' : 'Mark as sold'}
+                                            </button>
+                                        )}
                                         {l.can_invite_tenant && (
                                             <button
                                                 type="button"

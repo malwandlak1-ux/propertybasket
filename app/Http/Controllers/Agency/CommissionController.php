@@ -94,6 +94,8 @@ class CommissionController extends Controller
                 'name' => $agency->name,
                 'payout_day' => $agency->payout_day,
                 'vat_rate' => (float) $agency->vat_rate,
+                'sale_commission_percent' => (float) ($agency->sale_commission_percent ?? 6.0),
+                'rental_commission_percent' => (float) ($agency->rental_commission_percent ?? 7.5),
             ],
             'commissions' => $queue->values(),
             'totals' => $totals,
@@ -125,13 +127,18 @@ class CommissionController extends Controller
             ->whereHas('request.property', fn ($q) => $q
                 ->where('owner_type', Agency::class)
                 ->where('owner_id', $agency->id))
-            ->with(['contractor:id,business_name,paystack_recipient_code,user_id', 'request:id,title,property_id']);
+            ->with(['contractor.user:id,name,email,phone', 'request:id,title,property_id']);
 
-        $map = function (MaintenanceInvoice $i) {
+        $mask = fn (?string $n) => $n ? '•••• ' . substr($n, -4) : null;
+
+        $map = function (MaintenanceInvoice $i) use ($mask) {
+            $c = $i->contractor;
+            $hasBanking = $c?->hasBankingDetails() ?? false;
+
             return [
                 'id'             => $i->id,
                 'reference'      => 'INV-' . str_pad((string) $i->id, 6, '0', STR_PAD_LEFT),
-                'contractor'     => $i->contractor?->business_name ?? '—',
+                'contractor'     => $c?->business_name ?? '—',
                 'job'            => $i->request?->title ?? '—',
                 'subtotal'       => (float) $i->invoice_subtotal,
                 'vat'            => (float) $i->vat_amount,
@@ -140,7 +147,19 @@ class CommissionController extends Controller
                 'status'         => $i->status,
                 'submitted_at'   => $i->submitted_at?->format('d M Y'),
                 'paid_at'        => $i->paid_at?->format('d M Y'),
-                'account_status' => $i->contractor?->paystack_recipient_code ? 'linked' : 'missing',
+                'has_banking'    => $hasBanking,
+                'banking'        => $hasBanking ? [
+                    'bank_name'      => $c->bank_name,
+                    'account_holder' => $c->bank_account_holder,
+                    'account_number' => $mask($c->bank_account_number),
+                    'branch_code'    => $c->bank_branch_code,
+                    'account_type'   => $c->bank_account_type,
+                ] : null,
+                'contact'        => [
+                    'name'  => $c?->user?->name,
+                    'email' => $c?->user?->email,
+                    'phone' => $c?->user?->phone,
+                ],
             ];
         };
 
@@ -177,6 +196,11 @@ class CommissionController extends Controller
             in_array($invoice->status, ['submitted', 'approved'], true),
             422,
             'Only submitted or approved invoices can be paid.',
+        );
+        abort_unless(
+            $invoice->contractor?->hasBankingDetails() ?? false,
+            422,
+            'This contractor has not captured banking details yet. Ask them to add their payout account first.',
         );
 
         $invoice->update([
@@ -279,6 +303,27 @@ class CommissionController extends Controller
             'success',
             'Payout batch #'.$batch->id.' completed via Paystack stub. '.$batch->commissions()->count().' transfer(s) processed.'
         );
+    }
+
+    /**
+     * POST /agency/commissions/rates — set the agency's commission structure
+     * for sales and rentals (applied to deals closed from now on).
+     */
+    public function updateRates(Request $request): RedirectResponse
+    {
+        $agency = $this->resolveAgency($request);
+
+        $data = $request->validate([
+            'sale_commission_percent'   => ['required', 'numeric', 'min:0', 'max:100'],
+            'rental_commission_percent' => ['required', 'numeric', 'min:0', 'max:100'],
+        ]);
+
+        $agency->update([
+            'sale_commission_percent'   => $data['sale_commission_percent'],
+            'rental_commission_percent' => $data['rental_commission_percent'],
+        ]);
+
+        return back()->with('success', 'Commission structure updated. New deals will use these rates.');
     }
 
     private function formatCommission(Commission $c): array

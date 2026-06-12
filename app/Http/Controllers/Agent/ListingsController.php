@@ -63,6 +63,8 @@ class ListingsController extends Controller
             'monthly_rent'      => $l->monthly_rent !== null ? (float) $l->monthly_rent : null,
             'can_invite_tenant' => $l->status === 'available' && $l->listing_type === 'long_term_rent',
             'can_reactivate'    => $l->status === 'leased',
+            'can_mark_sold'     => $l->status === 'available' && $l->listing_type === 'for_sale' && $l->owner_type === Agency::class,
+            'sale_price'        => $l->sale_price !== null ? (float) $l->sale_price : null,
         ]);
 
         // Rental listings the agent can invite a tenant to
@@ -447,6 +449,12 @@ class ListingsController extends Controller
             // Pull the listing off the public site
             $listing->update(['status' => 'leased']);
 
+            // Renting out an agency listing earns the agent a rental
+            // commission — it appears in the agency payout queue (idempotent).
+            if ($listing->owner_type === Agency::class) {
+                app(\App\Services\CommissionService::class)->recordRental($lease, $user);
+            }
+
             return $invitation;
         });
 
@@ -492,6 +500,50 @@ class ListingsController extends Controller
         return redirect()
             ->route('agent.listings.index')
             ->with('success', "Listing \"{$listing->title}\" is live on the public site again.");
+    }
+
+    /**
+     * POST /agent/listings/{listing}/mark-sold
+     * Records a sale on a for-sale listing: flips it to status='sold' and
+     * generates the agent's sale commission into the agency payout queue.
+     */
+    public function markSold(Request $request, Listing $listing): RedirectResponse
+    {
+        $user = $request->user();
+        $this->authorizeAgentOwnsListing($listing, $user);
+
+        abort_unless(
+            $listing->listing_type === 'for_sale',
+            422,
+            'Only for-sale listings can be marked as sold.'
+        );
+        abort_unless(
+            $listing->status === 'available',
+            422,
+            'Only an available listing can be marked as sold.'
+        );
+        abort_if(
+            $listing->owner_type !== Agency::class,
+            422,
+            'Only agency listings earn a commission.'
+        );
+
+        $data = $request->validate([
+            'sale_price' => ['nullable', 'numeric', 'min:0'],
+        ]);
+
+        DB::transaction(function () use ($listing, $user, $data) {
+            if (! empty($data['sale_price'])) {
+                $listing->update(['sale_price' => $data['sale_price']]);
+            }
+            $listing->update(['status' => 'sold']);
+
+            app(\App\Services\CommissionService::class)->recordSale($listing->fresh(), $user);
+        });
+
+        return redirect()
+            ->route('agent.listings.index')
+            ->with('success', "Sale recorded for \"{$listing->title}\" — your commission is in the agency payout queue.");
     }
 
     private function authorizeAgentOwnsListing(Listing $listing, $user): void

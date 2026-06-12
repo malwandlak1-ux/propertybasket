@@ -18,6 +18,7 @@ class Agency extends Model
         'head_office_address', 'eaab_ffc_number', 'eaab_verified_at',
         'eaab_ffc_expires_at', 'eaab_ffc_certificate_path', 'eaab_reminder_sent_at',
         'vat_registered', 'vat_number', 'vat_rate',
+        'sale_commission_percent', 'rental_commission_percent',
         'paystack_subaccount_code', 'trust_bank', 'trust_account_number',
         'trust_branch_code', 'trust_account_holder', 'trust_account_type',
         'trust_auditor_name', 'trust_auditor_practice_number', 'trust_verified_at',
@@ -30,6 +31,8 @@ class Agency extends Model
         return [
             'vat_registered' => 'boolean',
             'vat_rate' => 'decimal:2',
+            'sale_commission_percent' => 'decimal:2',
+            'rental_commission_percent' => 'decimal:2',
             'eaab_verified_at' => 'datetime',
             'eaab_ffc_expires_at' => 'date',
             'eaab_reminder_sent_at' => 'datetime',

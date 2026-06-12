@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Head, router, usePage } from '@inertiajs/react';
+import { Head, router, useForm, usePage } from '@inertiajs/react';
 import AgencyLayout from '@/Layouts/AgencyLayout';
 import { Spinner } from '@/Components/Skeleton';
 
@@ -18,7 +18,7 @@ type Commission = {
 };
 
 type Props = {
-    agency: { id: number; name: string; payout_day: number; vat_rate: number };
+    agency: { id: number; name: string; payout_day: number; vat_rate: number; sale_commission_percent: number; rental_commission_percent: number };
     commissions: Commission[];
     totals: { gross: number; vat: number; agent_net: number; count_eligible: number; count_total: number };
     next_batch: {
@@ -50,7 +50,15 @@ type ContractorInvoice = {
     status: string;
     submitted_at: string | null;
     paid_at: string | null;
-    account_status: 'linked' | 'missing';
+    has_banking: boolean;
+    banking: {
+        bank_name: string | null;
+        account_holder: string | null;
+        account_number: string | null;
+        branch_code: string | null;
+        account_type: string | null;
+    } | null;
+    contact: { name: string | null; email: string | null; phone: string | null };
 };
 
 type SharedProps = { flash?: { success?: string | null; error?: string | null } };
@@ -86,17 +94,8 @@ const STATUS_BADGE: Record<Commission['status'], { label: string; cls: string }>
 export default function Commission({ agency, commissions, totals, next_batch, paid_ytd, agency_retained_ytd, vat_ytd, recent_transfers, contractor_invoices }: Props) {
     const { flash } = usePage<SharedProps>().props;
     const [selected, setSelected] = useState<Set<number>>(new Set());
-    const [payingInvoice, setPayingInvoice] = useState<number | null>(null);
-
-    function payInvoice(inv: ContractorInvoice) {
-        if (payingInvoice !== null) return;
-        if (!confirm(`Pay ${inv.reference} (${fmtMoney(inv.total)}) to ${inv.contractor}? The transfer goes to their linked account.`)) return;
-        setPayingInvoice(inv.id);
-        router.post(`/agency/commissions/invoices/${inv.id}/pay`, {}, {
-            preserveScroll: true,
-            onFinish: () => setPayingInvoice(null),
-        });
-    }
+    const [payInvoiceModal, setPayInvoiceModal] = useState<ContractorInvoice | null>(null);
+    const [rateModalOpen, setRateModalOpen] = useState(false);
 
     function toggleAll(checked: boolean) {
         if (!checked) return setSelected(new Set());
@@ -377,19 +376,18 @@ export default function Commission({ agency, commissions, totals, next_batch, pa
                                             <td className="text-right font-mono py-3 text-ink-500">{fmtMoney(inv.vat)}</td>
                                             <td className="text-right font-mono font-bold py-3">{fmtMoney(inv.total)}</td>
                                             <td className="py-3 pl-6">
-                                                {inv.account_status === 'linked' ? (
+                                                {inv.has_banking ? (
                                                     <span className="text-[10px] px-2 py-0.5 rounded-full bg-success/15 text-success font-bold">LINKED</span>
                                                 ) : (
-                                                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-warning/15 text-warning font-bold" title="Contractor hasn't linked a payout account — payment uses the stub in dev">NOT LINKED</span>
+                                                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-warning/15 text-warning font-bold" title="Contractor hasn't captured banking details">NOT LINKED</span>
                                                 )}
                                             </td>
                                             <td className="py-3 pr-5 text-right">
                                                 <button
-                                                    onClick={() => payInvoice(inv)}
-                                                    disabled={payingInvoice !== null}
-                                                    className="px-3 py-1.5 text-[12px] bg-success text-white rounded-md font-semibold hover:bg-success/90 disabled:opacity-50 transition"
+                                                    onClick={() => setPayInvoiceModal(inv)}
+                                                    className="px-3 py-1.5 text-[12px] bg-success text-white rounded-md font-semibold hover:bg-success/90 transition"
                                                 >
-                                                    {payingInvoice === inv.id ? 'Paying…' : 'Pay contractor'}
+                                                    Pay contractor
                                                 </button>
                                             </td>
                                         </tr>
@@ -479,21 +477,207 @@ export default function Commission({ agency, commissions, totals, next_batch, pa
                                 <span className="text-ink-500">VAT rate</span>
                                 <span className="font-semibold">{agency.vat_rate}%</span>
                             </div>
+                            <div className="flex items-center justify-between py-1.5 border-b border-ink-100">
+                                <span className="text-ink-500">Sale commission</span>
+                                <span className="font-semibold text-brand-700">{agency.sale_commission_percent}%</span>
+                            </div>
+                            <div className="flex items-center justify-between py-1.5 border-b border-ink-100">
+                                <span className="text-ink-500">Rental commission</span>
+                                <span className="font-semibold text-brand-700">{agency.rental_commission_percent}%</span>
+                            </div>
                             <div className="flex items-center justify-between py-1.5">
                                 <span className="text-ink-500">Block on FFC expired</span>
                                 <span className="font-semibold text-success">ON</span>
                             </div>
                         </div>
-                        <a
-                            href="/agency/settings"
-                            className="w-full block text-center mt-3 py-2 text-[12px] border border-ink-200 rounded-md hover:bg-ink-100 transition"
+                        <button
+                            onClick={() => setRateModalOpen(true)}
+                            className="w-full text-center mt-3 py-2 text-[12px] bg-ink-900 text-white rounded-md hover:bg-ink-800 transition font-semibold"
                         >
-                            Edit settings
-                        </a>
+                            Edit commission structure
+                        </button>
                     </div>
                 </div>
             </section>
+
+            {payInvoiceModal && (
+                <PayInvoiceModal invoice={payInvoiceModal} onClose={() => setPayInvoiceModal(null)} />
+            )}
+            {rateModalOpen && (
+                <CommissionRateModal
+                    sale={agency.sale_commission_percent}
+                    rental={agency.rental_commission_percent}
+                    onClose={() => setRateModalOpen(false)}
+                />
+            )}
         </AgencyLayout>
+    );
+}
+
+function PayInvoiceModal({ invoice, onClose }: { invoice: ContractorInvoice; onClose: () => void }) {
+    const [busy, setBusy] = useState(false);
+
+    function confirmPay() {
+        setBusy(true);
+        router.post(`/agency/commissions/invoices/${invoice.id}/pay`, {}, {
+            preserveScroll: true,
+            onSuccess: () => onClose(),
+            onFinish: () => setBusy(false),
+        });
+    }
+
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div className="absolute inset-0 bg-ink-900/50" onClick={onClose} />
+            <div className="relative bg-white rounded-2xl shadow-card w-full max-w-md p-6">
+                <div className="flex items-start justify-between">
+                    <div>
+                        <h2 className="text-[17px] font-bold">Pay {invoice.contractor}</h2>
+                        <p className="text-[12px] text-ink-500 mt-0.5">{invoice.reference} · {invoice.job}</p>
+                    </div>
+                    <button onClick={onClose} className="text-ink-400 hover:text-ink-700 text-xl leading-none">×</button>
+                </div>
+
+                <div className="mt-4 rounded-lg bg-ink-50 border border-ink-200 px-4 py-3 flex items-center justify-between">
+                    <span className="text-[12px] text-ink-500">Amount to transfer</span>
+                    <span className="text-[20px] font-bold font-mono">{fmtMoney(invoice.total)}</span>
+                </div>
+
+                {invoice.has_banking && invoice.banking ? (
+                    <>
+                        <p className="text-[11px] uppercase tracking-wider text-ink-500 font-semibold mt-5 mb-2">Banking details on file</p>
+                        <div className="rounded-lg border border-ink-200 divide-y divide-ink-100 text-[13px]">
+                            <Row k="Bank" v={invoice.banking.bank_name} />
+                            <Row k="Account holder" v={invoice.banking.account_holder} />
+                            <Row k="Account number" v={invoice.banking.account_number} />
+                            <Row k="Branch code" v={invoice.banking.branch_code} />
+                            <Row k="Account type" v={invoice.banking.account_type} cap />
+                        </div>
+                        <div className="mt-5 flex justify-end gap-2">
+                            <button onClick={onClose} className="px-4 py-2 text-[13px] border border-ink-200 rounded-lg hover:bg-ink-100 font-semibold">Cancel</button>
+                            <button
+                                onClick={confirmPay}
+                                disabled={busy}
+                                className="px-5 py-2 text-[13px] bg-success text-white rounded-lg hover:bg-success/90 disabled:opacity-50 font-semibold"
+                            >
+                                {busy ? 'Processing…' : 'Confirm payment'}
+                            </button>
+                        </div>
+                    </>
+                ) : (
+                    <>
+                        <div className="mt-5 rounded-lg bg-warning/10 border border-warning/30 px-4 py-3 text-[13px] text-ink-700">
+                            <p className="font-bold text-warning">No banking details captured</p>
+                            <p className="mt-1">
+                                {invoice.contact.name ?? 'This contractor'} hasn't added a payout account to their profile yet.
+                                Reach out so they can capture it before you pay.
+                            </p>
+                        </div>
+                        <p className="text-[11px] uppercase tracking-wider text-ink-500 font-semibold mt-5 mb-2">Contact the contractor</p>
+                        <div className="space-y-2">
+                            {invoice.contact.phone && (
+                                <a href={`tel:${invoice.contact.phone}`} className="flex items-center gap-3 rounded-lg border border-ink-200 px-3 py-2.5 hover:bg-ink-50 transition">
+                                    <span className="w-8 h-8 rounded-full bg-success/10 text-success grid place-items-center">📞</span>
+                                    <span className="text-[13px]"><span className="text-ink-500">Call</span> · {invoice.contact.phone}</span>
+                                </a>
+                            )}
+                            {invoice.contact.email && (
+                                <a href={`mailto:${invoice.contact.email}?subject=Banking details needed for payment`} className="flex items-center gap-3 rounded-lg border border-ink-200 px-3 py-2.5 hover:bg-ink-50 transition">
+                                    <span className="w-8 h-8 rounded-full bg-brand-50 text-brand-700 grid place-items-center">✉</span>
+                                    <span className="text-[13px] truncate"><span className="text-ink-500">Email</span> · {invoice.contact.email}</span>
+                                </a>
+                            )}
+                            <a href="/agency/messages" className="flex items-center gap-3 rounded-lg border border-ink-200 px-3 py-2.5 hover:bg-ink-50 transition">
+                                <span className="w-8 h-8 rounded-full bg-ink-100 text-ink-700 grid place-items-center">💬</span>
+                                <span className="text-[13px]"><span className="text-ink-500">Message</span> · Open inbox</span>
+                            </a>
+                        </div>
+                        <div className="mt-5 flex justify-end">
+                            <button onClick={onClose} className="px-4 py-2 text-[13px] border border-ink-200 rounded-lg hover:bg-ink-100 font-semibold">Close</button>
+                        </div>
+                    </>
+                )}
+            </div>
+        </div>
+    );
+}
+
+function Row({ k, v, cap = false }: { k: string; v: string | null; cap?: boolean }) {
+    return (
+        <div className="flex items-center justify-between px-3 py-2">
+            <span className="text-ink-500">{k}</span>
+            <span className={'font-semibold ' + (cap ? 'capitalize' : '')}>{v ?? '—'}</span>
+        </div>
+    );
+}
+
+function CommissionRateModal({ sale, rental, onClose }: { sale: number; rental: number; onClose: () => void }) {
+    const form = useForm({ sale_commission_percent: String(sale), rental_commission_percent: String(rental) });
+
+    function submit(e: React.FormEvent) {
+        e.preventDefault();
+        form.post('/agency/commissions/rates', { preserveScroll: true, onSuccess: () => onClose() });
+    }
+
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div className="absolute inset-0 bg-ink-900/50" onClick={onClose} />
+            <form onSubmit={submit} className="relative bg-white rounded-2xl shadow-card w-full max-w-md p-6">
+                <div className="flex items-start justify-between">
+                    <div>
+                        <h2 className="text-[17px] font-bold">Commission structure</h2>
+                        <p className="text-[12px] text-ink-500 mt-0.5">Separate rates for property sold vs rented out by your agents.</p>
+                    </div>
+                    <button type="button" onClick={onClose} className="text-ink-400 hover:text-ink-700 text-xl leading-none">×</button>
+                </div>
+
+                <div className="mt-5 space-y-4">
+                    <RateField
+                        label="Property sale commission"
+                        hint="% of the sale price"
+                        value={form.data.sale_commission_percent}
+                        onChange={(v) => form.setData('sale_commission_percent', v)}
+                        error={form.errors.sale_commission_percent}
+                    />
+                    <RateField
+                        label="Rental commission"
+                        hint="% of one year's rent"
+                        value={form.data.rental_commission_percent}
+                        onChange={(v) => form.setData('rental_commission_percent', v)}
+                        error={form.errors.rental_commission_percent}
+                    />
+                </div>
+
+                <p className="text-[11px] text-ink-400 mt-3">
+                    Applies to deals closed from now on. The agent's split (set per agent) is then taken from this gross commission.
+                </p>
+
+                <div className="mt-5 flex justify-end gap-2">
+                    <button type="button" onClick={onClose} className="px-4 py-2 text-[13px] border border-ink-200 rounded-lg hover:bg-ink-100 font-semibold">Cancel</button>
+                    <button type="submit" disabled={form.processing} className="px-5 py-2 text-[13px] bg-ink-900 text-white rounded-lg hover:bg-ink-800 disabled:opacity-50 font-semibold">
+                        {form.processing ? 'Saving…' : 'Save structure'}
+                    </button>
+                </div>
+            </form>
+        </div>
+    );
+}
+
+function RateField({ label, hint, value, onChange, error }: { label: string; hint: string; value: string; onChange: (v: string) => void; error?: string }) {
+    return (
+        <div>
+            <label className="text-[12px] font-semibold text-ink-700 mb-1.5 block">{label} <span className="text-ink-400 font-normal">— {hint}</span></label>
+            <div className="flex items-stretch rounded-lg border border-ink-200 overflow-hidden focus-within:ring-2 focus-within:ring-brand/20 focus-within:border-brand transition">
+                <input
+                    type="number" step="0.25" min="0" max="100" inputMode="decimal"
+                    value={value}
+                    onChange={(e) => onChange(e.target.value)}
+                    className="flex-1 px-3 py-2.5 text-[14px] outline-none min-w-0"
+                />
+                <span className="grid place-items-center w-10 bg-ink-50 text-ink-500 text-[13px] border-l border-ink-200">%</span>
+            </div>
+            {error && <p className="text-[11px] text-danger mt-1">{error}</p>}
+        </div>
     );
 }
 

@@ -35,9 +35,10 @@ class CommissionService
             ->where('user_id', $agent->id)
             ->firstOrFail();
 
+        // Per-agency, per-deal-type commission rate (% stored on the agency).
         [$dealValue, $grossRate] = match ($dealType) {
-            'sale' => [(float) $listing->sale_price, 0.06],
-            default => [(float) $lease->monthly_rent * 12, 0.075],
+            'sale'  => [(float) $listing->sale_price, (float) ($agency->sale_commission_percent ?? 6.0) / 100],
+            default => [(float) $lease->monthly_rent * 12, (float) ($agency->rental_commission_percent ?? 7.5) / 100],
         };
 
         $grossCommission = round($dealValue * $grossRate, 2);
@@ -63,6 +64,78 @@ class CommissionService
             'vat_amount' => $vatAmount,
             'agent_net' => $agentNet,
             'status' => 'pending',
+        ]);
+
+        $this->blockIfNonCompliant($commission);
+
+        return $commission;
+    }
+
+    /**
+     * Record a rental commission when an agent rents out a property
+     * (idempotent per lease — re-invites won't double-bill).
+     */
+    public function recordRental(Lease $lease, User $agent): ?Commission
+    {
+        if (Commission::where('lease_id', $lease->id)->where('deal_type', 'rental')->exists()) {
+            return null;
+        }
+        if (! $this->agencyFor($lease->listing)) {
+            return null; // landlord-owned: no agency commission
+        }
+
+        return $this->calculate($lease, $agent, 'rental');
+    }
+
+    /**
+     * Record a sale commission when an agent sells a property. No lease is
+     * involved, so this builds the Commission directly. Idempotent per
+     * listing.
+     */
+    public function recordSale(Listing $listing, User $agent): ?Commission
+    {
+        if (Commission::where('listing_id', $listing->id)->where('deal_type', 'sale')->exists()) {
+            return null;
+        }
+
+        $agency = $this->agencyFor($listing);
+        if (! $agency) {
+            return null;
+        }
+
+        $pivot = AgencyAgent::where('agency_id', $agency->id)
+            ->where('user_id', $agent->id)
+            ->first();
+        if (! $pivot) {
+            return null;
+        }
+
+        $dealValue = (float) $listing->sale_price;
+        $grossRate = (float) ($agency->sale_commission_percent ?? 6.0) / 100;
+
+        $grossCommission = round($dealValue * $grossRate, 2);
+        $agentSplit = (float) $pivot->commission_split_percent;
+        $agentAmount = round($grossCommission * $agentSplit / 100, 2);
+        $agencyAmount = round($grossCommission - $agentAmount, 2);
+
+        $vatRate = $agency->vat_registered ? (float) $agency->vat_rate : 0.0;
+        $vatAmount = round($agentAmount * $vatRate / 100, 2);
+        $agentNet = round($agentAmount - $vatAmount, 2);
+
+        $commission = Commission::create([
+            'agency_id'           => $agency->id,
+            'agent_id'            => $agent->id,
+            'deal_type'           => 'sale',
+            'listing_id'          => $listing->id,
+            'lease_id'            => null,
+            'deal_value'          => $dealValue,
+            'gross_commission'    => $grossCommission,
+            'agent_split_percent' => $agentSplit,
+            'agent_amount'        => $agentAmount,
+            'agency_amount'       => $agencyAmount,
+            'vat_amount'          => $vatAmount,
+            'agent_net'           => $agentNet,
+            'status'              => 'pending',
         ]);
 
         $this->blockIfNonCompliant($commission);

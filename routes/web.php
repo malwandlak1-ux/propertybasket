@@ -102,6 +102,7 @@ Route::middleware('auth')->group(function () {
         Route::get('commissions', [\App\Http\Controllers\Agency\CommissionController::class, 'index'])->name('commissions.index');
         Route::post('commissions/approve', [\App\Http\Controllers\Agency\CommissionController::class, 'approve'])->name('commissions.approve');
         Route::post('commissions/payout', [\App\Http\Controllers\Agency\CommissionController::class, 'runPayout'])->name('commissions.payout');
+        Route::post('commissions/invoices/{invoice}/pay', [\App\Http\Controllers\Agency\CommissionController::class, 'payInvoice'])->name('commissions.invoices.pay');
 
         Route::get('settings', [\App\Http\Controllers\Agency\SettingsController::class, 'show'])->name('settings.show');
         Route::match(['post', 'patch'], 'settings', [\App\Http\Controllers\Agency\SettingsController::class, 'update'])->name('settings.update');

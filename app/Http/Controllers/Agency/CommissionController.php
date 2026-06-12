@@ -4,16 +4,20 @@ namespace App\Http\Controllers\Agency;
 
 use App\Http\Controllers\Agency\Concerns\ResolvesAgency;
 use App\Http\Controllers\Controller;
+use App\Models\Agency;
 use App\Models\Commission;
+use App\Models\MaintenanceInvoice;
 use App\Models\PayoutBatch;
 use App\Models\User;
 use App\Notifications\CommissionApproved;
 use App\Notifications\CommissionPaid;
+use App\Notifications\MaintenanceInvoicePaid;
 use App\Services\CommissionService;
 use App\Services\PaystackService;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -107,7 +111,97 @@ class CommissionController extends Controller
             'agency_retained_ytd' => $agencyRetainedYtd,
             'vat_ytd' => $vatYtd,
             'recent_transfers' => $recentTransfers,
+            'contractor_invoices' => $this->contractorInvoices($agency),
         ]);
+    }
+
+    /**
+     * Contractor invoices on the agency's properties: the unpaid queue
+     * (submitted/approved) plus the most recent payments.
+     */
+    private function contractorInvoices(Agency $agency): array
+    {
+        $base = MaintenanceInvoice::query()
+            ->whereHas('request.property', fn ($q) => $q
+                ->where('owner_type', Agency::class)
+                ->where('owner_id', $agency->id))
+            ->with(['contractor:id,business_name,paystack_recipient_code,user_id', 'request:id,title,property_id']);
+
+        $map = function (MaintenanceInvoice $i) {
+            return [
+                'id'             => $i->id,
+                'reference'      => 'INV-' . str_pad((string) $i->id, 6, '0', STR_PAD_LEFT),
+                'contractor'     => $i->contractor?->business_name ?? '—',
+                'job'            => $i->request?->title ?? '—',
+                'subtotal'       => (float) $i->invoice_subtotal,
+                'vat'            => (float) $i->vat_amount,
+                'total'          => (float) $i->invoice_total,
+                'deviation'      => (float) $i->deviation_amount,
+                'status'         => $i->status,
+                'submitted_at'   => $i->submitted_at?->format('d M Y'),
+                'paid_at'        => $i->paid_at?->format('d M Y'),
+                'account_status' => $i->contractor?->paystack_recipient_code ? 'linked' : 'missing',
+            ];
+        };
+
+        return [
+            'queue' => (clone $base)
+                ->whereIn('status', ['submitted', 'approved'])
+                ->orderByDesc('submitted_at')
+                ->get()->map($map)->values()->all(),
+            'paid' => (clone $base)
+                ->where('status', 'paid')
+                ->orderByDesc('paid_at')
+                ->limit(5)
+                ->get()->map($map)->values()->all(),
+        ];
+    }
+
+    /**
+     * POST /agency/commissions/invoices/{invoice}/pay — pay a contractor
+     * invoice to the contractor's linked account (Paystack stub in dev) and
+     * notify the contractor.
+     */
+    public function payInvoice(Request $request, MaintenanceInvoice $invoice): RedirectResponse
+    {
+        $agency = $this->resolveAgency($request);
+
+        $invoice->loadMissing(['request.property', 'contractor.user']);
+        abort_unless(
+            $invoice->request?->property?->owner_type === Agency::class
+                && $invoice->request->property->owner_id === $agency->id,
+            403,
+            'You can only pay invoices on your agency\'s properties.',
+        );
+        abort_unless(
+            in_array($invoice->status, ['submitted', 'approved'], true),
+            422,
+            'Only submitted or approved invoices can be paid.',
+        );
+
+        $invoice->update([
+            'status'             => 'paid',
+            'paid_at'            => now(),
+            'approved_at'        => $invoice->approved_at ?? now(),
+            'paystack_reference' => 'PB_TRF_' . strtoupper(Str::random(12)),
+        ]);
+
+        // Close the loop on the job itself.
+        if ($invoice->request && $invoice->request->status === 'completed') {
+            $invoice->request->update(['status' => 'paid']);
+        }
+
+        if ($invoice->contractor?->user) {
+            try {
+                $invoice->contractor->user->notify(new MaintenanceInvoicePaid($invoice));
+            } catch (\Throwable $e) {
+                report($e);
+            }
+        }
+
+        $name = $invoice->contractor?->business_name ?? 'the contractor';
+
+        return back()->with('success', "Invoice paid — R " . number_format((float) $invoice->invoice_total, 2) . " transferred to {$name}.");
     }
 
     public function approve(Request $request): RedirectResponse

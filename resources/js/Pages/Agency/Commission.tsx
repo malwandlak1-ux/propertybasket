@@ -35,6 +35,22 @@ type Props = {
     agency_retained_ytd: number;
     vat_ytd: number;
     recent_transfers: { id: number; batch_date: string; total_agent_net: number; commissions_count: number }[];
+    contractor_invoices: { queue: ContractorInvoice[]; paid: ContractorInvoice[] };
+};
+
+type ContractorInvoice = {
+    id: number;
+    reference: string;
+    contractor: string;
+    job: string;
+    subtotal: number;
+    vat: number;
+    total: number;
+    deviation: number;
+    status: string;
+    submitted_at: string | null;
+    paid_at: string | null;
+    account_status: 'linked' | 'missing';
 };
 
 type SharedProps = { flash?: { success?: string | null; error?: string | null } };
@@ -67,9 +83,20 @@ const STATUS_BADGE: Record<Commission['status'], { label: string; cls: string }>
     paid: { label: 'PAID', cls: 'bg-success/15 text-success' },
 };
 
-export default function Commission({ agency, commissions, totals, next_batch, paid_ytd, agency_retained_ytd, vat_ytd, recent_transfers }: Props) {
+export default function Commission({ agency, commissions, totals, next_batch, paid_ytd, agency_retained_ytd, vat_ytd, recent_transfers, contractor_invoices }: Props) {
     const { flash } = usePage<SharedProps>().props;
     const [selected, setSelected] = useState<Set<number>>(new Set());
+    const [payingInvoice, setPayingInvoice] = useState<number | null>(null);
+
+    function payInvoice(inv: ContractorInvoice) {
+        if (payingInvoice !== null) return;
+        if (!confirm(`Pay ${inv.reference} (${fmtMoney(inv.total)}) to ${inv.contractor}? The transfer goes to their linked account.`)) return;
+        setPayingInvoice(inv.id);
+        router.post(`/agency/commissions/invoices/${inv.id}/pay`, {}, {
+            preserveScroll: true,
+            onFinish: () => setPayingInvoice(null),
+        });
+    }
 
     function toggleAll(checked: boolean) {
         if (!checked) return setSelected(new Set());
@@ -301,6 +328,94 @@ export default function Commission({ agency, commissions, totals, next_batch, pa
                             )}
                         </table>
                     </div>
+                </div>
+
+                {/* Contractor invoices awaiting payment */}
+                <div className="bg-white rounded-xl border border-ink-200 shadow-soft overflow-hidden mb-6">
+                    <div className="p-5 border-b border-ink-200 flex items-center justify-between gap-3 flex-wrap">
+                        <div>
+                            <h2 className="text-base font-semibold">Contractor Invoices</h2>
+                            <p className="text-[12px] text-ink-500 mt-0.5">
+                                {contractor_invoices.queue.length} awaiting payment · invoices land here when contractors complete jobs
+                            </p>
+                        </div>
+                    </div>
+                    <table className="w-full">
+                        <thead>
+                            <tr className="text-left text-[11px] uppercase text-ink-500 tracking-wider border-b border-ink-200 bg-ink-50">
+                                <th className="font-semibold px-5 py-3">Contractor</th>
+                                <th className="font-semibold py-3">Job</th>
+                                <th className="font-semibold py-3 text-right">Subtotal</th>
+                                <th className="font-semibold py-3 text-right">VAT</th>
+                                <th className="font-semibold py-3 text-right">Total</th>
+                                <th className="font-semibold py-3 pl-6">Account</th>
+                                <th className="font-semibold py-3 pr-5 text-right">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody className="text-[13px]">
+                            {contractor_invoices.queue.length === 0 && contractor_invoices.paid.length === 0 ? (
+                                <tr>
+                                    <td colSpan={7} className="px-5 py-10 text-center text-ink-500 text-[13px]">
+                                        No contractor invoices yet. They'll appear here once contractors complete jobs and invoice.
+                                    </td>
+                                </tr>
+                            ) : (
+                                <>
+                                    {contractor_invoices.queue.map((inv) => (
+                                        <tr key={inv.id} className="border-b border-ink-100 hover:bg-ink-50">
+                                            <td className="px-5 py-3">
+                                                <p className="font-semibold">{inv.contractor}</p>
+                                                <p className="text-[11px] text-ink-400 font-mono">{inv.reference}{inv.submitted_at ? ` · ${inv.submitted_at}` : ''}</p>
+                                            </td>
+                                            <td className="py-3 pr-3">
+                                                <p className="truncate max-w-[220px]">{inv.job}</p>
+                                                {inv.deviation > 0 && (
+                                                    <p className="text-[11px] text-warning">incl. {fmtMoney(inv.deviation)} deviation</p>
+                                                )}
+                                            </td>
+                                            <td className="text-right font-mono py-3">{fmtMoney(inv.subtotal)}</td>
+                                            <td className="text-right font-mono py-3 text-ink-500">{fmtMoney(inv.vat)}</td>
+                                            <td className="text-right font-mono font-bold py-3">{fmtMoney(inv.total)}</td>
+                                            <td className="py-3 pl-6">
+                                                {inv.account_status === 'linked' ? (
+                                                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-success/15 text-success font-bold">LINKED</span>
+                                                ) : (
+                                                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-warning/15 text-warning font-bold" title="Contractor hasn't linked a payout account — payment uses the stub in dev">NOT LINKED</span>
+                                                )}
+                                            </td>
+                                            <td className="py-3 pr-5 text-right">
+                                                <button
+                                                    onClick={() => payInvoice(inv)}
+                                                    disabled={payingInvoice !== null}
+                                                    className="px-3 py-1.5 text-[12px] bg-success text-white rounded-md font-semibold hover:bg-success/90 disabled:opacity-50 transition"
+                                                >
+                                                    {payingInvoice === inv.id ? 'Paying…' : 'Pay contractor'}
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                    {contractor_invoices.paid.map((inv) => (
+                                        <tr key={`paid-${inv.id}`} className="border-b border-ink-100 bg-ink-50/40 text-ink-500">
+                                            <td className="px-5 py-3">
+                                                <p className="font-semibold text-ink-600">{inv.contractor}</p>
+                                                <p className="text-[11px] text-ink-400 font-mono">{inv.reference}</p>
+                                            </td>
+                                            <td className="py-3 pr-3"><p className="truncate max-w-[220px]">{inv.job}</p></td>
+                                            <td className="text-right font-mono py-3">{fmtMoney(inv.subtotal)}</td>
+                                            <td className="text-right font-mono py-3">{fmtMoney(inv.vat)}</td>
+                                            <td className="text-right font-mono font-semibold py-3">{fmtMoney(inv.total)}</td>
+                                            <td className="py-3 pl-6"></td>
+                                            <td className="py-3 pr-5 text-right">
+                                                <span className="text-[10px] px-2 py-0.5 rounded-full bg-success/15 text-success font-bold">
+                                                    PAID{inv.paid_at ? ` · ${inv.paid_at}` : ''}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </>
+                            )}
+                        </tbody>
+                    </table>
                 </div>
 
                 {/* Three side cards */}

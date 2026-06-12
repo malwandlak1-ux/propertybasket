@@ -6,6 +6,7 @@ use App\Http\Controllers\Agency\Concerns\ResolvesAgency;
 use App\Http\Controllers\Controller;
 use App\Models\Agency;
 use App\Models\Contractor;
+use App\Models\ContractorRating;
 use App\Models\Listing;
 use App\Models\MaintenanceRequest;
 use App\Notifications\MaintenanceJobAssigned;
@@ -36,7 +37,7 @@ class MaintenanceController extends Controller
             ->orderByRaw("CASE urgency WHEN 'emergency' THEN 1 WHEN 'high' THEN 2 WHEN 'medium' THEN 3 WHEN 'low' THEN 4 ELSE 5 END")
             ->orderByDesc('created_at')
             ->get()
-            ->map(fn ($r) => self::mapRequest($r));
+            ->map(fn ($r) => self::mapRequest($r, $request->user()->id));
 
         return Inertia::render('Agency/Maintenance', [
             'agency'      => ['id' => $agency->id, 'name' => $agency->name],
@@ -74,9 +75,70 @@ class MaintenanceController extends Controller
         return back()->with('success', 'Job posted to the contractor marketplace — area contractors can now quote on it.');
     }
 
-    // ── Shared helpers (also used by Agent\MaintenanceController) ────────
+    /**
+     * POST /agency/maintenance/{maintenanceRequest}/rate — rate the
+     * contractor on a completed job.
+     */
+    public function rate(Request $request, MaintenanceRequest $maintenanceRequest): RedirectResponse
+    {
+        $agency = $this->resolveAgency($request);
+        self::authoriseForAgency($maintenanceRequest, $agency);
 
-    public static function mapRequest(MaintenanceRequest $r): array
+        return self::applyRating($request, $maintenanceRequest);
+    }
+
+    // ── Shared helpers (also used by Agent/Tenant controllers) ───────────
+
+    /**
+     * Validate + persist a contractor rating for a completed job, then
+     * recompute the contractor's aggregate score. One rating per user per
+     * job (re-rating updates it).
+     */
+    public static function applyRating(Request $request, MaintenanceRequest $maintenanceRequest): RedirectResponse
+    {
+        abort_unless(
+            in_array($maintenanceRequest->status, ['completed', 'paid'], true),
+            422,
+            'You can only rate the contractor once the job is completed.',
+        );
+        abort_if(
+            $maintenanceRequest->assigned_to === null,
+            422,
+            'No contractor was assigned to this job.',
+        );
+
+        $data = $request->validate([
+            'rating'  => ['required', 'integer', 'min:1', 'max:5'],
+            'comment' => ['nullable', 'string', 'max:1000'],
+        ]);
+
+        $contractor = Contractor::where('user_id', $maintenanceRequest->assigned_to)
+            ->latest('id')
+            ->first();
+        abort_if($contractor === null, 422, 'The assigned contractor no longer exists.');
+
+        ContractorRating::updateOrCreate(
+            [
+                'contractor_id'          => $contractor->id,
+                'rated_by'               => $request->user()->id,
+                'maintenance_request_id' => $maintenanceRequest->id,
+            ],
+            [
+                'rating'  => $data['rating'],
+                'comment' => $data['comment'] ?? null,
+            ],
+        );
+
+        // Recompute the aggregate from the source of truth.
+        $contractor->update([
+            'average_rating' => round((float) ContractorRating::where('contractor_id', $contractor->id)->avg('rating'), 2),
+            'total_reviews'  => ContractorRating::where('contractor_id', $contractor->id)->count(),
+        ]);
+
+        return back()->with('success', 'Thanks — your rating has been recorded.');
+    }
+
+    public static function mapRequest(MaintenanceRequest $r, ?int $forUserId = null): array
     {
         $photos = array_values(array_filter(array_map(
             fn ($p) => is_string($p) ? $p : ($p['url'] ?? ''),
@@ -90,7 +152,16 @@ class MaintenanceController extends Controller
             default                                     => 'new',
         };
 
+        $myRating = null;
+        if ($forUserId && $stage === 'done' && $r->assigned_to) {
+            $myRating = ContractorRating::where('maintenance_request_id', $r->id)
+                ->where('rated_by', $forUserId)
+                ->value('rating');
+        }
+
         return [
+            'my_rating'   => $myRating,
+            'can_rate'    => $stage === 'done' && $r->assigned_to !== null,
             'id'          => $r->id,
             'title'       => $r->title,
             'description' => $r->description,

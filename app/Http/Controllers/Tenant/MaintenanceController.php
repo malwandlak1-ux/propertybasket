@@ -26,8 +26,18 @@ class MaintenanceController extends Controller
             ->with('contractor:id,name')
             ->orderByDesc('created_at')
             ->get()
-            ->map(function (MaintenanceRequest $r) {
+            ->map(function (MaintenanceRequest $r) use ($user) {
+                $done = in_array($r->status, ['completed', 'paid'], true);
+                $myRating = null;
+                if ($done && $r->assigned_to) {
+                    $myRating = \App\Models\ContractorRating::where('maintenance_request_id', $r->id)
+                        ->where('rated_by', $user->id)
+                        ->value('rating');
+                }
+
                 return [
+                    'can_rate'     => $done && $r->assigned_to !== null,
+                    'my_rating'    => $myRating,
                     'id'           => $r->id,
                     'title'        => $r->title,
                     'description'  => $r->description,
@@ -118,5 +128,24 @@ class MaintenanceController extends Controller
         }
 
         return back();
+    }
+
+    /**
+     * POST /tenant/maintenance/{maintenanceRequest}/rate — rate the
+     * contractor once the job is completed. Only the tenant who submitted
+     * the request may rate from here.
+     */
+    public function rate(Request $request, MaintenanceRequest $maintenanceRequest): \Illuminate\Http\RedirectResponse
+    {
+        $lease = $this->resolveLease($request);
+
+        abort_unless(
+            $maintenanceRequest->lease_id === $lease->id
+                && $maintenanceRequest->submitted_by === $request->user()->id,
+            403,
+            'You can only rate contractors on your own maintenance requests.',
+        );
+
+        return \App\Http\Controllers\Agency\MaintenanceController::applyRating($request, $maintenanceRequest);
     }
 }

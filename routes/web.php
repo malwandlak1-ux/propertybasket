@@ -94,6 +94,7 @@ Route::middleware('auth')->group(function () {
         Route::get('maintenance',                         [\App\Http\Controllers\Agency\MaintenanceController::class, 'index'])->name('maintenance.index');
         Route::post('maintenance/{maintenanceRequest}/assign',      [\App\Http\Controllers\Agency\MaintenanceController::class, 'assign'])->name('maintenance.assign');
         Route::post('maintenance/{maintenanceRequest}/marketplace', [\App\Http\Controllers\Agency\MaintenanceController::class, 'marketplace'])->name('maintenance.marketplace');
+        Route::post('maintenance/{maintenanceRequest}/rate',        [\App\Http\Controllers\Agency\MaintenanceController::class, 'rate'])->name('maintenance.rate');
         Route::get('maintenance/quotes',                  [\App\Http\Controllers\Agency\QuotesController::class, 'index'])->name('maintenance.quotes.index');
         Route::post('maintenance/quotes/{quote}/accept',  [\App\Http\Controllers\Agency\QuotesController::class, 'accept'])->name('maintenance.quotes.accept');
         Route::post('maintenance/quotes/{quote}/reject',  [\App\Http\Controllers\Agency\QuotesController::class, 'reject'])->name('maintenance.quotes.reject');
@@ -144,9 +145,7 @@ Route::middleware('auth')->group(function () {
         });
         Route::get('viewings',    [Agent\ViewingsController::class,  'index'])->name('viewings.index');
         Route::post('viewings',   [Agent\ViewingsController::class,  'store'])->name('viewings.store');
-        Route::get('maintenance',                         [Agent\MaintenanceController::class, 'index'])->name('maintenance.index');
-        Route::post('maintenance/{maintenanceRequest}/assign',      [Agent\MaintenanceController::class, 'assign'])->name('maintenance.assign');
-        Route::post('maintenance/{maintenanceRequest}/marketplace', [Agent\MaintenanceController::class, 'marketplace'])->name('maintenance.marketplace');
+        Route::get('maintenance', [Agent\MaintenanceController::class, 'index'])->name('maintenance.index');
 
         Route::get('inspections', [Agent\InspectionsController::class, 'index'])->name('inspections.index');
         Route::get('inspections/create', [Agent\InspectionsController::class, 'create'])->name('inspections.create');
@@ -263,6 +262,7 @@ Route::middleware('auth')->group(function () {
         Route::post('payments/pay', [\App\Http\Controllers\Payments\PaystackController::class, 'initialize'])->name('payments.pay');
         Route::get('maintenance',  [Tenant\MaintenanceController::class, 'index'])->name('maintenance.index');
         Route::post('maintenance', [Tenant\MaintenanceController::class, 'store'])->name('maintenance.store');
+        Route::post('maintenance/{maintenanceRequest}/rate', [Tenant\MaintenanceController::class, 'rate'])->name('maintenance.rate');
         Route::get('documents',    [Tenant\DocumentsController::class,   'index'])->name('documents.index');
         Route::get('messages',     [Tenant\MessagesController::class,    'index'])->name('messages.index');
         Route::post('messages/{conversation}', [Tenant\MessagesController::class, 'store'])->name('messages.store');

@@ -1,6 +1,7 @@
 import { useState, FormEvent } from 'react';
 import { Head, useForm } from '@inertiajs/react';
 import TenantLayout from '@/Layouts/TenantLayout';
+import RateContractorModal, { StarRow } from '@/Components/RateContractorModal';
 
 type Item = {
     id: number;
@@ -15,6 +16,8 @@ type Item = {
     contractor: { name: string; initials: string } | null;
     preferred_date: string | null;
     preferred_slot: string | null;
+    can_rate: boolean;
+    my_rating: number | null;
 };
 
 type Props = {
@@ -56,6 +59,7 @@ const categoryIcon = (c: string) => {
 
 export default function TenantMaintenance({ lease, active, past }: Props) {
     const [showForm, setShowForm] = useState(false);
+    const [ratingItem, setRatingItem] = useState<Item | null>(null);
     const { data, setData, post, processing, errors, reset } = useForm({
         title: '',
         description: '',
@@ -261,19 +265,28 @@ export default function TenantMaintenance({ lease, active, past }: Props) {
                 ) : (
                     <div className="grid grid-cols-2 gap-4">
                         {active.map((r) => (
-                            <Card key={r.id} item={r} active />
+                            <Card key={r.id} item={r} active onRate={setRatingItem} />
                         ))}
                         {past.map((r) => (
-                            <Card key={r.id} item={r} active={false} />
+                            <Card key={r.id} item={r} active={false} onRate={setRatingItem} />
                         ))}
                     </div>
                 )}
             </div>
+
+            {ratingItem && (
+                <RateContractorModal
+                    rateUrl={`/tenant/maintenance/${ratingItem.id}/rate`}
+                    contractorName={ratingItem.contractor?.name ?? null}
+                    jobTitle={ratingItem.title}
+                    onClose={() => setRatingItem(null)}
+                />
+            )}
         </TenantLayout>
     );
 }
 
-function Card({ item, active }: { item: Item; active: boolean }) {
+function Card({ item, active, onRate }: { item: Item; active: boolean; onRate: (i: Item) => void }) {
     return (
         <div className={`bg-white rounded-xl shadow-soft overflow-hidden ${active ? 'border-2 border-brand-500 shadow-card' : 'border border-ink-200'}`}>
             <div className="p-5 border-b border-ink-200">
@@ -314,9 +327,22 @@ function Card({ item, active }: { item: Item; active: boolean }) {
                     <p className="text-[11px] text-ink-500">Visit: {item.preferred_date} · {item.preferred_slot}</p>
                 )}
                 {!active && (
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between gap-2 flex-wrap">
                         <p className="text-[11px] text-success">⭐ Job completed</p>
-                        <button className="text-[11px] px-2.5 py-1.5 border border-ink-200 rounded-md hover:bg-ink-50">View report</button>
+                        {item.can_rate && (
+                            item.my_rating ? (
+                                <span className="inline-flex items-center gap-1.5 text-[11px] text-ink-600">
+                                    You rated <StarRow rating={item.my_rating} />
+                                </span>
+                            ) : (
+                                <button
+                                    onClick={() => onRate(item)}
+                                    className="text-[11px] px-2.5 py-1.5 bg-warning/15 text-warning rounded-md font-bold hover:bg-warning/25 transition"
+                                >
+                                    ★ Rate contractor
+                                </button>
+                            )
+                        )}
                     </div>
                 )}
             </div>

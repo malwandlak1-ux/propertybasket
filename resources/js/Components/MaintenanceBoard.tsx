@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { router, usePage } from '@inertiajs/react';
+import RateContractorModal, { StarRow } from '@/Components/RateContractorModal';
 
 /**
  * Shared maintenance-request management board used by the Agency and Agent
@@ -27,6 +28,8 @@ export type MaintRequest = {
     contractor: string | null;
     quote_count: number;
     created: string;
+    can_rate: boolean;
+    my_rating: number | null;
 };
 
 export type ContractorOption = {
@@ -41,9 +44,14 @@ export type ContractorOption = {
 
 type Props = {
     requests: MaintRequest[];
-    contractors: { mine: ContractorOption[]; market: ContractorOption[] };
+    /** Omitted on the agent dashboard — allocation is agency-only. */
+    contractors?: { mine: ContractorOption[]; market: ContractorOption[] };
     baseUrl: string; // '/agency/maintenance' or '/agent/maintenance'
     quotesUrl?: string | null;
+    /** false renders a read-only workflow view (agent dashboard). */
+    canAllocate?: boolean;
+    /** Rating is for the agency (and tenant page) — false on the agent view. */
+    canRate?: boolean;
 };
 
 type SharedProps = { flash?: { success?: string | null; error?: string | null } };
@@ -62,9 +70,10 @@ const STAGE_CFG: Record<MaintRequest['stage'], { cls: string; label: string }> =
     done:        { cls: 'bg-success/15 text-success', label: 'Completed' },
 };
 
-export default function MaintenanceBoard({ requests, contractors, baseUrl, quotesUrl }: Props) {
+export default function MaintenanceBoard({ requests, contractors, baseUrl, quotesUrl, canAllocate = true, canRate = true }: Props) {
     const { flash } = usePage<SharedProps>().props;
     const [allocating, setAllocating] = useState<MaintRequest | null>(null);
+    const [rating, setRating] = useState<MaintRequest | null>(null);
     const [lightbox, setLightbox] = useState<string | null>(null);
 
     const open = requests.filter((r) => r.stage === 'new');
@@ -94,25 +103,40 @@ export default function MaintenanceBoard({ requests, contractors, baseUrl, quote
                 </div>
             )}
 
+            {! canAllocate && (
+                <div className="mb-4 rounded-lg bg-ink-100/70 border border-ink-200 text-ink-600 px-4 py-3 text-[12px]">
+                    Contractor allocation is handled by your agency — this view tracks each job through allocation, quoting, and completion.
+                </div>
+            )}
+
             {requests.length === 0 ? (
                 <div className="bg-white rounded-xl border border-dashed border-ink-300 p-12 text-center">
                     <p className="text-[13px] text-ink-500">No maintenance requests yet. Tenant submissions will land here.</p>
                 </div>
             ) : (
                 <>
-                    <Section title="Needs allocation" items={open} onAllocate={setAllocating} onPhoto={setLightbox} baseUrl={baseUrl} accent />
-                    <Section title="Awaiting quotes" items={allocated} onAllocate={setAllocating} onPhoto={setLightbox} baseUrl={baseUrl} />
-                    <Section title="In progress" items={inProgress} onAllocate={null} onPhoto={setLightbox} baseUrl={baseUrl} />
-                    <Section title="Completed" items={done} onAllocate={null} onPhoto={setLightbox} baseUrl={baseUrl} />
+                    <Section title="Needs allocation" items={open} onAllocate={canAllocate ? setAllocating : null} onRate={canRate ? setRating : null} onPhoto={setLightbox} baseUrl={baseUrl} accent />
+                    <Section title="Awaiting quotes" items={allocated} onAllocate={canAllocate ? setAllocating : null} onRate={canRate ? setRating : null} onPhoto={setLightbox} baseUrl={baseUrl} />
+                    <Section title="In progress" items={inProgress} onAllocate={null} onRate={canRate ? setRating : null} onPhoto={setLightbox} baseUrl={baseUrl} />
+                    <Section title="Completed" items={done} onAllocate={null} onRate={canRate ? setRating : null} onPhoto={setLightbox} baseUrl={baseUrl} />
                 </>
             )}
 
-            {allocating && (
+            {allocating && contractors && (
                 <AllocateModal
                     request={allocating}
                     contractors={contractors}
                     baseUrl={baseUrl}
                     onClose={() => setAllocating(null)}
+                />
+            )}
+
+            {rating && (
+                <RateContractorModal
+                    rateUrl={`${baseUrl}/${rating.id}/rate`}
+                    contractorName={rating.contractor}
+                    jobTitle={rating.title}
+                    onClose={() => setRating(null)}
                 />
             )}
 
@@ -129,6 +153,7 @@ function Section({
     title,
     items,
     onAllocate,
+    onRate,
     onPhoto,
     baseUrl,
     accent = false,
@@ -136,6 +161,7 @@ function Section({
     title: string;
     items: MaintRequest[];
     onAllocate: ((r: MaintRequest) => void) | null;
+    onRate: ((r: MaintRequest) => void) | null;
     onPhoto: (src: string) => void;
     baseUrl: string;
     accent?: boolean;
@@ -150,7 +176,7 @@ function Section({
             </div>
             <div className="grid lg:grid-cols-2 gap-4">
                 {items.map((r) => (
-                    <Card key={r.id} r={r} onAllocate={onAllocate} onPhoto={onPhoto} baseUrl={baseUrl} />
+                    <Card key={r.id} r={r} onAllocate={onAllocate} onRate={onRate} onPhoto={onPhoto} baseUrl={baseUrl} />
                 ))}
             </div>
         </section>
@@ -160,11 +186,13 @@ function Section({
 function Card({
     r,
     onAllocate,
+    onRate,
     onPhoto,
     baseUrl,
 }: {
     r: MaintRequest;
     onAllocate: ((r: MaintRequest) => void) | null;
+    onRate: ((r: MaintRequest) => void) | null;
     onPhoto: (src: string) => void;
     baseUrl: string;
 }) {
@@ -242,6 +270,20 @@ function Card({
                             Post to marketplace
                         </button>
                     </>
+                )}
+                {onRate !== null && r.can_rate && (
+                    r.my_rating ? (
+                        <span className="inline-flex items-center gap-1.5 text-[11px] text-ink-600">
+                            You rated <StarRow rating={r.my_rating} />
+                        </span>
+                    ) : (
+                        <button
+                            onClick={() => onRate(r)}
+                            className="px-3 py-1.5 text-[12px] bg-warning/15 text-warning rounded-md font-bold hover:bg-warning/25 transition"
+                        >
+                            ★ Rate contractor
+                        </button>
+                    )
                 )}
             </div>
         </div>

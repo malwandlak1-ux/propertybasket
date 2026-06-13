@@ -449,9 +449,12 @@ class ListingsController extends Controller
             // Pull the listing off the public site
             $listing->update(['status' => 'leased']);
 
-            // NB: the agent's commission is NOT generated here. It is created
-            // when the agency registers the corresponding closed pipeline lead
-            // (Agency\PipelineController::register) — the authoritative trigger.
+            // Renting out an agency listing closes a rental deal — generate the
+            // agent's rental commission into the agency payout queue. Idempotent
+            // per lease, and idempotent against the pipeline-registration path.
+            if ($listing->owner_type === Agency::class) {
+                app(\App\Services\CommissionService::class)->recordRental($lease, $user);
+            }
 
             return $invitation;
         });
@@ -530,19 +533,20 @@ class ListingsController extends Controller
             'sale_price' => ['nullable', 'numeric', 'min:0'],
         ]);
 
-        DB::transaction(function () use ($listing, $data) {
+        DB::transaction(function () use ($listing, $user, $data) {
             if (! empty($data['sale_price'])) {
                 $listing->update(['sale_price' => $data['sale_price']]);
             }
             $listing->update(['status' => 'sold']);
 
-            // Commission is generated when the agency registers the closed
-            // pipeline deal — not here.
+            // Closing a sale generates the agent's commission into the agency
+            // payout queue (idempotent per listing).
+            app(\App\Services\CommissionService::class)->recordSale($listing->fresh(), $user);
         });
 
         return redirect()
             ->route('agent.listings.index')
-            ->with('success', "Sale recorded for \"{$listing->title}\". Your commission appears once the agency registers the deal.");
+            ->with('success', "Sale recorded for \"{$listing->title}\" — your commission is in the agency payout queue.");
     }
 
     private function authorizeAgentOwnsListing(Listing $listing, $user): void

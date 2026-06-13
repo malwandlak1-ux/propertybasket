@@ -15,6 +15,7 @@ type Commission = {
     status: 'pending' | 'approved' | 'blocked' | 'paid';
     blocked_reason: string | null;
     paystack_status: 'verified' | 'missing';
+    payout_method: 'paystack' | 'bank' | null;
 };
 
 type Props = {
@@ -251,7 +252,7 @@ export default function Commission({ agency, commissions, totals, next_batch, pa
                                     <th className="font-semibold py-3 text-right">Split %</th>
                                     <th className="font-semibold py-3 text-right">VAT (15%)</th>
                                     <th className="font-semibold py-3 text-right">Agent Net</th>
-                                    <th className="font-semibold py-3">Paystack</th>
+                                    <th className="font-semibold py-3">Payout method</th>
                                     <th className="font-semibold py-3">Status</th>
                                 </tr>
                             </thead>
@@ -297,9 +298,11 @@ export default function Commission({ agency, commissions, totals, next_batch, pa
                                                 </td>
                                                 <td>
                                                     {c.paystack_status === 'verified' ? (
-                                                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-success/15 text-success font-bold">VERIFIED</span>
+                                                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-success/15 text-success font-bold" title={c.payout_method === 'bank' ? 'Bank account on file' : 'Paystack recipient on file'}>
+                                                            {c.payout_method === 'bank' ? 'BANK' : 'PAYSTACK'}
+                                                        </span>
                                                     ) : (
-                                                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-danger/15 text-danger font-bold">MISSING</span>
+                                                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-danger/15 text-danger font-bold" title="No payout method — agent must add Paystack or banking details">NO PAYOUT METHOD</span>
                                                     )}
                                                 </td>
                                                 <td>

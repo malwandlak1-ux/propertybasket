@@ -36,10 +36,18 @@ class CommissionController extends Controller
         $now = CarbonImmutable::now();
         $yearStart = $now->startOfYear();
 
+        // Re-evaluate any blocked commissions first — agents who have since
+        // captured a payout method (Paystack OR banking) should unblock.
+        Commission::where('agency_id', $agency->id)
+            ->where('status', 'blocked')
+            ->with('agent')
+            ->get()
+            ->each(fn ($c) => $this->commissionService->blockIfNonCompliant($c));
+
         $queue = Commission::query()
             ->where('agency_id', $agency->id)
             ->whereIn('status', ['pending', 'approved', 'blocked'])
-            ->with(['agent:id,name,email,paystack_recipient_code'])
+            ->with(['agent:id,name,email,paystack_recipient_code,bank_account_holder,bank_account_number,bank_code'])
             ->orderByDesc('agent_net')
             ->get()
             ->map(fn ($c) => $this->formatCommission($c));
@@ -328,13 +336,17 @@ class CommissionController extends Controller
 
     private function formatCommission(Commission $c): array
     {
-        $paystackStatus = match (true) {
-            $c->status === 'blocked' && str_contains((string) $c->blocked_reason, 'paystack') => 'missing',
-            ! empty($c->agent?->paystack_recipient_code) => 'verified',
-            default => 'missing',
+        // Payable on Paystack OR captured banking details.
+        $payoutStatus = ($c->agent?->hasPayoutDetails() ?? false) ? 'verified' : 'missing';
+        $payoutMethod = match (true) {
+            ! empty($c->agent?->paystack_recipient_code) => 'paystack',
+            ! empty($c->agent?->bank_account_number) => 'bank',
+            default => null,
         };
 
         return [
+            'payout_status' => $payoutStatus,
+            'payout_method' => $payoutMethod,
             'id' => $c->id,
             'agent' => [
                 'id' => $c->agent?->id,
@@ -352,7 +364,7 @@ class CommissionController extends Controller
             'agency_amount' => (float) $c->agency_amount,
             'status' => $c->status,
             'blocked_reason' => $c->blocked_reason,
-            'paystack_status' => $paystackStatus,
+            'paystack_status' => $payoutStatus,
         ];
     }
 }

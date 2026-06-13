@@ -114,4 +114,17 @@ class User extends Authenticatable
     {
         return $this->role === $role;
     }
+
+    /**
+     * True when the user has a usable payout method — either a Paystack
+     * recipient code or full local banking details captured on their profile.
+     * Agents can be paid on banking details alone, without Paystack.
+     */
+    public function hasPayoutDetails(): bool
+    {
+        return ! empty($this->paystack_recipient_code)
+            || (! empty($this->bank_account_holder)
+                && ! empty($this->bank_account_number)
+                && ! empty($this->bank_code));
+    }
 }

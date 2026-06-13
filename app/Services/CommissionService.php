@@ -237,8 +237,9 @@ class CommissionService
 
         $reasons = [];
 
-        if (empty($agent->paystack_recipient_code)) {
-            $reasons[] = 'paystack_missing';
+        // Payable on EITHER a Paystack recipient OR local banking details.
+        if (! $agent->hasPayoutDetails()) {
+            $reasons[] = 'no_payout_method';
         }
         if ($pivot && $pivot->ffc_expires_at && $pivot->ffc_expires_at->isPast()) {
             $reasons[] = 'ffc_expired';
@@ -251,6 +252,12 @@ class CommissionService
             ]);
 
             return true;
+        }
+
+        // No blocking reasons: lift a stale block (e.g. the agent has since
+        // captured banking details) back to pending so it can be approved.
+        if ($commission->status === 'blocked') {
+            $commission->update(['status' => 'pending', 'blocked_reason' => null]);
         }
 
         return false;

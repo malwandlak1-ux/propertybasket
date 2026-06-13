@@ -88,6 +88,87 @@ class CommissionService
     }
 
     /**
+     * Record the agent's commission when an agency *registers* a closed
+     * pipeline lead — the authoritative commission trigger. Derives deal type
+     * and value from the lead's listing. Idempotent per (listing, agent,
+     * deal_type).
+     */
+    public function recordForLead(\App\Models\Inquiry $lead): ?Commission
+    {
+        $listing = $lead->listing;
+        $agent   = $lead->assignee;
+        if (! $listing || ! $agent) {
+            return null;
+        }
+
+        $agency = $this->agencyFor($listing);
+        if (! $agency) {
+            return null;
+        }
+
+        $pivot = AgencyAgent::where('agency_id', $agency->id)
+            ->where('user_id', $agent->id)
+            ->first();
+        if (! $pivot) {
+            return null;
+        }
+
+        $dealType = $listing->listing_type === 'for_sale' ? 'sale' : 'rental';
+
+        if (Commission::where('listing_id', $listing->id)
+            ->where('agent_id', $agent->id)
+            ->where('deal_type', $dealType)
+            ->exists()) {
+            return null;
+        }
+
+        $dealValue = $dealType === 'sale'
+            ? (float) ($listing->sale_price ?? 0)
+            : (float) ($listing->monthly_rent ?? 0) * 12;
+
+        $grossRate = $dealType === 'sale'
+            ? (float) ($agency->sale_commission_percent ?? 6.0) / 100
+            : (float) ($agency->rental_commission_percent ?? 7.5) / 100;
+
+        return $this->persist($agency, $agent, $listing, $dealType, $dealValue, $grossRate, $pivot, $lease ?? null);
+    }
+
+    /**
+     * Shared commission builder used by sale/lead paths.
+     */
+    private function persist(Agency $agency, User $agent, Listing $listing, string $dealType, float $dealValue, float $grossRate, AgencyAgent $pivot, ?Lease $lease = null): Commission
+    {
+        $grossCommission = round($dealValue * $grossRate, 2);
+        $agentSplit = (float) $pivot->commission_split_percent;
+        $agentAmount = round($grossCommission * $agentSplit / 100, 2);
+        $agencyAmount = round($grossCommission - $agentAmount, 2);
+
+        $vatRate = $agency->vat_registered ? (float) $agency->vat_rate : 0.0;
+        $vatAmount = round($agentAmount * $vatRate / 100, 2);
+        $agentNet = round($agentAmount - $vatAmount, 2);
+
+        $commission = Commission::create([
+            'agency_id'           => $agency->id,
+            'agent_id'            => $agent->id,
+            'deal_type'           => $dealType,
+            'listing_id'          => $listing->id,
+            'lease_id'            => $lease?->id,
+            'deal_value'          => $dealValue,
+            'gross_commission'    => $grossCommission,
+            'agent_split_percent' => $agentSplit,
+            'agent_amount'        => $agentAmount,
+            'agency_amount'       => $agencyAmount,
+            'vat_amount'          => $vatAmount,
+            'agent_net'           => $agentNet,
+            'status'              => 'pending',
+        ]);
+
+        $this->blockIfNonCompliant($commission);
+
+        return $commission;
+    }
+
+    /**
      * Record a sale commission when an agent sells a property. No lease is
      * involved, so this builds the Commission directly. Idempotent per
      * listing.

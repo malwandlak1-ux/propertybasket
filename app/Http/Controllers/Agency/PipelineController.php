@@ -6,7 +6,9 @@ use App\Http\Controllers\Agency\Concerns\ResolvesAgency;
 use App\Http\Controllers\Controller;
 use App\Models\Agency;
 use App\Models\Inquiry;
+use App\Services\CommissionService;
 use Carbon\CarbonImmutable;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -22,6 +24,7 @@ class PipelineController extends Controller
         'viewing' => ['label' => 'Viewing', 'dot' => 'bg-brand-500', 'statuses' => ['viewing']],
         'offer' => ['label' => 'Offer', 'dot' => 'bg-warning', 'statuses' => ['offer']],
         'closed' => ['label' => 'Closed (MTD)', 'dot' => 'bg-success', 'statuses' => ['closed']],
+        'registered' => ['label' => 'Registered', 'dot' => 'bg-violet-500', 'statuses' => ['registered']],
     ];
 
     public function index(Request $request): Response
@@ -104,6 +107,41 @@ class PipelineController extends Controller
         ]);
     }
 
+    /**
+     * POST /agency/pipeline/leads/{inquiry}/register
+     * Agency-only: move a Closed-Won deal into Registered. This is the
+     * authoritative commission trigger — the assigned agent's commission is
+     * generated into the payout queue. The agent sees the deal advance to
+     * Registered on their own pipeline.
+     */
+    public function register(Request $request, Inquiry $inquiry, CommissionService $commissions): RedirectResponse
+    {
+        $agency = $this->resolveAgency($request);
+
+        // The lead must belong to one of this agency's agents.
+        $agentIds = $agency->agents()->pluck('users.id')->all();
+        abort_unless(
+            in_array($inquiry->assigned_to, $agentIds, true),
+            403,
+            'You can only register deals belonging to your agency\'s agents.',
+        );
+        abort_unless(
+            $inquiry->status === 'closed',
+            422,
+            'Only a Closed-Won deal can be registered.',
+        );
+
+        $inquiry->update(['status' => 'registered']);
+
+        $commission = $commissions->recordForLead($inquiry->fresh('listing', 'assignee'));
+
+        $msg = $commission
+            ? 'Deal registered — the agent\'s commission is now in the payout queue.'
+            : 'Deal registered. (No commission was generated — check the linked listing has a price.)';
+
+        return back()->with('success', $msg);
+    }
+
     private function formatCard(Inquiry $inq): array
     {
         $listing = $inq->listing;
@@ -137,6 +175,7 @@ class PipelineController extends Controller
             ],
             'is_hot' => $isHot,
             'status' => $inq->status,
+            'can_register' => $inq->status === 'closed',
         ];
     }
 }

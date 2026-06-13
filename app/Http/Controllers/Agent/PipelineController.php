@@ -24,6 +24,7 @@ class PipelineController extends Controller
         'viewing'   => ['label' => 'Viewing',    'dot' => 'bg-brand-500','statuses' => ['viewing']],
         'offer'     => ['label' => 'Offer',      'dot' => 'bg-warning',  'statuses' => ['offer']],
         'closed'    => ['label' => 'Closed Won', 'dot' => 'bg-success',  'statuses' => ['closed']],
+        'registered'=> ['label' => 'Registered', 'dot' => 'bg-violet-500','statuses' => ['registered']],
     ];
 
     public function index(Request $request): Response
@@ -145,6 +146,14 @@ class PipelineController extends Controller
             $inquiry->assigned_to === $user->id,
             403,
             'You can only move your own leads.'
+        );
+
+        // Registration is an agency-only step — agents can't move a deal into
+        // or back out of Registered.
+        abort_if(
+            $inquiry->status === 'registered',
+            422,
+            'This deal has been registered by your agency and is locked.',
         );
 
         $data = $request->validate([

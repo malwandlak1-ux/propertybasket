@@ -92,26 +92,29 @@ function KanbanCard({
     onDragStart,
     onDragEnd,
     isDragging,
+    locked = false,
 }: {
     card: Card;
     onClick: () => void;
     onDragStart: (e: React.DragEvent<HTMLDivElement>) => void;
     onDragEnd: () => void;
     isDragging: boolean;
+    locked?: boolean;
 }) {
     const isClosed = card.status === 'closed';
 
     return (
         <div
-            draggable
-            onDragStart={onDragStart}
-            onDragEnd={onDragEnd}
+            draggable={! locked}
+            onDragStart={locked ? undefined : onDragStart}
+            onDragEnd={locked ? undefined : onDragEnd}
             onClick={onClick}
             role="button"
             tabIndex={0}
             onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), onClick())}
             className={
-                'text-left w-full bg-white rounded-lg p-3 shadow-soft border transition hover:shadow-lift cursor-grab active:cursor-grabbing select-none ' +
+                'text-left w-full bg-white rounded-lg p-3 shadow-soft border transition hover:shadow-lift select-none ' +
+                (locked ? 'cursor-pointer ' : 'cursor-grab active:cursor-grabbing ') +
                 (isDragging ? 'opacity-40 ring-2 ring-brand-300 ' : '') +
                 (isClosed
                     ? 'border-success/30 bg-success/5'
@@ -373,9 +376,10 @@ export default function AgentPipeline({ agent, columns: initialColumns, listings
                 </div>
 
                 {view === 'kanban' ? (
-                    <div className="grid grid-cols-5 gap-3 min-h-[600px]">
+                    <div className="grid grid-cols-6 gap-3 min-h-[600px]">
                         {columns.map((col) => {
                             const isHovered = hoverCol === col.key;
+                            const isRegistered = col.key === 'registered';
                             return (
                                 <div
                                     key={col.key}
@@ -384,7 +388,7 @@ export default function AgentPipeline({ agent, columns: initialColumns, listings
                                     onDrop={onColumnDrop(col.key)}
                                     className={
                                         'rounded-xl p-3 flex flex-col transition-colors ' +
-                                        (isHovered ? 'bg-brand-50 ring-2 ring-brand-300' : 'bg-ink-100/50')
+                                        (isHovered && ! isRegistered ? 'bg-brand-50 ring-2 ring-brand-300' : 'bg-ink-100/50')
                                     }
                                 >
                                     <div className="flex items-center justify-between mb-3 px-1">
@@ -405,10 +409,11 @@ export default function AgentPipeline({ agent, columns: initialColumns, listings
                                                 onDragStart={onCardDragStart(card)}
                                                 onDragEnd={onCardDragEnd}
                                                 isDragging={draggingId === card.id}
+                                                locked={isRegistered}
                                             />
                                         ))}
 
-                                        {col.key !== 'closed' && (
+                                        {col.key !== 'closed' && col.key !== 'registered' && (
                                             <button
                                                 type="button"
                                                 onClick={() => setNewLeadOpen({ open: true, stage: col.key as Stage })}
@@ -421,6 +426,9 @@ export default function AgentPipeline({ agent, columns: initialColumns, listings
 
                                         {col.count === 0 && col.key === 'closed' && (
                                             <div className="py-8 text-center text-[12px] text-ink-400">No closed deals this month</div>
+                                        )}
+                                        {col.count === 0 && col.key === 'registered' && (
+                                            <div className="py-8 text-center text-[11px] text-ink-400">Your agency registers closed deals here</div>
                                         )}
                                     </div>
                                 </div>

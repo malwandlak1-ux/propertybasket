@@ -449,11 +449,9 @@ class ListingsController extends Controller
             // Pull the listing off the public site
             $listing->update(['status' => 'leased']);
 
-            // Renting out an agency listing earns the agent a rental
-            // commission — it appears in the agency payout queue (idempotent).
-            if ($listing->owner_type === Agency::class) {
-                app(\App\Services\CommissionService::class)->recordRental($lease, $user);
-            }
+            // NB: the agent's commission is NOT generated here. It is created
+            // when the agency registers the corresponding closed pipeline lead
+            // (Agency\PipelineController::register) — the authoritative trigger.
 
             return $invitation;
         });
@@ -532,18 +530,19 @@ class ListingsController extends Controller
             'sale_price' => ['nullable', 'numeric', 'min:0'],
         ]);
 
-        DB::transaction(function () use ($listing, $user, $data) {
+        DB::transaction(function () use ($listing, $data) {
             if (! empty($data['sale_price'])) {
                 $listing->update(['sale_price' => $data['sale_price']]);
             }
             $listing->update(['status' => 'sold']);
 
-            app(\App\Services\CommissionService::class)->recordSale($listing->fresh(), $user);
+            // Commission is generated when the agency registers the closed
+            // pipeline deal — not here.
         });
 
         return redirect()
             ->route('agent.listings.index')
-            ->with('success', "Sale recorded for \"{$listing->title}\" — your commission is in the agency payout queue.");
+            ->with('success', "Sale recorded for \"{$listing->title}\". Your commission appears once the agency registers the deal.");
     }
 
     private function authorizeAgentOwnsListing(Listing $listing, $user): void

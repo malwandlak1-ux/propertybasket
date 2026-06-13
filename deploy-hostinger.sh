@@ -41,6 +41,8 @@ cp -f "$SRC/app/Http/Controllers/Agency/CommissionController.php"  "$APP/app/Htt
 cp -f "$SRC/app/Http/Controllers/Agent/MaintenanceController.php"  "$APP/app/Http/Controllers/Agent/MaintenanceController.php"
 cp -f "$SRC/app/Services/InquiryService.php"                      "$APP/app/Services/InquiryService.php"
 cp -f "$SRC/app/Services/CommissionService.php"                  "$APP/app/Services/CommissionService.php"
+cp -f "$SRC/app/Http/Controllers/Agency/PipelineController.php"   "$APP/app/Http/Controllers/Agency/PipelineController.php"
+cp -f "$SRC/app/Http/Controllers/Agent/PipelineController.php"    "$APP/app/Http/Controllers/Agent/PipelineController.php"
 cp -f "$SRC/app/Models/Lease.php"                                 "$APP/app/Models/Lease.php"
 cp -f "$SRC/app/Models/Agency.php"                               "$APP/app/Models/Agency.php"
 cp -f "$SRC/routes/web.php"                                       "$APP/routes/web.php"

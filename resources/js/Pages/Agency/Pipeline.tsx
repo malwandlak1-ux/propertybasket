@@ -1,4 +1,5 @@
-import { Head, router } from '@inertiajs/react';
+import { useState } from 'react';
+import { Head, router, usePage } from '@inertiajs/react';
 import AgencyLayout from '@/Layouts/AgencyLayout';
 
 type Card = {
@@ -11,15 +12,18 @@ type Card = {
     agent: { id: number | null; name: string | null; initials: string };
     is_hot: boolean;
     status: string;
+    can_register: boolean;
 };
 type Column = {
-    key: 'new' | 'qualified' | 'viewing' | 'offer' | 'closed';
+    key: 'new' | 'qualified' | 'viewing' | 'offer' | 'closed' | 'registered';
     label: string;
     dot: string;
     count: number;
     total_value: number;
     cards: Card[];
 };
+
+type SharedProps = { flash?: { success?: string | null; error?: string | null } };
 type Props = {
     agency: { id: number; name: string };
     columns: Column[];
@@ -47,6 +51,19 @@ function gradientForAgent(id: number | null): string {
 }
 
 export default function Pipeline({ agency, columns, total_pipeline_value, agents, filters }: Props) {
+    const { flash } = usePage<SharedProps>().props;
+    const [registering, setRegistering] = useState<number | null>(null);
+
+    function registerDeal(card: Card) {
+        if (registering !== null) return;
+        if (! confirm(`Register "${card.visitor_name}" (${card.listing_title ?? 'deal'})? This finalises the deal and generates ${card.agent.name ?? 'the agent'}'s commission into the payout queue.`)) return;
+        setRegistering(card.id);
+        router.post(`/agency/pipeline/leads/${card.id}/register`, {}, {
+            preserveScroll: true,
+            onFinish: () => setRegistering(null),
+        });
+    }
+
     function setFilter(key: 'agent_id' | 'deal_type', value: string) {
         const next: Record<string, string> = {
             agent_id: filters.agent_id ? String(filters.agent_id) : '',
@@ -95,7 +112,13 @@ export default function Pipeline({ agency, columns, total_pipeline_value, agents
                     </div>
                 </div>
 
-                <div className="grid grid-cols-5 gap-3 min-h-[600px]">
+                {flash?.success && (
+                    <div className="mb-4 rounded-lg bg-success/10 border border-success/30 text-success px-4 py-3 text-[13px]">
+                        {flash.success}
+                    </div>
+                )}
+
+                <div className="grid grid-cols-6 gap-3 min-h-[600px]">
                     {columns.map((col) => (
                         <div key={col.key} className="bg-ink-100/50 rounded-xl p-3">
                             <div className="flex items-center justify-between mb-3 px-1">
@@ -112,7 +135,14 @@ export default function Pipeline({ agency, columns, total_pipeline_value, agents
                                     <p className="text-[12px] text-ink-400 text-center mt-6">No leads here yet</p>
                                 ) : (
                                     col.cards.map((c) => (
-                                        <PipelineCard key={c.id} card={c} closed={col.key === 'closed'} />
+                                        <PipelineCard
+                                            key={c.id}
+                                            card={c}
+                                            closed={col.key === 'closed'}
+                                            registered={col.key === 'registered'}
+                                            onRegister={c.can_register ? () => registerDeal(c) : undefined}
+                                            busy={registering === c.id}
+                                        />
                                     ))
                                 )}
                             </div>
@@ -124,13 +154,14 @@ export default function Pipeline({ agency, columns, total_pipeline_value, agents
     );
 }
 
-function PipelineCard({ card, closed }: { card: Card; closed: boolean }) {
+function PipelineCard({ card, closed, registered = false, onRegister, busy = false }: { card: Card; closed: boolean; registered?: boolean; onRegister?: () => void; busy?: boolean }) {
     const isHot = card.is_hot;
     return (
         <div
             className={
                 'bg-white rounded-lg p-3 shadow-soft border border-ink-200 ' +
                 (closed ? 'border-success/30 bg-success/5 ' : '') +
+                (registered ? 'border-violet-300 bg-violet-50/40 ' : '') +
                 (isHot ? 'border-l-2 border-l-danger ' : '')
             }
         >
@@ -160,6 +191,22 @@ function PipelineCard({ card, closed }: { card: Card; closed: boolean }) {
                     {fmtMoney(card.deal_value)}
                 </span>
             </div>
+
+            {onRegister && (
+                <button
+                    onClick={onRegister}
+                    disabled={busy}
+                    className="mt-2.5 w-full text-[11px] font-bold px-2 py-1.5 bg-violet-600 text-white rounded-md hover:bg-violet-700 disabled:opacity-50 transition inline-flex items-center justify-center gap-1"
+                >
+                    {busy ? 'Registering…' : 'Register deal →'}
+                </button>
+            )}
+            {registered && (
+                <p className="mt-2.5 text-[10px] text-violet-700 font-semibold inline-flex items-center gap-1">
+                    <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5}><path d="M5 13l4 4L19 7" /></svg>
+                    Registered · commission queued
+                </p>
+            )}
         </div>
     );
 }

@@ -1,1 +1,0 @@
-import{r as o,a as r}from"./app-DWUN54Z_.js";function f(){const[s,t]=o.useState(!1);return o.useEffect(()=>{const e=r.on("start",()=>t(!0)),n=r.on("finish",()=>t(!1));return()=>{e(),n()}},[]),s}export{f as u};

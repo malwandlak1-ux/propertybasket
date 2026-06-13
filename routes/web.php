@@ -109,6 +109,7 @@ Route::middleware('auth')->group(function () {
         Route::match(['post', 'patch'], 'settings', [\App\Http\Controllers\Agency\SettingsController::class, 'update'])->name('settings.update');
 
         Route::get('pipeline', [\App\Http\Controllers\Agency\PipelineController::class, 'index'])->name('pipeline.index');
+        Route::post('pipeline/leads/{inquiry}/register', [\App\Http\Controllers\Agency\PipelineController::class, 'register'])->name('pipeline.leads.register');
 
         Route::get('listings', [\App\Http\Controllers\Agency\ListingsAllocationController::class, 'index'])->name('listings.index');
         Route::get('listings/create', [\App\Http\Controllers\Agency\ListingsController::class, 'create'])->name('listings.create');

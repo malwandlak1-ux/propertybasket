@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Agency;
 use App\Models\AgencyAgent;
 use App\Models\Commission;
+use App\Models\Inspection;
 use App\Models\Lease;
 use App\Models\Listing;
 use App\Models\PayoutBatch;
@@ -225,8 +226,10 @@ class CommissionService
     }
 
     /**
-     * Mark a commission `blocked` if the agent can't legally be paid out yet.
-     * Returns true if the commission was blocked, false if it stays as-is.
+     * Mark a commission `blocked` if it isn't due to the agent yet — either
+     * for compliance (no payout method / expired FFC) or because a rental's
+     * move-in inspection hasn't been completed. Returns true if the commission
+     * was blocked, false if it stays/becomes payable.
      */
     public function blockIfNonCompliant(Commission $commission): bool
     {
@@ -243,6 +246,15 @@ class CommissionService
         }
         if ($pivot && $pivot->ffc_expires_at && $pivot->ffc_expires_at->isPast()) {
             $reasons[] = 'ffc_expired';
+        }
+
+        // A rental commission isn't due until the agent has completed the
+        // move-in inspection for that lease. Sale commissions and lease-less
+        // (pipeline-registered) rentals have nothing to inspect, so skip them.
+        if ($commission->deal_type === 'rental'
+            && $commission->lease_id
+            && ! $this->hasCompletedMoveInInspection($commission->lease_id)) {
+            $reasons[] = 'awaiting_move_in_inspection';
         }
 
         if (! empty($reasons)) {
@@ -298,6 +310,18 @@ class CommissionService
 
             return $batch;
         });
+    }
+
+    /**
+     * Has the agent completed (and signed off) the move-in inspection for this
+     * lease? That's the gate that releases a held rental commission.
+     */
+    private function hasCompletedMoveInInspection(int $leaseId): bool
+    {
+        return Inspection::where('lease_id', $leaseId)
+            ->where('type', 'move_in')
+            ->where('status', 'completed')
+            ->exists();
     }
 
     private function agencyFor(Listing $listing): ?Agency

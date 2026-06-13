@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Agent;
 
 use App\Http\Controllers\Agent\Concerns\ResolvesAgent;
 use App\Http\Controllers\Controller;
+use App\Models\Commission;
 use App\Models\Inspection;
 use App\Models\Lease;
+use App\Services\CommissionService;
 use App\Services\PdfService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -168,9 +170,28 @@ class InspectionsController extends Controller
             $inspection->update(['rooms' => $rooms]);
         }
 
+        // A completed move-in inspection releases the agent's rental commission,
+        // which is held ('awaiting_move_in_inspection') until this point.
+        $released = false;
+        if ($data['type'] === 'move_in') {
+            Commission::where('lease_id', $lease->id)
+                ->where('deal_type', 'rental')
+                ->where('status', 'blocked')
+                ->with('agent')
+                ->get()
+                ->each(function ($c) use (&$released) {
+                    if (! app(CommissionService::class)->blockIfNonCompliant($c)) {
+                        $released = true;
+                    }
+                });
+        }
+
+        $msg = ucfirst(str_replace('_', '-', $data['type'])) . ' inspection added.'
+            . ($released ? ' Your commission for this rental is now in the agency payout queue.' : '');
+
         return redirect()
             ->route('agent.inspections.show', $inspection->id)
-            ->with('success', ucfirst(str_replace('_', '-', $data['type'])) . ' inspection added.');
+            ->with('success', $msg);
     }
 
     /**

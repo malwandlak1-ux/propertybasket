@@ -92,6 +92,21 @@ const STATUS_BADGE: Record<Commission['status'], { label: string; cls: string }>
     paid: { label: 'PAID', cls: 'bg-success/15 text-success' },
 };
 
+// Friendly labels for blocked_reason codes. The move-in-inspection hold is a
+// normal part of the workflow (amber), not a compliance failure (red).
+const REASON_LABEL: Record<string, string> = {
+    awaiting_move_in_inspection: 'awaiting move-in inspection',
+    no_payout_method: 'no payout method',
+    ffc_expired: 'FFC expired',
+};
+
+function reasonChips(reason: string): { text: string; tone: string }[] {
+    return reason.split(',').filter(Boolean).map((r) => ({
+        text: REASON_LABEL[r] ?? r.replace(/_/g, ' '),
+        tone: r === 'awaiting_move_in_inspection' ? 'text-warning' : 'text-danger',
+    }));
+}
+
 export default function Commission({ agency, commissions, totals, next_batch, paid_ytd, agency_retained_ytd, vat_ytd, recent_transfers, contractor_invoices }: Props) {
     const { flash } = usePage<SharedProps>().props;
     const [selected, setSelected] = useState<Set<number>>(new Set());
@@ -285,9 +300,9 @@ export default function Commission({ agency, commissions, totals, next_batch, pa
                                                             {c.agent.initials || '?'}
                                                         </div>
                                                         <span className="font-semibold">{c.agent.name}</span>
-                                                        {isBlocked && c.blocked_reason && (
-                                                            <span className="text-[10px] text-danger">· {c.blocked_reason.replace(/_/g, ' ')}</span>
-                                                        )}
+                                                        {isBlocked && c.blocked_reason && reasonChips(c.blocked_reason).map((chip, i) => (
+                                                            <span key={i} className={'text-[10px] ' + chip.tone}>· {chip.text}</span>
+                                                        ))}
                                                     </div>
                                                 </td>
                                                 <td className="text-right font-mono">{fmtMoney(c.gross_commission)}</td>

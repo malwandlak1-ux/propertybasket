@@ -1,11 +1,80 @@
 # Session Handoff — Property Basket
 
-**Last updated:** 2026-05-26
-**Status:** Phases 1-9 + two follow-on sessions complete. All sidebar stubs across the agent, agency, landlord, tenant and contractor dashboards are now wired to real flows. No in-flight bugs.
+**Last updated:** 2026-06-14
+**Status:** Phases 1-9 complete. Since the May handoff the platform gained a full **commission & payout system**, **maintenance boards with contractor allocation + ratings**, **tenant lease sign-off**, and several **public-site additions** (mortgage calculator, schedule-a-tour). Latest session locked down **commission permissions (agency-only)** and added a **move-in-inspection gate** on rental commissions (§0.0, shipped to live). A batch of public-facing work (legal pages, demo-request form, calculator route, admin overview PDF) is still **in progress in the working tree — uncommitted**. See §0.
 
 ---
 
-## What this session shipped (most-recent work first)
+## 0. Work since the May handoff (2026-05-29 → 2026-06-14)
+
+### 0. Commission permissions + move-in-inspection gate ✅ (2026-06-14 — live)
+
+Shipped to `manage.propertybasket.co.za` via `deploy-hostinger.sh` (backend-only; commits `5ebd56e` + `7a3939c` on `main`).
+
+- **Commission money-actions are agency-admin only.** `/agency/*` is `auth`-only and `ResolvesAgency` resolves an agency for *linked agents* too, so an agent could POST directly to the payout / approve / pay-invoice / rate-edit endpoints. Added `CommissionController::authorizeAgencyAdmin()` (allows `agency_admin` / `super_admin`) on all four. Verified: agent → 403, agency admin → 200.
+- **Rental commission held until move-in inspection.** A rental `Commission` with a `lease_id` is held (`status=blocked`, `blocked_reason=awaiting_move_in_inspection`) until a **completed `move_in` `Inspection`** exists for that lease. `CommissionService::blockIfNonCompliant()` enforces the gate (via `hasCompletedMoveInInspection()`); `Agent\InspectionsController::store()` re-evaluates and releases the commission to `pending` when the move-in inspection is saved. Sales and lease-less pipeline rentals are unaffected; **no migration** (reuses the `blocked` status + reason string). Existing pending/approved rows are not retroactively held.
+- **UI:** `Agency/Commission.tsx` renders the hold as an amber "awaiting move-in inspection" note (not a red compliance error). *Frontend not yet rebuilt for live — the current live bundle shows the reason in red; amber ships on the next frontend build.*
+
+### A. Commission & payout system ✅ (the major new thread)
+
+End-to-end agent-commission generation and an agency payout queue.
+
+- **`App\Services\CommissionService`** now has three trigger paths, all idempotent:
+  - `recordForLead(Inquiry $lead)` — **the authoritative trigger.** Fires when an agency moves a pipeline lead into the new **`registered`** status. Derives deal type (`sale` if listing is `for_sale`, else `rental`) and value (sale price, or 12× monthly rent) from the listing. Idempotent per `(listing, agent, deal_type)`.
+  - `recordRental(Lease, $agent)` — rental commission when a property is rented out; idempotent per lease.
+  - `recordSale(Listing, $agent)` — sale commission; idempotent per listing.
+- **Per-agency commission rates** — migration `2026_06_12_000001_add_commission_rates_to_agencies` adds `sale_commission_percent` (default 6.00) + `rental_commission_percent` (default 7.50) on `agencies`. `CommissionService` reads these (falling back to 6%/7.5%). Agent's cut comes from `agency_agents.commission_split_percent`; VAT applied when `agency.vat_registered`.
+- **`registered` pipeline stage** — migration `2026_06_13_000001_add_registered_to_inquiries_status`. **Agency-only** stage (set from `Agency\PipelineController`, not the agent kanban) that triggers the agent's commission. Surfaced in `Agency/Pipeline.tsx`; `Agent/Pipeline.tsx` shows it read-only.
+- **`blockIfNonCompliant()`** — a commission is marked `blocked` if the agent has **no payout method** (`User::hasPayoutDetails()` — true on EITHER a Paystack recipient code OR local banking details) or an **expired FFC**. Capturing banking details later auto-lifts a stale block back to `pending`.
+- **Agency payout queue** (`Agency/Commission.tsx` + `Agency\CommissionController`) — now also lists **contractor invoices** alongside agent commissions, each with a **Pay** action. Payout labels clarified.
+- **Contractor payment modal** — pay a contractor invoice from the queue.
+
+### B. Maintenance boards + contractor allocation + ratings ✅
+
+- **`Components/MaintenanceBoard.tsx`** — shared board used by agency + agent maintenance pages.
+- **`Agency\MaintenanceController`** allocates a request to a contractor; **`MaintenanceJobAssigned`** notification fires to the contractor.
+- **`Agent\MaintenanceController`** — agent view is **read-only** (agency owns allocation).
+- **`Components/RateContractorModal.tsx`** — tenant **and** agency can rate a contractor after a completed job.
+- **Tenant maintenance** — photo upload on request submission; responsive notification bell in `TenantLayout`.
+
+### C. Tenant lease sign-off + per-room inspections ✅
+
+- **Tenant lease sign-off** — migration `2026_06_11_000001_add_tenant_signature_to_leases`; tenant signs from `Tenant/Documents.tsx`; **`LeaseSigned`** notification.
+- **Per-room inspection photos** — `Agent/CreateInspection.tsx` + `ShowInspection.tsx` now capture/show photos room-by-room.
+
+### D. Public-site additions ✅
+
+- **Mortgage calculator** on for-sale listing pages.
+- **Schedule-a-tour** form on public listing pages (deploy script extended to carry the tour-request files + `route:clear`).
+- Listing amenities display fix + agent avatar on public listing pages.
+
+### E. Invitations / email ✅
+
+- Agency adding a contractor now **emails an account invitation** (`UserInvited` reused from `Agency\ContractorsController`).
+- Email templates redesigned (black header, pill button, centered layout).
+- Fixed: agent-invitation 403 + re-invite after admin delete; 500 when inviting a tenant whose email belongs to a soft-deleted user.
+
+### F. Deploy / infra ✅
+
+- **`deploy-hostinger.sh`** — rsync-style sync for no-git shared-hosting (Hostinger) deploys.
+- `platform_settings` table (migration `2026_05_30_000001`); recent migrations made **idempotent** (guard on `Schema::hasColumn`) so they're safe to re-run against the live DB.
+
+### G. ⚠ In progress — uncommitted in the working tree
+
+A public-facing / admin batch is staged but **not yet committed** (see `git status`):
+
+- **Public:** `Public/CalculatorController` + `Pages/Public/Calculator.tsx` (standalone calculator route); `Public/DemoRequestController` + `DemoRequested` notification (request-a-demo form); `Public/LegalController` + `Pages/Public/Legal/` (legal/POPIA pages) + `PrivacyRequestSubmitted` notification; `PublicLayout` + `Home.tsx` updates.
+- **Admin:** edits across most `Admin\*Controllers` + pages; new `Models/PlatformSetting`; `Settings`/`System` wiring; **admin overview PDF** (`resources/views/pdfs/admin-overview-report.blade.php` + `PdfService` method).
+- **Error pages:** `public/error/` + `resources/views/errors/` custom error views.
+- `DatabaseSeeder` changes; `public/.htaccess` + `app.blade.php` tweaks.
+
+**Next session: review, test, and commit this batch** (it spans public + admin + error handling). Nothing here is known-broken, but it's unreviewed and unbuilt.
+
+---
+
+## Earlier work (May 2026 handoff — retained for reference)
+
+### What that session shipped (most-recent work first)
 
 ### A. Contractor quote-first workflow + agency approval ✅
 
@@ -146,15 +215,16 @@ Endpoints: `POST /notifications/{id}/read`, `POST /notifications/read-all`.
 
 ## Project status
 
-All 9 planned phases shipped. Real Paystack integration in dual mode (stub/live).
+All 9 planned phases shipped, plus the commission/payout, maintenance-board, and lease-sign-off systems above. Real Paystack integration in dual mode (stub/live).
 
-**No known bugs.** Compliance gates (agent FFC + agency FFC) and the contractor quote-first workflow have been verified end-to-end including direct-POST bypass attempts.
+**One open item:** the public/admin batch in §0.G is uncommitted — review, build, and commit it next.
 
 ---
 
 ## Open follow-ups — see TODO.md
 
 Top items:
+- **Commit the §0.G working-tree batch** (public calculator/demo/legal + admin PDF + error pages). Run `npm run build` and the feature suite first.
 - Wire `MaintenanceInvoicePaid` notification trigger (class exists, no caller).
 - Wire `InspectionCompleted` notification trigger (class exists, no caller).
 - Remaining MySQL `FIELD()` ORDER BYs need migration to `CASE WHEN` for SQLite tests (`rg "orderByRaw\(.*FIELD" app/`).

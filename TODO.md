@@ -4,6 +4,14 @@ Priority order. Top = do next. Phases 1–9 + post-phase enhancements are comple
 
 ---
 
+## 🟢 Recently shipped (Jun 2026 session)
+
+### Commission permissions + move-in-inspection gate (live)
+- [x] **Commission money-actions agency-admin only** — `CommissionController::authorizeAgencyAdmin()` gates run-payout / approve / pay-invoice / edit-rates (agents got 403; the `/agency` group is `auth`-only and `ResolvesAgency` also resolves agents). Commit `5ebd56e`.
+- [x] **Rental commission held until move-in inspection** — a rental `Commission` with a lease is held (`blocked` / `awaiting_move_in_inspection`) until a completed `move_in` inspection exists; `InspectionsController::store()` releases it to `pending`. No migration (reuses `blocked` + reason). Amber UI note on `Agency/Commission.tsx`. Commit `7a3939c`.
+
+---
+
 ## 🟢 Recently shipped (May 2026 session)
 
 ### Contractor workflow

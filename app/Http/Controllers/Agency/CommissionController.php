@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Agency;
 
+use App\Enums\Role;
 use App\Http\Controllers\Agency\Concerns\ResolvesAgency;
 use App\Http\Controllers\Controller;
 use App\Models\Agency;
@@ -29,6 +30,23 @@ class CommissionController extends Controller
         private readonly CommissionService $commissionService,
         private readonly PaystackService $paystackService,
     ) {}
+
+    /**
+     * Money actions — running payouts, approving commissions, paying
+     * contractor invoices and editing the commission structure — are
+     * agency-admin only. Agents resolve their agency through the agents pivot
+     * in ResolvesAgency, so without this guard they could POST to these routes
+     * directly even though the UI never offers them the buttons. Block anyone
+     * who isn't the agency admin (or a super admin acting on their behalf).
+     */
+    private function authorizeAgencyAdmin(Request $request): void
+    {
+        abort_unless(
+            in_array($request->user()->role, [Role::AgencyAdmin, Role::SuperAdmin], true),
+            403,
+            'Only an agency admin can manage payouts and commission rates.',
+        );
+    }
 
     public function index(Request $request): Response
     {
@@ -191,6 +209,7 @@ class CommissionController extends Controller
      */
     public function payInvoice(Request $request, MaintenanceInvoice $invoice): RedirectResponse
     {
+        $this->authorizeAgencyAdmin($request);
         $agency = $this->resolveAgency($request);
 
         $invoice->loadMissing(['request.property', 'contractor.user']);
@@ -238,6 +257,7 @@ class CommissionController extends Controller
 
     public function approve(Request $request): RedirectResponse
     {
+        $this->authorizeAgencyAdmin($request);
         $agency = $this->resolveAgency($request);
 
         $data = $request->validate([
@@ -275,6 +295,7 @@ class CommissionController extends Controller
 
     public function runPayout(Request $request): RedirectResponse
     {
+        $this->authorizeAgencyAdmin($request);
         $agency = $this->resolveAgency($request);
 
         $batch = PayoutBatch::query()
@@ -319,6 +340,7 @@ class CommissionController extends Controller
      */
     public function updateRates(Request $request): RedirectResponse
     {
+        $this->authorizeAgencyAdmin($request);
         $agency = $this->resolveAgency($request);
 
         $data = $request->validate([

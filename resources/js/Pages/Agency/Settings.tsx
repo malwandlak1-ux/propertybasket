@@ -88,7 +88,7 @@ export default function Settings({ agency }: Props) {
     return (
         <AgencyLayout agencyName={agency.name} crumb="Settings">
             <Head title="Settings" />
-            <section className="px-8 py-7">
+            <section className="px-4 sm:px-8 py-6 sm:py-7">
                 <div className="mb-6">
                     <h1 className="text-2xl font-bold tracking-tight">Settings</h1>
                     <p className="text-[14px] text-ink-500 mt-1">Configure VAT, trust account, payouts, and integrations</p>
@@ -100,7 +100,7 @@ export default function Settings({ agency }: Props) {
                     </div>
                 )}
 
-                <form onSubmit={submit} className="grid grid-cols-4 gap-6">
+                <form onSubmit={submit} className="grid grid-cols-1 lg:grid-cols-4 gap-6">
                     <aside className="space-y-1">
                         {TABS.map((t) => (
                             <button
@@ -370,7 +370,7 @@ function Panel({
 }
 
 function Row({ children }: { children: React.ReactNode }) {
-    return <div className="grid grid-cols-2 gap-4 py-1">{children}</div>;
+    return <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 py-1">{children}</div>;
 }
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {

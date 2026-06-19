@@ -63,14 +63,14 @@ export default function LandlordFinance({ landlord, kpis, payments, trend }: Pro
         <LandlordLayout crumb="Finance" section="Finance">
             <Head title="Finance" />
 
-            <div className="px-8 py-7">
+            <div className="px-4 sm:px-8 py-6 sm:py-7">
                 <div className="mb-6">
                     <h1 className="text-2xl font-bold tracking-tight">Finance</h1>
                     <p className="text-[14px] text-ink-500 mt-1">Rent collection history and income overview</p>
                 </div>
 
                 {/* ── KPI Strip ─────────────────────────────────────────── */}
-                <div className="grid grid-cols-4 gap-4 mb-6">
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                     {[
                         { label: 'Monthly Rent Roll',  value: fmtMoney(kpis.monthly_roll),         sub: 'Active leases',             color: 'text-success' },
                         { label: 'YTD Collected',       value: fmtMoney(kpis.ytd_collected),        sub: 'This calendar year',        color: 'text-success' },
@@ -88,7 +88,7 @@ export default function LandlordFinance({ landlord, kpis, payments, trend }: Pro
                 {/* ── Trend chart ───────────────────────────────────────── */}
                 <div className="bg-white rounded-xl border border-ink-200 p-5 shadow-soft mb-6">
                     <h2 className="text-base font-semibold mb-4">Last 6 Months — Rent Collected</h2>
-                    <div className="flex items-end gap-3 h-28">
+                    <div className="flex items-end gap-3 h-28 overflow-x-auto">
                         {trend.map((t) => {
                             const pct = maxCollected > 0 ? (t.collected / maxCollected) * 100 : 0;
                             return (
@@ -134,7 +134,7 @@ export default function LandlordFinance({ landlord, kpis, payments, trend }: Pro
                     {filtered.length === 0 ? (
                         <div className="p-10 text-center text-[13px] text-ink-400">No payments in this view.</div>
                     ) : (
-                        <table className="w-full">
+                        <div className="overflow-x-auto"><table className="w-full min-w-[700px]">
                             <thead>
                                 <tr className="text-left text-[11px] uppercase text-ink-500 tracking-wider border-b border-ink-200 bg-ink-50">
                                     <th className="font-semibold px-5 py-3">Period</th>
@@ -165,7 +165,7 @@ export default function LandlordFinance({ landlord, kpis, payments, trend }: Pro
                                     </tr>
                                 ))}
                             </tbody>
-                        </table>
+                        </table></div>
                     )}
                 </div>
             </div>

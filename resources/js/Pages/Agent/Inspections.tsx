@@ -158,9 +158,9 @@ export default function AgentInspections({ agent, move_in, move_out, upcoming, c
         <AgentLayout crumb="Inspections" agencyName={agent.agency_name}>
             <Head title="Inspections" />
 
-            <div className="px-8 py-7">
+            <div className="px-4 sm:px-8 py-6 sm:py-7">
                 {/* Header */}
-                <div className="flex items-end justify-between mb-6">
+                <div className="flex flex-wrap items-end justify-between gap-3 mb-6">
                     <div>
                         <h1 className="text-2xl font-bold tracking-tight">Inspections</h1>
                         <p className="text-[14px] text-ink-500 mt-1">
@@ -264,7 +264,7 @@ export default function AgentInspections({ agent, move_in, move_out, upcoming, c
                         <p className="text-[13px] text-ink-500">Inspections you conduct will appear here.</p>
                     </div>
                 ) : (
-                    <div className="grid grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         {list.map((card) => (
                             <InspectionCardView key={card.id} card={card} />
                         ))}
@@ -281,7 +281,7 @@ export default function AgentInspections({ agent, move_in, move_out, upcoming, c
                         <p className="text-[13px] text-ink-500">
                             Open a deduction-flagged inspection above to view the side-by-side move-in vs move-out photo comparison and confirm or dispute deductions.
                         </p>
-                        <div className="mt-4 grid grid-cols-4 divide-x divide-ink-200 border border-ink-200 rounded-lg overflow-hidden bg-ink-50/40">
+                        <div className="mt-4 grid grid-cols-2 lg:grid-cols-4 divide-x divide-ink-200 border border-ink-200 rounded-lg overflow-hidden bg-ink-50/40">
                             {move_out.filter(c => c.deductions > 0).slice(0, 1).map(c => (
                                 <>
                                     <div key="rooms" className="p-4">

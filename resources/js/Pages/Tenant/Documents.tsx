@@ -115,8 +115,8 @@ export default function TenantDocuments({ tenant, lease, deposit, ledger, docume
                 </div>
             )}
 
-            <div className="px-8 py-7">
-                <div className="flex items-end justify-between mb-6">
+            <div className="px-4 sm:px-8 py-6 sm:py-7">
+                <div className="flex flex-wrap items-end justify-between gap-3 mb-6">
                     <div>
                         <h1 className="text-2xl font-bold tracking-tight">Documents &amp; Deposit</h1>
                         <p className="text-[14px] text-ink-500 mt-1">Lease records, inspection reports, and your trust deposit ledger.</p>
@@ -130,7 +130,7 @@ export default function TenantDocuments({ tenant, lease, deposit, ledger, docume
                 {/* Deposit hero */}
                 <div className="bg-gradient-to-br from-success to-emerald-700 rounded-xl p-6 text-white shadow-card mb-6 relative overflow-hidden">
                     <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-32 translate-x-32" />
-                    <div className="relative grid grid-cols-3 gap-8">
+                    <div className="relative grid grid-cols-1 sm:grid-cols-3 gap-8">
                         <div>
                             <p className="text-[11px] uppercase tracking-wider opacity-80 font-semibold">Total Held</p>
                             <p className="text-5xl font-bold mt-2 font-mono">{fmtMoney(deposit.total_held)}</p>
@@ -154,7 +154,7 @@ export default function TenantDocuments({ tenant, lease, deposit, ledger, docume
 
                 {/* Documents */}
                 <h2 className="text-base font-semibold mb-3">Lease Documents</h2>
-                <div className="grid grid-cols-3 gap-4 mb-8">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
                     {documents.map((d) => (
                         <div key={d.id} className="bg-white rounded-xl border border-ink-200 p-5 shadow-soft hover:shadow-lift transition">
                             <div className="flex items-start justify-between mb-3">
@@ -202,7 +202,7 @@ export default function TenantDocuments({ tenant, lease, deposit, ledger, docume
                         <p className="text-[13px] text-ink-500">No inspection reports yet. Your move-in inspection will appear here once completed.</p>
                     </div>
                 ) : (
-                    <div className="grid grid-cols-2 gap-4 mb-8">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
                         {inspections.map((i) => (
                             <div key={i.id} className="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
                                 <div className="flex items-start justify-between mb-3">
@@ -237,7 +237,7 @@ export default function TenantDocuments({ tenant, lease, deposit, ledger, docume
                         <h2 className="text-base font-semibold">Trust Ledger</h2>
                         <p className="text-[12px] text-ink-500 mt-0.5">Full transaction history for your deposit</p>
                     </div>
-                    <table className="w-full">
+                    <div className="overflow-x-auto"><table className="w-full min-w-[700px]">
                         <thead>
                             <tr className="text-left text-[11px] uppercase text-ink-500 tracking-wider border-b border-ink-200 bg-ink-50">
                                 <th className="font-semibold px-5 py-3">Date</th>
@@ -263,7 +263,7 @@ export default function TenantDocuments({ tenant, lease, deposit, ledger, docume
                                 </tr>
                             ))}
                         </tbody>
-                    </table>
+                    </table></div>
                 </div>
 
                 <p className="mt-4 text-[11px] text-ink-400 text-center">

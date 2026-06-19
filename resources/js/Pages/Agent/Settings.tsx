@@ -44,7 +44,7 @@ export default function AgentSettings({ agent, profile, notifications, banking }
         <AgentLayout crumb="Settings" agencyName={agent.agency_name}>
             <Head title="Settings" />
 
-            <div className="px-8 py-7 max-w-5xl">
+            <div className="px-4 sm:px-8 py-6 sm:py-7 max-w-5xl">
                 <div className="mb-6">
                     <h1 className="text-2xl font-bold tracking-tight">Settings</h1>
                     <p className="text-[14px] text-ink-500 mt-1">Manage your profile, security, notification preferences, and payout details.</p>
@@ -128,7 +128,7 @@ function ProfileSection({ profile }: { profile: Props['profile'] }) {
                     </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label className="text-[12px] font-semibold text-ink-700 mb-1.5 block">Name *</label>
                         <input value={data.name} onChange={(e) => setData('name', e.target.value)} required className={inputCls} />
@@ -187,7 +187,7 @@ function PasswordSection() {
                     <input type="password" value={data.current_password} onChange={(e) => setData('current_password', e.target.value)} required className={inputCls} />
                     {errors.current_password && <p className="text-[11px] text-danger mt-1">{errors.current_password}</p>}
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label className="text-[12px] font-semibold text-ink-700 mb-1.5 block">New password *</label>
                         <input type="password" value={data.password} onChange={(e) => setData('password', e.target.value)} required minLength={8} className={inputCls} />
@@ -298,7 +298,7 @@ function BankingSection({ banking }: { banking: Props['banking'] }) {
                     />
                     {errors.bank_account_holder && <p className="text-[11px] text-danger mt-1">{errors.bank_account_holder}</p>}
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label className="text-[12px] font-semibold text-ink-700 mb-1.5 block">Account number *</label>
                         <input

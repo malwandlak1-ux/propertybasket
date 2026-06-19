@@ -315,7 +315,7 @@ export default function AgentPipeline({ agent, columns: initialColumns, listings
         <AgentLayout crumb="Pipeline" agencyName={agent.agency_name}>
             <Head title="Sales Pipeline" />
 
-            <div className="px-8 py-7">
+            <div className="px-4 sm:px-8 py-6 sm:py-7">
                 {flash?.success && (
                     <div className="mb-4 p-3 rounded-lg border border-success/30 bg-success/5 text-[13px] text-success font-medium flex items-center gap-2">
                         <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5}><path d="M5 13l4 4L19 7"/></svg>
@@ -330,7 +330,7 @@ export default function AgentPipeline({ agent, columns: initialColumns, listings
                 )}
 
                 {/* Header */}
-                <div className="flex items-center justify-between mb-6">
+                <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
                     <div>
                         <h1 className="text-2xl font-bold tracking-tight">Sales Pipeline</h1>
                         <p className="text-[14px] text-ink-500 mt-1">
@@ -376,7 +376,7 @@ export default function AgentPipeline({ agent, columns: initialColumns, listings
                 </div>
 
                 {view === 'kanban' ? (
-                    <div className="grid grid-cols-6 gap-3 min-h-[600px]">
+                    <div className="flex gap-3 overflow-x-auto pb-2 min-h-[600px] snap-x lg:grid lg:grid-cols-6 lg:overflow-visible">
                         {columns.map((col) => {
                             const isHovered = hoverCol === col.key;
                             const isRegistered = col.key === 'registered';
@@ -387,7 +387,7 @@ export default function AgentPipeline({ agent, columns: initialColumns, listings
                                     onDragLeave={onColumnDragLeave(col.key)}
                                     onDrop={onColumnDrop(col.key)}
                                     className={
-                                        'rounded-xl p-3 flex flex-col transition-colors ' +
+                                        'rounded-xl p-3 flex flex-col transition-colors shrink-0 snap-start w-[82vw] sm:w-[300px] lg:w-auto lg:shrink ' +
                                         (isHovered && ! isRegistered ? 'bg-brand-50 ring-2 ring-brand-300' : 'bg-ink-100/50')
                                     }
                                 >

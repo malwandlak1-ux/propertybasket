@@ -72,7 +72,7 @@ export default function AgencyTrustAccount({ agency, trust, banks }: Props) {
         <AgencyLayout crumb="Trust Account" agencyName={agency.name}>
             <Head title="Trust Account" />
 
-            <div className="px-8 py-7 max-w-3xl">
+            <div className="px-4 sm:px-8 py-6 sm:py-7 max-w-3xl">
                 <div className="mb-6">
                     <h1 className="text-2xl font-bold tracking-tight">Trust Account</h1>
                     <p className="text-[14px] text-ink-500 mt-1">
@@ -99,7 +99,7 @@ export default function AgencyTrustAccount({ agency, trust, banks }: Props) {
                             </p>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
                                 <label className={labelCls}>Bank *</label>
                                 <select
@@ -145,7 +145,7 @@ export default function AgencyTrustAccount({ agency, trust, banks }: Props) {
                             {errors.trust_account_holder && <p className="text-[11px] text-danger mt-1">{errors.trust_account_holder}</p>}
                         </div>
 
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
                                 <label className={labelCls}>Account number *</label>
                                 <input
@@ -184,7 +184,7 @@ export default function AgencyTrustAccount({ agency, trust, banks }: Props) {
                             </p>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
                                 <label className={labelCls}>Auditor firm name *</label>
                                 <input

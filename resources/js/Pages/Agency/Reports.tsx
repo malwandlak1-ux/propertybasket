@@ -48,8 +48,8 @@ export default function Reports({ agency, income_statement: pl, cashflow, trust,
     return (
         <AgencyLayout agencyName={agency.name} crumb="Financial Reports">
             <Head title="Financial Reports" />
-            <section className="px-8 py-7">
-                <div className="flex items-end justify-between mb-6">
+            <section className="px-4 sm:px-8 py-6 sm:py-7">
+                <div className="flex flex-wrap items-end justify-between gap-3 mb-6">
                     <div>
                         <h1 className="text-2xl font-bold tracking-tight">Financial Reports</h1>
                         <p className="text-[14px] text-ink-500 mt-1">
@@ -79,7 +79,7 @@ export default function Reports({ agency, income_statement: pl, cashflow, trust,
                         <h2 className="text-base font-semibold">Income Statement Summary</h2>
                         <p className="text-[12px] text-ink-500 mt-0.5">YTD · {new Date().getFullYear()}</p>
                     </div>
-                    <div className="grid grid-cols-4 divide-x divide-ink-200">
+                    <div className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-ink-200">
                         <Cell
                             label="Gross Commission Income"
                             value={fmtMoney(pl.gross_commission)}
@@ -108,12 +108,12 @@ export default function Reports({ agency, income_statement: pl, cashflow, trust,
                 </div>
 
                 {/* Cash flow + Trust */}
-                <div className="grid grid-cols-3 gap-4 mb-6">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
                     <div className="col-span-2 bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
                         <h2 className="text-base font-semibold mb-1">Cash Flow Trend</h2>
                         <p className="text-[12px] text-ink-500 mb-4">Inflow vs Outflow · Last 6 months</p>
 
-                        <div className="flex items-end gap-4 h-52 px-2">
+                        <div className="flex items-end gap-4 h-52 px-2 overflow-x-auto">
                             {cashflow.map((m, idx) => (
                                 <div key={m.month} className="flex-1 flex flex-col items-center gap-1">
                                     <div className="w-full flex items-end justify-center gap-1 h-48">

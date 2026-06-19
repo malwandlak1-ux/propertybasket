@@ -103,7 +103,7 @@ function KanbanColumn({ title, color, items, count }: {
                         )}
 
                         {item.status === 'open' && (
-                            <div className="grid grid-cols-2 gap-1.5 mt-2">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 mt-2">
                                 <button className="py-1.5 text-[10px] bg-ink-900 text-white rounded font-semibold hover:bg-ink-800 transition">Assign</button>
                                 <button className="py-1.5 text-[10px] border border-ink-200 rounded font-semibold hover:bg-ink-50 transition">Get Quotes</button>
                             </div>
@@ -131,8 +131,8 @@ export default function LandlordMaintenance({ landlord, grouped, counts }: Props
         <LandlordLayout crumb="Maintenance" section="Workspace" openMaint={counts.open + counts.in_progress}>
             <Head title="Maintenance" />
 
-            <div className="px-8 py-7">
-                <div className="flex items-end justify-between mb-6">
+            <div className="px-4 sm:px-8 py-6 sm:py-7">
+                <div className="flex flex-wrap items-end justify-between gap-3 mb-6">
                     <div>
                         <h1 className="text-2xl font-bold tracking-tight">Maintenance</h1>
                         <p className="text-[14px] text-ink-500 mt-1">

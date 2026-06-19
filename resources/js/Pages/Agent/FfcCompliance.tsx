@@ -63,7 +63,7 @@ export default function AgentFfcCompliance({ agent, ffc }: Props) {
         <AgentLayout crumb="FFC & Compliance" agencyName={agent.agency_name}>
             <Head title="FFC & Compliance" />
 
-            <div className="px-8 py-7 max-w-3xl">
+            <div className="px-4 sm:px-8 py-6 sm:py-7 max-w-3xl">
                 <div className="mb-6">
                     <h1 className="text-2xl font-bold tracking-tight">FFC &amp; Compliance</h1>
                     <p className="text-[14px] text-ink-500 mt-1">
@@ -83,7 +83,7 @@ export default function AgentFfcCompliance({ agent, ffc }: Props) {
                 {/* Current cert + form */}
                 <form onSubmit={submit} className="space-y-5">
                     <div className="bg-white rounded-xl border border-ink-200 shadow-soft p-5 space-y-4">
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
                                 <label className="text-[12px] font-semibold text-ink-700 mb-1.5 block">FFC number *</label>
                                 <input

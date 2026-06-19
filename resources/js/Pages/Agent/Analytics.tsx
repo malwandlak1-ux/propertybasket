@@ -29,7 +29,7 @@ export default function AgentAnalytics({ agent, funnel, lead_sources, mtd, trend
         <AgentLayout crumb="Analytics" agencyName={agent.agency_name}>
             <Head title="Analytics" />
 
-            <div className="px-8 py-7">
+            <div className="px-4 sm:px-8 py-6 sm:py-7">
                 {/* Header */}
                 <div className="mb-6">
                     <h1 className="text-2xl font-bold tracking-tight">Analytics</h1>
@@ -39,7 +39,7 @@ export default function AgentAnalytics({ agent, funnel, lead_sources, mtd, trend
                 </div>
 
                 {/* MTD KPIs */}
-                <div className="grid grid-cols-4 gap-4 mb-6">
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                     {[
                         { label: 'MTD Leads',   value: mtd.leads.toString(),   sub: 'This month',       color: 'text-brand-600' },
                         { label: 'MTD Viewings', value: mtd.viewing.toString(), sub: 'Scheduled',        color: 'text-sky-600' },
@@ -55,7 +55,7 @@ export default function AgentAnalytics({ agent, funnel, lead_sources, mtd, trend
                 </div>
 
                 {/* Two-column: Funnel + Sources */}
-                <div className="grid grid-cols-2 gap-4 mb-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
                     {/* Conversion funnel */}
                     <div className="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
                         <h2 className="text-base font-semibold mb-1">Conversion Funnel</h2>
@@ -85,7 +85,7 @@ export default function AgentAnalytics({ agent, funnel, lead_sources, mtd, trend
                             ))}
                         </div>
 
-                        <div className="mt-5 pt-4 border-t border-ink-200 grid grid-cols-2 gap-4 text-center">
+                        <div className="mt-5 pt-4 border-t border-ink-200 grid grid-cols-1 sm:grid-cols-2 gap-4 text-center">
                             <div>
                                 <p className="text-[11px] text-ink-500 uppercase tracking-wider">Total Leads</p>
                                 <p className="text-xl font-bold mt-1">{overall.total_leads}</p>
@@ -140,7 +140,7 @@ export default function AgentAnalytics({ agent, funnel, lead_sources, mtd, trend
 
                 {/* Win/loss trend */}
                 <div className="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
-                    <div className="flex items-center justify-between mb-5">
+                    <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
                         <div>
                             <h2 className="text-base font-semibold">Win / Loss Trend</h2>
                             <p className="text-[12px] text-ink-500 mt-0.5">Last 6 months</p>
@@ -155,7 +155,7 @@ export default function AgentAnalytics({ agent, funnel, lead_sources, mtd, trend
                         </div>
                     </div>
 
-                    <div className="flex items-end gap-4 h-40">
+                    <div className="flex items-end gap-4 h-40 overflow-x-auto">
                         {trend.map((t) => {
                             const totalH = t.won + t.lost;
                             const wonPct  = max_trend > 0 ? (t.won / max_trend) * 100 : 0;

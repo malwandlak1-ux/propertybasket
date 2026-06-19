@@ -95,7 +95,7 @@ export default function ContractorSettings({ counts, contractor, profile, bankin
         <ContractorLayout crumb="Settings" section="Account" business={contractor.business_name} counts={counts}>
             <Head title="Settings" />
 
-            <section className="px-4 sm:px-8 py-7 max-w-5xl">
+            <section className="px-4 sm:px-4 sm:px-8 py-6 sm:py-7 max-w-5xl">
                 <div className="mb-6">
                     <h1 className="text-2xl font-bold tracking-tight">Settings</h1>
                     <p className="text-[14px] text-ink-500 mt-1">
@@ -613,7 +613,7 @@ function PhotosBlock({ items }: { items: Props['portfolio']['portfolio_items'] }
                     <p className="text-[13px] text-ink-500">No photos yet — add your first job photo to stand out on the marketplace.</p>
                 </div>
             ) : (
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 sm:grid-cols-3 gap-3">
                     {items.map((item, idx) => (
                         <div key={idx} className="group relative rounded-lg overflow-hidden border border-ink-200 bg-ink-50">
                             <img src={item.url} alt={item.caption ?? `Portfolio item ${idx + 1}`} className="w-full h-32 object-cover" />

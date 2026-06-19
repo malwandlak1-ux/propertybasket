@@ -57,8 +57,8 @@ export default function AdminTransactions({ range, kpis, transactions }: Props) 
         <AdminLayout crumb="Transactions" section="Financials">
             <Head title="Transactions" />
 
-            <div className="px-8 py-7">
-                <div className="flex items-end justify-between mb-6">
+            <div className="px-4 sm:px-8 py-6 sm:py-7">
+                <div className="flex flex-wrap items-end justify-between gap-3 mb-6">
                     <div>
                         <h1 className="text-2xl font-bold tracking-tight">Transactions</h1>
                         <p className="text-[14px] text-ink-500 mt-1">
@@ -75,17 +75,22 @@ export default function AdminTransactions({ range, kpis, transactions }: Props) 
                                 <option key={k} value={k}>{v}</option>
                             ))}
                         </select>
-                        <button className="px-3.5 py-2 text-[13px] border border-ink-200 rounded-lg bg-white hover:bg-ink-50 transition flex items-center gap-2">
+                        <a
+                            href={`/admin/transactions/export?range=${encodeURIComponent(range)}`}
+                            download
+                            title={`Download a CSV of the ${RANGE_LABEL[range]?.toLowerCase() ?? 'current'} transactions`}
+                            className="px-3.5 py-2 text-[13px] border border-ink-200 rounded-lg bg-white hover:bg-ink-50 transition flex items-center gap-2"
+                        >
                             <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
                                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>
                             </svg>
-                            Export
-                        </button>
+                            Export CSV
+                        </a>
                     </div>
                 </div>
 
                 {/* KPI strip */}
-                <div className="grid grid-cols-4 gap-4 mb-6">
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                     <Kpi label="Collected" value={fmtMoney(kpis.collected)} tone="success" />
                     <Kpi label="Platform Fees" value={fmtMoney(kpis.platform_fees)} tone="ink" />
                     <Kpi label="Failed Charges" value={String(kpis.failed_count)} tone={kpis.failed_count > 0 ? 'danger' : 'ink'} />
@@ -100,7 +105,7 @@ export default function AdminTransactions({ range, kpis, transactions }: Props) 
                     {transactions.length === 0 ? (
                         <div className="p-10 text-center text-[13px] text-ink-400">No transactions in this period</div>
                     ) : (
-                        <table className="w-full">
+                        <div className="overflow-x-auto"><table className="w-full min-w-[700px]">
                             <thead>
                                 <tr className="text-left text-[11px] uppercase text-ink-500 tracking-wider border-b border-ink-200 bg-ink-50">
                                     <th className="font-semibold px-5 py-3">Date</th>
@@ -131,7 +136,7 @@ export default function AdminTransactions({ range, kpis, transactions }: Props) 
                                     </tr>
                                 ))}
                             </tbody>
-                        </table>
+                        </table></div>
                     )}
                 </div>
             </div>

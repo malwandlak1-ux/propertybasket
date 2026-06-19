@@ -108,8 +108,8 @@ export default function AdminBlogForm({ post, allTags }: Props) {
         <AdminLayout crumb={isEdit ? `Edit · ${post!.title}` : 'New post'} section="Blog">
             <Head title={isEdit ? `Edit · ${post!.title}` : 'New post'} />
 
-            <form onSubmit={save} className="px-4 sm:px-8 py-7 max-w-5xl">
-                <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
+            <form onSubmit={save} className="px-4 sm:px-4 sm:px-8 py-6 sm:py-7 max-w-5xl">
+                <div className="flex flex-wrap items-center justify-between gap-3 mb-6 flex-wrap gap-3">
                     <div className="flex items-center gap-3">
                         <Link href="/admin/blog" className="text-[12px] font-semibold text-brand-700 hover:underline">
                             ← All posts

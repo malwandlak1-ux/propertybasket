@@ -42,8 +42,8 @@ export default function AdminSystem({ health, incidents }: Props) {
         <AdminLayout crumb="System Health" section="System">
             <Head title="System Health" />
 
-            <div className="px-8 py-7">
-                <div className="flex items-end justify-between mb-6">
+            <div className="px-4 sm:px-8 py-6 sm:py-7">
+                <div className="flex flex-wrap items-end justify-between gap-3 mb-6">
                     <div>
                         <h1 className="text-2xl font-bold tracking-tight">System Health</h1>
                         <p className="text-[14px] text-ink-500 mt-1">
@@ -57,7 +57,7 @@ export default function AdminSystem({ health, incidents }: Props) {
                 </div>
 
                 {/* Health grid */}
-                <div className="grid grid-cols-3 gap-4 mb-8">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
                     {health.map((h) => {
                         const c = STATUS_COLORS[h.status];
                         return (

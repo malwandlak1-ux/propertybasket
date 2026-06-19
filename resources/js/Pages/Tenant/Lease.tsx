@@ -62,7 +62,7 @@ export default function TenantLease({ lease, documents, key_dates }: Props) {
         <TenantLayout crumb="My Lease" leaseAddress={lease.address}>
             <Head title="My Lease" />
 
-            <div className="px-8 py-7">
+            <div className="px-4 sm:px-8 py-6 sm:py-7">
                 <div className="mb-6">
                     <h1 className="text-2xl font-bold tracking-tight">My Lease</h1>
                     <p className="text-[14px] text-ink-500 mt-1">Lease agreement, addendums, and key dates</p>
@@ -84,7 +84,7 @@ export default function TenantLease({ lease, documents, key_dates }: Props) {
                             <p className="text-3xl font-bold">{fmtMoney(lease.monthly_rent)}</p>
                         </div>
                     </div>
-                    <div className="grid grid-cols-4 gap-4 pt-5 border-t border-white/10">
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 pt-5 border-t border-white/10">
                         <div>
                             <p className="text-[10px] opacity-60 uppercase tracking-wider font-semibold">Start Date</p>
                             <p className="text-[13px] font-semibold mt-1 font-mono">{lease.start_date}</p>
@@ -105,7 +105,7 @@ export default function TenantLease({ lease, documents, key_dates }: Props) {
                 </div>
 
                 {/* Documents */}
-                <div className="grid grid-cols-3 gap-4 mb-6">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
                     {documents.map((d) => (
                         <div key={d.id} className="bg-white rounded-xl border border-ink-200 p-5 shadow-soft hover:shadow-lift transition">
                             <div className="flex items-start justify-between mb-3">

@@ -104,9 +104,9 @@ export default function AgentListings({ agent, listings, counts, type_filter, in
         <AgentLayout crumb="Listings" agencyName={agent.agency_name}>
             <Head title="My Listings" />
 
-            <div className="px-8 py-7">
+            <div className="px-4 sm:px-8 py-6 sm:py-7">
                 {/* Header */}
-                <div className="flex items-center justify-between mb-6">
+                <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
                     <div>
                         <h1 className="text-2xl font-bold tracking-tight">My Listings</h1>
                         <p className="text-[14px] text-ink-500 mt-1">
@@ -154,7 +154,7 @@ export default function AgentListings({ agent, listings, counts, type_filter, in
                         <p className="text-[13px] text-ink-500">Listings assigned to you will appear here.</p>
                     </div>
                 ) : (
-                    <div className="grid grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         {listings.map((l) => (
                             <div
                                 key={l.id}

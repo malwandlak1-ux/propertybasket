@@ -66,8 +66,8 @@ export default function LandlordTenants({ landlord, tenants, invitable_listings,
         <LandlordLayout crumb="Tenants" section="People">
             <Head title="My Tenants" />
 
-            <div className="px-8 py-7">
-                <div className="flex items-end justify-between mb-6">
+            <div className="px-4 sm:px-8 py-6 sm:py-7">
+                <div className="flex flex-wrap items-end justify-between gap-3 mb-6">
                     <div>
                         <h1 className="text-2xl font-bold tracking-tight">My Tenants</h1>
                         <p className="text-[14px] text-ink-500 mt-1">
@@ -119,7 +119,7 @@ export default function LandlordTenants({ landlord, tenants, invitable_listings,
                             <p className="text-[12px] text-ink-500 mt-0.5">Tenants currently leasing your properties</p>
                         </div>
 
-                        <table className="w-full">
+                        <div className="overflow-x-auto"><table className="w-full min-w-[700px]">
                             <thead>
                                 <tr className="text-left text-[11px] uppercase text-ink-500 tracking-wider border-b border-ink-200 bg-ink-50">
                                     <th className="font-semibold px-5 py-3">Tenant</th>
@@ -172,7 +172,7 @@ export default function LandlordTenants({ landlord, tenants, invitable_listings,
                                     </tr>
                                 ))}
                             </tbody>
-                        </table>
+                        </table></div>
                     </div>
                 )}
             </div>

@@ -65,9 +65,9 @@ export default function AgentCommission({ agent, stats, monthly_chart, max_bar, 
         <AgentLayout crumb="Commission" agencyName={agent.agency_name}>
             <Head title="Commission" />
 
-            <div className="px-8 py-7">
+            <div className="px-4 sm:px-8 py-6 sm:py-7">
                 {/* Header */}
-                <div className="flex items-center justify-between mb-6">
+                <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
                     <div>
                         <h1 className="text-2xl font-bold tracking-tight">Commission Tracker</h1>
                         <p className="text-[14px] text-ink-500 mt-1">
@@ -83,7 +83,7 @@ export default function AgentCommission({ agent, stats, monthly_chart, max_bar, 
                 </div>
 
                 {/* KPI row */}
-                <div className="grid grid-cols-4 gap-4 mb-6">
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                     {kpis.map((k) => (
                         <div key={k.label} className="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
                             <p className="text-[11px] text-ink-500 uppercase tracking-wider font-semibold mb-2">{k.label}</p>
@@ -118,7 +118,7 @@ export default function AgentCommission({ agent, stats, monthly_chart, max_bar, 
 
                 {/* Monthly bar chart */}
                 <div className="bg-white rounded-xl border border-ink-200 p-5 shadow-soft mb-6">
-                    <div className="flex items-center justify-between mb-5">
+                    <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
                         <div>
                             <h2 className="text-base font-semibold">Monthly Earnings vs Target</h2>
                             <p className="text-[12px] text-ink-500 mt-0.5">Last 12 months</p>
@@ -133,7 +133,7 @@ export default function AgentCommission({ agent, stats, monthly_chart, max_bar, 
                         </div>
                     </div>
 
-                    <div className="flex items-end gap-2 h-40">
+                    <div className="flex items-end gap-2 h-40 overflow-x-auto">
                         {monthly_chart.map((m) => {
                             const earnedPct = (m.earned / max_bar) * 100;
                             const targetPct = (m.target / max_bar) * 100;
@@ -174,7 +174,7 @@ export default function AgentCommission({ agent, stats, monthly_chart, max_bar, 
                     {ledger.length === 0 ? (
                         <div className="p-12 text-center text-[13px] text-ink-400">No commission records yet</div>
                     ) : (
-                        <table className="w-full">
+                        <div className="overflow-x-auto"><table className="w-full min-w-[700px]">
                             <thead>
                                 <tr className="text-left text-[11px] uppercase text-ink-500 tracking-wider border-b border-ink-200 bg-ink-50">
                                     <th className="font-semibold py-3 px-5">Date</th>
@@ -216,7 +216,7 @@ export default function AgentCommission({ agent, stats, monthly_chart, max_bar, 
                                     );
                                 })}
                             </tbody>
-                        </table>
+                        </table></div>
                     )}
                 </div>
             </div>

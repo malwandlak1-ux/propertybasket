@@ -49,7 +49,7 @@ export default function AgencyBilling({ agency, current, plans }: Props) {
         <AgencyLayout crumb="Billing & Plan" agencyName={agency.name}>
             <Head title="Billing & Plan" />
 
-            <div className="px-8 py-7">
+            <div className="px-4 sm:px-8 py-6 sm:py-7">
                 <div className="mb-6">
                     <h1 className="text-2xl font-bold tracking-tight">Billing &amp; Plan</h1>
                     <p className="text-[14px] text-ink-500 mt-1">

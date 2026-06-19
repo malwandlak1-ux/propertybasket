@@ -183,6 +183,8 @@ function CityTile({ city, total }: { city: string; total: number }) {
 }
 
 function RentalManagement() {
+    const [demoOpen, setDemoOpen] = useState(false);
+
     return (
         <section
             className="relative text-white overflow-hidden"
@@ -219,12 +221,13 @@ function RentalManagement() {
                             <h3 className="text-3xl md:text-4xl font-bold tracking-tight leading-tight">
                                 Book<br/>A Demo
                             </h3>
-                            <Link
-                                href="/contact"
+                            <button
+                                type="button"
+                                onClick={() => setDemoOpen(true)}
                                 className="mt-6 inline-flex items-center justify-center px-8 py-3 rounded-lg bg-white/15 hover:bg-white/25 backdrop-blur border border-white/20 text-white font-semibold text-[13px] transition"
                             >
                                 Book here
-                            </Link>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -234,7 +237,169 @@ function RentalManagement() {
                     <RegisterCard />
                 </div>
             </div>
+
+            <BookDemoModal open={demoOpen} onClose={() => setDemoOpen(false)} />
         </section>
+    );
+}
+
+function BookDemoModal({ open, onClose }: { open: boolean; onClose: () => void }) {
+    const { data, setData, post, processing, errors, reset, wasSuccessful } = useForm({
+        name: '',
+        email: '',
+        phone: '',
+        message: '',
+        website: '', // honeypot — must stay empty
+    });
+
+    if (!open) return null;
+
+    function submit(e: FormEvent) {
+        e.preventDefault();
+        post('/demos', {
+            preserveScroll: true,
+            onSuccess: () => {
+                reset();
+                // Keep modal open for ~2s to show the success banner, then close
+                setTimeout(onClose, 2000);
+            },
+        });
+    }
+
+    return (
+        <div
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink-900/70 backdrop-blur-sm"
+            onClick={onClose}
+        >
+            <div
+                className="bg-white rounded-2xl shadow-lift w-full max-w-md text-ink-900"
+                onClick={(e) => e.stopPropagation()}
+            >
+                <div className="px-6 pt-6 pb-2 flex items-start justify-between">
+                    <div>
+                        <h3 className="text-xl font-bold">Book a demo</h3>
+                        <p className="text-[13px] text-ink-500 mt-1">
+                            Leave your details and we'll set up a walkthrough at a time that works for you.
+                        </p>
+                    </div>
+                    <button
+                        type="button"
+                        onClick={onClose}
+                        className="text-ink-400 hover:text-ink-700 -m-2 p-2"
+                        aria-label="Close"
+                    >
+                        <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+                            <path d="M6 6l12 12M18 6L6 18"/>
+                        </svg>
+                    </button>
+                </div>
+
+                {wasSuccessful ? (
+                    <div className="px-6 pb-6 pt-2">
+                        <div className="rounded-lg bg-success/10 border border-success/30 px-4 py-5 text-center">
+                            <div className="w-12 h-12 rounded-full bg-success text-white flex items-center justify-center mx-auto mb-3">
+                                <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5}>
+                                    <path d="M20 6L9 17l-5-5"/>
+                                </svg>
+                            </div>
+                            <p className="text-[14px] font-semibold text-success">Thanks — we got it.</p>
+                            <p className="text-[12.5px] text-ink-600 mt-1">A team member will reach out shortly.</p>
+                        </div>
+                    </div>
+                ) : (
+                    <form onSubmit={submit} className="px-6 pb-6 pt-2 space-y-4">
+                        {/* Honeypot — visually hidden, real users skip it */}
+                        <input
+                            type="text"
+                            value={data.website}
+                            onChange={(e) => setData('website', e.target.value)}
+                            tabIndex={-1}
+                            autoComplete="off"
+                            className="absolute left-[-9999px] w-0 h-0 opacity-0"
+                            aria-hidden="true"
+                        />
+
+                        <Field label="Name" error={errors.name}>
+                            <input
+                                type="text"
+                                value={data.name}
+                                onChange={(e) => setData('name', e.target.value)}
+                                autoFocus
+                                required
+                                placeholder="Your full name"
+                                className="w-full bg-white border border-ink-200 rounded-lg px-3 py-2.5 text-[14px] focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand"
+                            />
+                        </Field>
+
+                        <Field label="Email" error={errors.email}>
+                            <input
+                                type="email"
+                                value={data.email}
+                                onChange={(e) => setData('email', e.target.value)}
+                                required
+                                placeholder="you@company.com"
+                                className="w-full bg-white border border-ink-200 rounded-lg px-3 py-2.5 text-[14px] focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand"
+                            />
+                        </Field>
+
+                        <Field label="Phone" error={errors.phone}>
+                            <input
+                                type="tel"
+                                value={data.phone}
+                                onChange={(e) => setData('phone', e.target.value)}
+                                required
+                                placeholder="+27 ..."
+                                className="w-full bg-white border border-ink-200 rounded-lg px-3 py-2.5 text-[14px] focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand"
+                            />
+                        </Field>
+
+                        <Field label="Anything you'd like to mention?" error={errors.message} optional>
+                            <textarea
+                                value={data.message}
+                                onChange={(e) => setData('message', e.target.value)}
+                                rows={3}
+                                placeholder="e.g. 'I run a 12-agent agency in Sandton'"
+                                className="w-full bg-white border border-ink-200 rounded-lg px-3 py-2.5 text-[14px] focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand resize-none"
+                            />
+                        </Field>
+
+                        <div className="flex items-center gap-2 pt-1">
+                            <button
+                                type="button"
+                                onClick={onClose}
+                                className="flex-1 px-4 py-2.5 rounded-lg border border-ink-200 bg-white hover:bg-ink-50 text-ink-700 text-[14px] font-semibold transition"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="submit"
+                                disabled={processing}
+                                className="flex-1 px-4 py-2.5 rounded-lg bg-ink-900 hover:bg-ink-800 text-white text-[14px] font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                {processing ? 'Sending…' : 'Request demo'}
+                            </button>
+                        </div>
+
+                        <p className="text-[11px] text-ink-400 text-center pt-1">
+                            By submitting you agree we may contact you about Property Basket. We never share your details.
+                        </p>
+                    </form>
+                )}
+            </div>
+        </div>
+    );
+}
+
+function Field({ label, error, optional, children }: { label: string; error?: string; optional?: boolean; children: React.ReactNode }) {
+    return (
+        <div>
+            <label className="block text-[12px] font-semibold text-ink-700 mb-1.5">
+                {label}
+                {optional && <span className="ml-1 text-ink-400 font-normal">(optional)</span>}
+            </label>
+            {children}
+            {error && <p className="text-[11px] text-danger mt-1">{error}</p>}
+        </div>
     );
 }
 

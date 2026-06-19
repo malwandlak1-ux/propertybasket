@@ -34,8 +34,8 @@ export default function AdminSubscriptions({ plans, contractor_fee_percent }: Pr
         <AdminLayout crumb="Subscriptions" section="Financials">
             <Head title="Subscription Plans" />
 
-            <div className="px-8 py-7">
-                <div className="flex items-end justify-between mb-6">
+            <div className="px-4 sm:px-8 py-6 sm:py-7">
+                <div className="flex flex-wrap items-end justify-between gap-3 mb-6">
                     <div>
                         <h1 className="text-2xl font-bold tracking-tight">Subscription Plans</h1>
                         <p className="text-[14px] text-ink-500 mt-1">
@@ -50,7 +50,7 @@ export default function AdminSubscriptions({ plans, contractor_fee_percent }: Pr
                     </div>
                 )}
 
-                <div className="grid grid-cols-4 gap-4">
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                     {plans.map((p) => (
                         <PlanCard
                             key={p.key}

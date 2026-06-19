@@ -97,8 +97,8 @@ export default function TenantMaintenance({ lease, active, past }: Props) {
         <TenantLayout crumb="Maintenance" leaseAddress={lease.address}>
             <Head title="Maintenance" />
 
-            <div className="px-8 py-7">
-                <div className="flex items-end justify-between mb-6">
+            <div className="px-4 sm:px-8 py-6 sm:py-7">
+                <div className="flex flex-wrap items-end justify-between gap-3 mb-6">
                     <div>
                         <h1 className="text-2xl font-bold tracking-tight">Maintenance</h1>
                         <p className="text-[14px] text-ink-500 mt-1">
@@ -120,7 +120,7 @@ export default function TenantMaintenance({ lease, active, past }: Props) {
                             <p className="text-[13px] font-bold">Report a new issue</p>
                             <p className="text-[11px] text-ink-500 mt-0.5">Fill in the details — your agency will assign a contractor and notify you.</p>
                         </div>
-                        <div className="p-5 grid grid-cols-2 gap-5">
+                        <div className="p-5 grid grid-cols-1 sm:grid-cols-2 gap-5">
                             <div className="space-y-4">
                                 <div>
                                     <label className="text-[12px] font-semibold text-ink-700 mb-1.5 block">Issue title</label>
@@ -134,7 +134,7 @@ export default function TenantMaintenance({ lease, active, past }: Props) {
                                 </div>
                                 <div>
                                     <label className="text-[12px] font-semibold text-ink-700 mb-1.5 block">Category</label>
-                                    <div className="grid grid-cols-3 gap-2">
+                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                                         {CATEGORIES.map((c) => (
                                             <button
                                                 type="button"
@@ -153,7 +153,7 @@ export default function TenantMaintenance({ lease, active, past }: Props) {
                                 </div>
                                 <div>
                                     <label className="text-[12px] font-semibold text-ink-700 mb-1.5 block">Urgency</label>
-                                    <div className="grid grid-cols-4 gap-2">
+                                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
                                         {URGENCIES.map((u) => (
                                             <button
                                                 type="button"
@@ -190,7 +190,7 @@ export default function TenantMaintenance({ lease, active, past }: Props) {
                                 </div>
                                 <div>
                                     <label className="text-[12px] font-semibold text-ink-700 mb-1.5 block">Preferred visit slot</label>
-                                    <div className="grid grid-cols-2 gap-2">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                                         <input
                                             type="date"
                                             value={data.preferred_date}
@@ -263,7 +263,7 @@ export default function TenantMaintenance({ lease, active, past }: Props) {
                         <button onClick={() => setShowForm(true)} className="mt-3 text-[12px] font-semibold text-brand-600">Log your first request →</button>
                     </div>
                 ) : (
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         {active.map((r) => (
                             <Card key={r.id} item={r} active onRate={setRatingItem} />
                         ))}

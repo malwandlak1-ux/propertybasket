@@ -100,8 +100,8 @@ export default function TenantOverview({ tenant, lease, next_due, streak, deposi
         <TenantLayout crumb="Dashboard" leaseAddress={lease.address}>
             <Head title="Tenant Dashboard" />
 
-            <div className="px-8 py-7">
-                <div className="flex items-end justify-between mb-7">
+            <div className="px-4 sm:px-8 py-6 sm:py-7">
+                <div className="flex flex-wrap items-end justify-between gap-3 mb-7">
                     <div>
                         <p className="text-[13px] text-ink-500">{today()}</p>
                         <h1 className="text-3xl font-bold tracking-tight mt-1">
@@ -121,7 +121,7 @@ export default function TenantOverview({ tenant, lease, next_due, streak, deposi
                 </div>
 
                 {/* Hero row */}
-                <div className="grid grid-cols-3 gap-4 mb-6">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
                     <div className="col-span-2 bg-gradient-to-br from-brand-500 to-brand-700 rounded-xl p-6 text-white shadow-card relative overflow-hidden">
                         <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-32 translate-x-32" />
                         <div className="absolute bottom-0 right-12 w-32 h-32 bg-white/5 rounded-full translate-y-16" />
@@ -198,7 +198,7 @@ export default function TenantOverview({ tenant, lease, next_due, streak, deposi
                 </div>
 
                 {/* Body */}
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div className="col-span-2 space-y-4">
                         {/* Maintenance */}
                         <div className="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">

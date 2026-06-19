@@ -24,6 +24,7 @@ export default function PublicLayout({ children }: Props) {
                     <nav className="hidden md:flex items-center gap-7 text-[14px] font-medium text-ink-700">
                         <Link href="/properties" className="hover:text-ink-900">Properties</Link>
                         <Link href="/agencies" className="hover:text-ink-900">Agencies</Link>
+                        <Link href="/calculator" className="hover:text-ink-900">Calculator</Link>
                         <Link href="/advice" className="hover:text-ink-900">Advice</Link>
                         {user && <Link href="/contractors" className="hover:text-ink-900">Contractors</Link>}
                     </nav>
@@ -70,6 +71,7 @@ export default function PublicLayout({ children }: Props) {
                     <nav className="md:hidden border-t border-ink-200 bg-white px-4 py-3 space-y-1">
                         <Link href="/properties" className="block px-3 py-2 rounded-lg text-[14px] hover:bg-ink-100">Properties</Link>
                         <Link href="/agencies" className="block px-3 py-2 rounded-lg text-[14px] hover:bg-ink-100">Agencies</Link>
+                        <Link href="/calculator" className="block px-3 py-2 rounded-lg text-[14px] hover:bg-ink-100">Calculator</Link>
                         <Link href="/advice" className="block px-3 py-2 rounded-lg text-[14px] hover:bg-ink-100">Advice</Link>
                         {user && <Link href="/contractors" className="block px-3 py-2 rounded-lg text-[14px] hover:bg-ink-100">Contractors</Link>}
                         <div className="border-t border-ink-200 my-2" />
@@ -136,7 +138,7 @@ function SiteFooter() {
                         <Link href="/" className={linkCls}>Board</Link>
                         <Link href="/news" className={linkCls}>News updates</Link>
                         <Link href="/agencies" className={linkCls}>Agents</Link>
-                        <Link href="/privacy" className={linkCls}>Privacy Policy</Link>
+                        <Link href="/privacy-policy" className={linkCls}>Privacy Policy</Link>
                     </div>
                 </div>
 
@@ -192,22 +194,29 @@ function SiteFooter() {
                         © Property Basket — All rights reserved
                     </p>
 
-                    <div className="col-span-3 sm:col-span-1 flex justify-center order-1 sm:order-2">
+                    <div className="col-span-3 sm:col-span-1 flex flex-col items-center gap-3 order-1 sm:order-2">
                         <Link href="/" aria-label="Property Basket home">
                             <img src="/images/logo-icon-white.png" alt="Property Basket" className="h-7 w-auto" />
                         </Link>
+                        <nav className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-[11px] text-white/70">
+                            <Link href="/privacy-policy" className="hover:text-white transition">Privacy Policy</Link>
+                            <span className="text-white/30">·</span>
+                            <Link href="/privacy-portal" className="hover:text-white transition">Privacy Portal</Link>
+                            <span className="text-white/30">·</span>
+                            <Link href="/terms-and-conditions" className="hover:text-white transition">Terms &amp; Conditions</Link>
+                        </nav>
                     </div>
 
                     <div className="col-span-3 sm:col-span-1 flex items-center justify-center sm:justify-end gap-3 order-2 sm:order-3">
-                        <SocialIcon href="https://facebook.com" label="Facebook">
+                        <SocialIcon href="https://www.facebook.com/Propertybaskett" label="Facebook">
                             <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
                         </SocialIcon>
-                        <SocialIcon href="https://instagram.com" label="Instagram">
+                        <SocialIcon href="https://www.instagram.com/the_property_basket/" label="Instagram">
                             <rect x="3" y="3" width="18" height="18" rx="5"/>
                             <circle cx="12" cy="12" r="3.5"/>
                             <circle cx="17.5" cy="6.5" r="0.6" fill="currentColor"/>
                         </SocialIcon>
-                        <SocialIcon href="https://youtube.com" label="YouTube">
+                        <SocialIcon href="https://www.youtube.com/@propertybasket9778" label="YouTube">
                             <path d="M22 8s-.2-1.4-.8-2c-.8-.8-1.7-.8-2.1-.9C16.2 5 12 5 12 5s-4.2 0-7.1.1c-.4 0-1.3 0-2.1.9C2.2 6.6 2 8 2 8s-.2 1.6-.2 3.2v1.5C1.8 14.4 2 16 2 16s.2 1.4.8 2c.8.8 1.9.8 2.4.9 1.7.2 7.3.2 7.3.2s4.2 0 7.1-.1c.4 0 1.3 0 2.1-.9.6-.6.8-2 .8-2s.2-1.6.2-3.2v-1.5C22.2 9.6 22 8 22 8z"/>
                             <path d="M10 9.3v5.4l5-2.7z" fill="currentColor"/>
                         </SocialIcon>
@@ -215,7 +224,7 @@ function SiteFooter() {
                             <path d="M20.5 3.5A10 10 0 0 0 3.4 16.4L2 22l5.7-1.5A10 10 0 1 0 20.5 3.5z"/>
                             <path d="M8 8c-.3 0-.7 0-1 .4-.4.4-1.3 1.2-1.3 3 0 1.7 1.3 3.5 1.5 3.7.2.3 2.5 3.9 6.3 5.3 3 1.1 3.6.9 4.3.8.7-.1 2.2-.9 2.5-1.8.3-.9.3-1.6.2-1.8-.1-.2-.4-.3-.8-.5-.4-.2-2.2-1.1-2.6-1.2-.3-.1-.6-.2-.8.2-.3.4-1 1.2-1.2 1.4-.2.2-.4.3-.8.1-.4-.2-1.5-.5-2.9-1.8-1.1-1-1.8-2.2-2-2.6-.2-.4 0-.6.2-.8.2-.2.4-.4.6-.7.2-.2.3-.4.4-.7.1-.3.1-.5 0-.7-.1-.2-.8-1.9-1-2.6-.3-.7-.5-.6-.7-.6z" fill="currentColor"/>
                         </SocialIcon>
-                        <SocialIcon href="#" label="X">
+                        <SocialIcon href="https://x.com/PropertyBaskett" label="X (Twitter)">
                             <path d="M4 4l16 16M20 4L4 20"/>
                         </SocialIcon>
 

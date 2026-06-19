@@ -153,8 +153,8 @@ export default function Commission({ agency, commissions, totals, next_batch, pa
     return (
         <AgencyLayout agencyName={agency.name} crumb="Commission & Payouts">
             <Head title="Commission & Payouts" />
-            <section className="px-8 py-7">
-                <div className="flex items-end justify-between mb-6">
+            <section className="px-4 sm:px-8 py-6 sm:py-7">
+                <div className="flex flex-wrap items-end justify-between gap-3 mb-6">
                     <div>
                         <h1 className="text-2xl font-bold tracking-tight">Commission &amp; Payouts</h1>
                         <p className="text-[14px] text-ink-500 mt-1">
@@ -197,7 +197,7 @@ export default function Commission({ agency, commissions, totals, next_batch, pa
                 )}
 
                 {/* Stat strip */}
-                <div className="grid grid-cols-4 gap-4 mb-6">
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                     <div
                         className="rounded-xl p-5 text-white shadow-card"
                         style={{ background: 'linear-gradient(135deg,#5B3DF5,#3A23B8)' }}
@@ -251,7 +251,7 @@ export default function Commission({ agency, commissions, totals, next_batch, pa
                         </div>
                     </div>
                     <div className="overflow-x-auto">
-                        <table className="w-full">
+                        <div className="overflow-x-auto"><table className="w-full min-w-[700px]">
                             <thead>
                                 <tr className="text-left text-[11px] uppercase text-ink-500 tracking-wider border-b border-ink-200 bg-ink-50">
                                     <th className="font-semibold px-5 py-3 w-10">
@@ -343,7 +343,7 @@ export default function Commission({ agency, commissions, totals, next_batch, pa
                                     </tr>
                                 </tfoot>
                             )}
-                        </table>
+                        </table></div>
                     </div>
                 </div>
 
@@ -357,7 +357,7 @@ export default function Commission({ agency, commissions, totals, next_batch, pa
                             </p>
                         </div>
                     </div>
-                    <table className="w-full">
+                    <div className="overflow-x-auto"><table className="w-full min-w-[700px]">
                         <thead>
                             <tr className="text-left text-[11px] uppercase text-ink-500 tracking-wider border-b border-ink-200 bg-ink-50">
                                 <th className="font-semibold px-5 py-3">Contractor</th>
@@ -431,11 +431,11 @@ export default function Commission({ agency, commissions, totals, next_batch, pa
                                 </>
                             )}
                         </tbody>
-                    </table>
+                    </table></div>
                 </div>
 
                 {/* Three side cards */}
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     {/* Paystack */}
                     <div className="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
                         <div className="flex items-center justify-between mb-3">

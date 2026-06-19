@@ -56,7 +56,7 @@ export default function AdminAnnouncements({ recent, audiences }: Props) {
         <AdminLayout crumb="Announcements" section="System">
             <Head title="Announcements" />
 
-            <div className="px-8 py-7">
+            <div className="px-4 sm:px-8 py-6 sm:py-7">
                 <div className="mb-6">
                     <h1 className="text-2xl font-bold tracking-tight">Announcements</h1>
                     <p className="text-[14px] text-ink-500 mt-1">
@@ -64,7 +64,7 @@ export default function AdminAnnouncements({ recent, audiences }: Props) {
                     </p>
                 </div>
 
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     {/* ── New announcement form ───────────────────────── */}
                     <div className="col-span-2 bg-white rounded-xl border border-ink-200 shadow-soft overflow-hidden">
                         <div className="bg-gradient-to-r from-brand-50 to-violet-50 border-b border-brand-100 px-5 py-4">

@@ -92,8 +92,8 @@ export default function Agents({ agency, agents, leaderboard, pending_invites, t
     return (
         <AgencyLayout agencyName={agency.name} crumb="Agents">
             <Head title="Agents" />
-            <section className="px-8 py-7">
-                <div className="flex items-end justify-between mb-6">
+            <section className="px-4 sm:px-8 py-6 sm:py-7">
+                <div className="flex flex-wrap items-end justify-between gap-3 mb-6">
                     <div>
                         <h1 className="text-2xl font-bold tracking-tight">Manage Agents</h1>
                         <p className="text-[14px] text-ink-500 mt-1">
@@ -133,7 +133,7 @@ export default function Agents({ agency, agents, leaderboard, pending_invites, t
                     className="rounded-xl p-6 mb-6 text-white shadow-card"
                     style={{ background: 'linear-gradient(135deg,#0B0B0F,#1A1A22)' }}
                 >
-                    <div className="flex items-center justify-between mb-5">
+                    <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
                         <div>
                             <h2 className="text-lg font-bold">{new Date().toLocaleDateString('en-ZA', { month: 'long', year: 'numeric' })} Leaderboard</h2>
                             <p className="text-[12px] text-white/60 mt-0.5">Closed deals this month · Top 3 visible</p>
@@ -143,7 +143,7 @@ export default function Agents({ agency, agents, leaderboard, pending_invites, t
                     {leaderboard.length === 0 ? (
                         <p className="text-white/60 text-[13px]">No commissions earned yet this period.</p>
                     ) : (
-                        <div className="grid grid-cols-3 gap-4 items-end">
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-end">
                             {/* 2nd */}
                             <Podium agent={leaderboard[1]} rank={2} size="sm" gradient="linear-gradient(135deg,#E5E7EB,#9CA3AF)" />
                             {/* 1st (centred + taller) */}

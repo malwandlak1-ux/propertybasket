@@ -1,44 +1,49 @@
-import { useState } from 'react';
-import { Head } from '@inertiajs/react';
+import { useEffect, useState } from 'react';
+import { Head, router, usePage } from '@inertiajs/react';
 import AdminLayout from '@/Layouts/AdminLayout';
 
 type Tab = { key: string; label: string };
 type Currency = { code: string; label: string };
 
+type SettingsShape = {
+    general: {
+        platform_name: string;
+        support_email: string;
+        default_currency: string;
+        default_vat_rate: number;
+    };
+    fees: {
+        contractor_platform_fee: number;
+        absorb_paystack_fees: boolean;
+        free_trial_days: number;
+    };
+    paystack: {
+        live_mode: boolean;
+        webhook_url: string;
+        public_key_set: boolean;
+        secret_key_set: boolean;
+    };
+    cities: {
+        enabled_provinces: string[];
+        enabled_cities: string[];
+    };
+    advanced: {
+        maintenance_mode: boolean;
+        allow_signups: boolean;
+        enforce_eaab_check: boolean;
+        enforce_fica_check: boolean;
+        tenant_invites_only: boolean;
+    };
+};
+
 type Props = {
     tabs: Tab[];
-    settings: {
-        general: {
-            platform_name: string;
-            support_email: string;
-            default_currency: string;
-            default_vat_rate: number;
-        };
-        fees: {
-            contractor_platform_fee: number;
-            absorb_paystack_fees: boolean;
-            free_trial_days: number;
-        };
-        paystack: {
-            live_mode: boolean;
-            webhook_url: string;
-            public_key_set: boolean;
-            secret_key_set: boolean;
-        };
-        cities: {
-            enabled_provinces: string[];
-            enabled_cities: string[];
-        };
-        advanced: {
-            maintenance_mode: boolean;
-            allow_signups: boolean;
-            enforce_eaab_check: boolean;
-            enforce_fica_check: boolean;
-            tenant_invites_only: boolean;
-        };
-    };
+    settings: SettingsShape;
     currencies: Currency[];
+    has_overrides: boolean;
 };
+
+type FlashProps = { flash?: { success?: string; error?: string } };
 
 function Toggle({ on, onClick }: { on: boolean; onClick: () => void }) {
     return (
@@ -104,6 +109,95 @@ function SelectInput({ label, value, onChange, options }: { label: string; value
     );
 }
 
+function TagEditor({
+    title,
+    placeholder,
+    chipClass,
+    items,
+    onChange,
+    maxLen,
+}: {
+    title: string;
+    placeholder: string;
+    chipClass: string;
+    items: string[];
+    onChange: (next: string[]) => void;
+    maxLen: number;
+}) {
+    const [draft, setDraft] = useState('');
+
+    function add() {
+        const value = draft.trim();
+        if (value === '') return;
+        // Case-insensitive dedupe so "Cape Town" and "cape town" don't both stick.
+        const lower = value.toLowerCase();
+        if (items.some((i) => i.toLowerCase() === lower)) {
+            setDraft('');
+            return;
+        }
+        onChange([...items, value]);
+        setDraft('');
+    }
+
+    function remove(i: number) {
+        onChange(items.filter((_, idx) => idx !== i));
+    }
+
+    function onKey(e: React.KeyboardEvent<HTMLInputElement>) {
+        if (e.key === 'Enter' || e.key === ',') {
+            e.preventDefault();
+            add();
+        }
+    }
+
+    return (
+        <div>
+            <p className="text-[12px] font-semibold mb-2 text-ink-700">
+                {title}
+                <span className="ml-2 text-[10px] font-normal text-ink-400">{items.length} total</span>
+            </p>
+            <div className="flex flex-wrap gap-2 mb-3">
+                {items.length === 0 && (
+                    <p className="text-[11px] text-ink-400 italic">None added yet.</p>
+                )}
+                {items.map((it, i) => (
+                    <span key={`${it}-${i}`} className={`inline-flex items-center gap-1.5 text-[12px] px-2.5 py-1 rounded-full font-semibold ${chipClass}`}>
+                        {it}
+                        <button
+                            type="button"
+                            onClick={() => remove(i)}
+                            className="text-ink-500 hover:text-danger transition leading-none"
+                            aria-label={`Remove ${it}`}
+                            title={`Remove ${it}`}
+                        >
+                            ×
+                        </button>
+                    </span>
+                ))}
+            </div>
+            <div className="flex items-center gap-2">
+                <input
+                    value={draft}
+                    onChange={(e) => setDraft(e.target.value)}
+                    onKeyDown={onKey}
+                    placeholder={placeholder}
+                    maxLength={maxLen}
+                    className="flex-1 bg-white border border-ink-200 rounded-lg px-3 py-1.5 text-[13px] focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand"
+                />
+                <button
+                    type="button"
+                    onClick={add}
+                    disabled={draft.trim() === ''}
+                    className="px-3 py-1.5 text-[12px] bg-ink-900 text-white rounded-lg hover:bg-ink-800 transition font-semibold disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                    Add
+                </button>
+            </div>
+            <p className="text-[10px] text-ink-400 mt-1.5">Press Enter or comma to add. Click × to remove.</p>
+        </div>
+    );
+}
+
 function SettingRow({ label, note, on, onToggle }: { label: string; note?: string; on: boolean; onToggle: () => void }) {
     return (
         <div className="flex items-start justify-between gap-4 py-4 border-b border-ink-100 last:border-b-0">
@@ -116,24 +210,96 @@ function SettingRow({ label, note, on, onToggle }: { label: string; note?: strin
     );
 }
 
-export default function AdminSettings({ tabs, settings: initial, currencies }: Props) {
+export default function AdminSettings({ tabs, settings: initial, currencies, has_overrides }: Props) {
     const [activeTab, setActiveTab] = useState('general');
-    const [data, setData] = useState(initial);
+    const [data, setData] = useState<SettingsShape>(initial);
+    const [saving, setSaving] = useState(false);
+    const [toast, setToast] = useState<{ tone: 'success' | 'error'; message: string } | null>(null);
 
-    function patchTab<K extends keyof typeof data>(tab: K, patch: Partial<typeof data[K]>) {
+    const { props } = usePage<FlashProps>();
+    const flash = props.flash ?? {};
+
+    // Re-hydrate after server reload (Save flushes the page; this keeps local
+    // state in sync with what just got persisted)
+    useEffect(() => {
+        setData(initial);
+    }, [initial]);
+
+    useEffect(() => {
+        if (flash.success) setToast({ tone: 'success', message: flash.success });
+        else if (flash.error) setToast({ tone: 'error', message: flash.error });
+    }, [flash.success, flash.error]);
+
+    useEffect(() => {
+        if (!toast) return;
+        const t = setTimeout(() => setToast(null), 3500);
+        return () => clearTimeout(t);
+    }, [toast]);
+
+    const dirty = JSON.stringify(data) !== JSON.stringify(initial);
+
+    function patchTab<K extends keyof SettingsShape>(tab: K, patch: Partial<SettingsShape[K]>) {
         setData({ ...data, [tab]: { ...data[tab], ...patch } });
+    }
+
+    function cancel() {
+        if (!dirty) return;
+        if (!window.confirm('Discard unsaved changes?')) return;
+        setData(initial);
+    }
+
+    function save() {
+        // Only send the user-editable subset to keep the payload minimal and
+        // server-side validation tight.
+        setSaving(true);
+        router.patch('/admin/settings', {
+            general: data.general,
+            fees: data.fees,
+            paystack: { live_mode: data.paystack.live_mode },
+            cities: {
+                enabled_provinces: data.cities.enabled_provinces,
+                enabled_cities:    data.cities.enabled_cities,
+            },
+            advanced: data.advanced,
+        } as never, {
+            preserveScroll: true,
+            onFinish: () => setSaving(false),
+        });
+    }
+
+    function resetAll() {
+        if (!window.confirm('Reset every setting on this page to the platform defaults? This cannot be undone.')) return;
+        router.post('/admin/settings/reset', {}, { preserveScroll: true });
     }
 
     return (
         <AdminLayout crumb="Platform Settings" section="System">
             <Head title="Platform Settings" />
 
-            <div className="px-8 py-7">
+            {toast && (
+                <div className={`fixed top-6 right-6 z-50 px-4 py-3 rounded-lg shadow-lift text-[13px] font-semibold ${
+                    toast.tone === 'success' ? 'bg-success text-white' : 'bg-danger text-white'
+                }`}>
+                    {toast.message}
+                </div>
+            )}
+
+            <div className="px-4 sm:px-8 py-6 sm:py-7">
                 <div className="mb-6">
-                    <h1 className="text-2xl font-bold tracking-tight">Platform Settings</h1>
+                    <h1 className="text-2xl font-bold tracking-tight">
+                        Platform Settings
+                        {has_overrides && (
+                            <span className="ml-2 text-[11px] px-1.5 py-0.5 rounded bg-warning/15 text-warning font-bold align-middle">CUSTOMIZED</span>
+                        )}
+                    </h1>
                     <p className="text-[14px] text-ink-500 mt-1">
                         Global configuration for the application
                     </p>
+                </div>
+
+                {/* Honest caveat — same as the Roles matrix */}
+                <div className="mb-4 px-4 py-2.5 rounded-lg bg-warning/10 border border-warning/30 text-[12px] text-ink-700">
+                    <strong className="font-semibold">Heads up:</strong> Toggles persist as policy intent. Some flags (Paystack live mode, maintenance mode, FFC/FICA enforcement) are also controlled by environment / middleware and may need a code-level switch to fully take effect. Persisted values here drive UI display and informational state.
                 </div>
 
                 <div className="grid grid-cols-[200px_1fr] gap-6">
@@ -159,7 +325,7 @@ export default function AdminSettings({ tabs, settings: initial, currencies }: P
                     <div className="space-y-6">
                         {activeTab === 'general' && (
                             <FieldGroup title="General">
-                                <div className="grid grid-cols-2 gap-5">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                                     <TextInput
                                         label="Platform name"
                                         value={data.general.platform_name}
@@ -254,7 +420,7 @@ export default function AdminSettings({ tabs, settings: initial, currencies }: P
                                             {data.paystack.webhook_url}
                                         </code>
                                     </div>
-                                    <div className="py-4 grid grid-cols-2 gap-4">
+                                    <div className="py-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
                                         <div className="flex items-center justify-between bg-ink-50 rounded-lg px-3 py-2">
                                             <span className="text-[12px] font-semibold">Public key</span>
                                             <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${data.paystack.public_key_set ? 'bg-success/15 text-success' : 'bg-danger/15 text-danger'}`}>
@@ -274,30 +440,26 @@ export default function AdminSettings({ tabs, settings: initial, currencies }: P
 
                         {activeTab === 'cities' && (
                             <FieldGroup title="Cities & Areas">
-                                <p className="text-[12px] text-ink-500 mb-4">
-                                    Provinces and cities where the platform is currently active.
+                                <p className="text-[12px] text-ink-500 mb-5">
+                                    Provinces and cities where the platform is currently active. These appear in dropdowns when agencies and landlords register or list properties.
                                 </p>
-                                <div className="space-y-4">
-                                    <div>
-                                        <p className="text-[12px] font-semibold mb-2 text-ink-700">Enabled provinces</p>
-                                        <div className="flex flex-wrap gap-2">
-                                            {data.cities.enabled_provinces.map((p) => (
-                                                <span key={p} className="text-[12px] px-2.5 py-1 rounded-full bg-brand-50 text-brand-700 font-semibold">
-                                                    {p}
-                                                </span>
-                                            ))}
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <p className="text-[12px] font-semibold mb-2 text-ink-700">Enabled cities</p>
-                                        <div className="flex flex-wrap gap-2">
-                                            {data.cities.enabled_cities.map((c) => (
-                                                <span key={c} className="text-[12px] px-2.5 py-1 rounded-full bg-ink-100 text-ink-700 font-semibold">
-                                                    {c}
-                                                </span>
-                                            ))}
-                                        </div>
-                                    </div>
+                                <div className="space-y-6">
+                                    <TagEditor
+                                        title="Enabled provinces"
+                                        placeholder="e.g. Eastern Cape"
+                                        chipClass="bg-brand-50 text-brand-700"
+                                        items={data.cities.enabled_provinces}
+                                        onChange={(items) => patchTab('cities', { enabled_provinces: items })}
+                                        maxLen={60}
+                                    />
+                                    <TagEditor
+                                        title="Enabled cities"
+                                        placeholder="e.g. Polokwane"
+                                        chipClass="bg-ink-100 text-ink-700"
+                                        items={data.cities.enabled_cities}
+                                        onChange={(items) => patchTab('cities', { enabled_cities: items })}
+                                        maxLen={60}
+                                    />
                                 </div>
                             </FieldGroup>
                         )}
@@ -336,13 +498,35 @@ export default function AdminSettings({ tabs, settings: initial, currencies }: P
                     </div>
                 </div>
 
-                <div className="flex items-center justify-end gap-2 mt-6">
-                    <button className="px-3.5 py-2 text-[13px] border border-ink-200 bg-white rounded-lg hover:bg-ink-50 transition font-semibold">
-                        Cancel
-                    </button>
-                    <button className="px-3.5 py-2 text-[13px] bg-ink-900 text-white rounded-lg hover:bg-ink-800 transition font-semibold">
-                        Save Changes
-                    </button>
+                <div className="flex items-center justify-between gap-2 mt-6">
+                    <div className="text-[11px] text-ink-500">
+                        {dirty && <span className="font-semibold text-warning">Unsaved changes</span>}
+                    </div>
+                    <div className="flex items-center gap-2">
+                        {has_overrides && (
+                            <button
+                                onClick={resetAll}
+                                className="px-3.5 py-2 text-[13px] border border-ink-200 bg-white rounded-lg hover:bg-ink-50 transition font-semibold text-danger"
+                                title="Restore every setting to the hardcoded defaults"
+                            >
+                                Reset to defaults
+                            </button>
+                        )}
+                        <button
+                            onClick={cancel}
+                            disabled={!dirty}
+                            className="px-3.5 py-2 text-[13px] border border-ink-200 bg-white rounded-lg hover:bg-ink-50 transition font-semibold disabled:opacity-40 disabled:cursor-not-allowed"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            onClick={save}
+                            disabled={!dirty || saving}
+                            className="px-3.5 py-2 text-[13px] bg-ink-900 text-white rounded-lg hover:bg-ink-800 transition font-semibold disabled:opacity-40 disabled:cursor-not-allowed"
+                        >
+                            {saving ? 'Saving…' : 'Save Changes'}
+                        </button>
+                    </div>
                 </div>
             </div>
         </AdminLayout>

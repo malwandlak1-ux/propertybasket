@@ -112,8 +112,8 @@ export default function AgencyContractors({ agency, tab, list, counts }: Props) 
         <AgencyLayout crumb="Contractors" agencyName={agency.name}>
             <Head title="Contractors" />
 
-            <div className="px-8 py-7">
-                <div className="flex items-end justify-between mb-6 flex-wrap gap-3">
+            <div className="px-4 sm:px-8 py-6 sm:py-7">
+                <div className="flex flex-wrap items-end justify-between gap-3 mb-6 flex-wrap gap-3">
                     <div>
                         <h1 className="text-2xl font-bold tracking-tight">Contractors</h1>
                         <p className="text-[14px] text-ink-500 mt-1">

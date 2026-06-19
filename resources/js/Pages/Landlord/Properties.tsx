@@ -73,8 +73,8 @@ export default function LandlordProperties({ landlord, properties, slots_used, s
         <LandlordLayout crumb="Properties" section="My Portfolio">
             <Head title="My Properties" />
 
-            <div className="px-8 py-7">
-                <div className="flex items-end justify-between mb-6">
+            <div className="px-4 sm:px-8 py-6 sm:py-7">
+                <div className="flex flex-wrap items-end justify-between gap-3 mb-6">
                     <div>
                         <h1 className="text-2xl font-bold tracking-tight">My Properties</h1>
                         <p className="text-[14px] text-ink-500 mt-1">
@@ -102,7 +102,7 @@ export default function LandlordProperties({ landlord, properties, slots_used, s
                     </p>
                 </div>
 
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     {properties.map((p) => (
                         <div key={p.id} className="bg-white rounded-xl border border-ink-200 overflow-hidden shadow-soft hover:shadow-lift transition">
                             {/* Photo area */}

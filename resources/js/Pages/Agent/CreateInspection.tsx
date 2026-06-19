@@ -101,7 +101,7 @@ export default function AgentCreateInspection({ agent, type: initialType, leases
         <AgentLayout crumb="New Inspection" agencyName={agent.agency_name}>
             <Head title="New Inspection" />
 
-            <div className="px-8 py-7 max-w-3xl">
+            <div className="px-4 sm:px-8 py-6 sm:py-7 max-w-3xl">
                 <div className="mb-6">
                     <Link href="/agent/inspections" className="text-[12px] text-ink-500 hover:text-ink-900">← Back to inspections</Link>
                     <h1 className="text-2xl font-bold tracking-tight mt-2">New Inspection</h1>
@@ -114,7 +114,7 @@ export default function AgentCreateInspection({ agent, type: initialType, leases
                     {/* Type toggle */}
                     <div className="bg-white rounded-xl border border-ink-200 shadow-soft p-5">
                         <label className="text-[12px] font-semibold text-ink-700 mb-2 block">Inspection type</label>
-                        <div className="grid grid-cols-2 gap-3">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             {(['move_in', 'move_out'] as const).map((t) => (
                                 <button
                                     key={t}

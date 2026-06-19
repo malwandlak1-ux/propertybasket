@@ -28,7 +28,7 @@ export default function TenantSettings({ tenant, lease, profile }: Props) {
         <TenantLayout crumb="Settings" leaseAddress={lease.address}>
             <Head title="Settings" />
 
-            <div className="px-8 py-7 max-w-4xl">
+            <div className="px-4 sm:px-8 py-6 sm:py-7 max-w-4xl">
                 <div className="mb-6">
                     <h1 className="text-2xl font-bold tracking-tight">Settings</h1>
                     <p className="text-[14px] text-ink-500 mt-1">
@@ -42,7 +42,7 @@ export default function TenantSettings({ tenant, lease, profile }: Props) {
                     </div>
                 )}
 
-                <div className="grid grid-cols-4 gap-6">
+                <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
                     <aside className="space-y-1">
                         {TABS.map((t) => (
                             <button
@@ -86,7 +86,7 @@ function ContactPanel({ profile }: { profile: Props['profile'] }) {
                 <p className="text-[12px] text-ink-500 mt-0.5">How your landlord, agent, and Property Basket reach you.</p>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                     <label className={labelCls}>Full name *</label>
                     <input value={data.name} onChange={(e) => setData('name', e.target.value)} required className={inputCls} />
@@ -145,7 +145,7 @@ function PasswordPanel() {
                 {errors.current_password && <p className="text-[11px] text-danger mt-1">{errors.current_password}</p>}
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                     <label className={labelCls}>New password *</label>
                     <input type="password" value={data.password} onChange={(e) => setData('password', e.target.value)} required minLength={8} className={inputCls} />

@@ -62,7 +62,7 @@ export default function LandlordSettings({ landlord, profile, banking, banks }: 
         <LandlordLayout crumb="Settings">
             <Head title="Settings" />
 
-            <section className="px-8 py-7 max-w-4xl">
+            <section className="px-4 sm:px-8 py-6 sm:py-7 max-w-4xl">
                 <div className="mb-6">
                     <h1 className="text-2xl font-bold tracking-tight">Settings</h1>
                     <p className="text-[14px] text-ink-500 mt-1">
@@ -76,7 +76,7 @@ export default function LandlordSettings({ landlord, profile, banking, banks }: 
                     </div>
                 )}
 
-                <div className="grid grid-cols-4 gap-6">
+                <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
                     <aside className="space-y-1">
                         {TABS.map((t) => (
                             <button
@@ -121,7 +121,7 @@ function ProfilePanel({ profile }: { profile: Props['profile'] }) {
                 <p className="text-[12px] text-ink-500 mt-0.5">How tenants, contractors and the platform reach you.</p>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                     <label className={labelCls}>Full name *</label>
                     <input value={data.name} onChange={(e) => setData('name', e.target.value)} required className={inputCls} />
@@ -134,7 +134,7 @@ function ProfilePanel({ profile }: { profile: Props['profile'] }) {
                 </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                     <label className={labelCls}>Phone</label>
                     <input value={data.phone} onChange={(e) => setData('phone', e.target.value)} placeholder="+27 82 555 1234" className={inputCls} />
@@ -191,7 +191,7 @@ function BankingPanel({ banking, banks, landlordName }: { banking: Props['bankin
                     </p>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label className={labelCls}>Bank *</label>
                         <select value={data.bank_name} onChange={(e) => setData('bank_name', e.target.value)} required className={inputCls}>
@@ -227,7 +227,7 @@ function BankingPanel({ banking, banks, landlordName }: { banking: Props['bankin
                     {errors.bank_account_holder && <p className="text-[11px] text-danger mt-1">{errors.bank_account_holder}</p>}
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label className={labelCls}>Account number *</label>
                         <input

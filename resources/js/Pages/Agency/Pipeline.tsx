@@ -81,8 +81,8 @@ export default function Pipeline({ agency, columns, total_pipeline_value, agents
     return (
         <AgencyLayout agencyName={agency.name} crumb="Pipeline">
             <Head title="Pipeline" />
-            <section className="px-8 py-7">
-                <div className="flex items-end justify-between mb-6">
+            <section className="px-4 sm:px-8 py-6 sm:py-7">
+                <div className="flex flex-wrap items-end justify-between gap-3 mb-6">
                     <div>
                         <h1 className="text-2xl font-bold tracking-tight">Agency Pipeline</h1>
                         <p className="text-[14px] text-ink-500 mt-1">
@@ -118,9 +118,9 @@ export default function Pipeline({ agency, columns, total_pipeline_value, agents
                     </div>
                 )}
 
-                <div className="grid grid-cols-6 gap-3 min-h-[600px]">
+                <div className="flex gap-3 overflow-x-auto pb-2 min-h-[600px] snap-x lg:grid lg:grid-cols-6 lg:overflow-visible">
                     {columns.map((col) => (
-                        <div key={col.key} className="bg-ink-100/50 rounded-xl p-3">
+                        <div key={col.key} className="bg-ink-100/50 rounded-xl p-3 shrink-0 snap-start w-[82vw] sm:w-[300px] lg:w-auto lg:shrink">
                             <div className="flex items-center justify-between mb-3 px-1">
                                 <div className="flex items-center gap-2">
                                     <span className={`w-2 h-2 rounded-full ${col.dot}`} />

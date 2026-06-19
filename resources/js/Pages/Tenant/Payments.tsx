@@ -81,7 +81,7 @@ export default function TenantPayments({ tenant, lease, kpis, rows, upcoming }: 
         <TenantLayout crumb="Payments" leaseAddress={lease.address}>
             <Head title="Payments" />
 
-            <div className="px-8 py-7">
+            <div className="px-4 sm:px-8 py-6 sm:py-7">
                 {flash?.success && (
                     <div className="mb-4 p-3 rounded-lg border border-success/30 bg-success/5 text-[13px] text-success font-medium flex items-center gap-2">
                         <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5}><path d="M5 13l4 4L19 7"/></svg>
@@ -94,7 +94,7 @@ export default function TenantPayments({ tenant, lease, kpis, rows, upcoming }: 
                         {flash.error}
                     </div>
                 )}
-                <div className="flex items-end justify-between mb-6">
+                <div className="flex flex-wrap items-end justify-between gap-3 mb-6">
                     <div>
                         <h1 className="text-2xl font-bold tracking-tight">Payment History</h1>
                         <p className="text-[14px] text-ink-500 mt-1">
@@ -152,7 +152,7 @@ export default function TenantPayments({ tenant, lease, kpis, rows, upcoming }: 
                 </div>
 
                 {/* KPI strip */}
-                <div className="grid grid-cols-4 gap-4 mb-6">
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                     <div className="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
                         <p className="text-[11px] text-ink-500 uppercase tracking-wider font-semibold">Total paid (lease)</p>
                         <p className="text-2xl font-bold mt-2">{fmtMoney(kpis.total_paid)}</p>
@@ -192,7 +192,7 @@ export default function TenantPayments({ tenant, lease, kpis, rows, upcoming }: 
 
                 {/* Table */}
                 <div className="bg-white rounded-xl border border-ink-200 shadow-soft overflow-hidden">
-                    <table className="w-full">
+                    <div className="overflow-x-auto"><table className="w-full min-w-[700px]">
                         <thead>
                             <tr className="text-left text-[11px] uppercase text-ink-500 tracking-wider border-b border-ink-200 bg-ink-50">
                                 <th className="font-semibold px-5 py-3">Date</th>
@@ -230,7 +230,7 @@ export default function TenantPayments({ tenant, lease, kpis, rows, upcoming }: 
                                 <td />
                             </tr>
                         </tfoot>
-                    </table>
+                    </table></div>
                 </div>
 
                 {/* Upcoming */}

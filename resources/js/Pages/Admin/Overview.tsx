@@ -1,4 +1,4 @@
-import { Head } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
 import AdminLayout from '@/Layouts/AdminLayout';
 import ErrorBoundary from '@/Components/ErrorBoundary';
 
@@ -77,8 +77,8 @@ export default function AdminOverview({ kpis, recent_signups, growth, health }: 
         <AdminLayout crumb="Overview">
             <Head title="Platform Overview" />
 
-            <div className="px-8 py-7">
-                <div className="flex items-end justify-between mb-7">
+            <div className="px-4 sm:px-8 py-6 sm:py-7">
+                <div className="flex flex-wrap items-end justify-between gap-3 mb-7">
                     <div>
                         <p className="text-[13px] text-ink-500">{new Date().toLocaleDateString('en-ZA', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
                         <h1 className="text-3xl font-bold tracking-tight mt-1">Platform Overview</h1>
@@ -87,20 +87,28 @@ export default function AdminOverview({ kpis, recent_signups, growth, health }: 
                             <span className="font-semibold text-success">all systems operational</span>
                         </p>
                     </div>
-                    <div className="flex items-center gap-2">
-                        <button className="px-3.5 py-2 text-[13px] border border-ink-200 rounded-lg hover:bg-ink-100 transition flex items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
+                        <Link
+                            href="/admin/announcements"
+                            className="px-3.5 py-2 text-[13px] border border-ink-200 rounded-lg hover:bg-ink-100 transition flex items-center gap-2"
+                        >
                             <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M3 11l18-5v12L3 14v-3z"/></svg>
                             New Announcement
-                        </button>
-                        <button className="px-3.5 py-2 text-[13px] bg-ink-900 text-white rounded-lg hover:bg-ink-800 transition flex items-center gap-2">
+                        </Link>
+                        <a
+                            href="/admin/overview.pdf"
+                            download
+                            title="Download a PDF snapshot of this overview"
+                            className="px-3.5 py-2 text-[13px] bg-ink-900 text-white rounded-lg hover:bg-ink-800 transition flex items-center gap-2"
+                        >
                             <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
                             Export Report
-                        </button>
+                        </a>
                     </div>
                 </div>
 
                 {/* ── KPI Grid ─────────────────────────────────────────── */}
-                <div className="grid grid-cols-4 gap-4 mb-6">
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                     <KpiCard
                         label="MRR"
                         value={fmtMoney(kpis.mrr)}
@@ -140,7 +148,7 @@ export default function AdminOverview({ kpis, recent_signups, growth, health }: 
                 </div>
 
                 {/* ── 2-col: growth chart + recent signups ─────────────── */}
-                <div className="grid grid-cols-3 gap-4 mb-6">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
                     <div className="col-span-2 bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
                         <div className="flex items-center justify-between mb-4">
                             <div>
@@ -154,7 +162,7 @@ export default function AdminOverview({ kpis, recent_signups, growth, health }: 
                             </div>
                         </div>
                         <ErrorBoundary variant="section" label="growth chart">
-                            <div className="flex items-end gap-4 h-52 px-2">
+                            <div className="flex items-end gap-4 h-52 px-2 overflow-x-auto">
                                 {growth.map((p) => <ChartBar key={p.label} point={p} max={maxGrowth} />)}
                             </div>
                         </ErrorBoundary>
@@ -181,7 +189,7 @@ export default function AdminOverview({ kpis, recent_signups, growth, health }: 
                 </div>
 
                 {/* ── System status strip ──────────────────────────────── */}
-                <div className="grid grid-cols-4 gap-4">
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                     {health.map((h) => (
                         <div key={h.name} className="bg-white rounded-xl border border-ink-200 p-4 shadow-soft flex items-center gap-3">
                             <div className={

@@ -142,7 +142,7 @@ function TenantCard({ row, archived }: { row: TenantRow; archived: boolean }) {
                     )}
                 </div>
 
-                <div className="grid grid-cols-2 gap-2 pt-3 border-t border-ink-100 text-[11px]">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-3 border-t border-ink-100 text-[11px]">
                     <div>
                         <p className="text-ink-400 uppercase tracking-wider font-semibold">Rent</p>
                         <p className="font-bold text-[13px] mt-0.5">{fmtMoney(row.monthly_rent)}/mo</p>
@@ -188,8 +188,8 @@ export default function AgencyTenants({ agency, active, archived, counts }: Prop
         <AgencyLayout crumb="Tenants" agencyName={agency.name}>
             <Head title="Tenants" />
 
-            <div className="px-8 py-7">
-                <div className="flex items-end justify-between mb-6 flex-wrap gap-3">
+            <div className="px-4 sm:px-8 py-6 sm:py-7">
+                <div className="flex flex-wrap items-end justify-between gap-3 mb-6 flex-wrap gap-3">
                     <div>
                         <h1 className="text-2xl font-bold tracking-tight">Tenants</h1>
                         <p className="text-[14px] text-ink-500 mt-1">

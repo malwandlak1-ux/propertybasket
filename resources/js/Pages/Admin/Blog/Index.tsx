@@ -70,8 +70,8 @@ export default function AdminBlogIndex({ posts, filter, q, counts }: Props) {
         <AdminLayout crumb="Blog" section="Content">
             <Head title="Blog · Admin" />
 
-            <section className="px-4 sm:px-8 py-7">
-                <div className="flex items-end justify-between mb-6 flex-wrap gap-4">
+            <section className="px-4 sm:px-4 sm:px-8 py-6 sm:py-7">
+                <div className="flex flex-wrap items-end justify-between gap-3 mb-6 flex-wrap gap-4">
                     <div>
                         <h1 className="text-2xl font-bold tracking-tight">Blog</h1>
                         <p className="text-[14px] text-ink-500 mt-1">
@@ -143,7 +143,7 @@ export default function AdminBlogIndex({ posts, filter, q, counts }: Props) {
                         </div>
                     ) : (
                         <div className="bg-white rounded-2xl border border-ink-200 shadow-soft overflow-hidden">
-                            <table className="w-full text-[13px]">
+                            <div className="overflow-x-auto"><table className="w-full text-[13px] min-w-[700px]">
                                 <thead className="bg-ink-50 text-ink-500 text-[11px] uppercase tracking-wider">
                                     <tr>
                                         <th className="text-left px-4 py-3 font-semibold">Title</th>
@@ -222,7 +222,7 @@ export default function AdminBlogIndex({ posts, filter, q, counts }: Props) {
                                         </tr>
                                     ))}
                                 </tbody>
-                            </table>
+                            </table></div>
                         </div>
                     )}
 

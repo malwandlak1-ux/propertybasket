@@ -111,7 +111,7 @@ export default function Overview({ agency, kpis, revenue, top_performers, team_h
         <AgencyLayout agencyName={agency.name} crumb="Dashboard">
             <Head title="Agency Dashboard" />
 
-            <section className="px-8 py-7">
+            <section className="px-4 sm:px-8 py-6 sm:py-7">
                 {flash?.success && (
                     <div className="mb-4 p-3 rounded-lg border border-success/30 bg-success/5 text-[13px] text-success font-medium flex items-center gap-2">
                         <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5}><path d="M5 13l4 4L19 7"/></svg>
@@ -125,7 +125,7 @@ export default function Overview({ agency, kpis, revenue, top_performers, team_h
                     </div>
                 )}
                 {/* Header */}
-                <div className="flex items-end justify-between mb-7">
+                <div className="flex flex-wrap items-end justify-between gap-3 mb-7">
                     <div>
                         <p className="text-[13px] text-ink-500">{todayLabel}</p>
                         <h1 className="text-3xl font-bold tracking-tight mt-1">{agency.name}</h1>
@@ -169,7 +169,7 @@ export default function Overview({ agency, kpis, revenue, top_performers, team_h
                 </div>
 
                 {/* KPI grid */}
-                <div className="grid grid-cols-4 gap-4 mb-6">
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                     <Kpi
                         label="YTD Revenue"
                         value={fmtMoney(kpis.ytd_revenue)}
@@ -206,7 +206,7 @@ export default function Overview({ agency, kpis, revenue, top_performers, team_h
                 </div>
 
                 {/* Revenue chart + Top performers */}
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div className="col-span-2 bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
                         <div className="flex items-center justify-between mb-4">
                             <div>
@@ -223,7 +223,7 @@ export default function Overview({ agency, kpis, revenue, top_performers, team_h
                             </div>
                         </div>
 
-                        <div className="flex items-end gap-4 h-52 px-2">
+                        <div className="flex items-end gap-4 h-52 px-2 overflow-x-auto">
                             {revenue.months.map((m) => (
                                 <div key={m.month} className="flex-1 flex flex-col items-center gap-1">
                                     <div className="w-full flex items-end justify-center gap-1 h-48">
@@ -241,7 +241,7 @@ export default function Overview({ agency, kpis, revenue, top_performers, team_h
                             ))}
                         </div>
 
-                        <div className="grid grid-cols-3 gap-4 pt-4 mt-4 border-t border-ink-200 text-center">
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 mt-4 border-t border-ink-200 text-center">
                             <div>
                                 <p className="text-[11px] text-ink-500 uppercase tracking-wider">Sales Revenue</p>
                                 <p className="text-xl font-bold mt-1">{fmtMoney(revenue.sales_total)}</p>
@@ -284,7 +284,7 @@ export default function Overview({ agency, kpis, revenue, top_performers, team_h
 
                         <div className="mt-4 pt-4 border-t border-ink-200">
                             <p className="text-[11px] text-ink-500 uppercase tracking-wider font-semibold mb-2">Team Health</p>
-                            <div className="grid grid-cols-2 gap-2 text-center">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-center">
                                 <div className="bg-ink-50 rounded-md p-2">
                                     <p className="text-base font-bold">{team_health.avg_response_hours}h</p>
                                     <p className="text-[10px] text-ink-500">Avg response</p>
@@ -301,7 +301,7 @@ export default function Overview({ agency, kpis, revenue, top_performers, team_h
                 </div>
 
                 {/* Activity + side cards */}
-                <div className="mt-4 grid grid-cols-3 gap-4">
+                <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div className="col-span-2 bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
                         <div className="flex items-center justify-between mb-4">
                             <h2 className="text-base font-semibold">Recent Activity</h2>

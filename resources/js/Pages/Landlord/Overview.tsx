@@ -75,9 +75,9 @@ export default function LandlordOverview({ landlord, kpis, properties, attention
         <LandlordLayout crumb="Dashboard" openMaint={kpis.open_maint}>
             <Head title="Landlord Dashboard" />
 
-            <div className="px-8 py-7">
+            <div className="px-4 sm:px-8 py-6 sm:py-7">
                 {/* ── Welcome header ───────────────────────────────────── */}
-                <div className="flex items-end justify-between mb-7">
+                <div className="flex flex-wrap items-end justify-between gap-3 mb-7">
                     <div>
                         <p className="text-[13px] text-ink-500">{new Date().toLocaleDateString('en-ZA', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
                         <h1 className="text-3xl font-bold tracking-tight mt-1">Welcome, {firstName} 🏡</h1>
@@ -117,7 +117,7 @@ export default function LandlordOverview({ landlord, kpis, properties, attention
                 </div>
 
                 {/* ── KPI Grid ─────────────────────────────────────────── */}
-                <div className="grid grid-cols-4 gap-4 mb-6">
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                     <KpiCard
                         label="Monthly Rent Roll"
                         value={fmtFull(kpis.rent_roll)}
@@ -159,7 +159,7 @@ export default function LandlordOverview({ landlord, kpis, properties, attention
                 </div>
 
                 {/* ── 2-col layout ─────────────────────────────────────── */}
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     {/* LEFT: Properties at a glance */}
                     <div className="col-span-2 bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
                         <div className="flex items-center justify-between mb-4">

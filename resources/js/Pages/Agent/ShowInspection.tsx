@@ -46,7 +46,7 @@ export default function AgentShowInspection({ agent, inspection, lease, listing 
         <AgentLayout crumb={isMoveIn ? 'Move-In Inspection' : 'Move-Out Inspection'} agencyName={agent.agency_name}>
             <Head title={`${isMoveIn ? 'Move-in' : 'Move-out'} inspection · ${listing.title ?? ''}`} />
 
-            <div className="px-8 py-7 max-w-4xl">
+            <div className="px-4 sm:px-8 py-6 sm:py-7 max-w-4xl">
                 <div className="mb-6">
                     <Link href="/agent/inspections" className="text-[12px] text-ink-500 hover:text-ink-900">← Back to inspections</Link>
                     <div className="flex items-center justify-between mt-2 flex-wrap gap-3">
@@ -89,7 +89,7 @@ export default function AgentShowInspection({ agent, inspection, lease, listing 
                         <div className="flex-1 p-5">
                             <h2 className="text-lg font-bold">{listing.title ?? '—'}</h2>
                             <p className="text-[13px] text-ink-500">{listing.address || '—'}</p>
-                            <div className="mt-4 grid grid-cols-2 gap-3 text-[13px]">
+                            <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3 text-[13px]">
                                 <div>
                                     <p className="text-[10px] uppercase tracking-wider text-ink-500 font-semibold">Tenant</p>
                                     <p className="font-semibold mt-0.5">{lease.tenant_name ?? '—'}</p>
@@ -157,7 +157,7 @@ export default function AgentShowInspection({ agent, inspection, lease, listing 
                 {/* Signatures */}
                 <div className="bg-white rounded-xl border border-ink-200 shadow-soft p-5">
                     <h3 className="text-base font-bold mb-3">Sign-off</h3>
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="bg-ink-50/40 rounded-lg p-4 border border-ink-100">
                             <p className="text-[10px] uppercase tracking-wider text-ink-500 font-semibold">Agent</p>
                             <p className="text-[14px] font-semibold mt-1">{inspection.agent_signature ?? '—'}</p>

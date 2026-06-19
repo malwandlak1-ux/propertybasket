@@ -44,7 +44,7 @@ function Card({ req, onView }: { req: Req; onView: () => void }) {
             <p className="text-[14px] font-bold mb-1">{req.title}</p>
             {req.description && <p className="text-[12px] text-ink-600 mb-2 line-clamp-2">{req.description}</p>}
 
-            <div className="grid grid-cols-2 gap-2 text-[11px] text-ink-500 mb-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] text-ink-500 mb-3">
                 <div>📍 {req.property}{req.address && <span className="block text-ink-400">{req.address}</span>}</div>
                 <div>👤 {req.tenant}</div>
                 <div>📅 {req.preferred ?? 'No date'}{req.time_slot && ` · ${req.time_slot}`}</div>
@@ -94,8 +94,8 @@ export default function ContractorRequests({ counts, assigned, marketplace, spec
         <ContractorLayout crumb="Job Requests" counts={counts}>
             <Head title="Job Requests" />
 
-            <div className="px-8 py-7">
-                <div className="flex items-end justify-between mb-6">
+            <div className="px-4 sm:px-8 py-6 sm:py-7">
+                <div className="flex flex-wrap items-end justify-between gap-3 mb-6">
                     <div>
                         <h1 className="text-2xl font-bold tracking-tight">Job Requests</h1>
                         <p className="text-[14px] text-ink-500 mt-1">
@@ -127,7 +127,7 @@ export default function ContractorRequests({ counts, assigned, marketplace, spec
                             <p className="text-[13px] text-ink-500">No direct job assignments right now</p>
                         </div>
                     ) : (
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             {assigned.map((r) => <Card key={r.id} req={r} onView={() => setOpenId(r.id)} />)}
                         </div>
                     )}
@@ -144,7 +144,7 @@ export default function ContractorRequests({ counts, assigned, marketplace, spec
                             <p className="text-[13px] text-ink-500">No open marketplace jobs in your specialities</p>
                         </div>
                     ) : (
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             {marketplace.map((r) => <Card key={r.id} req={r} onView={() => setOpenId(r.id)} />)}
                         </div>
                     )}

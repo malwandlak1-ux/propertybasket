@@ -132,9 +132,9 @@ export default function AgentOverview({
         <AgentLayout crumb="Dashboard" agencyName={agent.agency_name}>
             <Head title="Agent Dashboard" />
 
-            <div className="px-8 py-7">
+            <div className="px-4 sm:px-8 py-6 sm:py-7">
                 {/* Greeting */}
-                <div className="flex items-end justify-between mb-7">
+                <div className="flex flex-wrap items-end justify-between gap-3 mb-7">
                     <div>
                         <p className="text-[13px] text-ink-500">{today()}</p>
                         <h1 className="text-3xl font-bold tracking-tight mt-1">
@@ -164,7 +164,7 @@ export default function AgentOverview({
                 </div>
 
                 {/* KPI Grid */}
-                <div className="grid grid-cols-4 gap-4 mb-6">
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                     {kpiCards.map((k) => (
                         <div key={k.label} className="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
                             <div className="flex items-center justify-between mb-3">
@@ -183,7 +183,7 @@ export default function AgentOverview({
                 </div>
 
                 {/* Two-column body */}
-                <div className="grid grid-cols-3 gap-4 mb-4">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
                     {/* LEFT: Pipeline snapshot */}
                     <div className="col-span-2 bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
                         <div className="flex items-center justify-between mb-4">
@@ -222,7 +222,7 @@ export default function AgentOverview({
                             })}
                         </div>
 
-                        <div className="mt-5 pt-5 border-t border-ink-200 grid grid-cols-3 gap-4 text-center">
+                        <div className="mt-5 pt-5 border-t border-ink-200 grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
                             <div>
                                 <p className="text-[11px] text-ink-500 uppercase tracking-wider">Total Deals</p>
                                 <p className="text-xl font-bold mt-1">{pipeline_snapshot.reduce((a, b) => a + b.count, 0)}</p>
@@ -308,7 +308,7 @@ export default function AgentOverview({
                     {listing_performance.length === 0 ? (
                         <div className="py-8 text-center text-[13px] text-ink-400">No listings assigned yet</div>
                     ) : (
-                        <table className="w-full">
+                        <div className="overflow-x-auto"><table className="w-full min-w-[700px]">
                             <thead>
                                 <tr className="text-left text-[11px] uppercase text-ink-500 tracking-wider border-b border-ink-200">
                                     <th className="font-semibold py-2">Property</th>
@@ -341,7 +341,7 @@ export default function AgentOverview({
                                     </tr>
                                 ))}
                             </tbody>
-                        </table>
+                        </table></div>
                     )}
                 </div>
             </div>

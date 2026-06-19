@@ -92,9 +92,9 @@ export default function AgentViewings({
         <AgentLayout crumb="Viewings" agencyName={agent.agency_name}>
             <Head title="Viewings Calendar" />
 
-            <div className="px-8 py-7">
+            <div className="px-4 sm:px-8 py-6 sm:py-7">
                 {/* Header */}
-                <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
+                <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
                     <div>
                         <h1 className="text-2xl font-bold tracking-tight">Viewings Calendar</h1>
                         <p className="text-[14px] text-ink-500 mt-1">
@@ -265,6 +265,7 @@ function WeekView({ days, viewings, onCellClick }: { days: DayMeta[]; viewings: 
 
     return (
         <div className="bg-white rounded-xl border border-ink-200 shadow-soft overflow-hidden">
+            <div className="overflow-x-auto"><div className="min-w-[640px]">
             <div className="grid grid-cols-7 border-b border-ink-200">
                 {days.map((day, idx) => (
                     <div
@@ -304,6 +305,7 @@ function WeekView({ days, viewings, onCellClick }: { days: DayMeta[]; viewings: 
                     );
                 })}
             </div>
+            </div></div>
         </div>
     );
 }
@@ -320,6 +322,7 @@ function MonthView({ days, viewings, onCellClick }: { days: DayMeta[]; viewings:
 
     return (
         <div className="bg-white rounded-xl border border-ink-200 shadow-soft overflow-hidden">
+            <div className="overflow-x-auto"><div className="min-w-[640px]">
             <div className="grid grid-cols-7 border-b border-ink-200 bg-ink-50/40">
                 {weekdayLabels.map((label, idx) => (
                     <div
@@ -375,6 +378,7 @@ function MonthView({ days, viewings, onCellClick }: { days: DayMeta[]; viewings:
                     );
                 })}
             </div>
+            </div></div>
         </div>
     );
 }

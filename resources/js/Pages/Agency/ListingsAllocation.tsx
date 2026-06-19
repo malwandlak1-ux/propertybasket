@@ -93,8 +93,8 @@ export default function ListingsAllocation({ agency, cards, agents, next_up, lea
     return (
         <AgencyLayout agencyName={agency.name} crumb="Listings & Leads">
             <Head title="Listings & Leads" />
-            <section className="px-8 py-7">
-                <div className="flex items-end justify-between mb-6">
+            <section className="px-4 sm:px-8 py-6 sm:py-7">
+                <div className="flex flex-wrap items-end justify-between gap-3 mb-6">
                     <div>
                         <h1 className="text-2xl font-bold tracking-tight">Listings &amp; Lead Allocation</h1>
                         <p className="text-[14px] text-ink-500 mt-1">
@@ -158,7 +158,7 @@ export default function ListingsAllocation({ agency, cards, agents, next_up, lea
                 </div>
 
                 {/* Listing cards */}
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     {cards.length === 0 ? (
                         <div className="col-span-3 bg-white rounded-xl border border-ink-200 p-12 text-center text-ink-500">
                             No agency listings yet.
@@ -336,7 +336,7 @@ function ListingCardItem({ card, agents }: { card: Card; agents: Agent[] }) {
                     </div>
                 )}
 
-                <div className="grid grid-cols-3 gap-2 text-center">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-center">
                     <Tile value={card.stats.inquiries} label="Inquiries" />
                     <Tile value={card.stats.viewings} label="Viewings" />
                     <Tile value={card.stats.offers} label="Offers" />

@@ -48,8 +48,8 @@ export default function ContractorFinance({ counts, kpis, trend, payouts, vat_re
         <ContractorLayout crumb="Finance" section="Billing" counts={counts}>
             <Head title="Finance" />
 
-            <div className="px-8 py-7">
-                <div className="flex items-end justify-between mb-6">
+            <div className="px-4 sm:px-8 py-6 sm:py-7">
+                <div className="flex flex-wrap items-end justify-between gap-3 mb-6">
                     <div>
                         <h1 className="text-2xl font-bold tracking-tight">Finance</h1>
                         <p className="text-[14px] text-ink-500 mt-1">
@@ -63,7 +63,7 @@ export default function ContractorFinance({ counts, kpis, trend, payouts, vat_re
                 </div>
 
                 {/* KPI strip */}
-                <div className="grid grid-cols-4 gap-4 mb-6">
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                     <Kpi label="Earned YTD (gross)" value={fmtMoney(kpis.ytd_gross)} sub="From paid invoices" tone="ink" />
                     <Kpi label="Earned YTD (net)" value={fmtMoney(kpis.ytd_net)} sub={`After ${kpis.fee_percent}% platform fee`} tone="success" />
                     <Kpi label="Outstanding" value={fmtMoney(kpis.outstanding)} sub="Submitted + approved" tone="warning" />
@@ -79,7 +79,7 @@ export default function ContractorFinance({ counts, kpis, trend, payouts, vat_re
                         </div>
                     </div>
                     <ErrorBoundary variant="section" label="earnings chart">
-                        <div className="flex items-end gap-3 h-40">
+                        <div className="flex items-end gap-3 h-40 overflow-x-auto">
                             {trend.map((t) => {
                                 const grossPct = (t.gross / maxTrend) * 100;
                                 const netPct   = t.gross > 0 ? (t.net / t.gross) * 100 : 0;
@@ -106,7 +106,7 @@ export default function ContractorFinance({ counts, kpis, trend, payouts, vat_re
                 </div>
 
                 {/* VAT card + payouts table */}
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div className="bg-white rounded-xl border border-ink-200 p-5 shadow-soft self-start">
                         <h2 className="text-base font-semibold mb-3">Tax & Compliance</h2>
                         <div className="space-y-3 text-[12px]">
@@ -147,7 +147,7 @@ export default function ContractorFinance({ counts, kpis, trend, payouts, vat_re
                         {payouts.length === 0 ? (
                             <div className="p-10 text-center text-[13px] text-ink-400">No payouts yet</div>
                         ) : (
-                            <table className="w-full">
+                            <div className="overflow-x-auto"><table className="w-full min-w-[700px]">
                                 <thead>
                                     <tr className="text-left text-[11px] uppercase text-ink-500 tracking-wider border-b border-ink-200 bg-ink-50">
                                         <th className="font-semibold px-5 py-3">Reference</th>
@@ -170,7 +170,7 @@ export default function ContractorFinance({ counts, kpis, trend, payouts, vat_re
                                         </tr>
                                     ))}
                                 </tbody>
-                            </table>
+                            </table></div>
                         )}
                     </div>
                 </div>

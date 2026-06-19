@@ -75,8 +75,8 @@ export default function ContractorOverview({ counts, contractor, kpis, emergency
         <ContractorLayout crumb="Dashboard" business={contractor.business_name ?? undefined} counts={counts}>
             <Head title="Contractor Dashboard" />
 
-            <div className="px-8 py-7">
-                <div className="flex items-end justify-between mb-7">
+            <div className="px-4 sm:px-8 py-6 sm:py-7">
+                <div className="flex flex-wrap items-end justify-between gap-3 mb-7">
                     <div>
                         <p className="text-[13px] text-ink-500">
                             {new Date().toLocaleDateString('en-ZA', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
@@ -122,7 +122,7 @@ export default function ContractorOverview({ counts, contractor, kpis, emergency
                 )}
 
                 {/* KPI Grid */}
-                <div className="grid grid-cols-4 gap-4 mb-6">
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                     <Kpi label="Active Jobs"   value={kpis.active_jobs.toString()} sub="In progress + awaiting payment" iconColor="text-brand-600" iconBg="bg-brand-50"   icon={<circle cx="12" cy="12" r="10"/>} />
                     <Kpi label="To Commence"   value={kpis.open_requests.toString()} sub="Accepted, not started" iconColor="text-warning"   iconBg="bg-warning/15" icon={<path d="M22 12h-4l-3 9L9 3l-3 9H2"/>} />
                     <Kpi label="Pending Quotes" value={kpis.pending_quotes.toString()} sub="Awaiting client response" iconColor="text-amber-600" iconBg="bg-amber-50"   icon={<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>} />
@@ -130,7 +130,7 @@ export default function ContractorOverview({ counts, contractor, kpis, emergency
                 </div>
 
                 {/* 2-col: active jobs + side rail */}
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div className="col-span-2 bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
                         <div className="flex items-center justify-between mb-4">
                             <div>

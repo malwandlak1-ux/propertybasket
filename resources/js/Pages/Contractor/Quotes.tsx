@@ -71,8 +71,8 @@ export default function ContractorQuotes({ counts, quotes, filter, tab_counts, q
         <ContractorLayout crumb="Quotes" section="Billing" counts={counts}>
             <Head title="Quotes" />
 
-            <div className="px-8 py-7">
-                <div className="flex items-end justify-between mb-6">
+            <div className="px-4 sm:px-8 py-6 sm:py-7">
+                <div className="flex flex-wrap items-end justify-between gap-3 mb-6">
                     <div>
                         <h1 className="text-2xl font-bold tracking-tight">Quotes</h1>
                         <p className="text-[14px] text-ink-500 mt-1">
@@ -121,7 +121,7 @@ export default function ContractorQuotes({ counts, quotes, filter, tab_counts, q
                     {quotes.length === 0 ? (
                         <div className="p-10 text-center text-[13px] text-ink-400">No quotes match this filter</div>
                     ) : (
-                        <table className="w-full">
+                        <div className="overflow-x-auto"><table className="w-full min-w-[700px]">
                             <thead>
                                 <tr className="text-left text-[11px] uppercase text-ink-500 tracking-wider border-b border-ink-200 bg-ink-50">
                                     <th className="font-semibold px-5 py-3">Reference</th>
@@ -162,7 +162,7 @@ export default function ContractorQuotes({ counts, quotes, filter, tab_counts, q
                                     </tr>
                                 ))}
                             </tbody>
-                        </table>
+                        </table></div>
                     )}
                 </div>
             </div>

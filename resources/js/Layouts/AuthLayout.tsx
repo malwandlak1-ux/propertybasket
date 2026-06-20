@@ -15,10 +15,7 @@ export default function AuthLayout({ children, heading, subheading, bullets }: A
                 className="hidden lg:flex w-[44%] text-white p-12 flex-col justify-between relative overflow-hidden"
                 style={{
                     background:
-                        'radial-gradient(at 20% 20%, rgba(91,61,245,0.35) 0, transparent 50%),' +
-                        'radial-gradient(at 80% 0%, rgba(74,46,224,0.30) 0, transparent 50%),' +
-                        'radial-gradient(at 60% 80%, rgba(58,35,184,0.40) 0, transparent 50%),' +
-                        '#1A1A22',
+                        'linear-gradient(60deg, #FFC976 0%, #F26A1B 50%, #E81613 100%)',
                 }}
             >
                 <div className="relative z-10">

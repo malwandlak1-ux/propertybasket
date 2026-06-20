@@ -118,7 +118,7 @@ export default function TenantLayout({ children, crumb = 'Dashboard', section = 
                 onClick={() => setNavOpen(false)}
             >
                 <div className="px-5 pt-5 pb-6">
-                    <AppLogo height={19} />
+                    <AppLogo height={19} href="/" />
                 </div>
 
                 <nav className="px-3 flex-1 overflow-y-auto">

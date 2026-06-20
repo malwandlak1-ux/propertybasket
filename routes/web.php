@@ -105,6 +105,14 @@ Route::middleware('auth')->group(function () {
         Route::post('commissions/invoices/{invoice}/pay', [\App\Http\Controllers\Agency\CommissionController::class, 'payInvoice'])->name('commissions.invoices.pay');
         Route::post('commissions/rates', [\App\Http\Controllers\Agency\CommissionController::class, 'updateRates'])->name('commissions.rates');
 
+        Route::get('landlords',  [\App\Http\Controllers\Agency\LandlordsController::class, 'index'])->name('landlords.index');
+        Route::post('landlords', [\App\Http\Controllers\Agency\LandlordsController::class, 'storeLandlord'])->name('landlords.store');
+        Route::patch('landlords/{managedLandlord}',  [\App\Http\Controllers\Agency\LandlordsController::class, 'updateLandlord'])->name('landlords.update');
+        Route::delete('landlords/{managedLandlord}', [\App\Http\Controllers\Agency\LandlordsController::class, 'destroyLandlord'])->name('landlords.destroy');
+        Route::post('landlords/link-property',        [\App\Http\Controllers\Agency\LandlordsController::class, 'linkProperty'])->name('landlords.link');
+        Route::post('landlords/properties/{listing}/unlink', [\App\Http\Controllers\Agency\LandlordsController::class, 'unlinkProperty'])->name('landlords.unlink');
+        Route::post('landlords/run-payout',           [\App\Http\Controllers\Agency\LandlordsController::class, 'runMonthlyPayout'])->name('landlords.payout');
+
         Route::get('settings', [\App\Http\Controllers\Agency\SettingsController::class, 'show'])->name('settings.show');
         Route::match(['post', 'patch'], 'settings', [\App\Http\Controllers\Agency\SettingsController::class, 'update'])->name('settings.update');
 

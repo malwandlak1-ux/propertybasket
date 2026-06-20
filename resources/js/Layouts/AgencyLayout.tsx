@@ -182,7 +182,7 @@ export default function AgencyLayout({ children, crumb = 'Dashboard', agencyName
     const team: NavItem[] = [
         { label: 'Agents', href: '/agency/agents', icon: ICON_AGENTS },
         { label: 'Tenants', href: '/agency/tenants', icon: ICON_TENANTS },
-        { label: 'Landlords', icon: ICON_LANDLORDS },
+        { label: 'Landlords', href: '/agency/landlords', icon: ICON_LANDLORDS },
         { label: 'Contractors', href: '/agency/contractors', icon: ICON_CONTRACTORS },
     ];
     const finance: NavItem[] = [
@@ -226,7 +226,7 @@ export default function AgencyLayout({ children, crumb = 'Dashboard', agencyName
                 onClick={() => setNavOpen(false)}
             >
                 <div className="px-5 pt-5 pb-6">
-                    <AppLogo height={19} />
+                    <AppLogo height={19} href="/" />
                 </div>
 
                 <nav className="px-3 flex-1 overflow-y-auto">

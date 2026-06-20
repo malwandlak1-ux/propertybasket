@@ -46,6 +46,11 @@ cp -f "$SRC/app/Http/Controllers/Agent/PipelineController.php"    "$APP/app/Http
 cp -f "$SRC/app/Models/Lease.php"                                 "$APP/app/Models/Lease.php"
 cp -f "$SRC/app/Models/Agency.php"                               "$APP/app/Models/Agency.php"
 cp -f "$SRC/app/Models/User.php"                                 "$APP/app/Models/User.php"
+cp -f "$SRC/app/Models/Listing.php"                              "$APP/app/Models/Listing.php"
+# Managed-landlord rental payouts.
+cp -f "$SRC/app/Models/ManagedLandlord.php"                      "$APP/app/Models/ManagedLandlord.php"
+cp -f "$SRC/app/Models/LandlordPayout.php"                       "$APP/app/Models/LandlordPayout.php"
+cp -f "$SRC/app/Http/Controllers/Agency/LandlordsController.php" "$APP/app/Http/Controllers/Agency/LandlordsController.php"
 cp -f "$SRC/routes/web.php"                                       "$APP/routes/web.php"
 
 # Migrations (append-only; migrate --force below applies new ones).

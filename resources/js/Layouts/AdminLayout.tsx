@@ -147,7 +147,7 @@ export default function AdminLayout({ children, crumb = 'Overview', section = 'P
                 onClick={() => setNavOpen(false)}
             >
                 <div className="px-5 pt-5 pb-4">
-                    <AppLogo height={19} />
+                    <AppLogo height={19} href="/" />
                     <p className="text-[10px] text-brand-600 font-semibold tracking-wide mt-1.5 ml-1">SUPER ADMIN</p>
                 </div>
 

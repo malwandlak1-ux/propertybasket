@@ -43,7 +43,7 @@ function fmtMoneyFull(n: number): string {
 
 function gradientFor(idx: number): string {
     const palette = [
-        'linear-gradient(135deg,#5B3DF5,#3A23B8)',
+        'linear-gradient(135deg,#F26A1B,#B8470A)',
         'linear-gradient(135deg,#F472B6,#E11D48)',
         'linear-gradient(135deg,#38BDF8,#0284C7)',
         'linear-gradient(135deg,#34D399,#059669)',
@@ -110,7 +110,7 @@ export default function Agents({ agency, agents, leaderboard, pending_invites, t
                         </button>
                         <button
                             onClick={() => setInviteOpen(true)}
-                            className="px-3.5 py-2 text-[13px] bg-ink-900 text-white rounded-lg hover:bg-ink-800 flex items-center gap-2"
+                            className="px-3.5 py-2 text-[13px] bg-ink-900 text-white rounded-lg hover:bg-brand-500 flex items-center gap-2"
                         >
                             <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
                                 <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />

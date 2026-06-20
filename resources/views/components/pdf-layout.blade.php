@@ -8,8 +8,8 @@
         @page { margin: 28mm 18mm 22mm 18mm; }
         body { font-family: DejaVu Sans, sans-serif; color: #0B0B0F; font-size: 11px; line-height: 1.5; }
         header { position: fixed; top: -22mm; left: 0; right: 0; height: 18mm;
-            border-bottom: 1.5px solid #5B3DF5; padding-bottom: 6px; }
-        header .brand { color: #5B3DF5; font-weight: bold; font-size: 16px; }
+            border-bottom: 1.5px solid #F26A1B; padding-bottom: 6px; }
+        header .brand { color: #F26A1B; font-weight: bold; font-size: 16px; }
         header .doc-meta { float: right; text-align: right; color: #6B7280; font-size: 10px; }
         footer { position: fixed; bottom: -16mm; left: 0; right: 0; height: 12mm;
             border-top: 1px solid #E5E7EB; padding-top: 6px;

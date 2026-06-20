@@ -237,7 +237,8 @@ routes/web.php                            — All routes (public + agency + agen
 - Currency: ZAR (`R`), format with `R X,XXX` (no decimals for display)
 - Timezone: `Africa/Johannesburg` (SAST = UTC+2)
 - Font: Plus Jakarta Sans
-- Brand purple: `#5B3DF5` → Tailwind token `brand-500`
+- Brand colour: rebranded purple → **orange `#F26A1B`** (Tailwind token `brand-500`, defined in `resources/css/app.css @theme`). Ramp: 50 `#FFF4EC`, 100 `#FFE2CC`, 500 `#F26A1B`, 600 `#E15A12`, 700 `#B8470A`. Matches the marketing landing page `property-basket-overview.html`.
+- Display headings (`h1/h2/h3`) use **Space Grotesk**; body text stays Plus Jakarta Sans (both set in `app.css`)
 - Ink scale: `ink-50` … `ink-900` (grays)
 - `success` = `#10B981`, `warning` = `#F59E0B`, `danger` = `#EF4444`
 - Always use `shadow-soft` on cards, `shadow-lift` on hover

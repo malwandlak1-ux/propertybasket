@@ -40,7 +40,7 @@ function fmtMoney(n: number): string {
 
 function gradientForAgent(id: number | null): string {
     const palette = [
-        'linear-gradient(135deg,#5B3DF5,#3A23B8)',
+        'linear-gradient(135deg,#F26A1B,#B8470A)',
         'linear-gradient(135deg,#F472B6,#E11D48)',
         'linear-gradient(135deg,#38BDF8,#0284C7)',
         'linear-gradient(135deg,#34D399,#059669)',

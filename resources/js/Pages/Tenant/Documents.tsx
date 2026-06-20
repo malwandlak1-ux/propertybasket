@@ -97,7 +97,7 @@ export default function TenantDocuments({ tenant, lease, deposit, ledger, docume
                     </p>
                     <button
                         onClick={() => setSignOpen(true)}
-                        className="px-4 py-2 bg-ink-900 hover:bg-ink-800 text-white rounded-lg text-[13px] font-semibold shrink-0"
+                        className="px-4 py-2 bg-ink-900 hover:bg-brand-500 text-white rounded-lg text-[13px] font-semibold shrink-0"
                     >
                         Review &amp; sign
                     </button>
@@ -366,7 +366,7 @@ function SignLeaseModal({
                         <button
                             type="submit"
                             disabled={form.processing || ! nameMatches || ! form.data.agreed}
-                            className="px-5 py-2 text-[13px] bg-ink-900 hover:bg-ink-800 disabled:opacity-50 text-white rounded-lg font-semibold"
+                            className="px-5 py-2 text-[13px] bg-ink-900 hover:bg-brand-500 disabled:opacity-50 text-white rounded-lg font-semibold"
                         >
                             {form.processing ? 'Signing…' : 'Sign lease agreement'}
                         </button>

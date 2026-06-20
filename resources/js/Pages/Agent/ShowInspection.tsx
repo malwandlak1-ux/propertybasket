@@ -62,7 +62,7 @@ export default function AgentShowInspection({ agent, inspection, lease, listing 
                             href={`${inspection.pdf_url}?download=1`}
                             target="_blank"
                             rel="noopener"
-                            className="px-3.5 py-2 text-[13px] bg-ink-900 text-white rounded-lg hover:bg-ink-800 transition inline-flex items-center gap-2"
+                            className="px-3.5 py-2 text-[13px] bg-ink-900 text-white rounded-lg hover:bg-brand-500 transition inline-flex items-center gap-2"
                         >
                             <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
                                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" />

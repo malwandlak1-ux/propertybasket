@@ -22,7 +22,7 @@ export default function Placeholder({ role, role_label }: Props) {
                     <button
                         type="button"
                         onClick={() => router.post('/logout')}
-                        className="mt-8 inline-flex items-center rounded-lg bg-ink-900 px-4 py-2 text-[14px] font-semibold text-white hover:bg-ink-800 transition"
+                        className="mt-8 inline-flex items-center rounded-lg bg-ink-900 px-4 py-2 text-[14px] font-semibold text-white hover:bg-brand-500 transition"
                     >
                         Sign out
                     </button>

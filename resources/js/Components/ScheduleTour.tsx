@@ -166,7 +166,7 @@ export default function ScheduleTour({ listingId }: Props) {
                     <button
                         type="submit"
                         disabled={form.processing}
-                        className="px-5 py-2.5 bg-ink-900 hover:bg-ink-800 disabled:opacity-60 text-white rounded-lg text-[14px] font-semibold transition"
+                        className="px-5 py-2.5 bg-ink-900 hover:bg-brand-500 disabled:opacity-60 text-white rounded-lg text-[14px] font-semibold transition"
                     >
                         {form.processing ? 'Sending…' : 'Submit a tour request'}
                     </button>

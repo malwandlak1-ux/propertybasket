@@ -75,7 +75,7 @@ function fmtMoneyShort(n: number): string {
 
 function gradientFor(idx: number): string {
     const palette = [
-        'linear-gradient(135deg,#5B3DF5,#3A23B8)',
+        'linear-gradient(135deg,#F26A1B,#B8470A)',
         'linear-gradient(135deg,#F472B6,#E11D48)',
         'linear-gradient(135deg,#38BDF8,#0284C7)',
         'linear-gradient(135deg,#34D399,#059669)',
@@ -200,7 +200,7 @@ export default function Commission({ agency, commissions, totals, next_batch, pa
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                     <div
                         className="rounded-xl p-5 text-white shadow-card"
-                        style={{ background: 'linear-gradient(135deg,#5B3DF5,#3A23B8)' }}
+                        style={{ background: 'linear-gradient(135deg,#F26A1B,#B8470A)' }}
                     >
                         <p className="text-[11px] uppercase tracking-wider opacity-80 font-semibold">Next Payout</p>
                         <p className="text-3xl font-bold mt-2">
@@ -510,7 +510,7 @@ export default function Commission({ agency, commissions, totals, next_batch, pa
                         </div>
                         <button
                             onClick={() => setRateModalOpen(true)}
-                            className="w-full text-center mt-3 py-2 text-[12px] bg-ink-900 text-white rounded-md hover:bg-ink-800 transition font-semibold"
+                            className="w-full text-center mt-3 py-2 text-[12px] bg-ink-900 text-white rounded-md hover:bg-brand-500 transition font-semibold"
                         >
                             Edit commission structure
                         </button>
@@ -672,7 +672,7 @@ function CommissionRateModal({ sale, rental, onClose }: { sale: number; rental: 
 
                 <div className="mt-5 flex justify-end gap-2">
                     <button type="button" onClick={onClose} className="px-4 py-2 text-[13px] border border-ink-200 rounded-lg hover:bg-ink-100 font-semibold">Cancel</button>
-                    <button type="submit" disabled={form.processing} className="px-5 py-2 text-[13px] bg-ink-900 text-white rounded-lg hover:bg-ink-800 disabled:opacity-50 font-semibold">
+                    <button type="submit" disabled={form.processing} className="px-5 py-2 text-[13px] bg-ink-900 text-white rounded-lg hover:bg-brand-500 disabled:opacity-50 font-semibold">
                         {form.processing ? 'Saving…' : 'Save structure'}
                     </button>
                 </div>

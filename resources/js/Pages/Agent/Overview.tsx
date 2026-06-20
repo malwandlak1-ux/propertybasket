@@ -103,7 +103,7 @@ export default function AgentOverview({
             sub: '+2 this week', subColor: 'text-success',
             iconBg: 'bg-brand-50', iconColor: 'text-brand-600',
             icon: <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5}><path d="M3 21V10l9-7 9 7v11H3z" /></svg>,
-            sparkColor: '#5B3DF5',
+            sparkColor: '#F26A1B',
         },
         {
             label: 'Open Leads', value: kpis.open_leads.toString(),
@@ -124,7 +124,7 @@ export default function AgentOverview({
             sub: 'Lead-to-close ratio', subColor: 'text-ink-500',
             iconBg: 'bg-violet-50', iconColor: 'text-brand-600',
             icon: <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5}><path d="M3 3v18h18" /><path d="M7 14l4-4 4 4 6-6" /></svg>,
-            sparkColor: '#5B3DF5',
+            sparkColor: '#F26A1B',
         },
     ];
 
@@ -156,7 +156,7 @@ export default function AgentOverview({
                             <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M12 5v14M5 12h14" /></svg>
                             New Lead
                         </Link>
-                        <Link href="/agent/listings/create" className="px-3.5 py-2 text-[13px] bg-ink-900 text-white rounded-lg hover:bg-ink-800 transition flex items-center gap-2">
+                        <Link href="/agent/listings/create" className="px-3.5 py-2 text-[13px] bg-ink-900 text-white rounded-lg hover:bg-brand-500 transition flex items-center gap-2">
                             <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><circle cx="12" cy="12" r="9" /><path d="M12 8v8M8 12h8" /></svg>
                             Create Listing
                         </Link>

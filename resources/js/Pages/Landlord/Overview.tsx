@@ -109,7 +109,7 @@ export default function LandlordOverview({ landlord, kpis, properties, attention
                                 </span>
                             )}
                         </button>
-                        <a href="/landlord/listings/create" className="px-3.5 py-2 text-[13px] bg-ink-900 text-white rounded-lg hover:bg-ink-800 transition flex items-center gap-2">
+                        <a href="/landlord/listings/create" className="px-3.5 py-2 text-[13px] bg-ink-900 text-white rounded-lg hover:bg-brand-500 transition flex items-center gap-2">
                             <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M12 5v14M5 12h14"/></svg>
                             Add Property
                         </a>
@@ -134,7 +134,7 @@ export default function LandlordOverview({ landlord, kpis, properties, attention
                         iconBg="bg-brand-50"
                         iconColor="text-brand-600"
                         icon={<path d="M3 21V10l9-7 9 7v11H3z"/>}
-                        sparkColor="#5B3DF5"
+                        sparkColor="#F26A1B"
                     />
                     <KpiCard
                         label="Open Maintenance"

@@ -193,7 +193,7 @@ function ProfileForm({ profile }: { profile: Props['profile'] }) {
                 <button
                     type="submit"
                     disabled={! isDirty || processing}
-                    className="px-4 py-2 text-[13px] bg-ink-900 text-white rounded-lg hover:bg-ink-800 disabled:opacity-40 inline-flex items-center gap-2 font-semibold"
+                    className="px-4 py-2 text-[13px] bg-ink-900 text-white rounded-lg hover:bg-brand-500 disabled:opacity-40 inline-flex items-center gap-2 font-semibold"
                 >
                     {processing && <Spinner size={13} />}
                     {processing ? 'Saving…' : 'Save login details'}
@@ -245,7 +245,7 @@ function PasswordForm() {
                 <button
                     type="submit"
                     disabled={processing || ! data.current_password || ! data.password || data.password !== data.password_confirmation}
-                    className="px-4 py-2 text-[13px] bg-ink-900 text-white rounded-lg hover:bg-ink-800 disabled:opacity-40 inline-flex items-center gap-2 font-semibold"
+                    className="px-4 py-2 text-[13px] bg-ink-900 text-white rounded-lg hover:bg-brand-500 disabled:opacity-40 inline-flex items-center gap-2 font-semibold"
                 >
                     {processing && <Spinner size={13} />}
                     {processing ? 'Saving…' : 'Change password'}
@@ -361,7 +361,7 @@ function BankingPanel({ banking, banks, contractorName }: { banking: Props['bank
                     <button
                         type="submit"
                         disabled={! isDirty || processing}
-                        className="px-4 py-2 text-[13px] bg-ink-900 text-white rounded-lg hover:bg-ink-800 disabled:opacity-40 inline-flex items-center gap-2 font-semibold shrink-0"
+                        className="px-4 py-2 text-[13px] bg-ink-900 text-white rounded-lg hover:bg-brand-500 disabled:opacity-40 inline-flex items-center gap-2 font-semibold shrink-0"
                     >
                         {processing && <Spinner size={13} />}
                         {processing ? 'Saving…' : 'Save banking'}
@@ -529,7 +529,7 @@ function ProfileBlock({ portfolio, specialityOptions }: { portfolio: Props['port
                 <button
                     type="submit"
                     disabled={! isDirty || processing}
-                    className="px-4 py-2 text-[13px] bg-ink-900 text-white rounded-lg hover:bg-ink-800 disabled:opacity-40 inline-flex items-center gap-2 font-semibold"
+                    className="px-4 py-2 text-[13px] bg-ink-900 text-white rounded-lg hover:bg-brand-500 disabled:opacity-40 inline-flex items-center gap-2 font-semibold"
                 >
                     {processing && <Spinner size={13} />}
                     {processing ? 'Saving…' : 'Save portfolio'}

@@ -116,7 +116,7 @@ export default function TenantMaintenance({ lease, active, past }: Props) {
 
                 {showForm && (
                     <form onSubmit={submit} className="bg-white rounded-xl border border-ink-200 shadow-soft overflow-hidden mb-6">
-                        <div className="p-5 border-b border-ink-200 bg-gradient-to-r from-brand-50 to-violet-50">
+                        <div className="p-5 border-b border-ink-200 bg-gradient-to-r from-brand-50 to-brand-100">
                             <p className="text-[13px] font-bold">Report a new issue</p>
                             <p className="text-[11px] text-ink-500 mt-0.5">Fill in the details — your agency will assign a contractor and notify you.</p>
                         </div>

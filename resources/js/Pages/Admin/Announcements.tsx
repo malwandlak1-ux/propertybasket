@@ -67,7 +67,7 @@ export default function AdminAnnouncements({ recent, audiences }: Props) {
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     {/* ── New announcement form ───────────────────────── */}
                     <div className="col-span-2 bg-white rounded-xl border border-ink-200 shadow-soft overflow-hidden">
-                        <div className="bg-gradient-to-r from-brand-50 to-violet-50 border-b border-brand-100 px-5 py-4">
+                        <div className="bg-gradient-to-r from-brand-50 to-brand-100 border-b border-brand-100 px-5 py-4">
                             <h2 className="text-[14px] font-bold">New Announcement</h2>
                             <p className="text-[11px] text-ink-500 mt-0.5">Appears in-app and (optionally) by email</p>
                         </div>
@@ -136,7 +136,7 @@ export default function AdminAnnouncements({ recent, audiences }: Props) {
                                 <button
                                     onClick={publish}
                                     disabled={!title.trim() || !message.trim() || submitting}
-                                    className="px-3.5 py-1.5 text-[12px] bg-ink-900 text-white rounded-lg hover:bg-ink-800 disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center gap-2 font-semibold"
+                                    className="px-3.5 py-1.5 text-[12px] bg-ink-900 text-white rounded-lg hover:bg-brand-500 disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center gap-2 font-semibold"
                                 >
                                     <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
                                         <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>

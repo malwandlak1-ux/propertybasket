@@ -71,7 +71,7 @@ export function LegalShell({
                 .legal-prose ul { font-size: 0.875rem; line-height: 1.65; color: #374151; margin-bottom: 0.85rem; padding-left: 1.25rem; list-style: disc; }
                 .legal-prose ul li { margin-bottom: 0.35rem; }
                 .legal-prose strong { color: #0B0B0F; }
-                .legal-prose a { color: #5B3DF5; font-weight: 600; }
+                .legal-prose a { color: #F26A1B; font-weight: 600; }
                 .legal-prose a:hover { text-decoration: underline; }
             `}</style>
         </PublicLayout>

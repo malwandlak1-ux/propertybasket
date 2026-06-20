@@ -72,7 +72,7 @@ export default class ErrorBoundary extends Component<Props, State> {
                     </p>
                     <button
                         onClick={this.reset}
-                        className="px-3 py-1.5 text-[12px] bg-ink-900 text-white rounded-md font-semibold hover:bg-ink-800 transition"
+                        className="px-3 py-1.5 text-[12px] bg-ink-900 text-white rounded-md font-semibold hover:bg-brand-500 transition"
                     >
                         Try again
                     </button>
@@ -100,7 +100,7 @@ export default class ErrorBoundary extends Component<Props, State> {
                     <div className="flex items-center justify-center gap-2">
                         <button
                             onClick={this.reload}
-                            className="px-4 py-2 text-[13px] bg-ink-900 text-white rounded-lg font-semibold hover:bg-ink-800 transition"
+                            className="px-4 py-2 text-[13px] bg-ink-900 text-white rounded-lg font-semibold hover:bg-brand-500 transition"
                         >
                             Reload page
                         </button>

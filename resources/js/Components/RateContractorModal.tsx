@@ -82,7 +82,7 @@ export default function RateContractorModal({ rateUrl, contractorName, jobTitle,
                     <button
                         onClick={submit}
                         disabled={busy || rating === 0}
-                        className="px-5 py-2 text-[13px] bg-ink-900 hover:bg-ink-800 disabled:opacity-50 text-white rounded-lg font-semibold"
+                        className="px-5 py-2 text-[13px] bg-ink-900 hover:bg-brand-500 disabled:opacity-50 text-white rounded-lg font-semibold"
                     >
                         {busy ? 'Submitting…' : 'Submit rating'}
                     </button>

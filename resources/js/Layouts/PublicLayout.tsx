@@ -33,7 +33,7 @@ export default function PublicLayout({ children }: Props) {
                         {user ? (
                             <Link
                                 href="/dashboard"
-                                className="px-4 py-2 rounded-lg bg-ink-900 text-white font-semibold hover:bg-ink-800 transition"
+                                className="px-4 py-2 rounded-lg bg-ink-900 text-white font-semibold hover:bg-brand-500 transition"
                             >
                                 Dashboard
                             </Link>
@@ -44,7 +44,7 @@ export default function PublicLayout({ children }: Props) {
                                 </Link>
                                 <Link
                                     href="/register"
-                                    className="px-4 py-2 rounded-lg bg-ink-900 text-white font-semibold hover:bg-ink-800 transition"
+                                    className="px-4 py-2 rounded-lg bg-ink-900 text-white font-semibold hover:bg-brand-500 transition"
                                 >
                                     Get started
                                 </Link>
@@ -176,7 +176,7 @@ function SiteFooter() {
                         />
                         <button
                             type="submit"
-                            className="px-5 py-2.5 bg-ink-900 hover:bg-ink-800 text-white rounded-md text-[14px] font-semibold transition"
+                            className="px-5 py-2.5 bg-ink-900 hover:bg-brand-500 text-white rounded-md text-[14px] font-semibold transition"
                         >
                             Submit
                         </button>

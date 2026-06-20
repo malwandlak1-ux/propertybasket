@@ -61,7 +61,7 @@ function Card({ req, onView }: { req: Req; onView: () => void }) {
             <div className="flex items-center gap-2 pt-3 border-t border-ink-100">
                 <button
                     onClick={onView}
-                    className="flex-1 py-1.5 text-[12px] bg-ink-900 text-white rounded-md font-semibold hover:bg-ink-800 transition"
+                    className="flex-1 py-1.5 text-[12px] bg-ink-900 text-white rounded-md font-semibold hover:bg-brand-500 transition"
                 >
                     {req.stage === 'marketplace'       ? 'View & claim'
                   : req.stage === 'needs_quote'        ? 'View & quote'

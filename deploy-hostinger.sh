@@ -55,6 +55,11 @@ cp -rf "$SRC/database/migrations/." "$APP/database/migrations/"
 cp -rf "$SRC/app/Notifications/." "$APP/app/Notifications/"
 cp -rf "$SRC/resources/views/vendor/mail/." "$APP/resources/views/vendor/mail/"
 
+# Orange rebrand — brand image assets + server-rendered PDF template.
+mkdir -p "$APP/public/images" "$APP/resources/views/components"
+cp -rf "$SRC/public/images/." "$APP/public/images/"
+cp -f  "$SRC/resources/views/components/pdf-layout.blade.php" "$APP/resources/views/components/pdf-layout.blade.php"
+
 # Apply any new migrations, then refresh caches.
 cd "$APP"
 php artisan migrate --force

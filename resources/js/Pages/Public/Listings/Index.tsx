@@ -113,7 +113,7 @@ export default function Index({ listings, filters }: Props) {
                     </div>
                     <button
                         type="submit"
-                        className="md:col-span-6 lg:col-span-1 py-2.5 bg-ink-900 hover:bg-ink-800 text-white rounded-lg text-[14px] font-semibold transition"
+                        className="md:col-span-6 lg:col-span-1 py-2.5 bg-ink-900 hover:bg-brand-500 text-white rounded-lg text-[14px] font-semibold transition"
                     >
                         Apply filters
                     </button>

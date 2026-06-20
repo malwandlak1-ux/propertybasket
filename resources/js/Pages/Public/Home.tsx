@@ -24,57 +24,60 @@ export default function Home({ featured, cities, totals }: Props) {
             <Head title="Find your next home" />
 
             {/* Hero */}
-            <section
-                className="relative text-white"
-                style={{
-                    background:
-                        'radial-gradient(at 20% 20%, rgba(91,61,245,0.45) 0, transparent 50%),' +
-                        'radial-gradient(at 80% 0%, rgba(74,46,224,0.40) 0, transparent 50%),' +
-                        'radial-gradient(at 60% 80%, rgba(58,35,184,0.50) 0, transparent 50%),' +
-                        '#0B0B0F',
-                }}
-            >
-                <div className="max-w-7xl mx-auto px-6 py-20 lg:py-28 relative">
-                    <span className="inline-flex items-center rounded-full bg-white/10 backdrop-blur px-3 py-1 text-[11px] font-semibold uppercase tracking-wider">
-                        🇿🇦 South African properties
-                    </span>
-                    <h1 className="mt-5 text-4xl lg:text-6xl font-bold tracking-tight max-w-3xl leading-tight">
-                        Find a home, rent a place, or partner with the people who keep them running.
-                    </h1>
-                    <p className="mt-5 text-white/70 text-[17px] max-w-2xl">
-                        Every active listing across our network of agencies and private landlords —
-                        plus a marketplace of vetted contractors to keep the lights on.
-                    </p>
+            <section className="relative overflow-hidden bg-white" style={{ background: 'radial-gradient(900px 460px at 92% 6%, #FFF4EC 0, transparent 60%), #FFFFFF' }}>
+                <div className="max-w-7xl mx-auto px-6 pt-14 pb-24 lg:pt-16 lg:pb-32 grid lg:grid-cols-[1fr_1.1fr] gap-10 lg:gap-14 items-center">
+                    {/* Copy */}
+                    <div className="min-w-0">
+                        <span className="inline-flex items-center gap-3 text-brand-600 text-[11.5px] font-semibold uppercase" style={{ fontFamily: '"Space Grotesk", sans-serif', letterSpacing: '0.2em' }}>
+                            <span className="w-7 h-px bg-brand-500" /> The all-in-one property platform
+                        </span>
+                        <div aria-hidden="true" className="select-none font-bold overflow-hidden" style={{ fontFamily: '"Space Grotesk", sans-serif', WebkitTextStroke: '1.4px #F26A1B', color: 'transparent', opacity: 0.16, lineHeight: 0.86, letterSpacing: '-0.04em', fontSize: 'clamp(44px,7vw,92px)', marginTop: '14px' }}>
+                            PROPERTY.
+                        </div>
+                        <h1 className="text-4xl lg:text-[58px] font-bold tracking-tight leading-[1.04] mt-1">
+                            Explore the entire property journey <span className="text-brand-500">on one platform.</span>
+                        </h1>
+                        <p className="mt-5 text-ink-500 text-[17px] max-w-xl leading-relaxed">
+                            Every active listing across our network of agencies and private landlords —
+                            plus a marketplace of vetted contractors to keep the lights on.
+                        </p>
 
-                    <div className="mt-9 flex flex-wrap gap-3">
-                        <Link
-                            href="/properties"
-                            className="px-5 py-3 rounded-lg bg-white text-ink-900 font-semibold text-[14px] hover:bg-ink-100 transition"
-                        >
-                            Browse properties
-                        </Link>
-                        <Link
-                            href="/agencies"
-                            className="px-5 py-3 rounded-lg bg-white/10 hover:bg-white/15 backdrop-blur text-white font-semibold text-[14px] transition border border-white/20"
-                        >
-                            Explore agencies
-                        </Link>
+                        <div className="mt-8 flex flex-wrap gap-3">
+                            <Link href="/properties" className="px-7 py-3.5 rounded-full bg-brand-500 text-white font-semibold text-[14px] hover:bg-brand-600 transition">
+                                Browse properties →
+                            </Link>
+                            <Link href="/agencies" className="px-7 py-3.5 rounded-full bg-white text-ink-900 font-semibold text-[14px] border border-ink-900 hover:bg-ink-900 hover:text-white transition">
+                                Explore agencies
+                            </Link>
+                        </div>
+
+                        <div className="mt-10 flex flex-wrap items-center gap-7">
+                            <div>
+                                <p className="text-3xl font-bold">{totals.listings}</p>
+                                <p className="text-[12px] uppercase tracking-wider text-ink-400">Active listings</p>
+                            </div>
+                            <div className="w-px h-10 bg-ink-200" />
+                            <div>
+                                <p className="text-3xl font-bold">{totals.agencies}</p>
+                                <p className="text-[12px] uppercase tracking-wider text-ink-400">Agencies</p>
+                            </div>
+                            <div className="w-px h-10 bg-ink-200" />
+                            <div>
+                                <p className="text-3xl font-bold">{totals.contractors}</p>
+                                <p className="text-[12px] uppercase tracking-wider text-ink-400">Contractors</p>
+                            </div>
+                        </div>
                     </div>
 
-                    <div className="mt-12 flex flex-wrap items-center gap-8 text-white/80">
-                        <div>
-                            <p className="text-3xl font-bold text-white">{totals.listings}</p>
-                            <p className="text-[12px] uppercase tracking-wider text-white/60">Active listings</p>
+                    {/* Framed architectural sketch */}
+                    <div className="relative">
+                        <span className="absolute -top-2 -left-2 w-5 h-5 border-2 border-brand-500 border-r-0 border-b-0" />
+                        <span className="absolute -bottom-2 -right-2 w-5 h-5 border-2 border-brand-500 border-l-0 border-t-0" />
+                        <div className="rounded-2xl border-[1.5px] border-ink-900 overflow-hidden bg-white" style={{ boxShadow: '0 18px 50px rgba(20,18,15,0.14)' }}>
+                            <img src="/images/hero-sketch.webp" alt="Architectural sketch of a modern home with an orange pathway" className="w-full block" />
                         </div>
-                        <div className="w-px h-10 bg-white/20" />
-                        <div>
-                            <p className="text-3xl font-bold text-white">{totals.agencies}</p>
-                            <p className="text-[12px] uppercase tracking-wider text-white/60">Agencies</p>
-                        </div>
-                        <div className="w-px h-10 bg-white/20" />
-                        <div>
-                            <p className="text-3xl font-bold text-white">{totals.contractors}</p>
-                            <p className="text-[12px] uppercase tracking-wider text-white/60">Contractors</p>
+                        <div className="absolute bottom-4 left-4 bg-white border border-ink-200 rounded-lg px-3 py-2 text-[11px] uppercase font-semibold text-ink-700" style={{ fontFamily: '"Space Grotesk", sans-serif', letterSpacing: '0.12em' }}>
+                            Listing → Lease → Payout
                         </div>
                     </div>
                 </div>
@@ -224,7 +227,7 @@ function RentalManagement() {
                             <button
                                 type="button"
                                 onClick={() => setDemoOpen(true)}
-                                className="mt-6 inline-flex items-center justify-center px-8 py-3 rounded-lg bg-white/15 hover:bg-white/25 backdrop-blur border border-white/20 text-white font-semibold text-[13px] transition"
+                                className="mt-6 inline-flex items-center justify-center px-8 py-3 rounded-lg bg-white/15 hover:bg-brand-500 backdrop-blur border border-white/20 hover:border-brand-500 text-white font-semibold text-[13px] transition"
                             >
                                 Book here
                             </button>
@@ -374,7 +377,7 @@ function BookDemoModal({ open, onClose }: { open: boolean; onClose: () => void }
                             <button
                                 type="submit"
                                 disabled={processing}
-                                className="flex-1 px-4 py-2.5 rounded-lg bg-ink-900 hover:bg-ink-800 text-white text-[14px] font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="flex-1 px-4 py-2.5 rounded-lg bg-ink-900 hover:bg-brand-500 text-white text-[14px] font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 {processing ? 'Sending…' : 'Request demo'}
                             </button>
@@ -571,7 +574,7 @@ function RegisterCard() {
                 <button
                     type="submit"
                     disabled={processing || (!isTenant && !data.terms_accepted)}
-                    className="w-full px-4 py-3 bg-ink-900 hover:bg-ink-800 disabled:opacity-40 disabled:cursor-not-allowed text-white rounded-lg font-semibold text-[14px] transition"
+                    className="w-full px-4 py-3 bg-ink-900 hover:bg-brand-500 disabled:opacity-40 disabled:cursor-not-allowed text-white rounded-lg font-semibold text-[14px] transition"
                 >
                     {isTenant ? 'Browse properties' : (processing ? 'Creating account…' : 'Create Account')}
                 </button>
@@ -609,7 +612,7 @@ function SearchWidget({ cities }: { cities: Props['cities'] }) {
     }
 
     const tabCls = (active: boolean) =>
-        'px-10 py-4 text-[16px] font-semibold rounded-t-lg transition ' +
+        'px-8 py-3 text-[15px] font-semibold rounded-t-lg transition ' +
         (active ? 'bg-brand-600 text-white' : 'bg-ink-900/80 text-white/70 hover:text-white');
 
     const fieldLabelCls = 'text-[10px] font-bold tracking-[0.12em] text-ink-500 uppercase mb-1.5 block';
@@ -681,7 +684,7 @@ function SearchWidget({ cities }: { cities: Props['cities'] }) {
                 <button
                     type="submit"
                     aria-label="Search properties"
-                    className="col-span-2 md:col-span-1 inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-ink-900 hover:bg-ink-800 text-white rounded-lg transition font-semibold text-[13px]"
+                    className="col-span-2 md:col-span-1 inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-ink-900 hover:bg-brand-500 text-white rounded-lg transition font-semibold text-[13px]"
                 >
                     <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2}>
                         <circle cx="11" cy="11" r="8" />

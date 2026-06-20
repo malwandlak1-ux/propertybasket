@@ -136,7 +136,7 @@ export default function TenantPayments({ tenant, lease, kpis, rows, upcoming }: 
                                         ? `Pay overdue rent for ${nextDue.period_label} (${fmtMoney(nextDue.amount)})`
                                         : `Pay rent for ${nextDue.period_label} (${fmtMoney(nextDue.amount)})`}
                                     className={`px-3.5 py-2 text-[13px] text-white rounded-lg flex items-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed ${
-                                        nextDue.is_overdue ? 'bg-danger hover:bg-danger/90' : 'bg-ink-900 hover:bg-ink-800'
+                                        nextDue.is_overdue ? 'bg-danger hover:bg-danger/90' : 'bg-ink-900 hover:bg-brand-500'
                                     }`}
                                 >
                                     {busy ? (
@@ -263,7 +263,7 @@ export default function TenantPayments({ tenant, lease, kpis, rows, upcoming }: 
                                             <button
                                                 onClick={() => payNow(u.period)}
                                                 disabled={payingPeriod !== null}
-                                                className="px-3 py-1.5 text-[11px] bg-ink-900 text-white rounded-md font-semibold hover:bg-ink-800 disabled:opacity-60 disabled:cursor-not-allowed inline-flex items-center gap-1.5 transition"
+                                                className="px-3 py-1.5 text-[11px] bg-ink-900 text-white rounded-md font-semibold hover:bg-brand-500 disabled:opacity-60 disabled:cursor-not-allowed inline-flex items-center gap-1.5 transition"
                                             >
                                                 {payingPeriod === u.period && <Spinner size={11} />}
                                                 {payingPeriod === u.period ? 'Redirecting…' : 'Pay now'}

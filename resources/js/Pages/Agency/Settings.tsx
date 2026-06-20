@@ -324,7 +324,7 @@ export default function Settings({ agency }: Props) {
                             <button
                                 type="submit"
                                 disabled={!isDirty || processing}
-                                className="px-4 py-2 text-[13px] bg-ink-900 text-white rounded-lg hover:bg-ink-800 disabled:opacity-40"
+                                className="px-4 py-2 text-[13px] bg-ink-900 text-white rounded-lg hover:bg-brand-500 disabled:opacity-40"
                             >
                                 {processing ? 'Saving…' : 'Save Changes'}
                             </button>

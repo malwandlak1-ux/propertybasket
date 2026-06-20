@@ -331,7 +331,7 @@ export default function AdminBlogForm({ post, allTags }: Props) {
                             )}
                             <label
                                 htmlFor="blog-cover-input"
-                                className="inline-flex items-center gap-2 px-3 py-2 text-[12px] rounded-lg bg-ink-900 text-white hover:bg-ink-800 font-semibold cursor-pointer"
+                                className="inline-flex items-center gap-2 px-3 py-2 text-[12px] rounded-lg bg-ink-900 text-white hover:bg-brand-500 font-semibold cursor-pointer"
                             >
                                 {coverPreview ? 'Replace…' : 'Upload image'}
                             </label>

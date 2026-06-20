@@ -104,7 +104,7 @@ function KanbanColumn({ title, color, items, count }: {
 
                         {item.status === 'open' && (
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 mt-2">
-                                <button className="py-1.5 text-[10px] bg-ink-900 text-white rounded font-semibold hover:bg-ink-800 transition">Assign</button>
+                                <button className="py-1.5 text-[10px] bg-ink-900 text-white rounded font-semibold hover:bg-brand-500 transition">Assign</button>
                                 <button className="py-1.5 text-[10px] border border-ink-200 rounded font-semibold hover:bg-ink-50 transition">Get Quotes</button>
                             </div>
                         )}

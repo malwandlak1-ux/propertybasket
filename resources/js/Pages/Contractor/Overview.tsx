@@ -93,7 +93,7 @@ export default function ContractorOverview({ counts, contractor, kpis, emergency
                             <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg>
                             New Quote
                         </Link>
-                        <Link href="/contractor/invoices" className="px-3.5 py-2 text-[13px] bg-ink-900 text-white rounded-lg hover:bg-ink-800 flex items-center gap-2 transition">
+                        <Link href="/contractor/invoices" className="px-3.5 py-2 text-[13px] bg-ink-900 text-white rounded-lg hover:bg-brand-500 flex items-center gap-2 transition">
                             <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18"/></svg>
                             New Invoice
                         </Link>

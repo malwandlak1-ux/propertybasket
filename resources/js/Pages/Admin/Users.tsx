@@ -114,7 +114,7 @@ export default function AdminUsers({ users, role_counts, filter, search }: Props
                             Every user across all dashboards · adjust roles, suspend, impersonate for support
                         </p>
                     </div>
-                    <button className="px-3.5 py-2 text-[13px] bg-ink-900 text-white rounded-lg hover:bg-ink-800 transition flex items-center gap-2">
+                    <button className="px-3.5 py-2 text-[13px] bg-ink-900 text-white rounded-lg hover:bg-brand-500 transition flex items-center gap-2">
                         <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M12 5v14M5 12h14"/></svg>
                         Create User
                     </button>

@@ -144,7 +144,7 @@ export default function PrivacyPortal({ meta }: Props) {
                         <button
                             type="submit"
                             disabled={processing}
-                            className="w-full px-4 py-2.5 rounded-lg bg-ink-900 hover:bg-ink-800 text-white text-[14px] font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="w-full px-4 py-2.5 rounded-lg bg-ink-900 hover:bg-brand-500 text-white text-[14px] font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             {processing ? 'Submitting…' : 'Submit request'}
                         </button>

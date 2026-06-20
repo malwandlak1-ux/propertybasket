@@ -28,7 +28,7 @@ function fmt(n: number): string {
 }
 
 const SEGMENT_COLORS = {
-    mortgage: '#5B3DF5', // brand purple
+    mortgage: '#F26A1B', // brand purple
     insurance: '#F59E0B', // warning amber
     hoa: '#10B981', // success green
 };

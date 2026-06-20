@@ -1,0 +1,1 @@
+import{r as o,a as r}from"./app-Lx7H7em1.js";function f(){const[s,t]=o.useState(!1);return o.useEffect(()=>{const e=r.on("start",()=>t(!0)),n=r.on("finish",()=>t(!1));return()=>{e(),n()}},[]),s}export{f as u};

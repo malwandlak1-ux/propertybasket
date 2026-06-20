@@ -58,7 +58,7 @@ export default function Index({ contractors, filters }: Props) {
                     />
                     <button
                         type="submit"
-                        className="py-2.5 bg-ink-900 hover:bg-ink-800 text-white rounded-lg text-[14px] font-semibold transition"
+                        className="py-2.5 bg-ink-900 hover:bg-brand-500 text-white rounded-lg text-[14px] font-semibold transition"
                     >
                         Filter
                     </button>

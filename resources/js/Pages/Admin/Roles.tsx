@@ -143,7 +143,7 @@ export default function AdminRoles({ roles, role_labels, matrix: initialMatrix, 
                     </div>
                     <button
                         onClick={() => setNewRoleOpen(true)}
-                        className="px-3.5 py-2 text-[13px] bg-ink-900 text-white rounded-lg flex items-center gap-2 hover:bg-ink-800 transition"
+                        className="px-3.5 py-2 text-[13px] bg-ink-900 text-white rounded-lg flex items-center gap-2 hover:bg-brand-500 transition"
                     >
                         <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
                             <path d="M12 5v14M5 12h14"/>
@@ -226,7 +226,7 @@ export default function AdminRoles({ roles, role_labels, matrix: initialMatrix, 
                             <button
                                 onClick={save}
                                 disabled={!dirty || saving}
-                                className="px-3.5 py-2 text-[13px] bg-ink-900 text-white rounded-lg hover:bg-ink-800 transition font-semibold disabled:opacity-40 disabled:cursor-not-allowed"
+                                className="px-3.5 py-2 text-[13px] bg-ink-900 text-white rounded-lg hover:bg-brand-500 transition font-semibold disabled:opacity-40 disabled:cursor-not-allowed"
                             >
                                 {saving ? 'Saving…' : 'Save Permissions'}
                             </button>
@@ -267,7 +267,7 @@ export default function AdminRoles({ roles, role_labels, matrix: initialMatrix, 
                                 <button
                                     type="submit"
                                     disabled={newRoleLabel.trim().length < 2}
-                                    className="px-3 py-1.5 text-[12px] bg-ink-900 text-white rounded-lg hover:bg-ink-800 transition font-semibold disabled:opacity-40 disabled:cursor-not-allowed"
+                                    className="px-3 py-1.5 text-[12px] bg-ink-900 text-white rounded-lg hover:bg-brand-500 transition font-semibold disabled:opacity-40 disabled:cursor-not-allowed"
                                 >
                                     Add role
                                 </button>

@@ -188,7 +188,7 @@ function TagEditor({
                     type="button"
                     onClick={add}
                     disabled={draft.trim() === ''}
-                    className="px-3 py-1.5 text-[12px] bg-ink-900 text-white rounded-lg hover:bg-ink-800 transition font-semibold disabled:opacity-40 disabled:cursor-not-allowed"
+                    className="px-3 py-1.5 text-[12px] bg-ink-900 text-white rounded-lg hover:bg-brand-500 transition font-semibold disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                     Add
                 </button>
@@ -522,7 +522,7 @@ export default function AdminSettings({ tabs, settings: initial, currencies, has
                         <button
                             onClick={save}
                             disabled={!dirty || saving}
-                            className="px-3.5 py-2 text-[13px] bg-ink-900 text-white rounded-lg hover:bg-ink-800 transition font-semibold disabled:opacity-40 disabled:cursor-not-allowed"
+                            className="px-3.5 py-2 text-[13px] bg-ink-900 text-white rounded-lg hover:bg-brand-500 transition font-semibold disabled:opacity-40 disabled:cursor-not-allowed"
                         >
                             {saving ? 'Saving…' : 'Save Changes'}
                         </button>

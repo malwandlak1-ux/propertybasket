@@ -153,7 +153,7 @@ export default function AgentFfcCompliance({ agent, ffc }: Props) {
                         <button
                             type="submit"
                             disabled={processing || ! data.ffc_number || ! data.ffc_expires_at}
-                            className="px-5 py-2 text-[13px] bg-ink-900 text-white rounded-lg hover:bg-ink-800 disabled:opacity-60 disabled:cursor-not-allowed inline-flex items-center gap-2 font-semibold transition"
+                            className="px-5 py-2 text-[13px] bg-ink-900 text-white rounded-lg hover:bg-brand-500 disabled:opacity-60 disabled:cursor-not-allowed inline-flex items-center gap-2 font-semibold transition"
                         >
                             {processing && <Spinner size={13} />}
                             {processing ? 'Saving…' : 'Save certificate'}

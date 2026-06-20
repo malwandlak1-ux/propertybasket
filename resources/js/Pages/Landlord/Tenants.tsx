@@ -83,7 +83,7 @@ export default function LandlordTenants({ landlord, tenants, invitable_listings,
                                 ? `${pending_invites.length} tenant${pending_invites.length === 1 ? '' : 's'} pending portal acceptance`
                                 : 'Invite a tenant to one of your rentals')
                             : 'You need an active lease or an available rental to invite a tenant'}
-                        className="px-3.5 py-2 text-[13px] bg-ink-900 text-white rounded-lg hover:bg-ink-800 disabled:bg-ink-200 disabled:text-ink-500 disabled:cursor-not-allowed transition flex items-center gap-2"
+                        className="px-3.5 py-2 text-[13px] bg-ink-900 text-white rounded-lg hover:bg-brand-500 disabled:bg-ink-200 disabled:text-ink-500 disabled:cursor-not-allowed transition flex items-center gap-2"
                     >
                         <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6M23 11h-6"/></svg>
                         Invite Tenant

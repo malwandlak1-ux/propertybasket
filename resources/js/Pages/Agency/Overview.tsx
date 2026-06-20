@@ -157,7 +157,7 @@ export default function Overview({ agency, kpis, revenue, top_performers, team_h
                         </button>
                         <Link
                             href="/agency/listings/create"
-                            className="px-3.5 py-2 text-[13px] bg-ink-900 text-white rounded-lg hover:bg-ink-800 transition flex items-center gap-2"
+                            className="px-3.5 py-2 text-[13px] bg-ink-900 text-white rounded-lg hover:bg-brand-500 transition flex items-center gap-2"
                         >
                             <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
                                 <circle cx="12" cy="12" r="9" />
@@ -182,7 +182,7 @@ export default function Overview({ agency, kpis, revenue, top_performers, team_h
                         value={String(kpis.active_deals)}
                         meta={fmtMoney(kpis.pipeline_value) + ' pipeline value'}
                         tone="brand"
-                        sparkColor="#5B3DF5"
+                        sparkColor="#F26A1B"
                     />
                     <Kpi
                         label="Due to Agents"
@@ -201,7 +201,7 @@ export default function Overview({ agency, kpis, revenue, top_performers, team_h
                         value={fmtMoney(kpis.trust_balance)}
                         meta="Section 32 · Reconciled today"
                         tone="violet"
-                        sparkColor="#5B3DF5"
+                        sparkColor="#F26A1B"
                     />
                 </div>
 

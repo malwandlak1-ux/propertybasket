@@ -258,7 +258,7 @@ function Card({
                     <>
                         <button
                             onClick={() => onAllocate(r)}
-                            className="px-3 py-1.5 text-[12px] bg-ink-900 text-white rounded-md font-semibold hover:bg-ink-800 transition"
+                            className="px-3 py-1.5 text-[12px] bg-ink-900 text-white rounded-md font-semibold hover:bg-brand-500 transition"
                         >
                             {r.contractor ? 'Re-allocate' : 'Request quote'}
                         </button>
@@ -361,7 +361,7 @@ function AllocateModal({
                                 <button
                                     onClick={() => assign(c)}
                                     disabled={busy !== null}
-                                    className="px-3 py-1.5 text-[12px] bg-ink-900 text-white rounded-md font-semibold hover:bg-ink-800 disabled:opacity-50 shrink-0 transition"
+                                    className="px-3 py-1.5 text-[12px] bg-ink-900 text-white rounded-md font-semibold hover:bg-brand-500 disabled:opacity-50 shrink-0 transition"
                                 >
                                     {busy === c.id ? 'Sending…' : 'Request quote'}
                                 </button>

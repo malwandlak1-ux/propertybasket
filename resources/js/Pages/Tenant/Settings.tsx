@@ -109,7 +109,7 @@ function ContactPanel({ profile }: { profile: Props['profile'] }) {
                 <button
                     type="submit"
                     disabled={! isDirty || processing}
-                    className="px-4 py-2 text-[13px] bg-ink-900 text-white rounded-lg hover:bg-ink-800 disabled:opacity-40 inline-flex items-center gap-2 font-semibold"
+                    className="px-4 py-2 text-[13px] bg-ink-900 text-white rounded-lg hover:bg-brand-500 disabled:opacity-40 inline-flex items-center gap-2 font-semibold"
                 >
                     {processing && <Spinner size={13} />}
                     {processing ? 'Saving…' : 'Save contact details'}
@@ -161,7 +161,7 @@ function PasswordPanel() {
                 <button
                     type="submit"
                     disabled={processing || ! data.current_password || ! data.password || data.password !== data.password_confirmation}
-                    className="px-4 py-2 text-[13px] bg-ink-900 text-white rounded-lg hover:bg-ink-800 disabled:opacity-40 inline-flex items-center gap-2 font-semibold"
+                    className="px-4 py-2 text-[13px] bg-ink-900 text-white rounded-lg hover:bg-brand-500 disabled:opacity-40 inline-flex items-center gap-2 font-semibold"
                 >
                     {processing && <Spinner size={13} />}
                     {processing ? 'Saving…' : 'Change password'}

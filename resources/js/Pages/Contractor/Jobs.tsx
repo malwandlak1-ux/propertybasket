@@ -100,7 +100,7 @@ function JobCard({ job, columnKey }: { job: Job; columnKey: string }) {
                 </button>
             )}
             {isCompleted && !job.invoice && (
-                <button className="w-full mt-1 py-1.5 text-[11px] bg-ink-900 text-white rounded font-semibold hover:bg-ink-800 transition">
+                <button className="w-full mt-1 py-1.5 text-[11px] bg-ink-900 text-white rounded font-semibold hover:bg-brand-500 transition">
                     Send Invoice →
                 </button>
             )}

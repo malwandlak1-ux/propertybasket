@@ -148,7 +148,7 @@ export default function LandlordInviteTenantModal({ pendingInvites, invitableLis
                                     type="button"
                                     onClick={() => resend(p.lease_id)}
                                     disabled={resending === p.lease_id}
-                                    className="px-3 py-1.5 text-[12px] bg-ink-900 text-white rounded-md hover:bg-ink-800 disabled:opacity-60 disabled:cursor-not-allowed inline-flex items-center gap-1.5 font-semibold whitespace-nowrap"
+                                    className="px-3 py-1.5 text-[12px] bg-ink-900 text-white rounded-md hover:bg-brand-500 disabled:opacity-60 disabled:cursor-not-allowed inline-flex items-center gap-1.5 font-semibold whitespace-nowrap"
                                 >
                                     {resending === p.lease_id && <Spinner size={11} />}
                                     {resending === p.lease_id ? 'Sending…' : 'Send invite'}

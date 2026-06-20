@@ -126,7 +126,7 @@ export default function TenantLease({ lease, documents, key_dates }: Props) {
                                             href="/tenant/lease/agreement.pdf?download=1"
                                             target="_blank"
                                             rel="noopener"
-                                            className="text-[11px] px-2.5 py-1.5 bg-ink-900 text-white rounded-md font-medium flex items-center gap-1.5 hover:bg-ink-800 transition"
+                                            className="text-[11px] px-2.5 py-1.5 bg-ink-900 text-white rounded-md font-medium flex items-center gap-1.5 hover:bg-brand-500 transition"
                                         >
                                             <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
                                             Download

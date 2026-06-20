@@ -231,7 +231,7 @@ export default function RequestDetailsModal({ req, vatRegistered, vatRate, onClo
                                         type="button"
                                         onClick={() => setView('quote')}
                                         disabled={busy}
-                                        className="px-4 py-2 text-[13px] bg-ink-900 text-white rounded-lg hover:bg-ink-800 disabled:opacity-60 font-semibold"
+                                        className="px-4 py-2 text-[13px] bg-ink-900 text-white rounded-lg hover:bg-brand-500 disabled:opacity-60 font-semibold"
                                     >
                                         Submit quote →
                                     </button>
@@ -260,7 +260,7 @@ export default function RequestDetailsModal({ req, vatRegistered, vatRate, onClo
                                     type="button"
                                     onClick={() => setView('quote')}
                                     disabled={busy}
-                                    className="px-4 py-2 text-[13px] bg-ink-900 text-white rounded-lg hover:bg-ink-800 disabled:opacity-60 font-semibold"
+                                    className="px-4 py-2 text-[13px] bg-ink-900 text-white rounded-lg hover:bg-brand-500 disabled:opacity-60 font-semibold"
                                 >
                                     Re-submit quote →
                                 </button>
@@ -439,7 +439,7 @@ function QuoteForm({
                     Cancel
                 </button>
                 <button type="submit" disabled={! canSubmit || processing}
-                    className="px-4 py-2 text-[13px] bg-ink-900 text-white rounded-lg hover:bg-ink-800 disabled:opacity-60 disabled:cursor-not-allowed inline-flex items-center gap-2 font-semibold">
+                    className="px-4 py-2 text-[13px] bg-ink-900 text-white rounded-lg hover:bg-brand-500 disabled:opacity-60 disabled:cursor-not-allowed inline-flex items-center gap-2 font-semibold">
                     {processing && <Spinner size={13} />}
                     {processing ? 'Sending…' : 'Send quote'}
                 </button>

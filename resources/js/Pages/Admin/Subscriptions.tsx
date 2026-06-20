@@ -236,7 +236,7 @@ function PlanEditor({ plan, onClose }: { plan: Plan; onClose: () => void }) {
                 <button
                     type="submit"
                     disabled={processing}
-                    className="px-3 py-1.5 text-[11px] bg-ink-900 text-white rounded-md hover:bg-ink-800 disabled:opacity-60 inline-flex items-center gap-1 font-semibold"
+                    className="px-3 py-1.5 text-[11px] bg-ink-900 text-white rounded-md hover:bg-brand-500 disabled:opacity-60 inline-flex items-center gap-1 font-semibold"
                 >
                     {processing && <Spinner size={11} />}
                     {processing ? 'Saving…' : 'Save'}

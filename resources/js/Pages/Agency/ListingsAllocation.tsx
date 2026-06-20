@@ -77,7 +77,7 @@ const STATUS_COLOURS: Record<string, string> = {
 
 function gradientForAgent(id: number | null): string {
     const palette = [
-        'linear-gradient(135deg,#5B3DF5,#3A23B8)',
+        'linear-gradient(135deg,#F26A1B,#B8470A)',
         'linear-gradient(135deg,#F472B6,#E11D48)',
         'linear-gradient(135deg,#38BDF8,#0284C7)',
         'linear-gradient(135deg,#34D399,#059669)',
@@ -107,7 +107,7 @@ export default function ListingsAllocation({ agency, cards, agents, next_up, lea
                     </div>
                     <Link
                         href="/agency/listings/create"
-                        className="px-3.5 py-2 text-[13px] bg-ink-900 text-white rounded-lg hover:bg-ink-800 flex items-center gap-2 transition"
+                        className="px-3.5 py-2 text-[13px] bg-ink-900 text-white rounded-lg hover:bg-brand-500 flex items-center gap-2 transition"
                     >
                         <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
                             <path d="M12 5v14M5 12h14" />

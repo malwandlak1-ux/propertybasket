@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200..800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200..800&family=Space+Grotesk:wght@400;500;600;700&display=swap');
 @import 'tailwindcss';
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
@@ -12,13 +12,15 @@
 @theme {
     --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif,
         'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-display: 'Space Grotesk', 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
 
-    --color-brand: #5B3DF5;
-    --color-brand-50: #F2EFFE;
-    --color-brand-100: #E4DEFD;
-    --color-brand-500: #5B3DF5;
-    --color-brand-600: #4A2EE0;
-    --color-brand-700: #3A23B8;
+    /* Brand — orange, matching the marketing landing page */
+    --color-brand: #F26A1B;
+    --color-brand-50: #FFF4EC;
+    --color-brand-100: #FFE2CC;
+    --color-brand-500: #F26A1B;
+    --color-brand-600: #E15A12;
+    --color-brand-700: #B8470A;
 
     --color-ink-50: #F9FAFB;
     --color-ink-100: #F3F4F6;
@@ -40,6 +42,13 @@
 
 body {
     font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+}
+
+/* Display headings use Space Grotesk to echo the marketing landing page.
+   Body text stays Plus Jakarta Sans for readability. */
+h1, h2, h3 {
+    font-family: 'Space Grotesk', 'Plus Jakarta Sans', system-ui, sans-serif;
+    letter-spacing: -0.01em;
 }
 
 /* ── Animations used by Components/NetworkErrorToast.tsx ─────────────── */

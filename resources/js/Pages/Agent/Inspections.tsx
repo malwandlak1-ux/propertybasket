@@ -169,7 +169,7 @@ export default function AgentInspections({ agent, move_in, move_out, upcoming, c
                     </div>
                     <Link
                         href={`/agent/inspections/create?type=${tab}`}
-                        className="px-3.5 py-2 text-[13px] bg-ink-900 text-white rounded-lg hover:bg-ink-800 transition flex items-center gap-2"
+                        className="px-3.5 py-2 text-[13px] bg-ink-900 text-white rounded-lg hover:bg-brand-500 transition flex items-center gap-2"
                     >
                         <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M12 5v14M5 12h14" /></svg>
                         New Inspection
@@ -211,7 +211,7 @@ export default function AgentInspections({ agent, move_in, move_out, upcoming, c
 
                 {/* Upcoming leases banner (move-in tab only) */}
                 {tab === 'move_in' && upcoming.length > 0 && (
-                    <div className="bg-gradient-to-r from-brand-50 to-violet-50 border border-brand-100 rounded-xl p-4 mb-6">
+                    <div className="bg-gradient-to-r from-brand-50 to-brand-100 border border-brand-100 rounded-xl p-4 mb-6">
                         {upcoming.map((lease) => (
                             <div key={lease.lease_id} className="flex items-center gap-4">
                                 <div className="w-10 h-10 rounded-lg bg-brand-500 flex items-center justify-center text-white shrink-0">

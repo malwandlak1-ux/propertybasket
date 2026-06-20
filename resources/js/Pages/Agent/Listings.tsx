@@ -114,7 +114,7 @@ export default function AgentListings({ agent, listings, counts, type_filter, in
                         </p>
                     </div>
                     <div className="flex items-center gap-2">
-                        <Link href="/agent/listings/create" className="px-3.5 py-2 text-[13px] bg-ink-900 text-white rounded-lg hover:bg-ink-800 transition flex items-center gap-2">
+                        <Link href="/agent/listings/create" className="px-3.5 py-2 text-[13px] bg-ink-900 text-white rounded-lg hover:bg-brand-500 transition flex items-center gap-2">
                             <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M12 5v14M5 12h14" /></svg>
                             New Listing
                         </Link>
@@ -208,7 +208,7 @@ export default function AgentListings({ agent, listings, counts, type_filter, in
                                                 type="button"
                                                 disabled={sellingId === l.id}
                                                 onClick={() => markSold(l)}
-                                                className="w-full text-[12px] font-semibold px-3 py-2 bg-ink-900 text-white hover:bg-ink-800 disabled:opacity-60 rounded-lg transition inline-flex items-center justify-center gap-1.5"
+                                                className="w-full text-[12px] font-semibold px-3 py-2 bg-ink-900 text-white hover:bg-brand-500 disabled:opacity-60 rounded-lg transition inline-flex items-center justify-center gap-1.5"
                                             >
                                                 <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
                                                     <path d="M20 6L9 17l-5-5" />

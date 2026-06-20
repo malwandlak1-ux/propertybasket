@@ -396,7 +396,7 @@ export default function ListingForm({
                             onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addCustomAmenity())}
                             placeholder="Add something not in the list (e.g. Rooftop deck)"
                             className={inputCls + ' flex-1'} />
-                        <button type="button" onClick={addCustomAmenity} className="px-3 py-2 text-[12px] bg-ink-900 text-white rounded-md font-semibold hover:bg-ink-800 transition">+ Add</button>
+                        <button type="button" onClick={addCustomAmenity} className="px-3 py-2 text-[12px] bg-ink-900 text-white rounded-md font-semibold hover:bg-brand-500 transition">+ Add</button>
                     </div>
                     {data.custom_amenities.length > 0 && (
                         <div className="flex flex-wrap gap-2 mt-2">

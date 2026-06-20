@@ -105,7 +105,7 @@ export default function AcceptInvite({ invitation }: InvitationProps) {
                 <button
                     type="submit"
                     disabled={processing}
-                    className="w-full py-2.5 bg-ink-900 hover:bg-ink-800 disabled:opacity-60 text-white rounded-lg text-[14px] font-semibold transition"
+                    className="w-full py-2.5 bg-ink-900 hover:bg-brand-500 disabled:opacity-60 text-white rounded-lg text-[14px] font-semibold transition"
                 >
                     {processing ? 'Activating…' : 'Activate my account'}
                 </button>

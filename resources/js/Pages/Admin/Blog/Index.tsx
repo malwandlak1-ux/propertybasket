@@ -126,7 +126,7 @@ export default function AdminBlogIndex({ posts, filter, q, counts }: Props) {
                             placeholder="Search by title or excerpt…"
                             className="flex-1 bg-white border border-ink-200 rounded-lg px-3.5 py-2 text-[13px] outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand"
                         />
-                        <button type="submit" className="px-4 py-2 bg-ink-900 text-white rounded-lg text-[13px] font-semibold hover:bg-ink-800 transition">
+                        <button type="submit" className="px-4 py-2 bg-ink-900 text-white rounded-lg text-[13px] font-semibold hover:bg-brand-500 transition">
                             Search
                         </button>
                     </form>
@@ -207,7 +207,7 @@ export default function AdminBlogIndex({ posts, filter, q, counts }: Props) {
                                                     )}
                                                     <Link
                                                         href={`/admin/blog/${p.id}/edit`}
-                                                        className="px-2.5 py-1 rounded text-[11px] font-semibold bg-ink-900 text-white hover:bg-ink-800"
+                                                        className="px-2.5 py-1 rounded text-[11px] font-semibold bg-ink-900 text-white hover:bg-brand-500"
                                                     >
                                                         Edit
                                                     </Link>

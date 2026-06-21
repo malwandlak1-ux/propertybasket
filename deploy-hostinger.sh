@@ -63,6 +63,8 @@ cp -rf "$SRC/resources/views/vendor/mail/." "$APP/resources/views/vendor/mail/"
 # Orange rebrand — brand image assets + server-rendered PDF template.
 mkdir -p "$APP/public/images" "$APP/resources/views/components"
 cp -rf "$SRC/public/images/." "$APP/public/images/"
+# Marketing overview (self-contained, embeds workflow videos).
+cp -f "$SRC/public/property-basket-overview.html" "$APP/public/property-basket-overview.html"
 cp -f  "$SRC/resources/views/components/pdf-layout.blade.php" "$APP/resources/views/components/pdf-layout.blade.php"
 
 # Apply any new migrations, then refresh caches.

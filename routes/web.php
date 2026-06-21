@@ -35,6 +35,12 @@ Route::get('/advice/{slug}', [AdviceController::class, 'show'])->name('advice.sh
 Route::get('/calculator', CalculatorController::class)->name('calculator');
 Route::post('/demos', [DemoRequestController::class, 'store'])->name('demos.store');
 
+// Marketing overview — serves the self-contained landing page (workflow videos embedded).
+Route::get('/overview', function () {
+    abort_unless(is_file(public_path('property-basket-overview.html')), 404);
+    return response()->file(public_path('property-basket-overview.html'));
+})->name('overview');
+
 Route::get('/privacy-policy',         [LegalController::class, 'privacyPolicy'])->name('legal.privacy');
 Route::get('/privacy-portal',         [LegalController::class, 'privacyPortal'])->name('legal.privacyPortal');
 Route::post('/privacy-portal',        [LegalController::class, 'submitPrivacyRequest'])->name('legal.privacyPortal.submit');

@@ -27,6 +27,7 @@ export default function PublicLayout({ children }: Props) {
                         <Link href="/calculator" className="hover:text-ink-900">Calculator</Link>
                         <Link href="/advice" className="hover:text-ink-900">Advice</Link>
                         {user && <Link href="/contractors" className="hover:text-ink-900">Contractors</Link>}
+                        <a href="/overview" className="hover:text-ink-900">Overview</a>
                     </nav>
 
                     <div className="hidden md:flex items-center gap-3 text-[14px]">
@@ -74,6 +75,7 @@ export default function PublicLayout({ children }: Props) {
                         <Link href="/calculator" className="block px-3 py-2 rounded-lg text-[14px] hover:bg-ink-100">Calculator</Link>
                         <Link href="/advice" className="block px-3 py-2 rounded-lg text-[14px] hover:bg-ink-100">Advice</Link>
                         {user && <Link href="/contractors" className="block px-3 py-2 rounded-lg text-[14px] hover:bg-ink-100">Contractors</Link>}
+                        <a href="/overview" className="block px-3 py-2 rounded-lg text-[14px] hover:bg-ink-100">Overview</a>
                         <div className="border-t border-ink-200 my-2" />
                         {user ? (
                             <Link href="/dashboard" className="block text-center px-4 py-2 rounded-lg bg-ink-900 text-white font-semibold">

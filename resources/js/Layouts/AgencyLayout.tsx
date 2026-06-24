@@ -2,6 +2,7 @@ import { ReactNode, useState } from 'react';
 import { Link, router, usePage } from '@inertiajs/react';
 import AppLogo from '@/Components/AppLogo';
 import NotificationBell, { NotificationItem } from '@/Components/NotificationBell';
+import SubscriptionBanner from '@/Components/SubscriptionBanner';
 
 type SharedProps = {
     auth?: { user?: { id: number; name: string; role: string } | null };
@@ -317,6 +318,8 @@ export default function AgencyLayout({ children, crumb = 'Dashboard', agencyName
                 {agency_ffc && agency_ffc.state !== 'valid' && (
                     <AgencyFfcBanner state={agency_ffc.state} daysLeft={agency_ffc.days_left} expiresAt={agency_ffc.expires_at} />
                 )}
+
+                <SubscriptionBanner />
 
                 {children}
             </main>

@@ -59,12 +59,15 @@ class SubscriptionsController extends Controller
     /**
      * PATCH /admin/subscriptions/{plan}/update — edit price, headline, features,
      * or "popular" flag. Agency Billing tabs reflect the change on next load.
+     *
+     * Self-healing: if no row exists for $key yet but the key is a known plan
+     * in PlatformPlans::defaults(), we hydrate a row from defaults first then
+     * apply the update. Stops fresh DBs (where PlatformPlansSeeder was never
+     * run) from 404-ing on the very first edit.
      */
     public function update(Request $request, string $key): RedirectResponse
     {
         $this->ensureSuperAdmin($request);
-
-        $plan = PlatformPlan::where('key', $key)->firstOrFail();
 
         $data = $request->validate([
             'name'       => ['required', 'string', 'max:120'],
@@ -75,7 +78,24 @@ class SubscriptionsController extends Controller
             'is_popular' => ['required', 'boolean'],
         ]);
 
-        $plan->update($data);
+        $plan = PlatformPlan::where('key', $key)->first();
+
+        if (! $plan) {
+            $defaults = PlatformPlans::defaults();
+            if (! isset($defaults[$key])) {
+                abort(404, "Unknown plan key '{$key}'.");
+            }
+            $seed = $defaults[$key];
+
+            $plan = PlatformPlan::create(array_merge($data, [
+                'key'        => $key,
+                'audience'   => $seed['audience'],
+                'sort_order' => 0,
+                'is_active'  => true,
+            ]));
+        } else {
+            $plan->update($data);
+        }
 
         return back()->with('success', "Plan \"{$plan->name}\" updated.");
     }

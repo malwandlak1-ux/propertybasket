@@ -11,24 +11,37 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Inertia\Inertia;
 use Inertia\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class TransactionsController extends Controller
 {
     use EnsuresSuperAdmin;
 
+    /** Allowed range keys mapped to a Carbon offset closure. */
+    private function rangeOffsets(): array
+    {
+        return [
+            'week'    => fn (CarbonImmutable $n) => $n->subDays(7),
+            'month'   => fn (CarbonImmutable $n) => $n->subMonths(1),
+            'quarter' => fn (CarbonImmutable $n) => $n->subMonths(3),
+            'year'    => fn (CarbonImmutable $n) => $n->subYear(),
+        ];
+    }
+
+    private function resolveRange(string $rangeKey): array
+    {
+        $now = CarbonImmutable::now();
+        $offsets = $this->rangeOffsets();
+        $rangeKey = array_key_exists($rangeKey, $offsets) ? $rangeKey : 'month';
+        $period = $offsets[$rangeKey]($now);
+        return [$rangeKey, $period, $now];
+    }
+
     public function index(Request $request): Response
     {
         $this->ensureSuperAdmin($request);
 
-        $rangeKey = $request->string('range', 'month')->toString();
-
-        $now    = CarbonImmutable::now();
-        $period = match ($rangeKey) {
-            'week'    => $now->subDays(7),
-            'quarter' => $now->subMonths(3),
-            'year'    => $now->subYear(),
-            default   => $now->subMonths(1),
-        };
+        [$rangeKey, $period, $now] = $this->resolveRange($request->string('range', 'month')->toString());
 
         // ── Build synthetic Paystack transaction log ──────────────────────
         // Real implementation would query a `paystack_charges` table.
@@ -50,6 +63,64 @@ class TransactionsController extends Controller
             ],
             'transactions'   => $rows,
         ]);
+    }
+
+    /**
+     * Stream the current period's transactions as a CSV download.
+     * Respects the same ?range= filter as the index view, so what you see
+     * is what you export.
+     */
+    public function export(Request $request): StreamedResponse
+    {
+        $this->ensureSuperAdmin($request);
+
+        [$rangeKey, $period, $now] = $this->resolveRange($request->string('range', 'month')->toString());
+
+        $rows = $this->syntheticTransactions($period, $now);
+
+        $filename = sprintf(
+            'transactions_%s_%s.csv',
+            $rangeKey,
+            $now->format('Y-m-d')
+        );
+
+        $headers = [
+            'Content-Type'        => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
+            // Tell intermediaries not to cache so a fresh export reflects fresh data.
+            'Cache-Control'       => 'no-store, no-cache, must-revalidate, max-age=0',
+            'Pragma'              => 'no-cache',
+        ];
+
+        return response()->streamDownload(function () use ($rows) {
+            $out = fopen('php://output', 'w');
+
+            // Excel-friendly UTF-8 BOM so R, é etc. render correctly when opened directly.
+            fwrite($out, "\xEF\xBB\xBF");
+
+            // Header row
+            fputcsv($out, [
+                'Date',
+                'Account',
+                'Type',
+                'Reference',
+                'Amount (ZAR)',
+                'Status',
+            ]);
+
+            foreach ($rows as $row) {
+                fputcsv($out, [
+                    $row['date'],
+                    $row['account'],
+                    $row['type_label'],
+                    $row['reference'],
+                    number_format((float) $row['amount'], 2, '.', ''),
+                    ucfirst($row['status']),
+                ]);
+            }
+
+            fclose($out);
+        }, $filename, $headers);
     }
 
     /**

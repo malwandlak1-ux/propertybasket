@@ -12,9 +12,11 @@ use App\Models\Listing;
 use App\Models\Landlord as LandlordModel;
 use App\Models\RentPayment;
 use App\Models\User;
+use App\Services\PdfService;
 use App\Support\PlatformPlans;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response as HttpResponse;
 use Illuminate\Routing\Controller;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -27,90 +29,119 @@ class OverviewController extends Controller
     {
         $this->ensureSuperAdmin($request);
 
+        $data = $this->collectOverview();
+
+        return Inertia::render('Admin/Overview', [
+            'counts'         => $this->sidebarCounts(),
+            'kpis'           => $data['kpis'],
+            'recent_signups' => $data['recent_signups'],
+            'growth'         => $data['growth'],
+            'health'         => $data['health'],
+        ]);
+    }
+
+    /**
+     * GET /admin/overview.pdf — same data as index(), rendered as a downloadable PDF.
+     */
+    public function exportPdf(Request $request, PdfService $pdf): HttpResponse
+    {
+        $this->ensureSuperAdmin($request);
+
+        $data = $this->collectOverview();
+        $generatedBy = $request->user()?->name ?? 'Super Admin';
+
+        return $pdf->adminOverviewReport(
+            kpis: $data['kpis'],
+            recentSignups: $data['recent_signups'],
+            growth: $data['growth'],
+            health: $data['health'],
+            generatedBy: $generatedBy,
+            download: ! $request->boolean('preview'),
+        );
+    }
+
+    /**
+     * Single source of truth for the overview snapshot data so the screen
+     * view and the PDF export never drift out of sync.
+     */
+    private function collectOverview(): array
+    {
         $now       = CarbonImmutable::now();
         $yearStart = $now->startOfYear();
 
-        // ── Account counts ────────────────────────────────────────────────
-        $agencyCount    = Agency::count();
-        $landlordCount  = Landlord::count();
-        $contractorCount= Contractor::count();
-        $agencyAccounts = $agencyCount + $landlordCount + $contractorCount;
+        // Account counts
+        $agencyCount     = Agency::count();
+        $landlordCount   = Landlord::count();
+        $contractorCount = Contractor::count();
+        $agencyAccounts  = $agencyCount + $landlordCount + $contractorCount;
 
-        // End users = agents + tenants
+        // End users
         $agentCount  = User::where('role', Role::Agent)->count();
         $tenantCount = User::where('role', Role::Tenant)->count();
         $endUsers    = $agentCount + $tenantCount;
 
-        // ── GMV (gross merchandise value — rent collected YTD) ────────────
+        // GMV YTD = rent + commissions
         $gmvYtd = RentPayment::whereNotNull('paid_at')
             ->where('paid_at', '>=', $yearStart)
             ->sum('amount');
 
-        // Plus commission payouts YTD
         $commissionYtd = Commission::where('status', 'paid')
             ->where('paid_at', '>=', $yearStart)
             ->sum('gross_commission');
 
         $gmvTotal = (float) $gmvYtd + (float) $commissionYtd;
 
-        // ── MRR estimate (active agency subs + landlord subs × tier price) ─
+        // MRR
         $agencies = Agency::where('status', 'active')->get();
         $mrr = 0;
         foreach ($agencies as $a) {
             $plan = $a->subscription_plan ?: PlatformPlans::STARTER;
             $mrr += PlatformPlans::priceFor($plan);
         }
-        // Landlord subscriptions
         $mrr += LandlordModel::count() * PlatformPlans::priceFor(PlatformPlans::LANDLORD_PRIVATE);
 
-        // ── New signups this month (by role) ──────────────────────────────
-        $startOfMonth = $now->startOfMonth();
-        $newThisMonth = User::where('created_at', '>=', $startOfMonth)->count();
+        // New signups this month
+        $newThisMonth = User::where('created_at', '>=', $now->startOfMonth())->count();
 
-        // ── Recent signups (last 8 across all roles) ──────────────────────
+        // Recent signups
         $recentSignups = User::orderByDesc('created_at')
             ->limit(8)
             ->get(['id', 'name', 'email', 'role', 'created_at'])
-            ->map(function ($u) {
-                return [
-                    'id'         => $u->id,
-                    'name'       => $u->name,
-                    'email'      => $u->email,
-                    'role'       => $u->role?->value ?? 'unknown',
-                    'role_label' => $u->role?->label() ?? '—',
-                    'created_at' => $u->created_at?->diffForHumans(),
-                    'initials'   => collect(explode(' ', $u->name))->map(fn($s) => $s[0])->slice(0, 2)->implode(''),
-                ];
-            });
+            ->map(fn ($u) => [
+                'id'         => $u->id,
+                'name'       => $u->name,
+                'email'      => $u->email,
+                'role'       => $u->role?->value ?? 'unknown',
+                'role_label' => $u->role?->label() ?? '—',
+                'created_at' => $u->created_at?->diffForHumans(),
+                'initials'   => collect(explode(' ', $u->name))->map(fn ($s) => $s[0])->slice(0, 2)->implode(''),
+            ])
+            ->all();
 
-        // ── 6-month signup growth chart ───────────────────────────────────
+        // 6-month growth
         $growth = [];
         for ($i = 5; $i >= 0; $i--) {
-            $mo    = $now->subMonths($i)->startOfMonth();
-            $next  = $mo->addMonth();
-            $label = $mo->format('M');
-
+            $mo   = $now->subMonths($i)->startOfMonth();
+            $next = $mo->addMonth();
             $growth[] = [
-                'label'      => $label,
-                'agencies'   => User::where('role', Role::AgencyAdmin)->whereBetween('created_at', [$mo, $next])->count(),
-                'landlords'  => User::where('role', Role::Landlord)->whereBetween('created_at', [$mo, $next])->count(),
-                'contractors'=> User::where('role', Role::Contractor)->whereBetween('created_at', [$mo, $next])->count(),
+                'label'       => $mo->format('M'),
+                'agencies'    => User::where('role', Role::AgencyAdmin)->whereBetween('created_at', [$mo, $next])->count(),
+                'landlords'   => User::where('role', Role::Landlord)->whereBetween('created_at', [$mo, $next])->count(),
+                'contractors' => User::where('role', Role::Contractor)->whereBetween('created_at', [$mo, $next])->count(),
             ];
         }
 
-        // ── System health (stub — these would come from real monitoring) ──
+        // System health (stubbed)
         $health = [
-            ['name' => 'API',        'status' => 'healthy', 'detail' => '99.98% uptime'],
-            ['name' => 'Paystack',   'status' => 'healthy', 'detail' => 'Webhooks healthy'],
-            ['name' => 'Database',   'status' => 'healthy', 'detail' => '12ms latency'],
-            ['name' => 'Email queue','status' => 'warning', 'detail' => '142 pending'],
+            ['name' => 'API',         'status' => 'healthy', 'detail' => '99.98% uptime'],
+            ['name' => 'Paystack',    'status' => 'healthy', 'detail' => 'Webhooks healthy'],
+            ['name' => 'Database',    'status' => 'healthy', 'detail' => '12ms latency'],
+            ['name' => 'Email queue', 'status' => 'warning', 'detail' => '142 pending'],
         ];
 
-        // ── Listings count ────────────────────────────────────────────────
         $listingCount = Listing::count();
 
-        return Inertia::render('Admin/Overview', [
-            'counts' => $this->sidebarCounts(),
+        return [
             'kpis' => [
                 'mrr'             => $mrr,
                 'agency_accounts' => $agencyAccounts,
@@ -127,6 +158,6 @@ class OverviewController extends Controller
             'recent_signups' => $recentSignups,
             'growth'         => $growth,
             'health'         => $health,
-        ]);
+        ];
     }
 }

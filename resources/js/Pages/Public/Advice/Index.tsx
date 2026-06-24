@@ -107,9 +107,7 @@ export default function AdviceIndex({ posts, tags, filters, featured }: Props) {
                 className="relative text-white"
                 style={{
                     background:
-                        'radial-gradient(at 20% 20%, rgba(91,61,245,0.45) 0, transparent 50%),' +
-                        'radial-gradient(at 80% 0%, rgba(74,46,224,0.40) 0, transparent 50%),' +
-                        '#0B0B0F',
+                        'linear-gradient(135deg, #E8531B 0%, #F26A1B 50%, #FBA64C 100%)',
                 }}
             >
                 <div className="max-w-7xl mx-auto px-6 py-16 lg:py-20">

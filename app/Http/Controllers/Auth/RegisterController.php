@@ -91,6 +91,13 @@ class RegisterController extends Controller
         // Welcome email (role-specific guidance).
         $user->notify(new WelcomeUser($user));
 
+        // Agencies & landlords must pick a plan (or apply a promo code) before
+        // they can reach their dashboard. Contractors use the commission model
+        // and go straight through.
+        if (in_array($role, [Role::AgencyAdmin, Role::Landlord], true)) {
+            return redirect()->route('billing.select');
+        }
+
         return redirect()->route('dashboard');
     }
 }

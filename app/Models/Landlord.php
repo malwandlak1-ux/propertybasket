@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasSubscription;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
@@ -9,7 +10,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Landlord extends Model
 {
-    use SoftDeletes;
+    use HasSubscription, SoftDeletes;
 
     protected $fillable = [
         'user_id', 'id_number', 'fica_verified_at',

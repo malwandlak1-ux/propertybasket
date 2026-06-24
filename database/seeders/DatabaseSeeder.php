@@ -10,6 +10,7 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             RolesAndPermissionsSeeder::class,
+            PlatformPlansSeeder::class,
             SuperAdminSeeder::class,
             DemoDataSeeder::class,
             Phase3DemoSeeder::class,
@@ -19,6 +20,9 @@ class DatabaseSeeder extends Seeder
             Phase7DemoSeeder::class,
             Phase8DemoSeeder::class,
             DemoBlogSeeder::class,
+            // Must run after agencies/landlords exist: seeds promo codes and
+            // grandfathers existing accounts with an active subscription.
+            PromoCodesSeeder::class,
         ]);
     }
 }

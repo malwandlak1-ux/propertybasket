@@ -18,6 +18,43 @@ const PROPERTY_TYPES: Array<{ value: string; label: string }> = [
     { value: 'other',      label: 'Other' },
 ];
 
+// Comprehensive list of South African cities & major towns (all 9 provinces),
+// used to populate the Location filter so users can search any city — not only
+// the ones that currently have listings.
+const SA_CITIES: string[] = [
+    // Gauteng
+    'Johannesburg', 'Pretoria', 'Sandton', 'Centurion', 'Midrand', 'Randburg',
+    'Roodepoort', 'Soweto', 'Benoni', 'Boksburg', 'Kempton Park', 'Germiston',
+    'Krugersdorp', 'Alberton', 'Edenvale', 'Springs', 'Vanderbijlpark',
+    'Vereeniging', 'Carletonville', 'Heidelberg',
+    // Western Cape
+    'Cape Town', 'Stellenbosch', 'Franschhoek', 'Paarl', 'Somerset West',
+    'Bellville', 'Constantia', 'George', 'Knysna', 'Mossel Bay', 'Hermanus',
+    'Worcester', 'Oudtshoorn', 'Plettenberg Bay', 'Swellendam', 'Saldanha',
+    'Malmesbury', 'Wellington',
+    // KwaZulu-Natal
+    'Durban', 'Pietermaritzburg', 'Umhlanga', 'Ballito', 'Richards Bay',
+    'Newcastle', 'Pinetown', 'Margate', 'Port Shepstone', 'Empangeni',
+    'Howick', 'Ladysmith', 'Amanzimtoti',
+    // Eastern Cape
+    'Gqeberha', 'East London', 'Mthatha', 'Makhanda', 'Jeffreys Bay',
+    "King William's Town", 'Queenstown', 'Uitenhage', 'Port Alfred',
+    // Free State
+    'Bloemfontein', 'Welkom', 'Bethlehem', 'Sasolburg', 'Kroonstad',
+    'Parys', 'Clarens', 'Harrismith',
+    // Mpumalanga
+    'Mbombela', 'eMalahleni', 'Secunda', 'Middelburg', 'Standerton',
+    'Sabie', 'White River', 'Ermelo', 'Barberton',
+    // Limpopo
+    'Polokwane', 'Tzaneen', 'Thohoyandou', 'Mokopane', 'Bela-Bela',
+    'Lephalale', 'Louis Trichardt', 'Phalaborwa',
+    // North West
+    'Rustenburg', 'Potchefstroom', 'Klerksdorp', 'Mahikeng', 'Brits',
+    'Lichtenburg', 'Vryburg',
+    // Northern Cape
+    'Kimberley', 'Upington', 'Kuruman', 'Springbok', 'De Aar', 'Kathu',
+];
+
 export default function Home({ featured, cities, totals }: Props) {
     return (
         <PublicLayout>
@@ -132,6 +169,13 @@ const CITY_IMAGE_MAP: Record<string, string> = {
 
 const FALLBACK_CITY_IMAGE = '/images/cities/default.jpg';
 
+// Showcase remap: the Explore Cities tiles feature these cities in place of the
+// raw data cities, so the landing page highlights our flagship metros.
+const CITY_DISPLAY_REMAP: Record<string, string> = {
+    Stellenbosch: 'Pretoria',
+    Franschhoek:  'Durban',
+};
+
 function ExploreCities({ cities }: { cities: Props['cities'] }) {
     return (
         <section className="max-w-7xl mx-auto px-6 py-16">
@@ -144,9 +188,10 @@ function ExploreCities({ cities }: { cities: Props['cities'] }) {
                 </div>
 
                 <div className="lg:col-span-4 grid grid-cols-2 md:grid-cols-4 gap-4">
-                    {cities.map((c) => (
-                        <CityTile key={c.city} city={c.city} total={c.total} />
-                    ))}
+                    {cities.map((c) => {
+                        const display = CITY_DISPLAY_REMAP[c.city] ?? c.city;
+                        return <CityTile key={c.city} city={display} total={c.total} />;
+                    })}
                 </div>
             </div>
         </section>
@@ -600,6 +645,12 @@ function SearchWidget({ cities }: { cities: Props['cities'] }) {
     const [priceMin, setPriceMin]         = useState('');
     const [priceMax, setPriceMax]         = useState('');
 
+    // Full SA city list, merged with any cities coming from live listing data
+    // (so a listing in a town not on the static list still appears), deduped
+    // and sorted alphabetically.
+    const cityOptions = Array.from(new Set([...SA_CITIES, ...cities.map((c) => c.city)]))
+        .sort((a, b) => a.localeCompare(b));
+
     function submit(e: FormEvent) {
         e.preventDefault();
         const query: Record<string, string> = { listing_type: listingType };
@@ -642,7 +693,7 @@ function SearchWidget({ cities }: { cities: Props['cities'] }) {
                     <label className={fieldLabelCls}>Location</label>
                     <select value={city} onChange={(e) => setCity(e.target.value)} className={fieldCls}>
                         <option value="">All Cities</option>
-                        {cities.map((c) => <option key={c.city} value={c.city}>{c.city}</option>)}
+                        {cityOptions.map((c) => <option key={c} value={c}>{c}</option>)}
                     </select>
                 </div>
 

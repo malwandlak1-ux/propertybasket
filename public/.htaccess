@@ -1,3 +1,10 @@
+# When PHP-FPM can't even start the framework, Apache serves these branded
+# fallbacks instead of the bare server-default 500 page. Laravel's own
+# resources/views/errors/*.blade.php take over once the framework is healthy
+# enough to render them.
+ErrorDocument 500 /error/500.html
+ErrorDocument 503 /error/500.html
+
 <IfModule mod_rewrite.c>
     <IfModule mod_negotiation.c>
         Options -MultiViews -Indexes

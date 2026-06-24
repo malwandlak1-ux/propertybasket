@@ -5,8 +5,10 @@ namespace App\Services;
 use App\Models\Commission;
 use App\Models\Lease;
 use App\Models\PayoutBatch;
+use App\Models\PlatformTransaction;
 use App\Models\RentPayment;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\Client\Response;
@@ -172,6 +174,87 @@ class PaystackService
         ]);
 
         return $payment->fresh();
+    }
+
+    // ─── Subscription / platform-plan payment (Agency & Landlord) ───────
+
+    /**
+     * Initialize a Paystack transaction for a platform subscription plan.
+     * Records a pending PlatformTransaction against the owner (Agency/Landlord)
+     * and returns ['reference' => ..., 'authorization_url' => ...].
+     *
+     * @param Model $owner   The Agency or Landlord paying.
+     * @param int   $amount  Plan price in Rand.
+     */
+    public function initializeSubscriptionPayment(User $user, Model $owner, string $planKey, int $amount): array
+    {
+        $reference = 'SUB_' . strtoupper(Str::random(12)) . '_' . $owner->getKey();
+
+        PlatformTransaction::create([
+            'subscriber_type'    => $owner->getMorphClass(),
+            'subscriber_id'      => $owner->getKey(),
+            'type'               => 'subscription',
+            'amount'             => $amount,
+            'description'        => $planKey,
+            'paystack_reference' => $reference,
+            'status'             => 'pending',
+        ]);
+
+        if ($this->isStub()) {
+            return [
+                'reference'         => $reference,
+                'authorization_url' => url('/billing/callback?reference=' . $reference . '&stub=1'),
+            ];
+        }
+
+        $resp = $this->http()->post('/transaction/initialize', [
+            'email'        => $user->email,
+            'amount'       => $amount * 100, // kobo/cents
+            'reference'    => $reference,
+            'currency'     => 'ZAR',
+            'callback_url' => url('/billing/callback'),
+            'metadata'     => [
+                'plan_key'        => $planKey,
+                'subscriber_type' => $owner->getMorphClass(),
+                'subscriber_id'   => $owner->getKey(),
+            ],
+        ]);
+
+        $this->assertOk($resp, 'transaction/initialize');
+
+        return [
+            'reference'         => $resp->json('data.reference'),
+            'authorization_url' => $resp->json('data.authorization_url'),
+        ];
+    }
+
+    /**
+     * Verify a subscription transaction reference after callback. Marks the
+     * matching PlatformTransaction paid on success and returns it (or null when
+     * the reference is unknown).
+     */
+    public function verifySubscriptionPayment(string $reference): ?PlatformTransaction
+    {
+        $txn = PlatformTransaction::where('paystack_reference', $reference)->first();
+        if (! $txn) {
+            return null;
+        }
+
+        if ($this->isStub() || request()->boolean('stub')) {
+            $txn->update(['status' => 'paid']);
+            return $txn->fresh();
+        }
+
+        $resp = $this->http()->get("/transaction/verify/{$reference}");
+        $this->assertOk($resp, 'transaction/verify');
+
+        if (($resp->json('data.status') ?? null) === 'success') {
+            $txn->update(['status' => 'paid']);
+        } else {
+            $txn->update(['status' => 'failed']);
+        }
+
+        return $txn->fresh();
     }
 
     // ─── Webhook signature verification ─────────────────────────────────

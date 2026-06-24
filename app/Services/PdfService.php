@@ -98,4 +98,29 @@ class PdfService
         $filename = strtolower($inspection->type) . '-inspection-INS-' . str_pad($inspection->id, 6, '0', STR_PAD_LEFT) . '.pdf';
         return $download ? $pdf->download($filename) : $pdf->stream($filename);
     }
+
+    /**
+     * Snapshot of the super-admin Platform Overview as a PDF.
+     * Pass the same data dict the Inertia page renders, plus the name of the
+     * generating admin for the report header.
+     */
+    public function adminOverviewReport(
+        array $kpis,
+        array $recentSignups,
+        array $growth,
+        array $health,
+        string $generatedBy,
+        bool $download = true,
+    ): Response {
+        $pdf = Pdf::loadView('pdfs.admin-overview-report', [
+            'kpis'           => $kpis,
+            'recent_signups' => $recentSignups,
+            'growth'         => $growth,
+            'health'         => $health,
+            'generatedBy'    => $generatedBy,
+        ])->setPaper('A4');
+
+        $filename = 'platform-overview-' . now()->format('Y-m-d') . '.pdf';
+        return $download ? $pdf->download($filename) : $pdf->stream($filename);
+    }
 }

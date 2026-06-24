@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasSubscription;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -11,7 +12,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Agency extends Model
 {
-    use SoftDeletes;
+    use HasSubscription, SoftDeletes;
 
     protected $fillable = [
         'user_id', 'name', 'slug', 'logo', 'website', 'email', 'phone',

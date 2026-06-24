@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Admin\Concerns\EnsuresSuperAdmin;
 use App\Models\Agency;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Inertia\Inertia;
@@ -53,6 +54,64 @@ class AgenciesController extends Controller
             'agencies' => $agencies->values(),
             'stats'    => $stats,
         ]);
+    }
+
+    public function approve(Request $request, Agency $agency): RedirectResponse
+    {
+        $this->ensureSuperAdmin($request);
+
+        if ($agency->status !== 'pending') {
+            return back()->with('error', "Only pending agencies can be approved (current status: {$agency->status}).");
+        }
+
+        $agency->update(['status' => 'active']);
+
+        return back()->with('success', "{$agency->name} approved.");
+    }
+
+    public function suspend(Request $request, Agency $agency): RedirectResponse
+    {
+        $this->ensureSuperAdmin($request);
+
+        if ($agency->status === 'suspended') {
+            return back()->with('error', "{$agency->name} is already suspended.");
+        }
+
+        $agency->update(['status' => 'suspended']);
+
+        return back()->with('success', "{$agency->name} suspended.");
+    }
+
+    public function reactivate(Request $request, Agency $agency): RedirectResponse
+    {
+        $this->ensureSuperAdmin($request);
+
+        if ($agency->status === 'active') {
+            return back()->with('error', "{$agency->name} is already active.");
+        }
+
+        $agency->update(['status' => 'active']);
+
+        return back()->with('success', "{$agency->name} reactivated.");
+    }
+
+    public function verifyEaab(Request $request, Agency $agency): RedirectResponse
+    {
+        $this->ensureSuperAdmin($request);
+
+        if ($agency->eaab_verified_at !== null) {
+            $agency->update(['eaab_verified_at' => null]);
+
+            return back()->with('success', "{$agency->name}: EAAB verification revoked.");
+        }
+
+        if (empty($agency->eaab_ffc_number)) {
+            return back()->with('error', "{$agency->name} has no FFC number on file — cannot mark verified.");
+        }
+
+        $agency->update(['eaab_verified_at' => now()]);
+
+        return back()->with('success', "{$agency->name}: EAAB verified.");
     }
 
     private function inferPlan(int $agentCount): string

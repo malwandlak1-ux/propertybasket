@@ -2,6 +2,7 @@ import { ReactNode, useState } from 'react';
 import { Link, router, usePage } from '@inertiajs/react';
 import AppLogo from '@/Components/AppLogo';
 import NotificationBell, { NotificationItem } from '@/Components/NotificationBell';
+import SubscriptionBanner from '@/Components/SubscriptionBanner';
 
 type SharedProps = {
     auth?: { user?: { id: number; name: string; role: string } | null };
@@ -214,6 +215,8 @@ export default function LandlordLayout({
                     <div className="flex-1 md:hidden" />
                     <NotificationBell notifications={notifications ?? null} />
                 </header>
+
+                <SubscriptionBanner />
 
                 {children}
             </main>

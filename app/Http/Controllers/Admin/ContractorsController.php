@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Admin\Concerns\EnsuresSuperAdmin;
 use App\Models\Contractor;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Inertia\Inertia;
@@ -29,10 +30,9 @@ class ContractorsController extends Controller
                     'insurance' => $c->insurance_verified_at !== null,
                 ];
                 $allVerified = $docs['cipc'] && $docs['tax'] && $docs['insurance'];
-                $anyMissing  = ! $docs['cipc'] || ! $docs['tax'] || ! $docs['insurance'];
 
                 $docStatus = match (true) {
-                    $allVerified  => 'all_verified',
+                    $allVerified         => 'all_verified',
                     ! $docs['tax']       => 'tax_pending',
                     ! $docs['insurance'] => 'insurance_pending',
                     ! $docs['cipc']      => 'cipc_pending',
@@ -70,5 +70,82 @@ class ContractorsController extends Controller
             'contractors' => $contractors->values(),
             'stats'       => $stats,
         ]);
+    }
+
+    /**
+     * Toggle verification on a single document or set all three at once.
+     * Doc keys: 'cipc' | 'tax' | 'insurance' | 'all'
+     */
+    public function verifyDocument(Request $request, Contractor $contractor): RedirectResponse
+    {
+        $this->ensureSuperAdmin($request);
+
+        $validated = $request->validate([
+            'doc' => 'required|in:cipc,tax,insurance,all',
+        ]);
+
+        $name = $contractor->user?->name ?? $contractor->business_name ?? "Contractor #{$contractor->id}";
+
+        $docToColumn = [
+            'cipc'      => 'cipc_verified_at',
+            'tax'       => 'tax_clearance_verified_at',
+            'insurance' => 'insurance_verified_at',
+        ];
+
+        if ($validated['doc'] === 'all') {
+            $contractor->update([
+                'cipc_verified_at'          => now(),
+                'tax_clearance_verified_at' => now(),
+                'insurance_verified_at'     => now(),
+            ]);
+
+            return back()->with('success', "{$name}: all documents marked verified.");
+        }
+
+        $column = $docToColumn[$validated['doc']];
+        $isCurrentlyVerified = $contractor->{$column} !== null;
+
+        $contractor->update([
+            $column => $isCurrentlyVerified ? null : now(),
+        ]);
+
+        $verb  = $isCurrentlyVerified ? 'revoked' : 'verified';
+        $label = match ($validated['doc']) {
+            'cipc'      => 'CIPC',
+            'tax'       => 'Tax clearance',
+            'insurance' => 'Insurance',
+        };
+
+        return back()->with('success', "{$name}: {$label} {$verb}.");
+    }
+
+    public function activate(Request $request, Contractor $contractor): RedirectResponse
+    {
+        $this->ensureSuperAdmin($request);
+
+        if ($contractor->status === 'active') {
+            $name = $contractor->user?->name ?? $contractor->business_name ?? "Contractor #{$contractor->id}";
+            return back()->with('error', "{$name} is already active.");
+        }
+
+        $contractor->update(['status' => 'active']);
+
+        $name = $contractor->user?->name ?? $contractor->business_name ?? "Contractor #{$contractor->id}";
+        return back()->with('success', "{$name} activated.");
+    }
+
+    public function suspend(Request $request, Contractor $contractor): RedirectResponse
+    {
+        $this->ensureSuperAdmin($request);
+
+        if ($contractor->status === 'suspended') {
+            $name = $contractor->user?->name ?? $contractor->business_name ?? "Contractor #{$contractor->id}";
+            return back()->with('error', "{$name} is already suspended.");
+        }
+
+        $contractor->update(['status' => 'suspended']);
+
+        $name = $contractor->user?->name ?? $contractor->business_name ?? "Contractor #{$contractor->id}";
+        return back()->with('success', "{$name} suspended.");
     }
 }

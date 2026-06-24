@@ -25,8 +25,8 @@ export default function Show({ agency, listings }: Props) {
                 className="text-white"
                 style={{
                     background:
-                        'radial-gradient(at 20% 20%, rgba(91,61,245,0.35) 0, transparent 50%),' +
-                        'radial-gradient(at 80% 0%, rgba(74,46,224,0.30) 0, transparent 50%),' +
+                        'radial-gradient(at 20% 20%, rgba(242,106,27,0.35) 0, transparent 50%),' +
+                        'radial-gradient(at 80% 0%, rgba(232,22,19,0.30) 0, transparent 50%),' +
                         '#0B0B0F',
                 }}
             >

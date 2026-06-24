@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\EnsureSubscribed;
 use App\Http\Middleware\EnsureValidAgencyFfc;
 use App\Http\Middleware\EnsureValidFfc;
 use App\Http\Middleware\HandleInertiaRequests;
@@ -20,6 +21,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'ffc'        => EnsureValidFfc::class,
             'agency_ffc' => EnsureValidAgencyFfc::class,
+            'subscribed' => EnsureSubscribed::class,
         ]);
         // Paystack signs its webhooks via HMAC — CSRF cookie isn't applicable.
         $middleware->validateCsrfTokens(except: [

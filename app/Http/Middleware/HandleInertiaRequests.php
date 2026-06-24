@@ -6,6 +6,7 @@ use App\Models\Agency;
 use App\Models\AgencyAgent;
 use App\Models\Conversation;
 use App\Models\Message;
+use App\Support\Billing;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
@@ -40,6 +41,7 @@ class HandleInertiaRequests extends Middleware
             ],
             'ffc' => fn () => $this->ffcStatus($request),
             'agency_ffc' => fn () => $this->agencyFfcStatus($request),
+            'subscription' => fn () => $this->subscriptionStatus($request),
             'notifications' => fn () => $this->notifications($request),
             'unread_messages' => fn () => $this->unreadMessagesCount($request),
         ];
@@ -78,6 +80,36 @@ class HandleInertiaRequests extends Middleware
             'state'      => $state,
             'days_left'  => $daysLeft,
             'expires_at' => $agency->eaab_ffc_expires_at?->format('d M Y'),
+        ];
+    }
+
+    /**
+     * Subscription state for billable users (agencies & landlords). Drives the
+     * dashboard renewal-reminder banner. A reminder is flagged once access has
+     * 15 days or fewer left. Returns null for users that aren't paywalled.
+     */
+    private function subscriptionStatus(Request $request): ?array
+    {
+        $user = $request->user();
+        if (! $user || ! Billing::requiresSubscription($user)) {
+            return null;
+        }
+
+        $owner = Billing::ownerFor($user);
+        if (! $owner) {
+            return null;
+        }
+
+        $days = $owner->subscriptionDaysRemaining();
+
+        return [
+            'active'         => $owner->hasActiveSubscription(),
+            'expired'        => $owner->subscriptionExpired(),
+            'is_promo'       => $owner->isPromoSubscription(),
+            'plan'           => $owner->subscription_plan,
+            'expires_at'     => $owner->subscription_expires_at?->format('d M Y'),
+            'days_remaining' => $days,
+            'reminder'       => $owner->hasActiveSubscription() && $days !== null && $days <= 15,
         ];
     }
 

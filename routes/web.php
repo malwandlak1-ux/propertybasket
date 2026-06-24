@@ -76,7 +76,14 @@ Route::middleware('auth')->group(function () {
     Route::post('notifications/{id}/read', [\App\Http\Controllers\NotificationsController::class, 'markRead'])->name('notifications.read');
     Route::post('notifications/read-all',  [\App\Http\Controllers\NotificationsController::class, 'markAllRead'])->name('notifications.read-all');
 
-    Route::prefix('agency')->name('agency.')->group(function () {
+    // Subscription paywall (agencies & landlords). Reachable while unsubscribed —
+    // must NOT sit behind the `subscribed` gate or it would loop.
+    Route::get('billing/select',   [\App\Http\Controllers\Billing\SubscriptionController::class, 'select'])->name('billing.select');
+    Route::post('billing/checkout',[\App\Http\Controllers\Billing\SubscriptionController::class, 'checkout'])->name('billing.checkout');
+    Route::post('billing/promo',   [\App\Http\Controllers\Billing\SubscriptionController::class, 'applyPromo'])->name('billing.promo');
+    Route::get('billing/callback', [\App\Http\Controllers\Billing\SubscriptionController::class, 'callback'])->name('billing.callback');
+
+    Route::prefix('agency')->name('agency.')->middleware('subscribed')->group(function () {
         Route::get('/', [AgencyDashboardController::class, 'overview'])->name('overview');
 
         Route::get('agents', [\App\Http\Controllers\Agency\AgentsController::class, 'index'])->name('agents.index');
@@ -209,6 +216,10 @@ Route::middleware('auth')->group(function () {
         Route::delete('roles/{roleKey}',    [Admin\RolesController::class, 'deleteRole'])->name('roles.deleteRole');
         Route::get('subscriptions',  [Admin\SubscriptionsController::class, 'index'])->name('subscriptions.index');
         Route::patch('subscriptions/{key}', [Admin\SubscriptionsController::class, 'update'])->name('subscriptions.update');
+        Route::get('promo-codes',                 [Admin\PromoCodesController::class, 'index'])->name('promo-codes.index');
+        Route::post('promo-codes',                [Admin\PromoCodesController::class, 'store'])->name('promo-codes.store');
+        Route::patch('promo-codes/{promoCode}/toggle', [Admin\PromoCodesController::class, 'toggle'])->name('promo-codes.toggle');
+        Route::delete('promo-codes/{promoCode}',  [Admin\PromoCodesController::class, 'destroy'])->name('promo-codes.destroy');
         Route::get('transactions',         [Admin\TransactionsController::class, 'index'])->name('transactions.index');
         Route::get('transactions/export',  [Admin\TransactionsController::class, 'export'])->name('transactions.export');
         Route::get('announcements',  [Admin\AnnouncementsController::class, 'index'])->name('announcements.index');
@@ -252,7 +263,7 @@ Route::middleware('auth')->group(function () {
         Route::delete('settings/portfolio/photos/{index}', [Contractor\SettingsController::class, 'deletePortfolioPhoto'])->name('settings.portfolio.photos.destroy')->whereNumber('index');
     });
 
-    Route::prefix('landlord')->name('landlord.')->group(function () {
+    Route::prefix('landlord')->name('landlord.')->middleware('subscribed')->group(function () {
             Route::get('/',           [Landlord\DashboardController::class,   'overview'])->name('overview');
             Route::get('properties',  [Landlord\PropertiesController::class,  'index'])->name('properties.index');
             Route::get('listings/create', [Landlord\ListingsController::class, 'create'])->name('listings.create');

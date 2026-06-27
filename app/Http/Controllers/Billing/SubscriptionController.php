@@ -65,7 +65,7 @@ class SubscriptionController extends Controller
      * Pay for a plan via Paystack. Redirects to the hosted checkout (or, in
      * stub mode, straight to the callback).
      */
-    public function checkout(Request $request): RedirectResponse
+    public function checkout(Request $request): \Symfony\Component\HttpFoundation\Response
     {
         $user     = $request->user();
         $audience = Billing::audienceFor($user);
@@ -93,7 +93,10 @@ class SubscriptionController extends Controller
             $user, $owner, $plan['key'], (int) $plan['price']
         );
 
-        return redirect()->away($init['authorization_url']);
+        // The page POSTs via Inertia (XHR), so a plain external redirect won't
+        // navigate the browser. Inertia::location sends a 409 + X-Inertia-Location
+        // header that makes the client do a full visit to the Paystack checkout.
+        return Inertia::location($init['authorization_url']);
     }
 
     /**

@@ -52,6 +52,9 @@ cp -f "$SRC/app/Models/ManagedLandlord.php"                      "$APP/app/Model
 cp -f "$SRC/app/Models/LandlordPayout.php"                       "$APP/app/Models/LandlordPayout.php"
 cp -f "$SRC/app/Http/Controllers/Agency/LandlordsController.php" "$APP/app/Http/Controllers/Agency/LandlordsController.php"
 cp -f "$SRC/routes/web.php"                                       "$APP/routes/web.php"
+# Paystack redirect fix (subscription + rent checkout).
+cp -f "$SRC/app/Http/Controllers/Billing/SubscriptionController.php" "$APP/app/Http/Controllers/Billing/SubscriptionController.php"
+cp -f "$SRC/app/Http/Controllers/Payments/PaystackController.php"    "$APP/app/Http/Controllers/Payments/PaystackController.php"
 
 # Migrations (append-only; migrate --force below applies new ones).
 cp -rf "$SRC/database/migrations/." "$APP/database/migrations/"
@@ -65,6 +68,7 @@ mkdir -p "$APP/public/images" "$APP/resources/views/components"
 cp -rf "$SRC/public/images/." "$APP/public/images/"
 # Marketing overview (self-contained, embeds workflow videos).
 cp -f "$SRC/public/property-basket-overview.html" "$APP/public/property-basket-overview.html"
+cp -f "$SRC/public/how-to.html" "$APP/public/how-to.html"
 cp -f  "$SRC/resources/views/components/pdf-layout.blade.php" "$APP/resources/views/components/pdf-layout.blade.php"
 
 # Apply any new migrations, then refresh caches.

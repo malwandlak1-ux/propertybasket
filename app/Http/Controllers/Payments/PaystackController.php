@@ -14,6 +14,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
+use Inertia\Inertia;
 
 class PaystackController extends Controller
 {
@@ -24,7 +25,7 @@ class PaystackController extends Controller
     /**
      * Tenant clicks "Pay rent now" → POST here → redirect to Paystack checkout.
      */
-    public function initialize(Request $request): RedirectResponse
+    public function initialize(Request $request): \Symfony\Component\HttpFoundation\Response
     {
         $data = $request->validate([
             'period' => ['nullable', 'string', 'regex:/^\d{4}-\d{2}$/'],
@@ -35,8 +36,9 @@ class PaystackController extends Controller
 
         $init = $this->paystack->initializePayment($lease, $period);
 
-        // External redirect — Inertia doesn't intercept Location: with a full URL.
-        return redirect()->away($init['authorization_url']);
+        // Page POSTs via Inertia (XHR); Inertia::location sends a 409 +
+        // X-Inertia-Location so the browser does a full visit to Paystack.
+        return Inertia::location($init['authorization_url']);
     }
 
     /**

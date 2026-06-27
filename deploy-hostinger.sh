@@ -5,12 +5,12 @@
 # The live site is NOT a git checkout and the server has no Node build step,
 # so we deploy by: pulling the repo zip into /tmp, then running this script,
 # which copies the committed code + the pre-built public/build bundle into the
-# live app directory and clears Laravel's caches.
+# live app directory, runs migrations, and clears Laravel's caches.
 #
 # Usage (from an SSH session):
-#   cd /tmp
-#   curl -sL -o pb.zip https://github.com/malwandlak1-ux/propertybasket/archive/refs/heads/main.zip
-#   unzip -o -q pb.zip
+#   rm -rf /tmp/propertybasket-main /tmp/pb.zip
+#   curl -fL -o /tmp/pb.zip https://codeload.github.com/malwandlak1-ux/propertybasket/zip/refs/heads/main
+#   unzip -o -q /tmp/pb.zip -d /tmp
 #   bash /tmp/propertybasket-main/deploy-hostinger.sh
 #
 set -e
@@ -23,55 +23,24 @@ echo "Syncing code from $SRC -> $APP"
 # Compiled front-end bundle (Vite output committed to the repo).
 cp -rf "$SRC/public/build/." "$APP/public/build/"
 
-# Back-end code changed this session.
-cp -f "$SRC/app/Http/Controllers/Public/ListingController.php"     "$APP/app/Http/Controllers/Public/ListingController.php"
-cp -f "$SRC/app/Http/Controllers/Public/TourRequestController.php" "$APP/app/Http/Controllers/Public/TourRequestController.php"
-cp -f "$SRC/app/Http/Controllers/Auth/InvitationController.php"    "$APP/app/Http/Controllers/Auth/InvitationController.php"
-cp -f "$SRC/app/Http/Controllers/Agency/AgentsController.php"      "$APP/app/Http/Controllers/Agency/AgentsController.php"
-cp -f "$SRC/app/Http/Controllers/Admin/UsersController.php"        "$APP/app/Http/Controllers/Admin/UsersController.php"
-cp -f "$SRC/app/Http/Controllers/Agent/ListingsController.php"     "$APP/app/Http/Controllers/Agent/ListingsController.php"
-cp -f "$SRC/app/Http/Controllers/Agent/InspectionsController.php"  "$APP/app/Http/Controllers/Agent/InspectionsController.php"
-cp -f "$SRC/app/Http/Controllers/Landlord/TenantsController.php"   "$APP/app/Http/Controllers/Landlord/TenantsController.php"
-cp -f "$SRC/app/Http/Controllers/Tenant/LeaseController.php"       "$APP/app/Http/Controllers/Tenant/LeaseController.php"
-cp -f "$SRC/app/Http/Controllers/Tenant/DocumentsController.php"   "$APP/app/Http/Controllers/Tenant/DocumentsController.php"
-cp -f "$SRC/app/Http/Controllers/Tenant/MaintenanceController.php" "$APP/app/Http/Controllers/Tenant/MaintenanceController.php"
-cp -f "$SRC/app/Http/Controllers/Agency/MaintenanceController.php" "$APP/app/Http/Controllers/Agency/MaintenanceController.php"
-cp -f "$SRC/app/Http/Controllers/Agency/ContractorsController.php" "$APP/app/Http/Controllers/Agency/ContractorsController.php"
-cp -f "$SRC/app/Http/Controllers/Agency/CommissionController.php"  "$APP/app/Http/Controllers/Agency/CommissionController.php"
-cp -f "$SRC/app/Http/Controllers/Agent/MaintenanceController.php"  "$APP/app/Http/Controllers/Agent/MaintenanceController.php"
-cp -f "$SRC/app/Services/InquiryService.php"                      "$APP/app/Services/InquiryService.php"
-cp -f "$SRC/app/Services/CommissionService.php"                  "$APP/app/Services/CommissionService.php"
-cp -f "$SRC/app/Http/Controllers/Agency/PipelineController.php"   "$APP/app/Http/Controllers/Agency/PipelineController.php"
-cp -f "$SRC/app/Http/Controllers/Agent/PipelineController.php"    "$APP/app/Http/Controllers/Agent/PipelineController.php"
-cp -f "$SRC/app/Models/Lease.php"                                 "$APP/app/Models/Lease.php"
-cp -f "$SRC/app/Models/Agency.php"                               "$APP/app/Models/Agency.php"
-cp -f "$SRC/app/Models/User.php"                                 "$APP/app/Models/User.php"
-cp -f "$SRC/app/Models/Listing.php"                              "$APP/app/Models/Listing.php"
-# Managed-landlord rental payouts.
-cp -f "$SRC/app/Models/ManagedLandlord.php"                      "$APP/app/Models/ManagedLandlord.php"
-cp -f "$SRC/app/Models/LandlordPayout.php"                       "$APP/app/Models/LandlordPayout.php"
-cp -f "$SRC/app/Http/Controllers/Agency/LandlordsController.php" "$APP/app/Http/Controllers/Agency/LandlordsController.php"
-cp -f "$SRC/routes/web.php"                                       "$APP/routes/web.php"
-# Paystack redirect fix (subscription + rent checkout).
-cp -f "$SRC/app/Http/Controllers/Billing/SubscriptionController.php" "$APP/app/Http/Controllers/Billing/SubscriptionController.php"
-cp -f "$SRC/app/Http/Controllers/Payments/PaystackController.php"    "$APP/app/Http/Controllers/Payments/PaystackController.php"
+# Application code — full sync (the repo is the source of truth). This covers
+# every controller, model, middleware, service, notification, support class, etc.
+cp -rf "$SRC/app/."                  "$APP/app/"
+cp -f  "$SRC/bootstrap/app.php"      "$APP/bootstrap/app.php"
+cp -rf "$SRC/routes/."               "$APP/routes/"
+cp -rf "$SRC/database/migrations/."  "$APP/database/migrations/"
+cp -rf "$SRC/database/seeders/."     "$APP/database/seeders/"
+cp -rf "$SRC/resources/views/."      "$APP/resources/views/"
 
-# Migrations (append-only; migrate --force below applies new ones).
-cp -rf "$SRC/database/migrations/." "$APP/database/migrations/"
-
-# Email template redesign + notifications.
-cp -rf "$SRC/app/Notifications/." "$APP/app/Notifications/"
-cp -rf "$SRC/resources/views/vendor/mail/." "$APP/resources/views/vendor/mail/"
-
-# Orange rebrand — brand image assets + server-rendered PDF template.
-mkdir -p "$APP/public/images" "$APP/resources/views/components"
+# Public assets (brand images, custom error page, marketing pages).
+mkdir -p "$APP/public/images" "$APP/public/error"
 cp -rf "$SRC/public/images/." "$APP/public/images/"
-# Marketing overview (self-contained, embeds workflow videos).
+[ -d "$SRC/public/error" ] && cp -rf "$SRC/public/error/." "$APP/public/error/"
 cp -f "$SRC/public/property-basket-overview.html" "$APP/public/property-basket-overview.html"
-cp -f "$SRC/public/how-to.html" "$APP/public/how-to.html"
-cp -f  "$SRC/resources/views/components/pdf-layout.blade.php" "$APP/resources/views/components/pdf-layout.blade.php"
+cp -f "$SRC/public/how-to.html"                   "$APP/public/how-to.html"
 
-# Apply any new migrations, then refresh caches.
+# Apply migrations (ensures subscription columns + grants launch grace to
+# existing agencies/landlords + creates promo-code tables), then refresh caches.
 cd "$APP"
 php artisan migrate --force
 php artisan view:clear

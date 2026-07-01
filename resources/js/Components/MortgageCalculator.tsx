@@ -85,7 +85,7 @@ export default function MortgageCalculator({ defaultTotal }: Props) {
     ];
     const segSum = segments.reduce((s, x) => s + x.value, 0) || 1;
 
-    const R = 70;
+    const R = 78;
     const C = 2 * Math.PI * R;
     let offset = 0;
     const arcs = segments.map((seg) => {
@@ -115,7 +115,7 @@ export default function MortgageCalculator({ defaultTotal }: Props) {
                                     r={R}
                                     fill="none"
                                     stroke="#F1F0FB"
-                                    strokeWidth="18"
+                                    strokeWidth="16"
                                 />
                                 {arcs.map((a) => (
                                     <circle
@@ -125,18 +125,18 @@ export default function MortgageCalculator({ defaultTotal }: Props) {
                                         r={R}
                                         fill="none"
                                         stroke={a.color}
-                                        strokeWidth="18"
+                                        strokeWidth="16"
                                         strokeDasharray={`${a.dash} ${a.gap}`}
                                         strokeDashoffset={a.dashoffset}
                                         strokeLinecap="butt"
                                     />
                                 ))}
                             </svg>
-                            <div className="absolute inset-0 flex flex-col items-center justify-center">
-                                <span className="text-[24px] font-bold tracking-tight">
+                            <div className="absolute inset-0 flex flex-col items-center justify-center px-2 text-center">
+                                <span className="text-[17px] font-bold tracking-tight whitespace-nowrap leading-tight">
                                     {fmt(calc.monthlyTotal)}
                                 </span>
-                                <span className="text-[12px] text-ink-500">Monthly</span>
+                                <span className="text-[11px] text-ink-500">Monthly</span>
                             </div>
                         </div>
                     </div>

@@ -103,10 +103,9 @@ export default function Show({ listing, contact }: Props) {
         });
     }
 
-    const gallery = [
-        listing.primary_image,
-        ...(listing.gallery_images ?? []),
-    ].filter(Boolean) as string[];
+    const gallery = Array.from(
+        new Set([listing.primary_image, ...(listing.gallery_images ?? [])].filter(Boolean)),
+    ) as string[];
 
     const amenities = flattenAmenities(listing.amenities);
 
@@ -138,18 +137,18 @@ export default function Show({ listing, contact }: Props) {
                         )}
                     </div>
                     {gallery.length > 1 && (
-                        <div className="mt-3 grid grid-cols-4 gap-3">
-                            {gallery.slice(0, 4).map((src) => (
+                        <div className="mt-3 flex gap-3 overflow-x-auto pb-2 -mx-1 px-1">
+                            {gallery.map((src) => (
                                 <button
                                     key={src}
                                     type="button"
                                     onClick={() => setActiveImage(src)}
                                     className={
-                                        'aspect-[4/3] rounded-lg overflow-hidden bg-ink-100 border ' +
+                                        'w-28 shrink-0 aspect-[4/3] rounded-lg overflow-hidden bg-ink-100 border ' +
                                         (src === activeImage ? 'border-brand' : 'border-ink-200')
                                     }
                                 >
-                                    <img src={src} alt="" className="w-full h-full object-cover" />
+                                    <img src={src} alt="" className="w-full h-full object-cover" loading="lazy" />
                                 </button>
                             ))}
                         </div>

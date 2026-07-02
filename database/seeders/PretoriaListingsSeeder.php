@@ -135,15 +135,14 @@ class PretoriaListingsSeeder extends Seeder
             ],
             [
                 'slug'        => 'swellendam-unit-41-pretoria',
-                'title'       => 'Swellendam Unit 41 – Spacious 2 Bed Flat',
+                'title'       => '601 Swellendam – Spacious 2 Bed Flat in Sunnyside',
                 'sale_price'  => 575_000,
                 'bedrooms'    => 2,
                 'bathrooms'   => 1,
                 'area_sqm'    => 90,
-                // TODO: street address + suburb still to be confirmed by the agent.
-                'address'     => null,
-                'suburb'      => null,
-                'description' => "Exceptionally spacious 90 m² sectional-title flat (scheme SS26/1980, Erf 1181, Unit 41) in the Swellendam building, Pretoria.\n\nThe unit offers 2 bedrooms, 1 bathroom, a lounge and a separate dining room — one of the larger 2-bed layouts you'll find at this price. The scheme is managed by Pro-Admin.\n\nMonthly levies: R2,073.72. Priced at R575,000.",
+                'address'     => '601 Swellendam, Unit 41, 63 Troye Street',
+                'suburb'      => 'Sunnyside',
+                'description' => "Exceptionally spacious 90 m² sectional-title flat (scheme SS26/1980, Erf 1181, Unit 41) in the Swellendam building on Troye Street, Sunnyside — close to shops, transport and city amenities.\n\nThe unit offers 2 bedrooms, 1 bathroom, a lounge and a separate dining room — one of the larger 2-bed layouts you'll find at this price. The scheme is managed by Pro-Admin.\n\nMonthly levies: R2,073.72. Priced at R575,000.",
                 'amenities'   => [
                     'Unit'   => ['2 bedrooms', '1 bathroom', 'Lounge', 'Dining room', '90 m² floor area'],
                     'Scheme' => ['Sectional title (SS26/1980)', 'Managed by Pro-Admin'],

@@ -41,6 +41,12 @@ Route::get('/overview', function () {
     return response()->file(public_path('property-basket-overview.html'));
 })->name('overview');
 
+// How-to / help centre — self-contained tutorial page.
+Route::get('/how-to', function () {
+    abort_unless(is_file(public_path('how-to.html')), 404);
+    return response()->file(public_path('how-to.html'));
+})->name('how-to');
+
 Route::get('/privacy-policy',         [LegalController::class, 'privacyPolicy'])->name('legal.privacy');
 Route::get('/privacy-portal',         [LegalController::class, 'privacyPortal'])->name('legal.privacyPortal');
 Route::post('/privacy-portal',        [LegalController::class, 'submitPrivacyRequest'])->name('legal.privacyPortal.submit');
@@ -65,6 +71,12 @@ Route::middleware('guest')->group(function () {
 
     Route::get('invite/{token}', [InvitationController::class, 'show'])->name('invite.show');
     Route::post('invite/{token}', [InvitationController::class, 'accept'])->name('invite.accept');
+
+    // Password reset (forgot password → emailed link → set new password)
+    Route::get('forgot-password',        [\App\Http\Controllers\Auth\PasswordResetLinkController::class, 'create'])->name('password.request');
+    Route::post('forgot-password',       [\App\Http\Controllers\Auth\PasswordResetLinkController::class, 'store'])->name('password.email');
+    Route::get('reset-password/{token}', [\App\Http\Controllers\Auth\NewPasswordController::class, 'create'])->name('password.reset');
+    Route::post('reset-password',        [\App\Http\Controllers\Auth\NewPasswordController::class, 'store'])->name('password.store');
 });
 
 // Authenticated

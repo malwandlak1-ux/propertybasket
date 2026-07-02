@@ -1,9 +1,10 @@
 import { FormEvent } from 'react';
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import AuthLayout from '@/Layouts/AuthLayout';
 import FormField from '@/Components/FormField';
 
 export default function Login() {
+    const { flash } = usePage<{ flash?: { success?: string } }>().props;
     const { data, setData, post, processing, errors } = useForm({
         email: '',
         password: '',
@@ -23,6 +24,12 @@ export default function Login() {
             <Head title="Sign in" />
             <h2 className="text-2xl font-bold tracking-tight">Welcome back</h2>
             <p className="text-[14px] text-ink-500 mt-1">Sign in to your dashboard</p>
+
+            {flash?.success && (
+                <div className="mt-5 rounded-lg bg-success/10 border border-success/30 text-success px-3.5 py-2.5 text-[13px]">
+                    {flash.success}
+                </div>
+            )}
 
             <form onSubmit={submit} className="space-y-4 mt-6">
                 <FormField
@@ -45,9 +52,9 @@ export default function Login() {
                     autoComplete="current-password"
                     required
                     rightLabel={
-                        <a href="#" className="text-[12px] text-brand-600 font-medium hover:underline">
+                        <Link href="/forgot-password" className="text-[12px] text-brand-600 font-medium hover:underline">
                             Forgot?
-                        </a>
+                        </Link>
                     }
                 />
                 <label className="flex items-center gap-2 text-[13px] text-ink-700">

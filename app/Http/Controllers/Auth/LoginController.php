@@ -45,6 +45,9 @@ class LoginController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->route('home');
+        // Redirect to /login (not "/"): the login route was never a WordPress
+        // URL, so it sidesteps any stale cached homepage, and it's the expected
+        // post-logout destination for a dashboard app.
+        return redirect()->route('login')->with('success', 'You have been signed out.');
     }
 }

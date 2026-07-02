@@ -4,6 +4,7 @@ use App\Http\Middleware\EnsureSubscribed;
 use App\Http\Middleware\EnsureValidAgencyFfc;
 use App\Http\Middleware\EnsureValidFfc;
 use App\Http\Middleware\HandleInertiaRequests;
+use App\Http\Middleware\PreventPageCaching;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -17,6 +18,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->web(append: [
             HandleInertiaRequests::class,
+            PreventPageCaching::class,
         ]);
         $middleware->alias([
             'ffc'        => EnsureValidFfc::class,

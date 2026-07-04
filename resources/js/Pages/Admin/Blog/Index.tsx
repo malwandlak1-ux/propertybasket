@@ -47,6 +47,12 @@ function formatDate(iso: string | null): string {
     return new Date(iso).toLocaleDateString('en-ZA', { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
+/** A published post whose publish date is still in the future — hidden from the
+    public site by BlogPost::published() until then. */
+function isScheduled(p: Post): boolean {
+    return p.status === 'published' && !! p.published_at && new Date(p.published_at).getTime() > Date.now();
+}
+
 export default function AdminBlogIndex({ posts, filter, q, counts }: Props) {
     const { flash } = usePage<SharedProps>().props;
     const loading = useInertiaLoading();
@@ -169,11 +175,13 @@ export default function AdminBlogIndex({ posts, filter, q, counts }: Props) {
                                             <td className="px-4 py-3">
                                                 <span className={
                                                     'text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full ' +
-                                                    (p.status === 'published'
-                                                        ? 'bg-success/15 text-success'
-                                                        : 'bg-ink-200 text-ink-600')
+                                                    (isScheduled(p)
+                                                        ? 'bg-brand-100 text-brand-700'
+                                                        : p.status === 'published'
+                                                            ? 'bg-success/15 text-success'
+                                                            : 'bg-ink-200 text-ink-600')
                                                 }>
-                                                    {p.status}
+                                                    {isScheduled(p) ? 'scheduled' : p.status}
                                                 </span>
                                             </td>
                                             <td className="px-4 py-3">
@@ -191,11 +199,15 @@ export default function AdminBlogIndex({ posts, filter, q, counts }: Props) {
                                                 </div>
                                             </td>
                                             <td className="px-4 py-3 text-ink-600">{p.author?.name ?? '—'}</td>
-                                            <td className="px-4 py-3 text-ink-600">{formatDate(p.published_at)}</td>
+                                            <td className="px-4 py-3 text-ink-600">
+                                                {isScheduled(p)
+                                                    ? <span className="text-brand-700 font-semibold">Scheduled · {formatDate(p.published_at)}</span>
+                                                    : formatDate(p.published_at)}
+                                            </td>
                                             <td className="px-4 py-3 text-right tabular-nums text-ink-600">{p.view_count}</td>
                                             <td className="px-4 py-3 text-right">
                                                 <div className="inline-flex items-center gap-1">
-                                                    {p.status === 'published' && (
+                                                    {p.status === 'published' && ! isScheduled(p) && (
                                                         <Link
                                                             href={`/advice/${p.slug}`}
                                                             target="_blank"

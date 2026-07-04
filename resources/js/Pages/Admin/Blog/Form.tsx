@@ -28,6 +28,19 @@ type SharedProps = { flash?: { success?: string | null; error?: string | null } 
 const labelCls = 'text-[12px] font-semibold text-ink-700 mb-1.5 block';
 const inputCls = 'w-full bg-white border border-ink-200 rounded-lg px-3.5 py-2.5 text-[14px] outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand';
 
+/** ISO timestamp → value for a <input type="datetime-local"> (local wall-clock). */
+function toLocalInput(iso: string | null): string {
+    if (! iso) return '';
+    const d = new Date(iso);
+    if (isNaN(d.getTime())) return '';
+    const pad = (n: number) => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+function isFutureDate(local: string): boolean {
+    return local !== '' && ! isNaN(Date.parse(local)) && new Date(local).getTime() > Date.now();
+}
+
 export default function AdminBlogForm({ post, allTags }: Props) {
     const { flash } = usePage<SharedProps>().props;
     const isEdit = !!post;
@@ -37,6 +50,7 @@ export default function AdminBlogForm({ post, allTags }: Props) {
         excerpt: string;
         body: string;
         status: 'draft' | 'published';
+        published_at: string;
         tags: string[];
         cover: File | null;
         remove_cover: boolean;
@@ -45,10 +59,13 @@ export default function AdminBlogForm({ post, allTags }: Props) {
         excerpt:      post?.excerpt ?? '',
         body:         post?.body ?? '',
         status:       post?.status ?? 'draft',
+        published_at: toLocalInput(post?.published_at ?? null),
         tags:         post?.tags?.map((t) => t.name) ?? [],
         cover:        null,
         remove_cover: false,
     });
+
+    const scheduling = isFutureDate(data.published_at);
 
     const [tagInput, setTagInput] = useState('');
     const [coverPreview, setCoverPreview] = useState<string | null>(post?.cover_image ?? null);
@@ -152,7 +169,9 @@ export default function AdminBlogForm({ post, allTags }: Props) {
                             className="px-4 py-2 text-[13px] bg-brand-600 hover:bg-brand-700 text-white rounded-lg font-semibold inline-flex items-center gap-2"
                         >
                             {processing && <Spinner size={13} />}
-                            {data.status === 'published' && isEdit ? 'Save & republish' : 'Publish'}
+                            {scheduling
+                                ? 'Schedule'
+                                : (data.status === 'published' && isEdit ? 'Save & republish' : 'Publish')}
                         </button>
                     </div>
                 </div>
@@ -220,21 +239,46 @@ export default function AdminBlogForm({ post, allTags }: Props) {
                         {/* Status */}
                         <div className="bg-white rounded-xl border border-ink-200 shadow-soft p-5">
                             <h2 className="text-[13px] font-bold mb-3">Status</h2>
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-2 flex-wrap">
                                 <span className={
                                     'text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full ' +
-                                    (data.status === 'published'
-                                        ? 'bg-success/15 text-success'
-                                        : 'bg-ink-100 text-ink-600')
+                                    (scheduling
+                                        ? 'bg-brand-100 text-brand-700'
+                                        : data.status === 'published'
+                                            ? 'bg-success/15 text-success'
+                                            : 'bg-ink-100 text-ink-600')
                                 }>
-                                    {data.status}
+                                    {scheduling ? 'scheduled' : data.status}
                                 </span>
-                                {isEdit && post!.published_at && (
+                                {isEdit && post!.published_at && ! scheduling && (
                                     <span className="text-[11px] text-ink-500">
-                                        Published {new Date(post!.published_at).toLocaleDateString('en-ZA', { day: 'numeric', month: 'short', year: 'numeric' })}
+                                        {new Date(post!.published_at).getTime() > Date.now() ? 'Scheduled for' : 'Published'}{' '}
+                                        {new Date(post!.published_at).toLocaleDateString('en-ZA', { day: 'numeric', month: 'short', year: 'numeric' })}
                                     </span>
                                 )}
                             </div>
+
+                            {/* Scheduled publishing — a future date keeps the post hidden
+                                until then via the BlogPost::published() scope (no cron). */}
+                            <div className="mt-4">
+                                <label className={labelCls}>Publish date &amp; time (SAST)</label>
+                                <input
+                                    type="datetime-local"
+                                    value={data.published_at}
+                                    onChange={(e) => setData('published_at', e.target.value)}
+                                    className={inputCls}
+                                />
+                                <p className="text-[11px] text-ink-500 mt-1.5 leading-relaxed">
+                                    Leave blank to publish immediately. Set a <strong>future</strong> date to schedule — the post auto-goes-live then and stays hidden until it does.
+                                </p>
+                                {scheduling && (
+                                    <p className="text-[11px] text-brand-700 font-semibold mt-1.5">
+                                        Will go live {new Date(data.published_at).toLocaleString('en-ZA', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                                    </p>
+                                )}
+                                {errors.published_at && <p className="text-[11px] text-danger mt-1">{errors.published_at}</p>}
+                            </div>
+
                             {isEdit && (
                                 <p className="text-[11px] text-ink-500 mt-3 leading-relaxed">
                                     Slug: <code className="bg-ink-100 px-1 py-0.5 rounded text-[10px]">{post!.slug}</code>

@@ -8,6 +8,7 @@ use App\Models\BlogTag;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
@@ -76,7 +77,7 @@ class BlogController extends Controller
             'body'         => $data['body'],
             'cover_image'  => $this->handleCoverUpload($request, null),
             'status'       => $data['status'],
-            'published_at' => $data['status'] === 'published' ? now() : null,
+            'published_at' => $this->resolvePublishedAt($data['status'], $data['published_at'] ?? null, null),
         ]);
 
         $post->tags()->sync($this->syncTagIds($data['tags'] ?? []));
@@ -113,9 +114,7 @@ class BlogController extends Controller
             'body'         => $data['body'],
             'cover_image'  => $this->handleCoverUpload($request, $post->cover_image),
             'status'       => $data['status'],
-            'published_at' => $data['status'] === 'published'
-                ? ($post->published_at ?? now())
-                : null,
+            'published_at' => $this->resolvePublishedAt($data['status'], $data['published_at'] ?? null, $post->published_at),
         ]);
 
         $post->tags()->sync($this->syncTagIds($data['tags'] ?? []));
@@ -153,11 +152,32 @@ class BlogController extends Controller
             'excerpt' => ['nullable', 'string', 'max:400'],
             'body'    => ['required', 'string', 'max:200000'],
             'status'  => ['required', 'in:draft,published'],
+            'published_at' => ['nullable', 'date'],
             'cover'   => ['nullable', 'image', 'mimes:png,jpg,jpeg,webp', 'max:4096'],
             'remove_cover' => ['nullable', 'boolean'],
             'tags'    => ['nullable', 'array'],
             'tags.*'  => ['string', 'max:80'],
         ]);
+    }
+
+    /**
+     * Resolve the published_at timestamp. Drafts have none. A published post
+     * uses the admin-supplied date/time (interpreted in the app timezone,
+     * Africa/Johannesburg) — which may be in the FUTURE, in which case the
+     * public BlogPost::published() scope keeps the post hidden until that
+     * moment arrives. That gives native scheduled publishing with no cron:
+     * the post simply becomes visible once now() passes published_at. Falls
+     * back to the post's existing value, then to now().
+     */
+    private function resolvePublishedAt(string $status, ?string $input, ?Carbon $current): ?Carbon
+    {
+        if ($status !== 'published') {
+            return null;
+        }
+        if (! empty($input)) {
+            return Carbon::parse($input);
+        }
+        return $current ?? Carbon::now();
     }
 
     private function uniqueSlug(string $title): string

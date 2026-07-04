@@ -29,9 +29,12 @@ function formatDate(iso: string | null): string {
 export default function AdviceShow({ post, related }: Props) {
     return (
         <PublicLayout>
+            {/* Title is set here for the SPA/browser; the description, canonical,
+                OpenGraph, Twitter and JSON-LD tags are server-rendered in the root
+                Blade template (see AdviceController::buildSeo) so non-JS crawlers
+                and social scrapers can read them. */}
             <Head>
                 <title>{`${post.title} — Property Basket`}</title>
-                {post.excerpt && <meta name="description" content={post.excerpt} />}
             </Head>
 
             <article className="max-w-3xl mx-auto px-6 py-12">

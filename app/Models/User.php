@@ -115,6 +115,24 @@ class User extends Authenticatable
         return $this->role === $role;
     }
 
+    /** Prefix marking a soft-deleted user's released (freed-up) email. */
+    public const DELETED_EMAIL_PREFIX = '__deleted';
+
+    /**
+     * The "released" email value for a deleted user. `users.email` is uniquely
+     * indexed, so a soft-deleted row keeps its address reserved — mangling it
+     * frees the real address for re-registration while preserving the tombstone
+     * row (and its FK references) for audit. Idempotent.
+     */
+    public static function releasedEmail(int $id, string $email): string
+    {
+        if (str_starts_with($email, self::DELETED_EMAIL_PREFIX)) {
+            return $email; // already released
+        }
+
+        return self::DELETED_EMAIL_PREFIX.$id.'__'.$email;
+    }
+
     /**
      * True when the user has a usable payout method — either a Paystack
      * recipient code or full local banking details captured on their profile.

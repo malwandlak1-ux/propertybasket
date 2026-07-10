@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Tenant;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Tenant\Concerns\ResolvesTenant;
 use App\Models\RentPayment;
+use App\Services\LeaseBillingService;
 use App\Services\PdfService;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\Request;
@@ -15,11 +16,16 @@ class PaymentsController extends Controller
 {
     use ResolvesTenant;
 
+    public function __construct(private readonly LeaseBillingService $billing) {}
+
     public function index(Request $request): Response
     {
         $lease = $this->resolveLease($request);
         $user  = $request->user();
         $now   = CarbonImmutable::now();
+
+        // Raise any missing monthly charges + flip past-due to overdue.
+        $this->billing->ensureCharges($lease);
 
         $payments = RentPayment::where('lease_id', $lease->id)
             ->orderByDesc('due_date')
@@ -72,12 +78,14 @@ class PaymentsController extends Controller
             ];
         })->values();
 
-        // ── Upcoming (pending only) ──────────────────────────────────────────
+        // ── Due now (arrears first, then current) ────────────────────────────
+        // Overdue prior months surface ahead of the current month so the tenant
+        // clears arrears first (pay-and-stay).
         $upcoming = $payments
-            ->where('status', 'pending')
+            ->whereIn('status', ['overdue', 'pending', 'partial'])
             ->sortBy('due_date')
             ->values()
-            ->take(3)
+            ->take(4)
             ->map(function (RentPayment $p) use ($now) {
                 $due = CarbonImmutable::parse($p->due_date);
                 $days = (int) $now->startOfDay()->diffInDays($due->startOfDay(), false);

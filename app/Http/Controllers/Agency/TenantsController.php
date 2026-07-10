@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Agency;
 use App\Http\Controllers\Agency\Concerns\ResolvesAgency;
 use App\Http\Controllers\Controller;
 use App\Models\Lease;
+use App\Services\LeaseBillingService;
 use Carbon\CarbonImmutable;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -24,6 +26,7 @@ class TenantsController extends Controller
                 'tenant:id,name,email,phone',
                 'agent:id,name,email',
                 'listing:id,title,suburb,city,primary_image,monthly_rent',
+                'deposit',
             ])
             ->orderByDesc('start_date')
             ->get();
@@ -85,7 +88,35 @@ class TenantsController extends Controller
             'agent_name'     => $agent?->name,
             'agent_email'    => $agent?->email,
             'agent_initials' => $this->initials($agent?->name ?? '?'),
+            'deposit_amount' => (float) $lease->deposit_amount,
+            'deposit_status' => $lease->deposit?->status ?? 'due',
+            'deposit_received_at' => $lease->deposit?->deposited_at?->format('d M Y'),
         ];
+    }
+
+    /**
+     * Agency confirms the deposit was received into the trust account (EFT).
+     * Flips the tenant portal from "deposit due" → "held" and starts PPRA interest.
+     */
+    public function markDepositReceived(Request $request, Lease $lease, LeaseBillingService $billing): RedirectResponse
+    {
+        $agency = $this->resolveAgency($request);
+        abort_unless($lease->agency_id === $agency->id, 403);
+
+        $deposit = $billing->ensureDeposit($lease);
+
+        if ($deposit->isHeld()) {
+            return back()->with('error', 'This deposit is already marked as received.');
+        }
+
+        // The received amount defaults to the lease deposit; keep whatever the
+        // ledger already holds if it was set higher.
+        if ((float) $deposit->amount_deposited <= 0) {
+            $deposit->amount_deposited = (float) $lease->deposit_amount;
+        }
+        $deposit->markReceived($request->user()->id);
+
+        return back()->with('success', 'Deposit marked as received. Interest will now accrue per the PPRA.');
     }
 
     private function initials(string $name): string

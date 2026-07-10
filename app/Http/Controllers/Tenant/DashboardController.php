@@ -5,9 +5,9 @@ namespace App\Http\Controllers\Tenant;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Tenant\Concerns\ResolvesTenant;
 use App\Models\DebitOrder;
-use App\Models\Deposit;
 use App\Models\MaintenanceRequest;
 use App\Models\RentPayment;
+use App\Services\LeaseBillingService;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -17,36 +17,39 @@ class DashboardController extends Controller
 {
     use ResolvesTenant;
 
+    public function __construct(private readonly LeaseBillingService $billing) {}
+
     public function overview(Request $request): Response
     {
         $user  = $request->user();
         $lease = $this->resolveLease($request);
         $now   = CarbonImmutable::now();
 
-        // ── Next rent due ────────────────────────────────────────────────────
-        $nextDue = RentPayment::where('lease_id', $lease->id)
-            ->whereIn('status', ['pending', 'overdue'])
-            ->orderBy('due_date')
-            ->first();
+        // Reconcile the ledger on load so the tenant always sees the true
+        // position even if the daily `rent:generate` command hasn't run.
+        $this->billing->ensureCharges($lease);
+        $depositModel = $this->billing->ensureDeposit($lease);
+        $this->billing->accrueDepositInterest($depositModel);
+        $depositModel->refresh();
 
-        if (! $nextDue) {
-            // Synthesize a "next month" entry from the lease for display
-            $cursor = $now->day(1)->addMonth();
-            $nextDueDisplay = [
-                'amount'         => (float) $lease->monthly_rent,
-                'due_date'       => $cursor->format('d M Y'),
-                'days_remaining' => (int) $now->diffInDays($cursor, false),
-                'period_month'   => $cursor->format('Y-m'),
-            ];
-        } else {
-            $due = CarbonImmutable::parse($nextDue->due_date);
-            $nextDueDisplay = [
-                'amount'         => (float) $nextDue->amount,
-                'due_date'       => $due->format('d M Y'),
-                'days_remaining' => (int) $now->startOfDay()->diffInDays($due->startOfDay(), false),
-                'period_month'   => $nextDue->period_month,
-            ];
-        }
+        // ── Amount due (pay-and-stay: this month + any arrears) ──────────────
+        $out = $this->billing->outstanding($lease);
+
+        $current = $out['current'];
+        $currentDue = $current
+            ? CarbonImmutable::parse($current['period'] . '-01')->day(1)
+            : $now->day(1);
+
+        $nextDueDisplay = [
+            'amount'         => (float) $out['total_due'],
+            'current_amount' => (float) ($current['amount'] ?? $this->billing->rentForPeriod($lease, $now->startOfMonth())),
+            'due_date'       => $currentDue->format('d M Y'),
+            'days_remaining' => (int) $now->startOfDay()->diffInDays($currentDue->startOfDay(), false),
+            'period_month'   => $current['period'] ?? $now->format('Y-m'),
+            'arrears_total'  => (float) $out['arrears_total'],
+            'arrears'        => $out['arrears'],
+            'has_arrears'    => count($out['arrears']) > 0,
+        ];
 
         // ── On-time streak ───────────────────────────────────────────────────
         $paidPayments = RentPayment::where('lease_id', $lease->id)
@@ -63,13 +66,27 @@ class DashboardController extends Controller
             }
         }
 
-        // ── Deposit info ─────────────────────────────────────────────────────
-        $deposit = Deposit::where('lease_id', $lease->id)->first();
+        // ── Deposit info (due until the agency marks it received) ────────────
+        $depositAmount = (float) ($depositModel->amount_deposited ?: $lease->deposit_amount ?? 0);
+        $agency = $lease->agency;
         $depositInfo = [
-            'amount_deposited' => (float) ($deposit?->amount_deposited ?? $lease->deposit_amount ?? 0),
-            'accrued_interest' => (float) ($deposit?->accrued_interest ?? 0),
-            'interest_rate'    => (float) ($deposit?->interest_rate ?? $lease->deposit_interest_rate ?? 6.75),
-            'total_held'       => (float) (($deposit?->amount_deposited ?? $lease->deposit_amount ?? 0) + ($deposit?->accrued_interest ?? 0)),
+            'status'           => $depositModel->status,
+            'is_due'           => $depositModel->isDue(),
+            'amount_deposited' => $depositAmount,
+            'accrued_interest' => (float) $depositModel->accrued_interest,
+            'interest_rate'    => (float) ($depositModel->interest_rate ?? $lease->deposit_interest_rate ?? 6.75),
+            'total_held'       => $depositModel->isHeld()
+                ? round($depositAmount + (float) $depositModel->accrued_interest, 2)
+                : 0.0,
+            'received_at'      => $depositModel->deposited_at?->format('d M Y'),
+            'trust'            => $depositModel->isDue() && $agency ? [
+                'bank'           => $agency->trust_bank,
+                'account_holder' => $agency->trust_account_holder ?: $agency->name,
+                'account_number' => $agency->trust_account_number,
+                'branch_code'    => $agency->trust_branch_code,
+                'account_type'   => $agency->trust_account_type,
+                'reference'      => 'DEP-' . $lease->id,
+            ] : null,
         ];
 
         // ── Lease term progress ──────────────────────────────────────────────

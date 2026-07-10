@@ -33,7 +33,7 @@ class RegisterController extends Controller
         $data = $request->validate([
             'role' => ['required', Rule::in(['agency', 'landlord', 'contractor'])],
             'name' => ['required', 'string', 'max:120'],
-            'email' => ['required', 'email', 'max:180', 'unique:users,email'],
+            'email' => ['required', 'email', 'max:180', Rule::unique('users', 'email')->whereNull('deleted_at')],
             'phone' => ['nullable', 'string', 'max:30'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
             'terms_accepted' => ['accepted'],

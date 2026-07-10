@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Head } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 import AgencyLayout from '@/Layouts/AgencyLayout';
 
 type TenantRow = {
@@ -22,6 +22,9 @@ type TenantRow = {
     agent_name: string | null;
     agent_email: string | null;
     agent_initials: string;
+    deposit_amount: number;
+    deposit_status: 'due' | 'held' | string;
+    deposit_received_at: string | null;
 };
 
 type Props = {
@@ -53,6 +56,18 @@ function expiryHint(row: TenantRow): { label: string; tone: 'success' | 'warn' |
 
 function TenantCard({ row, archived }: { row: TenantRow; archived: boolean }) {
     const hint = expiryHint(row);
+    const [marking, setMarking] = useState(false);
+    const depositDue = row.deposit_status === 'due';
+
+    function markReceived() {
+        if (marking) return;
+        setMarking(true);
+        router.post(`/agency/tenants/${row.lease_id}/deposit-received`, {}, {
+            preserveScroll: true,
+            onFinish: () => setMarking(false),
+        });
+    }
+
     return (
         <div className="bg-white rounded-xl border border-ink-200 shadow-soft overflow-hidden hover:shadow-lift transition">
             <div className="aspect-[16/9] bg-ink-100 relative">
@@ -162,6 +177,36 @@ function TenantCard({ row, archived }: { row: TenantRow; archived: boolean }) {
                         )}
                     </div>
                 </div>
+
+                {/* Deposit — due until the agency confirms it landed in trust */}
+                {!archived && (
+                    <div className="flex items-center justify-between gap-2 pt-3 mt-3 border-t border-ink-100">
+                        <div className="min-w-0">
+                            <p className="text-[10px] text-ink-400 uppercase tracking-wider font-semibold">Deposit</p>
+                            <p className="text-[12px] font-semibold mt-0.5 flex items-center gap-1.5">
+                                {fmtMoney(row.deposit_amount)}
+                                {depositDue ? (
+                                    <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-warning/15 text-warning font-bold uppercase">Due</span>
+                                ) : (
+                                    <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-success/15 text-success font-bold uppercase">Held</span>
+                                )}
+                            </p>
+                            {!depositDue && row.deposit_received_at && (
+                                <p className="text-[10px] text-ink-400 mt-0.5">received {row.deposit_received_at}</p>
+                            )}
+                        </div>
+                        {depositDue && (
+                            <button
+                                type="button"
+                                onClick={markReceived}
+                                disabled={marking}
+                                className="shrink-0 text-[11px] font-semibold px-3 py-1.5 rounded-lg bg-ink-900 text-white hover:bg-brand-500 transition disabled:opacity-50"
+                            >
+                                {marking ? 'Saving…' : 'Mark received'}
+                            </button>
+                        )}
+                    </div>
+                )}
             </div>
         </div>
     );

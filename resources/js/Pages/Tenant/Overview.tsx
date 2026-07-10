@@ -32,8 +32,35 @@ type Lease = {
     months_elapsed: number;
     months_remaining: number;
 };
-type NextDue = { amount: number; due_date: string; days_remaining: number; period_month: string };
-type DepositInfo = { amount_deposited: number; accrued_interest: number; interest_rate: number; total_held: number };
+type ArrearsItem = { id: number; period: string; period_label: string; due_date: string; amount: number; status: string; is_overdue: boolean };
+type NextDue = {
+    amount: number;            // total owed now = current month + arrears
+    current_amount: number;    // just the current month
+    due_date: string;
+    days_remaining: number;
+    period_month: string;
+    arrears_total: number;
+    arrears: ArrearsItem[];
+    has_arrears: boolean;
+};
+type TrustAccount = {
+    bank: string | null;
+    account_holder: string | null;
+    account_number: string | null;
+    branch_code: string | null;
+    account_type: string | null;
+    reference: string;
+} | null;
+type DepositInfo = {
+    status: 'due' | 'held' | string;
+    is_due: boolean;
+    amount_deposited: number;
+    accrued_interest: number;
+    interest_rate: number;
+    total_held: number;
+    received_at: string | null;
+    trust: TrustAccount;
+};
 type OpenMaint = {
     id: number;
     title: string;
@@ -127,10 +154,28 @@ export default function TenantOverview({ tenant, lease, next_due, streak, deposi
                         <div className="absolute bottom-0 right-12 w-32 h-32 bg-white/5 rounded-full translate-y-16" />
                         <div className="relative">
                             <div className="flex items-center justify-between mb-4">
-                                <p className="text-[11px] uppercase tracking-wider opacity-80 font-semibold">Next Rent Due</p>
-                                <span className="text-[10px] bg-white/20 px-2 py-1 rounded-full font-bold">REMINDER ACTIVE</span>
+                                <p className="text-[11px] uppercase tracking-wider opacity-80 font-semibold">
+                                    {next_due.has_arrears ? 'Total Amount Due' : 'Next Rent Due'}
+                                </p>
+                                <span className="text-[10px] bg-white/20 px-2 py-1 rounded-full font-bold">
+                                    {next_due.has_arrears ? 'ARREARS OWING' : 'REMINDER ACTIVE'}
+                                </span>
                             </div>
                             <p className="text-5xl font-bold mb-2">{fmtMoney(next_due.amount)}</p>
+                            {next_due.has_arrears && (
+                                <div className="mb-3 bg-white/10 rounded-lg px-3 py-2 text-[12px] space-y-1">
+                                    <div className="flex items-center justify-between">
+                                        <span className="opacity-90">{new Date(next_due.period_month + '-01').toLocaleString('en-ZA', { month: 'long' })} rent (due now)</span>
+                                        <span className="font-semibold">{fmtMoney(next_due.current_amount)}</span>
+                                    </div>
+                                    {next_due.arrears.map((a) => (
+                                        <div key={a.id} className="flex items-center justify-between text-white/80">
+                                            <span>{a.period_label} arrears</span>
+                                            <span className="font-semibold">{fmtMoney(a.amount)}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
                             <div className="flex items-center gap-3 mb-5">
                                 <span className="text-[13px] opacity-90">Due {next_due.due_date}</span>
                                 <span className="w-1 h-1 rounded-full bg-white/50" />
@@ -168,18 +213,47 @@ export default function TenantOverview({ tenant, lease, next_due, streak, deposi
                     </div>
 
                     <div className="space-y-4">
-                        <div className="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
-                            <div className="flex items-center justify-between mb-3">
-                                <p className="text-[11px] text-ink-500 uppercase tracking-wider font-semibold">Deposit Held</p>
-                                <Link href="/tenant/documents" className="text-[11px] text-brand-600 font-medium">View →</Link>
+                        {deposit.is_due ? (
+                            <div className="bg-white rounded-xl border border-warning/40 p-5 shadow-soft">
+                                <div className="flex items-center justify-between mb-3">
+                                    <p className="text-[11px] text-warning uppercase tracking-wider font-semibold">Deposit Due</p>
+                                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-warning/15 text-warning font-bold uppercase">Unpaid</span>
+                                </div>
+                                <p className="text-2xl font-bold">{fmtMoney(deposit.amount_deposited)}</p>
+                                <p className="text-[11px] text-ink-500 mt-1">Pay by EFT into the agency trust account. Your agent confirms receipt.</p>
+                                {deposit.trust && (
+                                    <div className="mt-3 rounded-lg bg-ink-50 border border-ink-200 p-3 text-[11px] space-y-1">
+                                        {deposit.trust.account_holder && (
+                                            <div className="flex justify-between"><span className="text-ink-500">Account holder</span><span className="font-semibold text-ink-800">{deposit.trust.account_holder}</span></div>
+                                        )}
+                                        {deposit.trust.bank && (
+                                            <div className="flex justify-between"><span className="text-ink-500">Bank</span><span className="font-semibold text-ink-800">{deposit.trust.bank}</span></div>
+                                        )}
+                                        {deposit.trust.account_number && (
+                                            <div className="flex justify-between"><span className="text-ink-500">Account no.</span><span className="font-semibold text-ink-800">{deposit.trust.account_number}</span></div>
+                                        )}
+                                        {deposit.trust.branch_code && (
+                                            <div className="flex justify-between"><span className="text-ink-500">Branch</span><span className="font-semibold text-ink-800">{deposit.trust.branch_code}</span></div>
+                                        )}
+                                        <div className="flex justify-between pt-1 border-t border-ink-200"><span className="text-ink-500">Reference</span><span className="font-semibold text-ink-800">{deposit.trust.reference}</span></div>
+                                    </div>
+                                )}
+                                <p className="text-[10px] text-ink-500 mt-2">{deposit.interest_rate}% p.a. · Section 32 Trust · interest accrues once received</p>
                             </div>
-                            <p className="text-2xl font-bold">{fmtMoney(deposit.amount_deposited)}</p>
-                            <p className="text-[11px] text-success mt-1">+ {fmtMoney(deposit.accrued_interest)} interest earned</p>
-                            <div className="mt-3 h-1.5 bg-ink-100 rounded-full overflow-hidden">
-                                <div className="h-full bg-success" style={{ width: `${depositPct}%` }} />
+                        ) : (
+                            <div className="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+                                <div className="flex items-center justify-between mb-3">
+                                    <p className="text-[11px] text-ink-500 uppercase tracking-wider font-semibold">Deposit Held</p>
+                                    <Link href="/tenant/documents" className="text-[11px] text-brand-600 font-medium">View →</Link>
+                                </div>
+                                <p className="text-2xl font-bold">{fmtMoney(deposit.amount_deposited)}</p>
+                                <p className="text-[11px] text-success mt-1">+ {fmtMoney(deposit.accrued_interest)} interest earned</p>
+                                <div className="mt-3 h-1.5 bg-ink-100 rounded-full overflow-hidden">
+                                    <div className="h-full bg-success" style={{ width: `${depositPct}%` }} />
+                                </div>
+                                <p className="text-[10px] text-ink-500 mt-1.5">{deposit.interest_rate}% p.a. · Section 32 Trust{deposit.received_at ? ` · received ${deposit.received_at}` : ''}</p>
                             </div>
-                            <p className="text-[10px] text-ink-500 mt-1.5">{deposit.interest_rate}% p.a. · Section 32 Trust</p>
-                        </div>
+                        )}
 
                         <div className="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
                             <div className="flex items-center justify-between mb-3">

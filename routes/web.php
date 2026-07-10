@@ -102,6 +102,7 @@ Route::middleware('auth')->group(function () {
         Route::post('agents/invite', [\App\Http\Controllers\Agency\AgentsController::class, 'invite'])->name('agents.invite');
 
         Route::get('tenants', [\App\Http\Controllers\Agency\TenantsController::class, 'index'])->name('tenants.index');
+        Route::post('tenants/{lease}/deposit-received', [\App\Http\Controllers\Agency\TenantsController::class, 'markDepositReceived'])->name('tenants.deposit-received');
 
         Route::get('contractors',  [\App\Http\Controllers\Agency\ContractorsController::class, 'index'])->name('contractors.index');
         Route::post('contractors', [\App\Http\Controllers\Agency\ContractorsController::class, 'store'])->name('contractors.store');

@@ -145,6 +145,14 @@ class UsersController extends Controller
             ->whereNull('accepted_at')
             ->update(['expires_at' => now()]);
 
+        // Release the unique fields (email + invite_token) so this person can
+        // register again later. `users.email` is uniquely indexed, so without
+        // this the soft-deleted row keeps the address reserved and re-signup
+        // fails with "email already taken" even though the user is gone.
+        $user->email = User::releasedEmail($user->id, $user->email);
+        $user->invite_token = null;
+        $user->save();
+
         $user->delete(); // soft delete — row preserved with deleted_at timestamp
 
         return back()->with('success', "{$name} deleted.");

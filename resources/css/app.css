@@ -36,6 +36,10 @@
     --color-warning: #F59E0B;
     --color-danger: #EF4444;
 
+    /* Resting card elevation. `shadow-soft` is the name the codebase and
+       CLAUDE.md use (73 files); `shadow-card` is the older alias still used by
+       ~18. Both resolve to the same value — keep them in sync. */
+    --shadow-soft: 0 4px 12px rgba(15, 23, 42, 0.06);
     --shadow-card: 0 4px 12px rgba(15, 23, 42, 0.06);
     --shadow-lift: 0 12px 32px rgba(15, 23, 42, 0.10);
 }

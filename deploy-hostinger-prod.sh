@@ -59,10 +59,12 @@ php artisan route:clear
 
 # Ensure public/storage points at THIS app's own storage/app/public. Uploaded
 # listing images are served through this symlink; if it's missing (or was
-# copied from the `manage` app by `cp -r manage prod`, leaving an ABSOLUTE link
-# into manage's storage) every user-uploaded image 404s. A --relative link
-# resolves correctly regardless of the app's absolute path and survives copies.
+# copied from the `manage` app by `cp -r manage prod`, leaving a link into
+# manage's storage) every user-uploaded image 404s. Recreating it here on every
+# deploy makes the link self-correcting — it always points at this app dir.
+# (Absolute link, not --relative: --relative needs symfony/filesystem, which
+# isn't in the prod vendor set.)
 rm -rf "$APP/public/storage"
-php artisan storage:link --relative
+php artisan storage:link
 
 echo "PROD SYNC COMPLETE"

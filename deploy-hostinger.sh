@@ -49,9 +49,10 @@ php artisan config:clear
 php artisan route:clear
 
 # Ensure public/storage → this app's storage/app/public (uploaded listing
-# images are served through it). --relative keeps the link correct even if the
-# app dir is later copied (e.g. `cp -r manage prod`).
+# images are served through it). Recreated every deploy so it always points at
+# this app dir, even after a `cp -r manage prod`. (Absolute link, not
+# --relative, which needs symfony/filesystem — not in the vendor set.)
 rm -rf "$APP/public/storage"
-php artisan storage:link --relative
+php artisan storage:link
 
 echo "SYNC COMPLETE"

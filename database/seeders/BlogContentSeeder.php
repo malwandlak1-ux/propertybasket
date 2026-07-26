@@ -32,6 +32,11 @@ class BlogContentSeeder extends Seeder
             TenantRightsBlogPostSeeder::class,      // Mon 13 Jul
             RentalDepositBackBlogPostSeeder::class, // Wed 15 Jul
             RentToBuyBlogPostSeeder::class,         // Fri 17 Jul
+
+            // Week 4 — Landlord Compliance Reset
+            RentalHousingActLandlordsBlogPostSeeder::class, // Mon 20 Jul
+            WrittenLeaseChecklistBlogPostSeeder::class,     // Wed 22 Jul
+            TenantScreeningBlogPostSeeder::class,           // Fri 24 Jul
         ]);
     }
 }

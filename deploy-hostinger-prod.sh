@@ -62,9 +62,11 @@ php artisan route:clear
 # copied from the `manage` app by `cp -r manage prod`, leaving a link into
 # manage's storage) every user-uploaded image 404s. Recreating it here on every
 # deploy makes the link self-correcting — it always points at this app dir.
-# (Absolute link, not --relative: --relative needs symfony/filesystem, which
-# isn't in the prod vendor set.)
+#
+# NB: use the shell's `ln`, NOT `php artisan storage:link` — this shared host
+# disables PHP's symlink()/exec(), so artisan storage:link errors out.
+mkdir -p "$APP/storage/app/public"
 rm -rf "$APP/public/storage"
-php artisan storage:link
+ln -s "$APP/storage/app/public" "$APP/public/storage"
 
 echo "PROD SYNC COMPLETE"

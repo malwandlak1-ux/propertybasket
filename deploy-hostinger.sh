@@ -50,9 +50,12 @@ php artisan route:clear
 
 # Ensure public/storage → this app's storage/app/public (uploaded listing
 # images are served through it). Recreated every deploy so it always points at
-# this app dir, even after a `cp -r manage prod`. (Absolute link, not
-# --relative, which needs symfony/filesystem — not in the vendor set.)
+# this app dir, even after a `cp -r manage prod`.
+#
+# NB: use the shell's `ln`, NOT `php artisan storage:link` — this shared host
+# disables PHP's symlink()/exec(), so artisan storage:link errors out.
+mkdir -p "$APP/storage/app/public"
 rm -rf "$APP/public/storage"
-php artisan storage:link
+ln -s "$APP/storage/app/public" "$APP/public/storage"
 
 echo "SYNC COMPLETE"

@@ -37,6 +37,11 @@ class BlogContentSeeder extends Seeder
             RentalHousingActLandlordsBlogPostSeeder::class, // Mon 20 Jul
             WrittenLeaseChecklistBlogPostSeeder::class,     // Wed 22 Jul
             TenantScreeningBlogPostSeeder::class,           // Fri 24 Jul
+
+            // Week 5 — Get Sale-Ready
+            HomeSellingChecklistBlogPostSeeder::class,      // Mon 27 Jul
+            WhyHouseNotSellingBlogPostSeeder::class,        // Wed 29 Jul
+            ValueAddingUpgradesBlogPostSeeder::class,       // Fri 31 Jul
         ]);
     }
 }

@@ -48,4 +48,10 @@ php artisan cache:clear
 php artisan config:clear
 php artisan route:clear
 
+# Ensure public/storage → this app's storage/app/public (uploaded listing
+# images are served through it). --relative keeps the link correct even if the
+# app dir is later copied (e.g. `cp -r manage prod`).
+rm -rf "$APP/public/storage"
+php artisan storage:link --relative
+
 echo "SYNC COMPLETE"

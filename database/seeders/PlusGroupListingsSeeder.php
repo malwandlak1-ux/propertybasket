@@ -34,6 +34,7 @@ class PlusGroupListingsSeeder extends Seeder
         ArvadaIqListingSeeder::class           => 'ARVADA_OWNER_EMAIL',
         PaperbarkEstateListingSeeder::class    => 'PAPERBARK_OWNER_EMAIL',
         Brooklyn160ListingSeeder::class        => 'BROOKLYN_OWNER_EMAIL',
+        HornbillCornerListingSeeder::class     => 'HORNBILL_OWNER_EMAIL',
     ];
 
     public function run(): void

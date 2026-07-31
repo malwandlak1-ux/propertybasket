@@ -30,6 +30,7 @@ class PlusGroupListingsSeeder extends Seeder
         JusticeCourtListingSeeder::class       => 'JUSTICE_OWNER_EMAIL',
         RoyalSkyListingSeeder::class           => 'ROYALSKY_OWNER_EMAIL',
         ZomerlustLivingListingSeeder::class    => 'ZOMERLUST_OWNER_EMAIL',
+        RondeboschListingSeeder::class         => 'RONDEBOSCH_OWNER_EMAIL',
     ];
 
     public function run(): void

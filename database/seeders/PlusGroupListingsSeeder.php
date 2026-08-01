@@ -38,6 +38,7 @@ class PlusGroupListingsSeeder extends Seeder
         MeerendalLivingListingSeeder::class    => 'MEERENDAL_OWNER_EMAIL',
         PresidentsPlaceListingSeeder::class    => 'PRESIDENTS_OWNER_EMAIL',
         BishopscourtListingSeeder::class       => 'BISHOPSCOURT_OWNER_EMAIL',
+        UrbikaLakeVillageListingSeeder::class  => 'URBIKA_OWNER_EMAIL',
     ];
 
     public function run(): void

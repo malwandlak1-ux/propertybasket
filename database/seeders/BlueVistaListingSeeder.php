@@ -112,7 +112,7 @@ TXT;
                     'Estate lifestyle' => ['Park', "Kids' play area", 'Small dogs allowed', 'All costs included', 'Sectional title'],
                 ],
 
-                'primary_image'  => '/images/cities/johannesburg.jpg',
+                'primary_image'  => '/images/blue-vista/bluevista-6666.jpg',
                 'gallery_images' => $gallery,
             ]
         );

@@ -101,7 +101,7 @@ TXT;
                     'Estate lifestyle' => ['Clubhouse', "Kids' play areas", 'Easy access to N17 & R21'],
                 ],
 
-                'primary_image'  => '/images/cities/johannesburg.jpg',
+                'primary_image'  => '/images/urbika/urbika-6974.jpg',
                 'gallery_images' => $gallery,
             ]
         );

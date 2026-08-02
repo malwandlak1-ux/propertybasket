@@ -165,6 +165,8 @@ const CITY_IMAGE_MAP: Record<string, string> = {
     'Cape Town':  '/images/cities/cape-town.jpg',
     Durban:       '/images/cities/durban.jpg',
     Pretoria:     '/images/cities/pretoria.jpg',
+    Midrand:      '/images/cities/johannesburg.jpg',
+    Boksburg:     '/images/cities/johannesburg.jpg',
 };
 
 const FALLBACK_CITY_IMAGE = '/images/cities/default.jpg';

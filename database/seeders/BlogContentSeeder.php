@@ -47,6 +47,11 @@ class BlogContentSeeder extends Seeder
             SelfEmployedHomeLoanBlogPostSeeder::class,      // Mon  3 Aug
             BondDeclinedBlogPostSeeder::class,              // Wed  5 Aug
             TransferDuty2026BlogPostSeeder::class,          // Fri  7 Aug
+
+            // Week 7 — The Solar & Running-Cost Equation
+            SolarAddsValueBlogPostSeeder::class,            // Mon 10 Aug
+            SolarRentalPropertyBlogPostSeeder::class,       // Wed 12 Aug
+            ReduceHomeRunningCostsBlogPostSeeder::class,    // Fri 14 Aug
         ]);
     }
 }

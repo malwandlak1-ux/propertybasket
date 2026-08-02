@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Public;
 
 use App\Http\Controllers\Controller;
 use App\Models\Listing;
+use App\Support\CityRegions;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -22,15 +23,24 @@ class HomeController extends Controller
                 'primary_image', 'sale_price', 'monthly_rent', 'short_stay_nightly_price',
             ]);
 
+        // Group raw per-city counts into metro regions (e.g. Midrand, Boksburg
+        // and Benoni roll up into Johannesburg) so the Explore Cities tiles
+        // show one tile per metro. Listings keep their real city in the DB.
         $cities = Listing::query()
             ->where('status', 'available')
             ->whereNull('deleted_at')
             ->selectRaw('city, COUNT(*) as total')
             ->whereNotNull('city')
             ->groupBy('city')
-            ->orderByDesc('total')
+            ->get()
+            ->groupBy(fn ($row) => CityRegions::regionFor($row->city))
+            ->map(fn ($rows, $region) => [
+                'city'  => $region,
+                'total' => (int) $rows->sum('total'),
+            ])
+            ->sortByDesc('total')
             ->take(4)
-            ->get();
+            ->values();
 
         return Inertia::render('Public/Home', [
             'featured' => $featured,

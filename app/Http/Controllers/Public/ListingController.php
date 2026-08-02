@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Public;
 use App\Http\Controllers\Controller;
 use App\Models\Agency;
 use App\Models\Listing;
+use App\Support\CityRegions;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -38,7 +39,15 @@ class ListingController extends Controller
             $query->where('suburb', 'like', '%'.$filters['suburb'].'%');
         }
         if (! empty($filters['city'])) {
-            $query->where('city', 'like', '%'.$filters['city'].'%');
+            // A metro region label (e.g. "Johannesburg") expands to its member
+            // cities so the tile shows every listing that rolls up into it;
+            // a plain city keeps the partial-match search.
+            $members = CityRegions::membersOf($filters['city']);
+            if (count($members) > 1) {
+                $query->whereIn('city', $members);
+            } else {
+                $query->where('city', 'like', '%'.$filters['city'].'%');
+            }
         }
         if (! empty($filters['bedrooms'])) {
             $query->where('bedrooms', '>=', $filters['bedrooms']);

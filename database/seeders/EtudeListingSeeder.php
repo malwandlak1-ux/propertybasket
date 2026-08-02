@@ -97,7 +97,7 @@ TXT;
                     'Estate lifestyle' => ['Communal pool', 'Landscaped spaces'],
                 ],
 
-                'primary_image'  => '/images/etude/etude-7136.jpg',
+                'primary_image'  => '/images/cities/johannesburg.jpg',
                 'gallery_images' => $gallery,
             ]
         );

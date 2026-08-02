@@ -113,7 +113,7 @@ TXT;
                     'Estate lifestyle' => ['Communal swimming pool', 'Clubhouse', 'Tennis courts', 'Large trees and green lawns'],
                 ],
 
-                'primary_image'  => '/images/glen-acres/glenacres-4149.jpg',
+                'primary_image'  => '/images/cities/johannesburg.jpg',
                 'gallery_images' => $gallery,
             ]
         );

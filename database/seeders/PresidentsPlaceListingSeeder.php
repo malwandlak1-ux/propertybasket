@@ -102,7 +102,7 @@ TXT;
                     'Sustainability' => ['Solar-ready: 60 Amp installation', 'Wiring for battery, inverter & PV panels'],
                 ],
 
-                'primary_image'  => '/images/presidents-place/presidents-4341.jpg',
+                'primary_image'  => '/images/cities/johannesburg.jpg',
                 'gallery_images' => $gallery,
             ]
         );

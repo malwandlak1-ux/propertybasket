@@ -42,6 +42,11 @@ class BlogContentSeeder extends Seeder
             HomeSellingChecklistBlogPostSeeder::class,      // Mon 27 Jul
             WhyHouseNotSellingBlogPostSeeder::class,        // Wed 29 Jul
             ValueAddingUpgradesBlogPostSeeder::class,       // Fri 31 Jul
+
+            // Week 6 — Cracking the Bond
+            SelfEmployedHomeLoanBlogPostSeeder::class,      // Mon  3 Aug
+            BondDeclinedBlogPostSeeder::class,              // Wed  5 Aug
+            TransferDuty2026BlogPostSeeder::class,          // Fri  7 Aug
         ]);
     }
 }

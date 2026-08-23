@@ -52,6 +52,16 @@ class BlogContentSeeder extends Seeder
             SolarAddsValueBlogPostSeeder::class,            // Mon 10 Aug
             SolarRentalPropertyBlogPostSeeder::class,       // Wed 12 Aug
             ReduceHomeRunningCostsBlogPostSeeder::class,    // Fri 14 Aug
+
+            // Week 8 — Where to Buy in 2026
+            SemigrationWesternCapeBlogPostSeeder::class,    // Mon 17 Aug
+            ReverseSemigrationGautengBlogPostSeeder::class, // Wed 19 Aug
+            NeighbourhoodValueBlogPostSeeder::class,        // Fri 21 Aug
+
+            // Week 9 — Property Types & Investing
+            SectionalTitleVsFreeholdBlogPostSeeder::class,  // Mon 24 Aug
+            BuyToLetYieldsBlogPostSeeder::class,            // Wed 26 Aug
+            RentalYieldExplainedBlogPostSeeder::class,      // Fri 28 Aug
         ]);
     }
 }

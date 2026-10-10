@@ -1,6 +1,7 @@
 import { Head, Link } from '@inertiajs/react';
 import AdminLayout from '@/Layouts/AdminLayout';
 import ErrorBoundary from '@/Components/ErrorBoundary';
+import { KpiCard as FernKpi } from '@/Components/Dashboard/Charts';
 
 type Signup = {
     id: number;
@@ -58,9 +59,9 @@ function ChartBar({ point, max }: { point: GrowthPoint; max: number }) {
     return (
         <div className="flex-1 flex flex-col items-center gap-1">
             <div className="w-full flex items-end justify-center gap-0.5 h-48">
-                <div className="bg-brand-500 rounded-t w-3.5 transition-all" style={{ height: h(point.agencies) }} title={`Agencies: ${point.agencies}`} />
-                <div className="bg-sky-400 rounded-t w-3.5 transition-all" style={{ height: h(point.landlords) }} title={`Landlords: ${point.landlords}`} />
-                <div className="bg-success rounded-t w-3.5 transition-all" style={{ height: h(point.contractors) }} title={`Contractors: ${point.contractors}`} />
+                <div className="pb-grow bg-brand-800 rounded-full w-3.5" style={{ height: h(point.agencies) }} title={`Agencies: ${point.agencies}`} />
+                <div className="pb-grow bg-brand-500 rounded-full w-3.5" style={{ height: h(point.landlords) }} title={`Landlords: ${point.landlords}`} />
+                <div className="pb-grow bg-brand-200 rounded-full w-3.5" style={{ height: h(point.contractors) }} title={`Contractors: ${point.contractors}`} />
             </div>
             <span className="text-[10px] text-ink-500">{point.label}</span>
         </div>
@@ -81,7 +82,7 @@ export default function AdminOverview({ kpis, recent_signups, growth, health }: 
                 <div className="flex flex-wrap items-end justify-between gap-3 mb-7">
                     <div>
                         <p className="text-[13px] text-ink-500">{new Date().toLocaleDateString('en-ZA', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
-                        <h1 className="text-3xl font-bold tracking-tight mt-1">Platform Overview</h1>
+                        <h1 className="text-[28px] sm:text-[32px] leading-tight tracking-tight mt-1">Platform Overview</h1>
                         <p className="text-[14px] text-ink-500 mt-1">
                             {fmtNum(kpis.agency_accounts)} business accounts · {fmtNum(kpis.end_users)} end users ·{' '}
                             <span className="font-semibold text-success">all systems operational</span>
@@ -90,7 +91,7 @@ export default function AdminOverview({ kpis, recent_signups, growth, health }: 
                     <div className="flex flex-wrap items-center gap-2">
                         <Link
                             href="/admin/announcements"
-                            className="px-3.5 py-2 text-[13px] border border-ink-200 rounded-lg hover:bg-ink-100 transition flex items-center gap-2"
+                            className="px-4 py-2 text-[13px] font-semibold border border-ink-900/70 bg-white/60 rounded-full hover:bg-white transition flex items-center gap-2"
                         >
                             <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M3 11l18-5v12L3 14v-3z"/></svg>
                             New Announcement
@@ -99,7 +100,7 @@ export default function AdminOverview({ kpis, recent_signups, growth, health }: 
                             href="/admin/overview.pdf"
                             download
                             title="Download a PDF snapshot of this overview"
-                            className="px-3.5 py-2 text-[13px] bg-ink-900 text-white rounded-lg hover:bg-brand-500 transition flex items-center gap-2"
+                            className="px-3.5 py-2 text-[13px] bg-brand-700 text-white rounded-full hover:bg-brand-800 transition flex items-center gap-2"
                         >
                             <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
                             Export Report
@@ -109,7 +110,7 @@ export default function AdminOverview({ kpis, recent_signups, growth, health }: 
 
                 {/* ── KPI Grid ─────────────────────────────────────────── */}
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                    <KpiCard
+                    <KpiCard hero
                         label="MRR"
                         value={fmtMoney(kpis.mrr)}
                         sub="Monthly recurring revenue"
@@ -149,16 +150,16 @@ export default function AdminOverview({ kpis, recent_signups, growth, health }: 
 
                 {/* ── 2-col: growth chart + recent signups ─────────────── */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-                    <div className="col-span-2 bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+                    <div className="col-span-2 bg-white rounded-2xl border border-ink-200/60 p-5 shadow-soft">
                         <div className="flex items-center justify-between mb-4">
                             <div>
                                 <h2 className="text-base font-semibold">Platform Growth</h2>
                                 <p className="text-xs text-ink-500 mt-0.5">New account signups · Last 6 months</p>
                             </div>
                             <div className="flex items-center gap-3 text-[11px]">
-                                <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm bg-brand-500"></span>Agencies</span>
-                                <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm bg-sky-400"></span>Landlords</span>
-                                <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm bg-success"></span>Contractors</span>
+                                <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-brand-800"></span>Agencies</span>
+                                <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-brand-500"></span>Landlords</span>
+                                <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-brand-200"></span>Contractors</span>
                             </div>
                         </div>
                         <ErrorBoundary variant="section" label="growth chart">
@@ -168,7 +169,7 @@ export default function AdminOverview({ kpis, recent_signups, growth, health }: 
                         </ErrorBoundary>
                     </div>
 
-                    <div className="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+                    <div className="bg-white rounded-2xl border border-ink-200/60 p-5 shadow-soft">
                         <h2 className="text-base font-semibold mb-4">Recent Signups</h2>
                         <div className="space-y-3">
                             {recent_signups.length === 0 ? (
@@ -191,7 +192,7 @@ export default function AdminOverview({ kpis, recent_signups, growth, health }: 
                 {/* ── System status strip ──────────────────────────────── */}
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                     {health.map((h) => (
-                        <div key={h.name} className="bg-white rounded-xl border border-ink-200 p-4 shadow-soft flex items-center gap-3">
+                        <div key={h.name} className="bg-white rounded-2xl border border-ink-200/60 p-4 shadow-soft flex items-center gap-3">
                             <div className={
                                 'w-9 h-9 rounded-lg flex items-center justify-center ' +
                                 (h.status === 'healthy' ? 'bg-success/15' :
@@ -217,30 +218,26 @@ export default function AdminOverview({ kpis, recent_signups, growth, health }: 
     );
 }
 
-function KpiCard({ label, value, sub, delta, deltaTone, iconBg, iconColor, icon }: {
+function KpiCard({ label, value, sub, subTone, hero, delta, deltaTone }: {
     label: string; value: string; sub: string;
+    subTone?: 'warning' | 'danger'; hero?: boolean;
     delta?: string; deltaTone?: 'success' | 'danger';
-    iconBg: string; iconColor: string; icon: React.ReactNode;
+    [legacy: string]: unknown;
 }) {
+    const subCls = hero ? '' : subTone === 'warning' ? 'text-warning' : subTone === 'danger' ? 'text-danger' : '';
     return (
-        <div className="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
-            <div className="flex items-center justify-between mb-3">
-                <span className="text-[11px] text-ink-500 uppercase tracking-wider font-semibold">{label}</span>
-                <span className={`w-7 h-7 rounded-lg ${iconBg} flex items-center justify-center`}>
-                    <svg className={`w-3.5 h-3.5 ${iconColor}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5}>
-                        {icon}
-                    </svg>
-                </span>
-            </div>
-            <div className="flex items-baseline gap-2">
-                <span className="text-3xl font-bold">{value}</span>
-                {delta && (
-                    <span className={`text-xs font-semibold ${deltaTone === 'danger' ? 'text-danger' : 'text-success'}`}>
-                        {delta}
-                    </span>
-                )}
-            </div>
-            <p className="text-[11px] text-ink-500 mt-1">{sub}</p>
-        </div>
+        <FernKpi
+            hero={hero}
+            label={label}
+            value={value}
+            sub={
+                <>
+                    {delta && (
+                        <span className={'font-semibold mr-1 ' + (hero ? 'text-white' : deltaTone === 'danger' ? 'text-danger' : 'text-success')}>{delta}</span>
+                    )}
+                    <span className={subCls}>{sub}</span>
+                </>
+            }
+        />
     );
 }

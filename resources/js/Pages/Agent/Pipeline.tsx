@@ -332,7 +332,7 @@ export default function AgentPipeline({ agent, columns: initialColumns, listings
                 {/* Header */}
                 <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
                     <div>
-                        <h1 className="text-2xl font-bold tracking-tight">Sales Pipeline</h1>
+                        <h1 className="text-[28px] sm:text-[32px] leading-tight tracking-tight">Sales Pipeline</h1>
                         <p className="text-[14px] text-ink-500 mt-1">
                             {totalDeals} active {totalDeals === 1 ? 'deal' : 'deals'} ·{' '}
                             {fmtMoney(totalValue)} in pipeline value
@@ -367,7 +367,7 @@ export default function AgentPipeline({ agent, columns: initialColumns, listings
                         <button
                             type="button"
                             onClick={() => setNewLeadOpen({ open: true, stage: 'new' })}
-                            className="px-3.5 py-2 text-[13px] bg-ink-900 text-white rounded-lg hover:bg-brand-500 transition flex items-center gap-2"
+                            className="px-3.5 py-2 text-[13px] bg-brand-700 text-white rounded-full hover:bg-brand-800 transition flex items-center gap-2"
                         >
                             <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M12 5v14M5 12h14" /></svg>
                             Add Deal
@@ -473,7 +473,7 @@ function TableView({
 }) {
     if (cards.length === 0) {
         return (
-            <div className="bg-white rounded-xl border border-ink-200 p-10 text-center text-[13px] text-ink-400 shadow-soft">
+            <div className="bg-white rounded-2xl border border-ink-200/60 p-10 text-center text-[13px] text-ink-400 shadow-soft">
                 No leads in your pipeline yet. Click <strong className="text-ink-900">Add Deal</strong> to capture your first.
             </div>
         );
@@ -487,7 +487,7 @@ function TableView({
     });
 
     return (
-        <div className="bg-white rounded-xl border border-ink-200 shadow-soft overflow-hidden">
+        <div className="bg-white rounded-2xl border border-ink-200/60 shadow-soft overflow-hidden">
             <div className="overflow-x-auto">
                 <table className="w-full">
                     <thead>

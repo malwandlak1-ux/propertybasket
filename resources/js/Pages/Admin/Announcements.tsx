@@ -58,7 +58,7 @@ export default function AdminAnnouncements({ recent, audiences }: Props) {
 
             <div className="px-4 sm:px-8 py-6 sm:py-7">
                 <div className="mb-6">
-                    <h1 className="text-2xl font-bold tracking-tight">Announcements</h1>
+                    <h1 className="text-[28px] sm:text-[32px] leading-tight tracking-tight">Announcements</h1>
                     <p className="text-[14px] text-ink-500 mt-1">
                         Broadcast messages to any group across the platform
                     </p>
@@ -66,7 +66,7 @@ export default function AdminAnnouncements({ recent, audiences }: Props) {
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     {/* ── New announcement form ───────────────────────── */}
-                    <div className="col-span-2 bg-white rounded-xl border border-ink-200 shadow-soft overflow-hidden">
+                    <div className="col-span-2 bg-white rounded-2xl border border-ink-200/60 shadow-soft overflow-hidden">
                         <div className="bg-gradient-to-r from-brand-50 to-brand-100 border-b border-brand-100 px-5 py-4">
                             <h2 className="text-[14px] font-bold">New Announcement</h2>
                             <p className="text-[11px] text-ink-500 mt-0.5">Appears in-app and (optionally) by email</p>
@@ -136,7 +136,7 @@ export default function AdminAnnouncements({ recent, audiences }: Props) {
                                 <button
                                     onClick={publish}
                                     disabled={!title.trim() || !message.trim() || submitting}
-                                    className="px-3.5 py-1.5 text-[12px] bg-ink-900 text-white rounded-lg hover:bg-brand-500 disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center gap-2 font-semibold"
+                                    className="px-3.5 py-1.5 text-[12px] bg-brand-700 text-white rounded-full hover:bg-brand-800 disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center gap-2 font-semibold"
                                 >
                                     <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
                                         <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
@@ -148,7 +148,7 @@ export default function AdminAnnouncements({ recent, audiences }: Props) {
                     </div>
 
                     {/* ── Recent panel ────────────────────────────────── */}
-                    <div className="bg-white rounded-xl border border-ink-200 p-5 shadow-soft self-start">
+                    <div className="bg-white rounded-2xl border border-ink-200/60 p-5 shadow-soft self-start">
                         <h2 className="text-[14px] font-bold mb-4">Recent</h2>
                         <div className="space-y-3">
                             {recent.map((r) => (

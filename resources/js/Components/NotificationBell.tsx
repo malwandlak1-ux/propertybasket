@@ -72,7 +72,7 @@ export default function NotificationBell({ notifications }: Props) {
         <div className="relative" ref={ref}>
             <button
                 onClick={() => setOpen((v) => ! v)}
-                className="w-9 h-9 rounded-lg hover:bg-ink-100 flex items-center justify-center relative transition shrink-0"
+                className="w-10 h-10 rounded-full bg-white shadow-soft hover:bg-ink-50 flex items-center justify-center relative transition shrink-0"
                 title={unread > 0 ? `${unread} unread notification${unread === 1 ? '' : 's'}` : 'Notifications'}
                 aria-label="Notifications"
                 aria-expanded={open}
@@ -81,12 +81,12 @@ export default function NotificationBell({ notifications }: Props) {
                     <path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 0 1-3.4 0" />
                 </svg>
                 {unread > 0 && (
-                    <span className="absolute top-1.5 right-2 min-w-[8px] h-2 rounded-full bg-danger" />
+                    <span className="absolute top-2 right-2.5 min-w-[8px] h-2 rounded-full bg-danger" />
                 )}
             </button>
 
             {open && (
-                <div className="absolute right-0 mt-2 w-96 max-w-[calc(100vw-2rem)] bg-white rounded-xl border border-ink-200 shadow-lift z-50 overflow-hidden">
+                <div className="absolute right-0 mt-2 w-96 max-w-[calc(100vw-2rem)] bg-white rounded-2xl border border-ink-200/60 shadow-lift z-50 overflow-hidden">
                     <div className="flex items-center justify-between px-4 py-3 border-b border-ink-100">
                         <div>
                             <p className="text-[13px] font-bold">Notifications</p>

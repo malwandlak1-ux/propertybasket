@@ -190,7 +190,7 @@ export default function AdminBlogForm({ post, allTags }: Props) {
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     {/* Main column */}
                     <div className="lg:col-span-2 space-y-5">
-                        <div className="bg-white rounded-xl border border-ink-200 shadow-soft p-6 space-y-4">
+                        <div className="bg-white rounded-2xl border border-ink-200/60 shadow-soft p-6 space-y-4">
                             <div>
                                 <label className={labelCls}>Title *</label>
                                 <input
@@ -217,7 +217,7 @@ export default function AdminBlogForm({ post, allTags }: Props) {
                             </div>
                         </div>
 
-                        <div className="bg-white rounded-xl border border-ink-200 shadow-soft p-6 space-y-3">
+                        <div className="bg-white rounded-2xl border border-ink-200/60 shadow-soft p-6 space-y-3">
                             <div className="flex items-end justify-between">
                                 <label className={labelCls + ' mb-0'}>Body *</label>
                                 <p className="text-[11px] text-ink-400">HTML allowed — &lt;h2&gt;, &lt;h3&gt;, &lt;p&gt;, &lt;ul&gt;, &lt;a&gt;, &lt;blockquote&gt;, &lt;img&gt;, &lt;code&gt;</p>
@@ -237,7 +237,7 @@ export default function AdminBlogForm({ post, allTags }: Props) {
                     {/* Sidebar */}
                     <div className="lg:col-span-1 space-y-5">
                         {/* Status */}
-                        <div className="bg-white rounded-xl border border-ink-200 shadow-soft p-5">
+                        <div className="bg-white rounded-2xl border border-ink-200/60 shadow-soft p-5">
                             <h2 className="text-[13px] font-bold mb-3">Status</h2>
                             <div className="flex items-center gap-2 flex-wrap">
                                 <span className={
@@ -287,7 +287,7 @@ export default function AdminBlogForm({ post, allTags }: Props) {
                         </div>
 
                         {/* Tags */}
-                        <div className="bg-white rounded-xl border border-ink-200 shadow-soft p-5">
+                        <div className="bg-white rounded-2xl border border-ink-200/60 shadow-soft p-5">
                             <h2 className="text-[13px] font-bold mb-3">Tags</h2>
                             <div className="flex flex-wrap gap-1.5 mb-3">
                                 {data.tags.map((t) => (
@@ -354,7 +354,7 @@ export default function AdminBlogForm({ post, allTags }: Props) {
                         </div>
 
                         {/* Cover image */}
-                        <div className="bg-white rounded-xl border border-ink-200 shadow-soft p-5">
+                        <div className="bg-white rounded-2xl border border-ink-200/60 shadow-soft p-5">
                             <h2 className="text-[13px] font-bold mb-3">Cover image</h2>
                             {coverPreview ? (
                                 <div className="relative rounded-lg overflow-hidden border border-ink-200 mb-3">

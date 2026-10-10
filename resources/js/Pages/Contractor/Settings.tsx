@@ -2,6 +2,7 @@ import { FormEvent, useRef, useState } from 'react';
 import { Head, router, useForm, usePage } from '@inertiajs/react';
 import ContractorLayout from '@/Layouts/ContractorLayout';
 import { Spinner } from '@/Components/Skeleton';
+import AppearanceSettings from '@/Components/Dashboard/AppearanceSettings';
 
 type BankingState = 'verified' | 'pending_review' | 'missing';
 
@@ -46,6 +47,7 @@ const TABS = [
     { key: 'login',     label: 'Login details' },
     { key: 'banking',   label: 'Banking & Paystack' },
     { key: 'portfolio', label: 'Portfolio' },
+    { key: 'appearance', label: 'Appearance' },
 ] as const;
 type TabKey = (typeof TABS)[number]['key'];
 
@@ -97,7 +99,7 @@ export default function ContractorSettings({ counts, contractor, profile, bankin
 
             <section className="px-4 sm:px-4 sm:px-8 py-6 sm:py-7 max-w-5xl">
                 <div className="mb-6">
-                    <h1 className="text-2xl font-bold tracking-tight">Settings</h1>
+                    <h1 className="text-[28px] sm:text-[32px] leading-tight tracking-tight">Settings</h1>
                     <p className="text-[14px] text-ink-500 mt-1">
                         Manage how you sign in, where the platform pays you, and what agencies see when they browse the contractor marketplace.
                     </p>
@@ -132,6 +134,7 @@ export default function ContractorSettings({ counts, contractor, profile, bankin
                     </aside>
 
                     <div className="md:col-span-3 space-y-6">
+                        {tab === 'appearance' && <AppearanceSettings />}
                         {tab === 'login'     && <LoginPanel profile={profile} />}
                         {tab === 'banking'   && <BankingPanel banking={banking} banks={options.banks} contractorName={contractor.name} />}
                         {tab === 'portfolio' && <PortfolioPanel portfolio={portfolio} specialityOptions={options.specialities} />}
@@ -164,7 +167,7 @@ function ProfileForm({ profile }: { profile: Props['profile'] }) {
         patch('/contractor/settings/profile', { preserveScroll: true });
     }
     return (
-        <form onSubmit={submit} className="bg-white rounded-xl border border-ink-200 shadow-soft p-6 space-y-4">
+        <form onSubmit={submit} className="bg-white rounded-2xl border border-ink-200/60 shadow-soft p-6 space-y-4">
             <div>
                 <h2 className="text-base font-bold">Login details</h2>
                 <p className="text-[12px] text-ink-500 mt-0.5">Your email is your sign-in. Agencies and tenants also use these to reach you.</p>
@@ -193,7 +196,7 @@ function ProfileForm({ profile }: { profile: Props['profile'] }) {
                 <button
                     type="submit"
                     disabled={! isDirty || processing}
-                    className="px-4 py-2 text-[13px] bg-ink-900 text-white rounded-lg hover:bg-brand-500 disabled:opacity-40 inline-flex items-center gap-2 font-semibold"
+                    className="px-4 py-2 text-[13px] bg-brand-700 text-white rounded-full hover:bg-brand-800 disabled:opacity-40 inline-flex items-center gap-2 font-semibold"
                 >
                     {processing && <Spinner size={13} />}
                     {processing ? 'Saving…' : 'Save login details'}
@@ -217,7 +220,7 @@ function PasswordForm() {
         });
     }
     return (
-        <form onSubmit={submit} className="bg-white rounded-xl border border-ink-200 shadow-soft p-6 space-y-4">
+        <form onSubmit={submit} className="bg-white rounded-2xl border border-ink-200/60 shadow-soft p-6 space-y-4">
             <div>
                 <h2 className="text-base font-bold">Change password</h2>
                 <p className="text-[12px] text-ink-500 mt-0.5">Use at least 8 characters. You'll stay signed in on this device.</p>
@@ -245,7 +248,7 @@ function PasswordForm() {
                 <button
                     type="submit"
                     disabled={processing || ! data.current_password || ! data.password || data.password !== data.password_confirmation}
-                    className="px-4 py-2 text-[13px] bg-ink-900 text-white rounded-lg hover:bg-brand-500 disabled:opacity-40 inline-flex items-center gap-2 font-semibold"
+                    className="px-4 py-2 text-[13px] bg-brand-700 text-white rounded-full hover:bg-brand-800 disabled:opacity-40 inline-flex items-center gap-2 font-semibold"
                 >
                     {processing && <Spinner size={13} />}
                     {processing ? 'Saving…' : 'Change password'}
@@ -281,7 +284,7 @@ function BankingPanel({ banking, banks, contractorName }: { banking: Props['bank
                 )}
             </div>
 
-            <form onSubmit={submit} className="bg-white rounded-xl border border-ink-200 shadow-soft p-6 space-y-4">
+            <form onSubmit={submit} className="bg-white rounded-2xl border border-ink-200/60 shadow-soft p-6 space-y-4">
                 <div>
                     <h2 className="text-base font-bold">Payout bank account</h2>
                     <p className="text-[12px] text-ink-500 mt-0.5">
@@ -361,7 +364,7 @@ function BankingPanel({ banking, banks, contractorName }: { banking: Props['bank
                     <button
                         type="submit"
                         disabled={! isDirty || processing}
-                        className="px-4 py-2 text-[13px] bg-ink-900 text-white rounded-lg hover:bg-brand-500 disabled:opacity-40 inline-flex items-center gap-2 font-semibold shrink-0"
+                        className="px-4 py-2 text-[13px] bg-brand-700 text-white rounded-full hover:bg-brand-800 disabled:opacity-40 inline-flex items-center gap-2 font-semibold shrink-0"
                     >
                         {processing && <Spinner size={13} />}
                         {processing ? 'Saving…' : 'Save banking'}
@@ -369,7 +372,7 @@ function BankingPanel({ banking, banks, contractorName }: { banking: Props['bank
                 </div>
             </form>
 
-            <div className="bg-white rounded-xl border border-ink-200 shadow-soft p-6 space-y-2">
+            <div className="bg-white rounded-2xl border border-ink-200/60 shadow-soft p-6 space-y-2">
                 <h3 className="text-[14px] font-bold">Paystack recipient</h3>
                 {banking.paystack_recipient_code ? (
                     <div className="flex items-center gap-3">
@@ -439,7 +442,7 @@ function ProfileBlock({ portfolio, specialityOptions }: { portfolio: Props['port
     }
 
     return (
-        <form onSubmit={submit} className="bg-white rounded-xl border border-ink-200 shadow-soft p-6 space-y-5">
+        <form onSubmit={submit} className="bg-white rounded-2xl border border-ink-200/60 shadow-soft p-6 space-y-5">
             <div>
                 <h2 className="text-base font-bold">Public profile</h2>
                 <p className="text-[12px] text-ink-500 mt-0.5">
@@ -529,7 +532,7 @@ function ProfileBlock({ portfolio, specialityOptions }: { portfolio: Props['port
                 <button
                     type="submit"
                     disabled={! isDirty || processing}
-                    className="px-4 py-2 text-[13px] bg-ink-900 text-white rounded-lg hover:bg-brand-500 disabled:opacity-40 inline-flex items-center gap-2 font-semibold"
+                    className="px-4 py-2 text-[13px] bg-brand-700 text-white rounded-full hover:bg-brand-800 disabled:opacity-40 inline-flex items-center gap-2 font-semibold"
                 >
                     {processing && <Spinner size={13} />}
                     {processing ? 'Saving…' : 'Save portfolio'}
@@ -568,7 +571,7 @@ function PhotosBlock({ items }: { items: Props['portfolio']['portfolio_items'] }
     }
 
     return (
-        <div className="bg-white rounded-xl border border-ink-200 shadow-soft p-6 space-y-4">
+        <div className="bg-white rounded-2xl border border-ink-200/60 shadow-soft p-6 space-y-4">
             <div>
                 <h2 className="text-base font-bold">Portfolio photos</h2>
                 <p className="text-[12px] text-ink-500 mt-0.5">

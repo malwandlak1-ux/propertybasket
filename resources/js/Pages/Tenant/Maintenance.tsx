@@ -100,7 +100,7 @@ export default function TenantMaintenance({ lease, active, past }: Props) {
             <div className="px-4 sm:px-8 py-6 sm:py-7">
                 <div className="flex flex-wrap items-end justify-between gap-3 mb-6">
                     <div>
-                        <h1 className="text-2xl font-bold tracking-tight">Maintenance</h1>
+                        <h1 className="text-[28px] sm:text-[32px] leading-tight tracking-tight">Maintenance</h1>
                         <p className="text-[14px] text-ink-500 mt-1">
                             Report issues. Your agency receives the request and assigns a verified contractor.
                         </p>
@@ -115,7 +115,7 @@ export default function TenantMaintenance({ lease, active, past }: Props) {
                 </div>
 
                 {showForm && (
-                    <form onSubmit={submit} className="bg-white rounded-xl border border-ink-200 shadow-soft overflow-hidden mb-6">
+                    <form onSubmit={submit} className="bg-white rounded-2xl border border-ink-200/60 shadow-soft overflow-hidden mb-6">
                         <div className="p-5 border-b border-ink-200 bg-gradient-to-r from-brand-50 to-brand-100">
                             <p className="text-[13px] font-bold">Report a new issue</p>
                             <p className="text-[11px] text-ink-500 mt-0.5">Fill in the details — your agency will assign a contractor and notify you.</p>

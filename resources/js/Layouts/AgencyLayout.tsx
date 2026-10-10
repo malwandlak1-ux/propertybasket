@@ -1,7 +1,7 @@
-import { ReactNode, useState } from 'react';
-import { Link, router, usePage } from '@inertiajs/react';
-import AppLogo from '@/Components/AppLogo';
-import NotificationBell, { NotificationItem } from '@/Components/NotificationBell';
+import { ReactNode } from 'react';
+import { Link, usePage } from '@inertiajs/react';
+import { NotificationItem } from '@/Components/NotificationBell';
+import Shell, { ShellNavItem } from '@/Components/Dashboard/Shell';
 import SubscriptionBanner from '@/Components/SubscriptionBanner';
 
 type SharedProps = {
@@ -23,14 +23,7 @@ type AgencyLayoutProps = {
     agencyName?: string;
 };
 
-type NavItem = {
-    label: string;
-    href?: string;
-    routeName?: string;
-    icon: ReactNode;
-    badge?: { text: string; tone: 'brand' | 'danger' | 'ink' };
-    indicator?: 'warning' | 'success';
-};
+type NavItem = ShellNavItem;
 
 const ICON_DASHBOARD = (
     <svg className="nav-icon w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
@@ -114,59 +107,9 @@ const ICON_BILLING = (
     </svg>
 );
 
-function NavItem({ item, active }: { item: NavItem; active: boolean }) {
-    const classes =
-        'nav-item flex items-center gap-3 px-3 py-2 rounded-lg text-[13.5px] transition mb-0.5 ' +
-        (active
-            ? 'bg-ink-100 text-ink-900'
-            : 'text-ink-500 hover:bg-ink-100');
-    const inner = (
-        <>
-            <span className={active ? 'text-brand-600' : ''}>{item.icon}</span>
-            <span className="flex-1">{item.label}</span>
-            {item.badge && (
-                <span
-                    className={
-                        'text-[10px] px-1.5 py-0.5 rounded-full font-semibold ' +
-                        (item.badge.tone === 'brand'
-                            ? 'bg-brand-50 text-brand-700'
-                            : item.badge.tone === 'danger'
-                            ? 'bg-danger text-white'
-                            : 'text-ink-500')
-                    }
-                >
-                    {item.badge.text}
-                </span>
-            )}
-            {item.indicator && (
-                <span
-                    className={
-                        'w-1.5 h-1.5 rounded-full ' +
-                        (item.indicator === 'warning' ? 'bg-warning' : 'bg-success')
-                    }
-                />
-            )}
-        </>
-    );
-
-    if (item.href) {
-        return (
-            <Link href={item.href} className={classes}>
-                {inner}
-            </Link>
-        );
-    }
-    return (
-        <span className={classes + ' cursor-not-allowed opacity-60'} title="Coming soon">
-            {inner}
-        </span>
-    );
-}
-
 export default function AgencyLayout({ children, crumb = 'Dashboard', agencyName }: AgencyLayoutProps) {
-    const { auth, agency_ffc, notifications } = usePage<SharedProps>().props;
+    const { agency_ffc } = usePage<SharedProps>().props;
     const currentPath = typeof window !== 'undefined' ? window.location.pathname : '';
-    const [navOpen, setNavOpen] = useState(false);
 
     const isActive = (path: string) => {
         if (path === '/agency') return currentPath === '/agency';
@@ -206,124 +149,30 @@ export default function AgencyLayout({ children, crumb = 'Dashboard', agencyName
         { label: 'Billing & Plan', href: '/agency/billing', icon: ICON_BILLING },
     ];
 
-    function logout() {
-        router.post('/logout');
-    }
-
     return (
-        <div className="flex min-h-screen bg-ink-50 text-ink-900">
-            {navOpen && (
-                <div
-                    className="lg:hidden fixed inset-0 bg-ink-900/50 z-40"
-                    onClick={() => setNavOpen(false)}
-                    aria-hidden="true"
-                />
-            )}
-            <aside
-                className={
-                    'fixed lg:static inset-y-0 left-0 z-50 w-[240px] shrink-0 bg-white border-r border-ink-200 flex flex-col transition-transform duration-200 ' +
-                    (navOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0')
-                }
-                onClick={() => setNavOpen(false)}
-            >
-                <div className="px-5 pt-5 pb-6">
-                    <AppLogo height={19} href="/" />
-                </div>
-
-                <nav className="px-3 flex-1 overflow-y-auto">
-                    <SectionHeader>WORKSPACE</SectionHeader>
-                    {workspace.map((i) => (
-                        <NavItem key={i.label} item={i} active={!!i.href && isActive(i.href)} />
-                    ))}
-                    <SectionHeader className="mt-6">TEAM</SectionHeader>
-                    {team.map((i) => (
-                        <NavItem key={i.label} item={i} active={!!i.href && isActive(i.href)} />
-                    ))}
-                    <SectionHeader className="mt-6">FINANCE</SectionHeader>
-                    {finance.map((i) => (
-                        <NavItem key={i.label} item={i} active={!!i.href && isActive(i.href)} />
-                    ))}
-                    <SectionHeader className="mt-6">AGENCY ACCOUNT</SectionHeader>
-                    {account.map((i) => (
-                        <NavItem key={i.label} item={i} active={!!i.href && isActive(i.href)} />
-                    ))}
-                </nav>
-
-                <button
-                    onClick={logout}
-                    className="border-t border-ink-200 p-3 text-left"
-                >
-                    <div className="flex items-center gap-3 p-2 rounded-lg hover:bg-ink-100 cursor-pointer">
-                        <div className="w-9 h-9 rounded-lg bg-ink-900 flex items-center justify-center text-white font-bold text-sm">
-                            {(auth?.user?.name ?? 'PB')
-                                .split(' ')
-                                .map((s) => s[0])
-                                .slice(0, 2)
-                                .join('')}
-                        </div>
-                        <div className="flex-1 min-w-0 text-left">
-                            <p className="text-[13px] font-semibold truncate">
-                                {auth?.user?.name ?? 'Property Basket'}
-                            </p>
-                            <p className="text-[11px] text-ink-400 truncate">Sign out →</p>
-                        </div>
-                    </div>
-                </button>
-            </aside>
-
-            <main className="flex-1 min-w-0">
-                <header className="h-16 border-b border-ink-200 bg-white flex items-center px-4 sm:px-8 gap-3 sm:gap-6 sticky top-0 z-30">
-                    <button
-                        className="lg:hidden -ml-1 p-2 rounded-lg hover:bg-ink-100 transition"
-                        onClick={() => setNavOpen(true)}
-                        aria-label="Open menu"
-                    >
-                        <svg className="w-5 h-5 text-ink-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
-                            <path d="M3 6h18M3 12h18M3 18h18"/>
-                        </svg>
-                    </button>
-                    <div className="text-[13px] text-ink-500 truncate">
-                        <span className="hidden sm:inline">{agencyName ?? 'My Agency'}</span>
-                        <span className="hidden sm:inline mx-2 text-ink-300">/</span>
-                        <span className="text-ink-900 font-medium">{crumb}</span>
-                    </div>
-                    <div className="flex-1 max-w-xl mx-auto hidden md:block">
-                        <div className="relative">
-                            <svg
-                                className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-400"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth={2}
-                            >
-                                <circle cx="11" cy="11" r="8" />
-                                <path d="M21 21l-4.35-4.35" />
-                            </svg>
-                            <input
-                                className="w-full bg-ink-50 border border-ink-200 rounded-lg pl-10 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition"
-                                placeholder="Search agents, listings, deals..."
-                            />
-                        </div>
-                    </div>
-                    <div className="flex-1 md:hidden" />
-                    <button className="w-9 h-9 rounded-lg hover:bg-ink-100 flex items-center justify-center transition shrink-0" title="Quick add">
-                        <svg className="w-4 h-4 text-ink-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
-                            <circle cx="12" cy="12" r="9" />
-                            <path d="M12 8v8M8 12h8" />
-                        </svg>
-                    </button>
-                    <NotificationBell notifications={notifications ?? null} />
-                </header>
-
-                {agency_ffc && agency_ffc.state !== 'valid' && (
-                    <AgencyFfcBanner state={agency_ffc.state} daysLeft={agency_ffc.days_left} expiresAt={agency_ffc.expires_at} />
-                )}
-
-                <SubscriptionBanner />
-
-                {children}
-            </main>
-        </div>
+        <Shell
+            sections={[
+                { label: 'Menu', items: workspace },
+                { label: 'Team', items: team },
+                { label: 'Finance', items: finance },
+                { label: 'Agency account', items: account },
+            ]}
+            isActive={isActive}
+            crumb={crumb}
+            crumbPrefix={agencyName ?? 'My Agency'}
+            accountSubtitle={agencyName ?? 'Agency owner'}
+            searchPlaceholder="Search agents, listings, deals…"
+            banners={
+                <>
+                    {agency_ffc && agency_ffc.state !== 'valid' && (
+                        <AgencyFfcBanner state={agency_ffc.state} daysLeft={agency_ffc.days_left} expiresAt={agency_ffc.expires_at} />
+                    )}
+                    <SubscriptionBanner />
+                </>
+            }
+        >
+            {children}
+        </Shell>
     );
 }
 
@@ -346,13 +195,5 @@ function AgencyFfcBanner({ state, daysLeft, expiresAt }: { state: 'missing' | 'e
             <span className="flex-1">{message}</span>
             <Link href="/agency/compliance" className="font-semibold underline whitespace-nowrap">Update FFC →</Link>
         </div>
-    );
-}
-
-function SectionHeader({ children, className = '' }: { children: ReactNode; className?: string }) {
-    return (
-        <p className={`px-3 text-[10px] font-semibold text-ink-400 tracking-[0.12em] mb-2 ${className}`}>
-            {children}
-        </p>
     );
 }

@@ -2,6 +2,7 @@ import { FormEvent, useState } from 'react';
 import { Head, useForm, usePage } from '@inertiajs/react';
 import LandlordLayout from '@/Layouts/LandlordLayout';
 import { Spinner } from '@/Components/Skeleton';
+import AppearanceSettings from '@/Components/Dashboard/AppearanceSettings';
 
 type BankingState = 'verified' | 'pending_review' | 'missing';
 
@@ -30,6 +31,7 @@ type SharedProps = { flash?: { success?: string | null; error?: string | null } 
 const TABS = [
     { key: 'profile', label: 'Profile' },
     { key: 'banking', label: 'Banking' },
+    { key: 'appearance', label: 'Appearance' },
 ] as const;
 type TabKey = (typeof TABS)[number]['key'];
 
@@ -64,7 +66,7 @@ export default function LandlordSettings({ landlord, profile, banking, banks }: 
 
             <section className="px-4 sm:px-8 py-6 sm:py-7 max-w-4xl">
                 <div className="mb-6">
-                    <h1 className="text-2xl font-bold tracking-tight">Settings</h1>
+                    <h1 className="text-[28px] sm:text-[32px] leading-tight tracking-tight">Settings</h1>
                     <p className="text-[14px] text-ink-500 mt-1">
                         Manage your contact details and the bank account that will receive rent and fund contractor payments.
                     </p>
@@ -94,6 +96,7 @@ export default function LandlordSettings({ landlord, profile, banking, banks }: 
                     </aside>
 
                     <div className="col-span-3 space-y-6">
+                        {tab === 'appearance' && <AppearanceSettings />}
                         {tab === 'profile'  && <ProfilePanel profile={profile} />}
                         {tab === 'banking'  && <BankingPanel banking={banking} banks={banks} landlordName={landlord.name} />}
                     </div>
@@ -115,7 +118,7 @@ function ProfilePanel({ profile }: { profile: Props['profile'] }) {
         patch('/landlord/settings/profile', { preserveScroll: true });
     }
     return (
-        <form onSubmit={submit} className="bg-white rounded-xl border border-ink-200 shadow-soft p-6 space-y-4">
+        <form onSubmit={submit} className="bg-white rounded-2xl border border-ink-200/60 shadow-soft p-6 space-y-4">
             <div>
                 <h2 className="text-base font-bold">Profile</h2>
                 <p className="text-[12px] text-ink-500 mt-0.5">How tenants, contractors and the platform reach you.</p>
@@ -149,7 +152,7 @@ function ProfilePanel({ profile }: { profile: Props['profile'] }) {
                 <button
                     type="submit"
                     disabled={! isDirty || processing}
-                    className="px-4 py-2 text-[13px] bg-ink-900 text-white rounded-lg hover:bg-brand-500 disabled:opacity-40 inline-flex items-center gap-2 font-semibold"
+                    className="px-4 py-2 text-[13px] bg-brand-700 text-white rounded-full hover:bg-brand-800 disabled:opacity-40 inline-flex items-center gap-2 font-semibold"
                 >
                     {processing && <Spinner size={13} />}
                     {processing ? 'Saving…' : 'Save profile'}
@@ -183,7 +186,7 @@ function BankingPanel({ banking, banks, landlordName }: { banking: Props['bankin
                 )}
             </div>
 
-            <form onSubmit={submit} className="bg-white rounded-xl border border-ink-200 shadow-soft p-6 space-y-4">
+            <form onSubmit={submit} className="bg-white rounded-2xl border border-ink-200/60 shadow-soft p-6 space-y-4">
                 <div>
                     <h2 className="text-base font-bold">Bank account</h2>
                     <p className="text-[12px] text-ink-500 mt-0.5">
@@ -263,7 +266,7 @@ function BankingPanel({ banking, banks, landlordName }: { banking: Props['bankin
                     <button
                         type="submit"
                         disabled={! isDirty || processing}
-                        className="px-4 py-2 text-[13px] bg-ink-900 text-white rounded-lg hover:bg-brand-500 disabled:opacity-40 inline-flex items-center gap-2 font-semibold"
+                        className="px-4 py-2 text-[13px] bg-brand-700 text-white rounded-full hover:bg-brand-800 disabled:opacity-40 inline-flex items-center gap-2 font-semibold"
                     >
                         {processing && <Spinner size={13} />}
                         {processing ? 'Saving…' : 'Save banking'}

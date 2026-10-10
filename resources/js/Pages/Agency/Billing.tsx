@@ -51,7 +51,7 @@ export default function AgencyBilling({ agency, current, plans }: Props) {
 
             <div className="px-4 sm:px-8 py-6 sm:py-7">
                 <div className="mb-6">
-                    <h1 className="text-2xl font-bold tracking-tight">Billing &amp; Plan</h1>
+                    <h1 className="text-[28px] sm:text-[32px] leading-tight tracking-tight">Billing &amp; Plan</h1>
                     <p className="text-[14px] text-ink-500 mt-1">
                         Choose the subscription that fits your agency. Pricing is set by the platform admin and updates here automatically.
                     </p>
@@ -59,7 +59,7 @@ export default function AgencyBilling({ agency, current, plans }: Props) {
 
                 {/* Current plan summary */}
                 {current ? (
-                    <div className="bg-white rounded-xl border border-ink-200 shadow-soft p-5 mb-6 flex items-center gap-5 flex-wrap">
+                    <div className="bg-white rounded-2xl border border-ink-200/60 shadow-soft p-5 mb-6 flex items-center gap-5 flex-wrap">
                         <div className="flex-1 min-w-[200px]">
                             <p className="text-[10px] uppercase tracking-wider text-ink-500 font-semibold">Current plan</p>
                             <p className="text-lg font-bold mt-0.5">{current.name}</p>

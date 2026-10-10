@@ -76,13 +76,13 @@ export default function LandlordProperties({ landlord, properties, slots_used, s
             <div className="px-4 sm:px-8 py-6 sm:py-7">
                 <div className="flex flex-wrap items-end justify-between gap-3 mb-6">
                     <div>
-                        <h1 className="text-2xl font-bold tracking-tight">My Properties</h1>
+                        <h1 className="text-[28px] sm:text-[32px] leading-tight tracking-tight">My Properties</h1>
                         <p className="text-[14px] text-ink-500 mt-1">
                             Managing {slots_used} of {slots_max} properties ·{' '}
                             {occupiedCount} occupied
                         </p>
                     </div>
-                    <a href="/landlord/listings/create" className="px-3.5 py-2 text-[13px] bg-ink-900 text-white rounded-lg hover:bg-brand-500 transition flex items-center gap-2">
+                    <a href="/landlord/listings/create" className="px-3.5 py-2 text-[13px] bg-brand-700 text-white rounded-full hover:bg-brand-800 transition flex items-center gap-2">
                         <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M12 5v14M5 12h14"/></svg>
                         Add Property
                     </a>
@@ -104,7 +104,7 @@ export default function LandlordProperties({ landlord, properties, slots_used, s
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     {properties.map((p) => (
-                        <div key={p.id} className="bg-white rounded-xl border border-ink-200 overflow-hidden shadow-soft hover:shadow-lift transition">
+                        <div key={p.id} className="bg-white rounded-2xl border border-ink-200/60 overflow-hidden shadow-soft hover:shadow-lift transition">
                             {/* Photo area */}
                             <div className={`aspect-[4/3] relative overflow-hidden ${p.primary_image ? '' : `bg-gradient-to-br ${p.color_class}`}`}>
                                 {p.primary_image && (

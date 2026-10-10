@@ -77,7 +77,7 @@ const STATUS_COLOURS: Record<string, string> = {
 
 function gradientForAgent(id: number | null): string {
     const palette = [
-        'linear-gradient(135deg,#F26A1B,#B8470A)',
+        'linear-gradient(135deg,var(--color-brand-500),var(--color-brand-700))',
         'linear-gradient(135deg,#F472B6,#E11D48)',
         'linear-gradient(135deg,#38BDF8,#0284C7)',
         'linear-gradient(135deg,#34D399,#059669)',
@@ -96,7 +96,7 @@ export default function ListingsAllocation({ agency, cards, agents, next_up, lea
             <section className="px-4 sm:px-8 py-6 sm:py-7">
                 <div className="flex flex-wrap items-end justify-between gap-3 mb-6">
                     <div>
-                        <h1 className="text-2xl font-bold tracking-tight">Listings &amp; Lead Allocation</h1>
+                        <h1 className="text-[28px] sm:text-[32px] leading-tight tracking-tight">Listings &amp; Lead Allocation</h1>
                         <p className="text-[14px] text-ink-500 mt-1">
                             {totals.listings} active listing{totals.listings === 1 ? '' : 's'} ·{' '}
                             <span className="font-semibold text-ink-900">Round-robin</span> across {totals.agents} agents
@@ -107,7 +107,7 @@ export default function ListingsAllocation({ agency, cards, agents, next_up, lea
                     </div>
                     <Link
                         href="/agency/listings/create"
-                        className="px-3.5 py-2 text-[13px] bg-ink-900 text-white rounded-lg hover:bg-brand-500 flex items-center gap-2 transition"
+                        className="px-3.5 py-2 text-[13px] bg-brand-700 text-white rounded-full hover:bg-brand-800 flex items-center gap-2 transition"
                     >
                         <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
                             <path d="M12 5v14M5 12h14" />
@@ -160,7 +160,7 @@ export default function ListingsAllocation({ agency, cards, agents, next_up, lea
                 {/* Listing cards */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     {cards.length === 0 ? (
-                        <div className="col-span-3 bg-white rounded-xl border border-ink-200 p-12 text-center text-ink-500">
+                        <div className="col-span-3 bg-white rounded-2xl border border-ink-200/60 p-12 text-center text-ink-500">
                             No agency listings yet.
                         </div>
                     ) : (
@@ -171,7 +171,7 @@ export default function ListingsAllocation({ agency, cards, agents, next_up, lea
                 </div>
 
                 {/* Lead queue */}
-                <div className="mt-6 bg-white rounded-xl border border-ink-200 shadow-soft overflow-hidden">
+                <div className="mt-6 bg-white rounded-2xl border border-ink-200/60 shadow-soft overflow-hidden">
                     <div className="p-5 border-b border-ink-200 flex items-center justify-between">
                         <div>
                             <h2 className="text-base font-semibold">Lead Queue · Round-robin distribution</h2>

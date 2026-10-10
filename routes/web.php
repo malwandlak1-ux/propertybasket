@@ -88,6 +88,11 @@ Route::middleware('auth')->group(function () {
     Route::post('notifications/{id}/read', [\App\Http\Controllers\NotificationsController::class, 'markRead'])->name('notifications.read');
     Route::post('notifications/read-all',  [\App\Http\Controllers\NotificationsController::class, 'markAllRead'])->name('notifications.read-all');
 
+    // Settings → Appearance (every dashboard role): accent colour + custom logo.
+    Route::post('settings/appearance', [\App\Http\Controllers\AppearanceController::class, 'updateAccent'])->name('appearance.accent');
+    Route::post('settings/logo',       [\App\Http\Controllers\AppearanceController::class, 'uploadLogo'])->name('appearance.logo');
+    Route::delete('settings/logo',     [\App\Http\Controllers\AppearanceController::class, 'destroyLogo'])->name('appearance.logo.destroy');
+
     // Subscription paywall (agencies & landlords). Reachable while unsubscribed —
     // must NOT sit behind the `subscribed` gate or it would loop.
     Route::get('billing/select',   [\App\Http\Controllers\Billing\SubscriptionController::class, 'select'])->name('billing.select');

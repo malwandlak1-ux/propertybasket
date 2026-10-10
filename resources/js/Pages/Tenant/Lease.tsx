@@ -64,7 +64,7 @@ export default function TenantLease({ lease, documents, key_dates }: Props) {
 
             <div className="px-4 sm:px-8 py-6 sm:py-7">
                 <div className="mb-6">
-                    <h1 className="text-2xl font-bold tracking-tight">My Lease</h1>
+                    <h1 className="text-[28px] sm:text-[32px] leading-tight tracking-tight">My Lease</h1>
                     <p className="text-[14px] text-ink-500 mt-1">Lease agreement, addendums, and key dates</p>
                 </div>
 
@@ -107,7 +107,7 @@ export default function TenantLease({ lease, documents, key_dates }: Props) {
                 {/* Documents */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
                     {documents.map((d) => (
-                        <div key={d.id} className="bg-white rounded-xl border border-ink-200 p-5 shadow-soft hover:shadow-lift transition">
+                        <div key={d.id} className="bg-white rounded-2xl border border-ink-200/60 p-5 shadow-soft hover:shadow-lift transition">
                             <div className="flex items-start justify-between mb-3">
                                 <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${docTone(d.tone)}`}>
                                     <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
@@ -149,7 +149,7 @@ export default function TenantLease({ lease, documents, key_dates }: Props) {
                 </div>
 
                 {/* Key dates */}
-                <div className="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+                <div className="bg-white rounded-2xl border border-ink-200/60 p-5 shadow-soft">
                     <h2 className="text-base font-semibold mb-4">Key Dates &amp; Reminders</h2>
                     <div className="space-y-3">
                         {key_dates.map((k) => {

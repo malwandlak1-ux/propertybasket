@@ -88,7 +88,7 @@ export default function AdminAgencies({ agencies, stats }: Props) {
             <div className="px-4 sm:px-8 py-6 sm:py-7">
                 <div className="flex flex-wrap items-end justify-between gap-3 mb-6">
                     <div>
-                        <h1 className="text-2xl font-bold tracking-tight">Agencies</h1>
+                        <h1 className="text-[28px] sm:text-[32px] leading-tight tracking-tight">Agencies</h1>
                         <p className="text-[14px] text-ink-500 mt-1">
                             {agencies.length} registered · {stats.pending} pending approval
                         </p>
@@ -113,7 +113,7 @@ export default function AdminAgencies({ agencies, stats }: Props) {
                 </div>
 
                 {/* Table */}
-                <div className="bg-white rounded-xl border border-ink-200 shadow-soft overflow-visible">
+                <div className="bg-white rounded-2xl border border-ink-200/60 shadow-soft overflow-visible">
                     <div className="overflow-x-auto"><table className="w-full min-w-[700px]">
                         <thead>
                             <tr className="text-left text-[11px] uppercase text-ink-500 tracking-wider border-b border-ink-200 bg-ink-50">
@@ -299,7 +299,7 @@ function StatCard({ label, value, tone }: { label: string; value: number; tone: 
                        tone === 'success' ? 'text-success' :
                                             'text-ink-900';
     return (
-        <div className="bg-white rounded-xl border border-ink-200 p-4 shadow-soft">
+        <div className="bg-white rounded-2xl border border-ink-200/60 p-4 shadow-soft">
             <p className="text-[11px] text-ink-500 uppercase tracking-wider font-semibold">{label}</p>
             <p className={`text-2xl font-bold mt-1 ${colorClass}`}>{value}</p>
         </div>

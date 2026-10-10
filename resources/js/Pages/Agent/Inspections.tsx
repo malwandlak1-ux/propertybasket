@@ -162,14 +162,14 @@ export default function AgentInspections({ agent, move_in, move_out, upcoming, c
                 {/* Header */}
                 <div className="flex flex-wrap items-end justify-between gap-3 mb-6">
                     <div>
-                        <h1 className="text-2xl font-bold tracking-tight">Inspections</h1>
+                        <h1 className="text-[28px] sm:text-[32px] leading-tight tracking-tight">Inspections</h1>
                         <p className="text-[14px] text-ink-500 mt-1">
                             Document property condition at move-in and move-out. Reports auto-emailed to tenant &amp; landlord.
                         </p>
                     </div>
                     <Link
                         href={`/agent/inspections/create?type=${tab}`}
-                        className="px-3.5 py-2 text-[13px] bg-ink-900 text-white rounded-lg hover:bg-brand-500 transition flex items-center gap-2"
+                        className="px-3.5 py-2 text-[13px] bg-brand-700 text-white rounded-full hover:bg-brand-800 transition flex items-center gap-2"
                     >
                         <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M12 5v14M5 12h14" /></svg>
                         New Inspection
@@ -253,7 +253,7 @@ export default function AgentInspections({ agent, move_in, move_out, upcoming, c
 
                 {/* Inspection cards */}
                 {list.length === 0 ? (
-                    <div className="bg-white rounded-xl border border-ink-200 p-16 text-center shadow-soft">
+                    <div className="bg-white rounded-2xl border border-ink-200/60 p-16 text-center shadow-soft">
                         <div className="w-12 h-12 rounded-xl bg-ink-100 flex items-center justify-center mx-auto mb-4">
                             <svg className="w-6 h-6 text-ink-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
                                 <path d="M9 12l2 2 4-4" />
@@ -273,7 +273,7 @@ export default function AgentInspections({ agent, move_in, move_out, upcoming, c
 
                 {/* Move-out comparison notice */}
                 {tab === 'move_out' && move_out.some(c => c.deductions > 0) && (
-                    <div className="mt-6 bg-white rounded-xl border border-ink-200 shadow-soft p-6">
+                    <div className="mt-6 bg-white rounded-2xl border border-ink-200/60 shadow-soft p-6">
                         <div className="flex items-center gap-3 mb-4">
                             <span className="text-[10px] bg-danger text-white px-2 py-0.5 rounded-md font-bold">DEDUCTIONS FLAGGED</span>
                             <h2 className="text-base font-bold">Move-out Comparison</h2>

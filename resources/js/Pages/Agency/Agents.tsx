@@ -43,7 +43,7 @@ function fmtMoneyFull(n: number): string {
 
 function gradientFor(idx: number): string {
     const palette = [
-        'linear-gradient(135deg,#F26A1B,#B8470A)',
+        'linear-gradient(135deg,var(--color-brand-500),var(--color-brand-700))',
         'linear-gradient(135deg,#F472B6,#E11D48)',
         'linear-gradient(135deg,#38BDF8,#0284C7)',
         'linear-gradient(135deg,#34D399,#059669)',
@@ -95,14 +95,14 @@ export default function Agents({ agency, agents, leaderboard, pending_invites, t
             <section className="px-4 sm:px-8 py-6 sm:py-7">
                 <div className="flex flex-wrap items-end justify-between gap-3 mb-6">
                     <div>
-                        <h1 className="text-2xl font-bold tracking-tight">Manage Agents</h1>
+                        <h1 className="text-[28px] sm:text-[32px] leading-tight tracking-tight">Manage Agents</h1>
                         <p className="text-[14px] text-ink-500 mt-1">
                             {totals.agents} agent{totals.agents === 1 ? '' : 's'} ({totals.active} active, {totals.pending} pending) ·
                             Round-robin lead allocation active
                         </p>
                     </div>
                     <div className="flex items-center gap-2">
-                        <button className="px-3.5 py-2 text-[13px] border border-ink-200 rounded-lg hover:bg-ink-100 flex items-center gap-2" disabled title="Coming soon">
+                        <button className="px-4 py-2 text-[13px] font-semibold border border-ink-900/70 bg-white/60 rounded-full hover:bg-white flex items-center gap-2" disabled title="Coming soon">
                             <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
                                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" />
                             </svg>
@@ -110,7 +110,7 @@ export default function Agents({ agency, agents, leaderboard, pending_invites, t
                         </button>
                         <button
                             onClick={() => setInviteOpen(true)}
-                            className="px-3.5 py-2 text-[13px] bg-ink-900 text-white rounded-lg hover:bg-brand-500 flex items-center gap-2"
+                            className="px-3.5 py-2 text-[13px] bg-brand-700 text-white rounded-full hover:bg-brand-800 flex items-center gap-2"
                         >
                             <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
                                 <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
@@ -155,7 +155,7 @@ export default function Agents({ agency, agents, leaderboard, pending_invites, t
                 </div>
 
                 {/* Agent table */}
-                <div className="bg-white rounded-xl border border-ink-200 shadow-soft overflow-hidden">
+                <div className="bg-white rounded-2xl border border-ink-200/60 shadow-soft overflow-hidden">
                     <div className="p-5 border-b border-ink-200 flex items-center justify-between">
                         <h2 className="text-base font-semibold">All Agents</h2>
                         <div className="flex items-center gap-2">
@@ -240,7 +240,7 @@ export default function Agents({ agency, agents, leaderboard, pending_invites, t
                 </div>
 
                 {pending_invites.length > 0 && (
-                    <div className="mt-6 bg-white rounded-xl border border-ink-200 shadow-soft p-5">
+                    <div className="mt-6 bg-white rounded-2xl border border-ink-200/60 shadow-soft p-5">
                         <h2 className="text-base font-semibold mb-3">Pending invitations</h2>
                         <ul className="space-y-2 text-[13px]">
                             {pending_invites.map((inv) => (

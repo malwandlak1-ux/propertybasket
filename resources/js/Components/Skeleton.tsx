@@ -40,7 +40,7 @@ function Avatar({ size = 36, className = '' }: { size?: number; className?: stri
 
 function KpiCard() {
     return (
-        <div className="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+        <div className="bg-white rounded-2xl border border-ink-200/60 p-5 shadow-soft">
             <div className="flex items-center justify-between mb-3">
                 <Line width={80} height={10} />
                 <Box width={28} height={28} className="rounded-lg" />
@@ -66,7 +66,7 @@ function ListItem() {
 
 function Card({ height = 160, className = '' }: { height?: number; className?: string }) {
     return (
-        <div className={`bg-white rounded-xl border border-ink-200 p-5 shadow-soft ${className}`} style={{ height }}>
+        <div className={`bg-white rounded-2xl border border-ink-200/60 p-5 shadow-soft ${className}`} style={{ height }}>
             <Line width={100} height={12} className="mb-3" />
             <Line width="80%" height={10} className="mb-2" />
             <Line width="60%" height={10} className="mb-2" />

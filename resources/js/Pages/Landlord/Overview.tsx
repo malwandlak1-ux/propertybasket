@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Head } from '@inertiajs/react';
 import LandlordLayout from '@/Layouts/LandlordLayout';
 import LandlordInviteTenantModal, { InvitableListing, PendingInvite } from '@/Components/LandlordInviteTenantModal';
+import { KpiCard as FernKpi } from '@/Components/Dashboard/Charts';
 
 type Property = {
     id: number;
@@ -80,7 +81,7 @@ export default function LandlordOverview({ landlord, kpis, properties, attention
                 <div className="flex flex-wrap items-end justify-between gap-3 mb-7">
                     <div>
                         <p className="text-[13px] text-ink-500">{new Date().toLocaleDateString('en-ZA', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
-                        <h1 className="text-3xl font-bold tracking-tight mt-1">Welcome, {firstName} 🏡</h1>
+                        <h1 className="text-[28px] sm:text-[32px] leading-tight tracking-tight mt-1">Welcome, {firstName} 🏡</h1>
                         <p className="text-[14px] text-ink-500 mt-1">
                             {kpis.all_count} propert{kpis.all_count === 1 ? 'y' : 'ies'} ·{' '}
                             <span className="font-semibold text-success">{kpis.occupancy_pct}% occupied</span>
@@ -99,7 +100,7 @@ export default function LandlordOverview({ landlord, kpis, properties, attention
                                     ? `${pending_invites.length} tenant${pending_invites.length === 1 ? '' : 's'} pending portal acceptance`
                                     : 'Invite a tenant to one of your rentals')
                                 : 'You need an active lease or an available rental to invite a tenant'}
-                            className="px-3.5 py-2 text-[13px] border border-ink-200 rounded-lg hover:bg-ink-100 disabled:bg-ink-100 disabled:text-ink-400 disabled:cursor-not-allowed transition flex items-center gap-2 relative"
+                            className="px-4 py-2 text-[13px] font-semibold border border-ink-900/70 bg-white/60 rounded-full hover:bg-white disabled:bg-ink-100 disabled:text-ink-400 disabled:cursor-not-allowed transition flex items-center gap-2 relative"
                         >
                             <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6M23 11h-6"/></svg>
                             Invite Tenant
@@ -109,7 +110,7 @@ export default function LandlordOverview({ landlord, kpis, properties, attention
                                 </span>
                             )}
                         </button>
-                        <a href="/landlord/listings/create" className="px-3.5 py-2 text-[13px] bg-ink-900 text-white rounded-lg hover:bg-brand-500 transition flex items-center gap-2">
+                        <a href="/landlord/listings/create" className="px-3.5 py-2 text-[13px] bg-brand-700 text-white rounded-full hover:bg-brand-800 transition flex items-center gap-2">
                             <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M12 5v14M5 12h14"/></svg>
                             Add Property
                         </a>
@@ -118,7 +119,7 @@ export default function LandlordOverview({ landlord, kpis, properties, attention
 
                 {/* ── KPI Grid ─────────────────────────────────────────── */}
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                    <KpiCard
+                    <KpiCard hero
                         label="Monthly Rent Roll"
                         value={fmtFull(kpis.rent_roll)}
                         sub={`Across ${kpis.total_count} long-term rental${kpis.total_count !== 1 ? 's' : ''}`}
@@ -134,7 +135,7 @@ export default function LandlordOverview({ landlord, kpis, properties, attention
                         iconBg="bg-brand-50"
                         iconColor="text-brand-600"
                         icon={<path d="M3 21V10l9-7 9 7v11H3z"/>}
-                        sparkColor="#F26A1B"
+                        sparkColor="var(--color-brand-500)"
                     />
                     <KpiCard
                         label="Open Maintenance"
@@ -161,7 +162,7 @@ export default function LandlordOverview({ landlord, kpis, properties, attention
                 {/* ── 2-col layout ─────────────────────────────────────── */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     {/* LEFT: Properties at a glance */}
-                    <div className="col-span-2 bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+                    <div className="col-span-2 bg-white rounded-2xl border border-ink-200/60 p-5 shadow-soft">
                         <div className="flex items-center justify-between mb-4">
                             <div>
                                 <h2 className="text-base font-semibold">My Properties</h2>
@@ -208,7 +209,7 @@ export default function LandlordOverview({ landlord, kpis, properties, attention
                     {/* RIGHT: Action items + monthly summary */}
                     <div className="space-y-4">
                         {/* Needs Attention */}
-                        <div className="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+                        <div className="bg-white rounded-2xl border border-ink-200/60 p-5 shadow-soft">
                             <h2 className="text-base font-semibold mb-3">Needs Attention</h2>
                             {attention.length === 0 ? (
                                 <div className="py-4 text-center text-[12px] text-ink-400">
@@ -243,7 +244,7 @@ export default function LandlordOverview({ landlord, kpis, properties, attention
                         </div>
 
                         {/* This Month summary */}
-                        <div className="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+                        <div className="bg-white rounded-2xl border border-ink-200/60 p-5 shadow-soft">
                             <h2 className="text-base font-semibold mb-3">This Month</h2>
                             <div className="space-y-2 text-[12px]">
                                 <div className="flex justify-between py-1.5 border-b border-ink-100">
@@ -264,7 +265,7 @@ export default function LandlordOverview({ landlord, kpis, properties, attention
                         </div>
 
                         {/* Quick links */}
-                        <div className="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+                        <div className="bg-white rounded-2xl border border-ink-200/60 p-5 shadow-soft">
                             <h2 className="text-base font-semibold mb-3">Quick Actions</h2>
                             <div className="space-y-2">
                                 {[
@@ -300,26 +301,26 @@ export default function LandlordOverview({ landlord, kpis, properties, attention
     );
 }
 
-function KpiCard({ label, value, sub, iconBg, iconColor, icon, sparkColor, subTone }: {
+function KpiCard({ label, value, sub, subTone, hero, delta, deltaTone }: {
     label: string; value: string; sub: string;
-    iconBg: string; iconColor: string; icon: React.ReactNode;
-    sparkColor: string; subTone?: 'warning' | 'danger';
+    subTone?: 'warning' | 'danger'; hero?: boolean;
+    delta?: string; deltaTone?: 'success' | 'danger';
+    [legacy: string]: unknown;
 }) {
+    const subCls = hero ? '' : subTone === 'warning' ? 'text-warning' : subTone === 'danger' ? 'text-danger' : '';
     return (
-        <div className="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
-            <div className="flex items-center justify-between mb-3">
-                <span className="text-[11px] text-ink-500 uppercase tracking-wider font-semibold">{label}</span>
-                <span className={`w-7 h-7 rounded-lg ${iconBg} flex items-center justify-center`}>
-                    <svg className={`w-3.5 h-3.5 ${iconColor}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5}>
-                        {icon}
-                    </svg>
-                </span>
-            </div>
-            <div className="text-3xl font-bold mb-1">{value}</div>
-            <p className={`text-[11px] ${subTone === 'warning' ? 'text-warning' : subTone === 'danger' ? 'text-danger' : 'text-ink-500'}`}>{sub}</p>
-            <svg viewBox="0 0 100 30" className="w-full h-8 mt-2" preserveAspectRatio="none">
-                <path d="M0,22 L25,18 L50,14 L75,10 L100,6" fill="none" stroke={sparkColor} strokeWidth="2"/>
-            </svg>
-        </div>
+        <FernKpi
+            hero={hero}
+            label={label}
+            value={value}
+            sub={
+                <>
+                    {delta && (
+                        <span className={'font-semibold mr-1 ' + (hero ? 'text-white' : deltaTone === 'danger' ? 'text-danger' : 'text-success')}>{delta}</span>
+                    )}
+                    <span className={subCls}>{sub}</span>
+                </>
+            }
+        />
     );
 }

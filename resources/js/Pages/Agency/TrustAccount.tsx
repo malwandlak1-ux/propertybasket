@@ -74,7 +74,7 @@ export default function AgencyTrustAccount({ agency, trust, banks }: Props) {
 
             <div className="px-4 sm:px-8 py-6 sm:py-7 max-w-3xl">
                 <div className="mb-6">
-                    <h1 className="text-2xl font-bold tracking-tight">Trust Account</h1>
+                    <h1 className="text-[28px] sm:text-[32px] leading-tight tracking-tight">Trust Account</h1>
                     <p className="text-[14px] text-ink-500 mt-1">
                         Set up the PPRA-registered trust account where client money (deposits, advance rent) is held.
                     </p>
@@ -91,7 +91,7 @@ export default function AgencyTrustAccount({ agency, trust, banks }: Props) {
 
                 <form onSubmit={submit} className="space-y-5">
                     {/* Bank details */}
-                    <div className="bg-white rounded-xl border border-ink-200 shadow-soft p-5 space-y-4">
+                    <div className="bg-white rounded-2xl border border-ink-200/60 shadow-soft p-5 space-y-4">
                         <div>
                             <h2 className="text-[14px] font-bold">Bank account</h2>
                             <p className="text-[12px] text-ink-500">
@@ -176,7 +176,7 @@ export default function AgencyTrustAccount({ agency, trust, banks }: Props) {
                     </div>
 
                     {/* Auditor */}
-                    <div className="bg-white rounded-xl border border-ink-200 shadow-soft p-5 space-y-4">
+                    <div className="bg-white rounded-2xl border border-ink-200/60 shadow-soft p-5 space-y-4">
                         <div>
                             <h2 className="text-[14px] font-bold">Annual auditor</h2>
                             <p className="text-[12px] text-ink-500">
@@ -217,7 +217,7 @@ export default function AgencyTrustAccount({ agency, trust, banks }: Props) {
                         <button
                             type="submit"
                             disabled={processing}
-                            className="px-5 py-2 text-[13px] bg-ink-900 text-white rounded-lg hover:bg-brand-500 disabled:opacity-60 disabled:cursor-not-allowed inline-flex items-center gap-2 font-semibold transition"
+                            className="px-5 py-2 text-[13px] bg-brand-700 text-white rounded-full hover:bg-brand-800 disabled:opacity-60 disabled:cursor-not-allowed inline-flex items-center gap-2 font-semibold transition"
                         >
                             {processing && <Spinner size={13} />}
                             {processing ? 'Saving…' : 'Save trust account'}

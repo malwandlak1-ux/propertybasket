@@ -96,7 +96,7 @@ export default function AgentViewings({
                 {/* Header */}
                 <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
                     <div>
-                        <h1 className="text-2xl font-bold tracking-tight">Viewings Calendar</h1>
+                        <h1 className="text-[28px] sm:text-[32px] leading-tight tracking-tight">Viewings Calendar</h1>
                         <p className="text-[14px] text-ink-500 mt-1">
                             {period_label} · {total_in_period} {total_in_period === 1 ? 'viewing' : 'viewings'}
                         </p>
@@ -144,7 +144,7 @@ export default function AgentViewings({
 
                         <button
                             onClick={() => openSchedule()}
-                            className="px-3.5 py-2 text-[13px] bg-ink-900 text-white rounded-lg hover:bg-brand-500 transition flex items-center gap-2"
+                            className="px-3.5 py-2 text-[13px] bg-brand-700 text-white rounded-full hover:bg-brand-800 transition flex items-center gap-2"
                         >
                             <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M12 5v14M5 12h14" /></svg>
                             Schedule
@@ -159,7 +159,7 @@ export default function AgentViewings({
 
                 {/* Upcoming viewings — only on day/week, where they're useful */}
                 {view !== 'month' && upcoming.length > 0 && (
-                    <div className="bg-white rounded-xl border border-ink-200 shadow-soft p-5 mt-6">
+                    <div className="bg-white rounded-2xl border border-ink-200/60 shadow-soft p-5 mt-6">
                         <h2 className="text-base font-semibold mb-4">Upcoming Viewings</h2>
                         <div className="space-y-3">
                             {upcoming.map((v) => (
@@ -207,7 +207,7 @@ function DayView({ days, viewings, onSlotClick }: { days: DayMeta[]; viewings: V
     const dayIso = days[0]?.iso ?? '';
 
     return (
-        <div className="bg-white rounded-xl border border-ink-200 shadow-soft overflow-hidden">
+        <div className="bg-white rounded-2xl border border-ink-200/60 shadow-soft overflow-hidden">
             <div className={`p-4 border-b border-ink-200 ${days[0]?.is_today ? 'bg-brand-50/40' : ''}`}>
                 <p className="text-[11px] text-ink-500 uppercase tracking-wider font-semibold">{days[0]?.weekday}</p>
                 <p className={`text-xl font-bold mt-0.5 ${days[0]?.is_today ? 'text-brand-600' : ''}`}>
@@ -264,7 +264,7 @@ function WeekView({ days, viewings, onCellClick }: { days: DayMeta[]; viewings: 
     });
 
     return (
-        <div className="bg-white rounded-xl border border-ink-200 shadow-soft overflow-hidden">
+        <div className="bg-white rounded-2xl border border-ink-200/60 shadow-soft overflow-hidden">
             <div className="overflow-x-auto"><div className="min-w-[640px]">
             <div className="grid grid-cols-7 border-b border-ink-200">
                 {days.map((day, idx) => (
@@ -321,7 +321,7 @@ function MonthView({ days, viewings, onCellClick }: { days: DayMeta[]; viewings:
     const weekdayLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
     return (
-        <div className="bg-white rounded-xl border border-ink-200 shadow-soft overflow-hidden">
+        <div className="bg-white rounded-2xl border border-ink-200/60 shadow-soft overflow-hidden">
             <div className="overflow-x-auto"><div className="min-w-[640px]">
             <div className="grid grid-cols-7 border-b border-ink-200 bg-ink-50/40">
                 {weekdayLabels.map((label, idx) => (

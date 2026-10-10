@@ -38,7 +38,7 @@ type FilterKey = 'all' | 'agents' | 'broadcast';
 
 function gradientFor(initials: string): string {
     const palette = [
-        'linear-gradient(135deg,#F26A1B,#B8470A)',
+        'linear-gradient(135deg,var(--color-brand-500),var(--color-brand-700))',
         'linear-gradient(135deg,#F472B6,#E11D48)',
         'linear-gradient(135deg,#38BDF8,#0284C7)',
         'linear-gradient(135deg,#34D399,#059669)',
@@ -316,7 +316,7 @@ function BroadcastModal({ agents, onClose }: { agents: { id: number; name: strin
                         <button
                             type="submit"
                             disabled={processing || !data.body.trim()}
-                            className="px-4 py-2 text-[13px] bg-ink-900 text-white rounded-lg hover:bg-brand-500 disabled:opacity-60"
+                            className="px-4 py-2 text-[13px] bg-brand-700 text-white rounded-full hover:bg-brand-800 disabled:opacity-60"
                         >
                             {processing ? 'Sending…' : 'Send broadcast'}
                         </button>

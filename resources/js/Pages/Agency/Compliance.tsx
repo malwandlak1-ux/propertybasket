@@ -66,7 +66,7 @@ export default function AgencyCompliance({ agency, ffc }: Props) {
 
             <div className="px-4 sm:px-8 py-6 sm:py-7 max-w-3xl">
                 <div className="mb-6">
-                    <h1 className="text-2xl font-bold tracking-tight">EAAB &amp; Compliance</h1>
+                    <h1 className="text-[28px] sm:text-[32px] leading-tight tracking-tight">EAAB &amp; Compliance</h1>
                     <p className="text-[14px] text-ink-500 mt-1">
                         Upload the agency's Fidelity Fund Certificate from the PPRA. Required by law before any listing can be marketed.
                     </p>
@@ -81,7 +81,7 @@ export default function AgencyCompliance({ agency, ffc }: Props) {
                 </div>
 
                 <form onSubmit={submit} className="space-y-5">
-                    <div className="bg-white rounded-xl border border-ink-200 shadow-soft p-5 space-y-4">
+                    <div className="bg-white rounded-2xl border border-ink-200/60 shadow-soft p-5 space-y-4">
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
                                 <label className="text-[12px] font-semibold text-ink-700 mb-1.5 block">EAAB FFC number *</label>
@@ -152,7 +152,7 @@ export default function AgencyCompliance({ agency, ffc }: Props) {
                         <button
                             type="submit"
                             disabled={processing || ! data.eaab_ffc_number || ! data.eaab_ffc_expires_at}
-                            className="px-5 py-2 text-[13px] bg-ink-900 text-white rounded-lg hover:bg-brand-500 disabled:opacity-60 disabled:cursor-not-allowed inline-flex items-center gap-2 font-semibold transition"
+                            className="px-5 py-2 text-[13px] bg-brand-700 text-white rounded-full hover:bg-brand-800 disabled:opacity-60 disabled:cursor-not-allowed inline-flex items-center gap-2 font-semibold transition"
                         >
                             {processing && <Spinner size={13} />}
                             {processing ? 'Saving…' : 'Save certificate'}

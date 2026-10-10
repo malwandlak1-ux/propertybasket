@@ -1,5 +1,7 @@
 import { Head } from '@inertiajs/react';
 import AgencyLayout from '@/Layouts/AgencyLayout';
+import ErrorBoundary from '@/Components/ErrorBoundary';
+import { AreaChart, Donut } from '@/Components/Dashboard/Charts';
 
 type Props = {
     agency: {
@@ -43,15 +45,14 @@ function fmtDate(iso: string): string {
 }
 
 export default function Reports({ agency, income_statement: pl, cashflow, trust, agent_contribution, vat_period }: Props) {
-    const maxFlow = Math.max(1, ...cashflow.flatMap((c) => [c.inflow, c.outflow]));
-
+    
     return (
         <AgencyLayout agencyName={agency.name} crumb="Financial Reports">
             <Head title="Financial Reports" />
-            <section className="px-4 sm:px-8 py-6 sm:py-7">
+            <section className="px-4 sm:px-7 py-6">
                 <div className="flex flex-wrap items-end justify-between gap-3 mb-6">
                     <div>
-                        <h1 className="text-2xl font-bold tracking-tight">Financial Reports</h1>
+                        <h1 className="text-[28px] sm:text-[32px] leading-tight tracking-tight">Financial Reports</h1>
                         <p className="text-[14px] text-ink-500 mt-1">
                             Cash flow · VAT · Trust account · Sales &amp; rental breakdown
                         </p>
@@ -63,7 +64,7 @@ export default function Reports({ agency, income_statement: pl, cashflow, trust,
                         <button
                             disabled
                             title="PDF export ships in Phase 9"
-                            className="px-3.5 py-2 text-[13px] border border-ink-200 rounded-lg hover:bg-ink-100 flex items-center gap-2 opacity-60 cursor-not-allowed"
+                            className="px-4 py-2 text-[13px] font-semibold border border-ink-900/70 bg-white/60 rounded-full hover:bg-white flex items-center gap-2 opacity-60 cursor-not-allowed"
                         >
                             <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
                                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" />
@@ -74,7 +75,7 @@ export default function Reports({ agency, income_statement: pl, cashflow, trust,
                 </div>
 
                 {/* P&L Summary */}
-                <div className="bg-white rounded-xl border border-ink-200 shadow-soft overflow-hidden mb-6">
+                <div className="bg-white rounded-2xl border border-ink-200/60 shadow-soft overflow-hidden mb-4">
                     <div className="p-5 border-b border-ink-200">
                         <h2 className="text-base font-semibold">Income Statement Summary</h2>
                         <p className="text-[12px] text-ink-500 mt-0.5">YTD · {new Date().getFullYear()}</p>
@@ -108,57 +109,25 @@ export default function Reports({ agency, income_statement: pl, cashflow, trust,
                 </div>
 
                 {/* Cash flow + Trust */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-                    <div className="col-span-2 bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
+                    <div className="lg:col-span-2 bg-white rounded-2xl border border-ink-200/60 p-5 shadow-soft">
                         <h2 className="text-base font-semibold mb-1">Cash Flow Trend</h2>
                         <p className="text-[12px] text-ink-500 mb-4">Inflow vs Outflow · Last 6 months</p>
 
-                        <div className="flex items-end gap-4 h-52 px-2 overflow-x-auto">
-                            {cashflow.map((m, idx) => (
-                                <div key={m.month} className="flex-1 flex flex-col items-center gap-1">
-                                    <div className="w-full flex items-end justify-center gap-1 h-48">
-                                        <div
-                                            className="bg-success rounded-t w-6"
-                                            style={{ height: `${Math.max(2, (m.inflow / maxFlow) * 100)}%` }}
-                                            title={`Inflow ${fmtMoney(m.inflow)}`}
-                                        />
-                                        <div
-                                            className="rounded-t w-6"
-                                            style={{
-                                                height: `${Math.max(2, (m.outflow / maxFlow) * 100)}%`,
-                                                background: 'rgba(239,68,68,0.60)',
-                                            }}
-                                            title={`Outflow ${fmtMoney(m.outflow)}`}
-                                        />
-                                    </div>
-                                    <span
-                                        className={
-                                            'text-[10px] ' +
-                                            (idx === cashflow.length - 1 ? 'font-semibold text-brand-600' : 'text-ink-500')
-                                        }
-                                    >
-                                        {m.month}
-                                    </span>
-                                </div>
-                            ))}
-                        </div>
-
-                        <div className="flex items-center gap-4 mt-4 text-[11px]">
-                            <span className="flex items-center gap-1.5">
-                                <span className="w-2.5 h-2.5 rounded-sm bg-success" />
-                                Inflow (commissions earned)
-                            </span>
-                            <span className="flex items-center gap-1.5">
-                                <span
-                                    className="w-2.5 h-2.5 rounded-sm"
-                                    style={{ background: 'rgba(239,68,68,0.60)' }}
-                                />
-                                Outflow (agent payouts)
-                            </span>
-                        </div>
+                        <ErrorBoundary variant="section" label="cash flow chart">
+                            <AreaChart
+                                labels={cashflow.map((m) => m.month)}
+                                series={cashflow.map((m) => m.inflow)}
+                                previous={cashflow.map((m) => m.outflow)}
+                                seriesLabel="Inflow (commissions earned)"
+                                previousLabel="Outflow (agent payouts)"
+                                format={fmtMoneyShort}
+                                height={220}
+                            />
+                        </ErrorBoundary>
                     </div>
 
-                    <div className="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+                    <div className="bg-white rounded-2xl border border-ink-200/60 p-5 shadow-soft">
                         <div className="flex items-center justify-between mb-3">
                             <h2 className="text-base font-semibold">Trust Account</h2>
                             <span className="text-[10px] px-2 py-0.5 rounded-full bg-success/15 text-success font-bold">
@@ -169,10 +138,7 @@ export default function Reports({ agency, income_statement: pl, cashflow, trust,
                             {agency.trust_bank ?? 'No bank linked'}
                             {agency.trust_account_last4 ? ` · ***${agency.trust_account_last4}` : ''}
                         </p>
-                        <div
-                            className="rounded-lg p-4 text-white mb-4"
-                            style={{ background: 'linear-gradient(135deg,#0B0B0F,#1A1A22)' }}
-                        >
+                        <div className="pb-swirl rounded-2xl p-4 text-white mb-4">
                             <p className="text-[10px] uppercase tracking-wider opacity-70 font-semibold">
                                 Current Balance
                             </p>
@@ -196,8 +162,50 @@ export default function Reports({ agency, income_statement: pl, cashflow, trust,
                     </div>
                 </div>
 
+                {/* Per-agent share of gross commission */}
+                {agent_contribution.length > 0 && (
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
+                        <div className="bg-white rounded-2xl border border-ink-200/60 p-5 shadow-soft">
+                            <h2 className="text-base font-semibold mb-1">Revenue Share</h2>
+                            <p className="text-[12px] text-ink-500 mb-4">Gross commission by agent · YTD</p>
+                            <Donut
+                                size={150}
+                                centerValue={fmtMoneyShort(pl.gross_commission)}
+                                centerLabel="gross YTD"
+                                segments={agent_contribution.map((r) => ({
+                                    label: r.agent_name,
+                                    value: r.gross_commission,
+                                    display: `${fmtMoneyShort(r.gross_commission)} · ${r.percent_of_revenue}%`,
+                                }))}
+                            />
+                        </div>
+                        <div className="lg:col-span-2 grid grid-cols-2 gap-4">
+                            <div className="pb-swirl rounded-2xl p-5 text-white shadow-lift">
+                                <p className="text-[13px] font-medium">Net to Agency</p>
+                                <p className="text-[34px] font-semibold tracking-tight mt-4 leading-none">{fmtMoneyShort(pl.net_to_agency)}</p>
+                                <p className="text-[12px] text-white/80 mt-2.5">{pl.net_margin_pct}% net margin</p>
+                            </div>
+                            <div className="bg-white rounded-2xl border border-ink-200/60 p-5 shadow-soft">
+                                <p className="text-[13px] font-medium text-ink-700">Agent Payouts</p>
+                                <p className="text-[34px] font-semibold tracking-tight mt-4 leading-none">{fmtMoneyShort(pl.agent_payouts)}</p>
+                                <p className="text-[12px] text-ink-500 mt-2.5">{pl.agent_payouts_pct}% of gross</p>
+                            </div>
+                            <div className="bg-white rounded-2xl border border-ink-200/60 p-5 shadow-soft">
+                                <p className="text-[13px] font-medium text-ink-700">Gross Commission</p>
+                                <p className="text-[34px] font-semibold tracking-tight mt-4 leading-none">{fmtMoneyShort(pl.gross_commission)}</p>
+                                <p className="text-[12px] text-ink-500 mt-2.5">{agent_contribution.length} contributing agent{agent_contribution.length === 1 ? '' : 's'}</p>
+                            </div>
+                            <div className="bg-white rounded-2xl border border-ink-200/60 p-5 shadow-soft">
+                                <p className="text-[13px] font-medium text-ink-700">VAT Liability</p>
+                                <p className="text-[34px] font-semibold tracking-tight mt-4 leading-none">{fmtMoneyShort(pl.vat_liability)}</p>
+                                <p className="text-[12px] text-ink-500 mt-2.5">15% on agent commissions</p>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
                 {/* Per-agent contribution */}
-                <div className="bg-white rounded-xl border border-ink-200 p-5 shadow-soft mb-6">
+                <div className="bg-white rounded-2xl border border-ink-200/60 p-5 shadow-soft mb-6">
                     <h2 className="text-base font-semibold mb-4">Revenue Contribution by Agent</h2>
                     <div className="overflow-x-auto">
                         <table className="w-full">
@@ -245,7 +253,7 @@ export default function Reports({ agency, income_statement: pl, cashflow, trust,
 
                 {/* VAT panel */}
                 <div
-                    className="rounded-xl p-5 border border-warning/30"
+                    className="rounded-2xl p-5 border border-warning/30"
                     style={{ background: 'linear-gradient(90deg, rgba(245,158,11,0.05), #FEF3C7)' }}
                 >
                     <div className="flex items-start gap-4">

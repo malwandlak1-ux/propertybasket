@@ -51,7 +51,7 @@ export default function ContractorFinance({ counts, kpis, trend, payouts, vat_re
             <div className="px-4 sm:px-8 py-6 sm:py-7">
                 <div className="flex flex-wrap items-end justify-between gap-3 mb-6">
                     <div>
-                        <h1 className="text-2xl font-bold tracking-tight">Finance</h1>
+                        <h1 className="text-[28px] sm:text-[32px] leading-tight tracking-tight">Finance</h1>
                         <p className="text-[14px] text-ink-500 mt-1">
                             Earnings, payouts & platform fee summary · Next payout on {kpis.next_payout}
                         </p>
@@ -71,7 +71,7 @@ export default function ContractorFinance({ counts, kpis, trend, payouts, vat_re
                 </div>
 
                 {/* Revenue trend */}
-                <div className="bg-white rounded-xl border border-ink-200 p-5 shadow-soft mb-6">
+                <div className="bg-white rounded-2xl border border-ink-200/60 p-5 shadow-soft mb-6">
                     <div className="flex items-center justify-between mb-4">
                         <div>
                             <h2 className="text-base font-semibold">Earnings — last 6 months</h2>
@@ -107,7 +107,7 @@ export default function ContractorFinance({ counts, kpis, trend, payouts, vat_re
 
                 {/* VAT card + payouts table */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <div className="bg-white rounded-xl border border-ink-200 p-5 shadow-soft self-start">
+                    <div className="bg-white rounded-2xl border border-ink-200/60 p-5 shadow-soft self-start">
                         <h2 className="text-base font-semibold mb-3">Tax & Compliance</h2>
                         <div className="space-y-3 text-[12px]">
                             <div className="flex justify-between items-center">
@@ -136,7 +136,7 @@ export default function ContractorFinance({ counts, kpis, trend, payouts, vat_re
                         </p>
                     </div>
 
-                    <div className="col-span-2 bg-white rounded-xl border border-ink-200 shadow-soft overflow-hidden">
+                    <div className="col-span-2 bg-white rounded-2xl border border-ink-200/60 shadow-soft overflow-hidden">
                         <div className="p-5 border-b border-ink-200 flex items-center justify-between">
                             <div>
                                 <h2 className="text-base font-semibold">Recent Payouts</h2>
@@ -185,7 +185,7 @@ function Kpi({ label, value, sub, tone }: { label: string; value: string; sub: s
                 tone === 'danger'  ? 'text-danger' :
                                      'text-ink-900';
     return (
-        <div className="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+        <div className="bg-white rounded-2xl border border-ink-200/60 p-5 shadow-soft">
             <p className="text-[11px] text-ink-500 uppercase tracking-wider font-semibold mb-2">{label}</p>
             <p className={`text-2xl font-bold ${cls}`}>{value}</p>
             <p className="text-[11px] text-ink-400 mt-1">{sub}</p>

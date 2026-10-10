@@ -74,7 +74,7 @@ export default function ContractorQuotes({ counts, quotes, filter, tab_counts, q
             <div className="px-4 sm:px-8 py-6 sm:py-7">
                 <div className="flex flex-wrap items-end justify-between gap-3 mb-6">
                     <div>
-                        <h1 className="text-2xl font-bold tracking-tight">Quotes</h1>
+                        <h1 className="text-[28px] sm:text-[32px] leading-tight tracking-tight">Quotes</h1>
                         <p className="text-[14px] text-ink-500 mt-1">
                             Auto-expire after 14 days · {tab_counts.sent} sent · {tab_counts.accepted} accepted
                         </p>
@@ -115,7 +115,7 @@ export default function ContractorQuotes({ counts, quotes, filter, tab_counts, q
 
                 {/* Quote list */}
                 <div className={
-                    'bg-white rounded-xl border border-ink-200 shadow-soft overflow-hidden transition-opacity duration-150 ' +
+                    'bg-white rounded-2xl border border-ink-200/60 shadow-soft overflow-hidden transition-opacity duration-150 ' +
                     (loading ? 'opacity-50 pointer-events-none' : '')
                 }>
                     {quotes.length === 0 ? (

@@ -205,7 +205,7 @@ function Card({
     }
 
     return (
-        <div className="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+        <div className="bg-white rounded-2xl border border-ink-200/60 p-5 shadow-soft">
             <div className="flex items-center gap-2 mb-2 flex-wrap">
                 <span className={`text-[10px] px-2 py-0.5 rounded font-bold uppercase ${URGENCY_CFG[r.urgency] ?? 'bg-ink-100 text-ink-600'}`}>
                     {r.urgency}

@@ -1,5 +1,10 @@
-import { Head } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 import AgentLayout from '@/Layouts/AgentLayout';
+import ErrorBoundary from '@/Components/ErrorBoundary';
+import { useInertiaLoading } from '@/Hooks/useInertiaLoading';
+import {
+    AreaChart, Card, Donut, Heatmap, KpiCard, PageHeader, RankBars, Segmented, btnOutline,
+} from '@/Components/Dashboard/Charts';
 
 function fmtMoney(n: number): string {
     if (n >= 1_000_000) return 'R ' + (n / 1_000_000).toFixed(1) + 'm';
@@ -10,179 +15,148 @@ function fmtMoney(n: number): string {
 type FunnelRow = { label: string; count: number; pct: number };
 type SourceRow = { source: string; count: number; pct: number };
 type TrendRow  = { month: string; won: number; lost: number };
+type Kpi = { value: number; prev: number; delta: number | null; spark: number[] };
+type Range = '7' | '30' | '90';
 
 type Props = {
     agent: { id: number; name: string; agency_name: string };
+    range: number;
+    labels: string[];
+    series: { leads: number[]; leads_prev: number[] };
+    kpis: { leads: Kpi; viewings: Kpi; closed: Kpi; revenue: Kpi };
     funnel: FunnelRow[];
     lead_sources: SourceRow[];
-    mtd: { leads: number; viewing: number; closed: number; revenue: number };
+    top_listings: { label: string; sub: string; value: number }[];
+    heatmap: number[][];
     trend: TrendRow[];
     max_trend: number;
     overall: { total_leads: number; conversion: number };
 };
 
-const FUNNEL_COLORS = ['bg-brand-500', 'bg-brand-400', 'bg-sky-500', 'bg-warning', 'bg-success'];
-const SOURCE_COLORS = ['bg-brand-500', 'bg-sky-500', 'bg-emerald-500', 'bg-amber-500', 'bg-rose-500'];
+const RANGE_OPTIONS: { value: Range; label: string }[] = [
+    { value: '7', label: '7D' },
+    { value: '30', label: '30D' },
+    { value: '90', label: '90D' },
+];
 
-export default function AgentAnalytics({ agent, funnel, lead_sources, mtd, trend, max_trend, overall }: Props) {
+export default function AgentAnalytics({
+    agent, range, labels, series, kpis, funnel, lead_sources, top_listings, heatmap, trend, max_trend, overall,
+}: Props) {
+    const loading = useInertiaLoading();
+    const vs = `vs previous ${range}d`;
+    const delta = (k: Kpi) => k.delta === null ? undefined : { value: Math.abs(k.delta) + '%', up: k.delta >= 0, label: vs };
+
+    const setRange = (r: Range) =>
+        router.get('/agent/analytics', { range: r }, { preserveState: true, preserveScroll: true, replace: true });
+
     return (
         <AgentLayout crumb="Analytics" agencyName={agent.agency_name}>
             <Head title="Analytics" />
 
-            <div className="px-4 sm:px-8 py-6 sm:py-7">
-                {/* Header */}
-                <div className="mb-6">
-                    <h1 className="text-2xl font-bold tracking-tight">Analytics</h1>
-                    <p className="text-[14px] text-ink-500 mt-1">
-                        {overall.total_leads} total leads · {overall.conversion}% lifetime conversion
-                    </p>
-                </div>
+            <div className="px-4 sm:px-7 py-6">
+                <PageHeader
+                    title="Analytics"
+                    subtitle={<>How your pipeline is moving — {overall.total_leads} leads all-time · {overall.conversion}% lifetime conversion.</>}
+                    actions={
+                        <>
+                            <Segmented options={RANGE_OPTIONS} value={String(range) as Range} onChange={setRange} />
+                            <a href={`/agent/analytics?range=${range}&export=csv`} className={btnOutline}>
+                                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" /></svg>
+                                Export CSV
+                            </a>
+                        </>
+                    }
+                />
 
-                {/* MTD KPIs */}
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                    {[
-                        { label: 'MTD Leads',   value: mtd.leads.toString(),   sub: 'This month',       color: 'text-brand-600' },
-                        { label: 'MTD Viewings', value: mtd.viewing.toString(), sub: 'Scheduled',        color: 'text-sky-600' },
-                        { label: 'MTD Closed',  value: mtd.closed.toString(),  sub: 'Won this month',   color: 'text-success' },
-                        { label: 'MTD Revenue', value: fmtMoney(mtd.revenue),  sub: 'Commission earned', color: 'text-emerald-600' },
-                    ].map((k) => (
-                        <div key={k.label} className="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
-                            <p className="text-[11px] text-ink-500 uppercase tracking-wider font-semibold mb-2">{k.label}</p>
-                            <p className={`text-3xl font-bold ${k.color}`}>{k.value}</p>
-                            <p className="text-[11px] text-ink-400 mt-1">{k.sub}</p>
-                        </div>
-                    ))}
-                </div>
-
-                {/* Two-column: Funnel + Sources */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-                    {/* Conversion funnel */}
-                    <div className="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
-                        <h2 className="text-base font-semibold mb-1">Conversion Funnel</h2>
-                        <p className="text-[12px] text-ink-500 mb-5">Lead-to-close breakdown</p>
-
-                        <div className="space-y-3">
-                            {funnel.map((row, idx) => (
-                                <div key={row.label}>
-                                    <div className="flex items-center justify-between mb-1">
-                                        <span className="text-[12px] font-semibold text-ink-700">{row.label}</span>
-                                        <div className="flex items-center gap-2">
-                                            <span className="text-[11px] text-ink-500">{row.count} leads</span>
-                                            <span className="text-[11px] font-mono font-bold text-brand-600">{row.pct}%</span>
-                                        </div>
-                                    </div>
-                                    <div className="h-7 bg-ink-100 rounded-md overflow-hidden">
-                                        {row.count > 0 && (
-                                            <div
-                                                className={`h-full ${FUNNEL_COLORS[idx] ?? 'bg-brand-500'} flex items-center justify-end px-3 text-[11px] font-semibold text-white transition-all`}
-                                                style={{ width: `${Math.max(row.pct, row.count > 0 ? 8 : 0)}%` }}
-                                            >
-                                                {row.count}
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-
-                        <div className="mt-5 pt-4 border-t border-ink-200 grid grid-cols-1 sm:grid-cols-2 gap-4 text-center">
-                            <div>
-                                <p className="text-[11px] text-ink-500 uppercase tracking-wider">Total Leads</p>
-                                <p className="text-xl font-bold mt-1">{overall.total_leads}</p>
-                            </div>
-                            <div>
-                                <p className="text-[11px] text-ink-500 uppercase tracking-wider">Conversion</p>
-                                <p className="text-xl font-bold mt-1 text-success">{overall.conversion}%</p>
-                            </div>
-                        </div>
+                <div className={loading ? 'opacity-50 pointer-events-none transition-opacity' : 'transition-opacity'}>
+                    {/* KPI tiles with sparklines */}
+                    <div className="grid grid-cols-2 xl:grid-cols-4 gap-4 mb-4">
+                        <KpiCard label="Leads received" value={kpis.leads.value} delta={delta(kpis.leads)} spark={kpis.leads.spark} />
+                        <KpiCard label="Viewings booked" value={kpis.viewings.value} delta={delta(kpis.viewings)} spark={kpis.viewings.spark} />
+                        <KpiCard label="Deals closed" value={kpis.closed.value} delta={delta(kpis.closed)} spark={kpis.closed.spark} />
+                        <KpiCard label="Commission earned" value={fmtMoney(kpis.revenue.value)} delta={delta(kpis.revenue)} spark={kpis.revenue.spark} />
                     </div>
 
-                    {/* Lead sources */}
-                    <div className="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
-                        <h2 className="text-base font-semibold mb-1">Lead Sources</h2>
-                        <p className="text-[12px] text-ink-500 mb-5">Where your leads come from</p>
+                    {/* Throughput + sources */}
+                    <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 mb-4">
+                        <Card
+                            className="xl:col-span-2"
+                            title="Lead throughput"
+                            subtitle={`New leads per day, last ${range} days, against the previous period`}
+                        >
+                            <ErrorBoundary variant="section" label="throughput chart">
+                                <AreaChart labels={labels} series={series.leads} previous={series.leads_prev} seriesLabel="This period" />
+                            </ErrorBoundary>
+                        </Card>
 
-                        {lead_sources.length === 0 ? (
-                            <div className="py-8 text-center text-[13px] text-ink-400">No lead source data yet</div>
-                        ) : (
-                            <div className="space-y-4">
-                                {lead_sources.map((src, idx) => (
-                                    <div key={src.source}>
-                                        <div className="flex items-center justify-between mb-1.5">
-                                            <div className="flex items-center gap-2">
-                                                <span className={`w-2.5 h-2.5 rounded-full ${SOURCE_COLORS[idx] ?? 'bg-ink-400'}`} />
-                                                <span className="text-[13px] font-medium">{src.source}</span>
-                                            </div>
-                                            <div className="flex items-center gap-2">
-                                                <span className="text-[12px] text-ink-500">{src.count}</span>
-                                                <span className="text-[12px] font-semibold text-ink-700 w-10 text-right">{src.pct}%</span>
-                                            </div>
+                        <Card title="Leads by source" subtitle={`Last ${range} days`}>
+                            {lead_sources.length === 0 ? (
+                                <p className="py-12 text-center text-[13px] text-ink-400">No leads in this period</p>
+                            ) : (
+                                <Donut
+                                    segments={lead_sources.map((s) => ({ label: s.source, value: s.count, display: `${s.count} · ${s.pct}%` }))}
+                                    centerValue={kpis.leads.value}
+                                    centerLabel={`leads · ${range}d`}
+                                />
+                            )}
+                        </Card>
+                    </div>
+
+                    {/* Activity + top listings */}
+                    <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 mb-4">
+                        <Card className="xl:col-span-2" title="Activity" subtitle="New leads and status changes per day, last 20 weeks">
+                            <Heatmap weeks={heatmap} unit="lead updates" />
+                        </Card>
+                        <Card title="Top listings" subtitle={`By leads, last ${range} days`}>
+                            <RankBars rows={top_listings} empty="No listing leads in this period" />
+                        </Card>
+                    </div>
+
+                    {/* Funnel + win/loss */}
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                        <Card title="Conversion funnel" subtitle="Lead-to-close, all time">
+                            <div className="space-y-3">
+                                {funnel.map((row, idx) => (
+                                    <div key={row.label}>
+                                        <div className="flex items-center justify-between mb-1.5 text-[12.5px]">
+                                            <span className="font-medium text-ink-700">{row.label}</span>
+                                            <span className="text-ink-500 tabular-nums">{row.count} · <span className="font-semibold text-ink-900">{row.pct}%</span></span>
                                         </div>
-                                        <div className="h-2 bg-ink-100 rounded-full overflow-hidden">
+                                        <div className="h-3 bg-ink-100 rounded-full overflow-hidden">
                                             <div
-                                                className={`h-full ${SOURCE_COLORS[idx] ?? 'bg-ink-400'} rounded-full transition-all`}
-                                                style={{ width: `${src.pct}%` }}
+                                                className={`h-full rounded-full transition-all duration-700 ${['bg-brand-800', 'bg-brand-700', 'bg-brand-600', 'bg-brand-400', 'bg-success'][idx] ?? 'bg-brand-500'}`}
+                                                style={{ width: `${row.count > 0 ? Math.max(row.pct, 4) : 0}%` }}
                                             />
                                         </div>
                                     </div>
                                 ))}
                             </div>
-                        )}
+                        </Card>
 
-                        {/* Donut placeholder */}
-                        {lead_sources.length > 0 && (
-                            <div className="mt-5 pt-4 border-t border-ink-200 text-center">
-                                <p className="text-[11px] text-ink-400">Top source: <span className="font-semibold text-ink-700">{lead_sources[0]?.source}</span></p>
-                            </div>
-                        )}
-                    </div>
-                </div>
-
-                {/* Win/loss trend */}
-                <div className="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
-                    <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
-                        <div>
-                            <h2 className="text-base font-semibold">Win / Loss Trend</h2>
-                            <p className="text-[12px] text-ink-500 mt-0.5">Last 6 months</p>
-                        </div>
-                        <div className="flex items-center gap-4 text-[11px] text-ink-500">
-                            <span className="flex items-center gap-1.5">
-                                <span className="w-3 h-3 rounded-sm bg-success" />Won
-                            </span>
-                            <span className="flex items-center gap-1.5">
-                                <span className="w-3 h-3 rounded-sm bg-danger/40" />Lost
-                            </span>
-                        </div>
-                    </div>
-
-                    <div className="flex items-end gap-4 h-40 overflow-x-auto">
-                        {trend.map((t) => {
-                            const totalH = t.won + t.lost;
-                            const wonPct  = max_trend > 0 ? (t.won / max_trend) * 100 : 0;
-                            const lostPct = max_trend > 0 ? (t.lost / max_trend) * 100 : 0;
-                            return (
-                                <div key={t.month} className="flex-1 flex flex-col items-center gap-1">
-                                    <div className="w-full flex items-end gap-0.5 h-32">
-                                        <div
-                                            className="flex-1 bg-success rounded-t-sm transition-all"
-                                            style={{ height: `${Math.max(wonPct, t.won > 0 ? 4 : 0)}%` }}
-                                            title={`Won: ${t.won}`}
-                                        />
-                                        <div
-                                            className="flex-1 bg-danger/40 rounded-t-sm transition-all"
-                                            style={{ height: `${Math.max(lostPct, t.lost > 0 ? 4 : 0)}%` }}
-                                            title={`Lost: ${t.lost}`}
-                                        />
-                                    </div>
-                                    <span className="text-[10px] font-mono text-ink-400">{t.month}</span>
-                                    {totalH > 0 && (
-                                        <span className="text-[10px] text-ink-500">
-                                            {t.won}/{totalH}
-                                        </span>
-                                    )}
+                        <Card
+                            title="Win / loss"
+                            subtitle="Last 6 months"
+                            action={
+                                <div className="flex items-center gap-3 text-[11.5px] text-ink-500">
+                                    <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-brand-700" />Won</span>
+                                    <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full pb-hatch" />Lost</span>
                                 </div>
-                            );
-                        })}
+                            }
+                        >
+                            <div className="flex items-end gap-3 sm:gap-5 h-44">
+                                {trend.map((t, i) => (
+                                    <div key={t.month} className="flex-1 flex flex-col items-center gap-1.5 min-w-0">
+                                        <div className="w-full flex items-end justify-center gap-1 h-36">
+                                            <div className="pb-grow w-1/2 max-w-[22px] rounded-full bg-brand-700" title={`Won: ${t.won}`}
+                                                style={{ height: `${Math.max((t.won / max_trend) * 100, t.won > 0 ? 8 : 3)}%`, animationDelay: `${i * 60}ms` }} />
+                                            <div className="pb-grow w-1/2 max-w-[22px] rounded-full pb-hatch" title={`Lost: ${t.lost}`}
+                                                style={{ height: `${Math.max((t.lost / max_trend) * 100, t.lost > 0 ? 8 : 3)}%`, animationDelay: `${i * 60 + 30}ms` }} />
+                                        </div>
+                                        <span className="text-[11px] text-ink-500">{t.month}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        </Card>
                     </div>
                 </div>
             </div>

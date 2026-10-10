@@ -18,9 +18,13 @@
     --color-brand: #F26A1B;
     --color-brand-50: #FFF4EC;
     --color-brand-100: #FFE2CC;
+    --color-brand-200: #FFC9A3;
+    --color-brand-300: #FFAA73;
+    --color-brand-400: #F98A45;
     --color-brand-500: #F26A1B;
     --color-brand-600: #E15A12;
     --color-brand-700: #B8470A;
+    --color-brand-800: #8A3507;
 
     --color-ink-50: #F9FAFB;
     --color-ink-100: #F3F4F6;
@@ -53,6 +57,88 @@ body {
 h1, h2, h3 {
     font-family: 'Space Grotesk', 'Plus Jakarta Sans', system-ui, sans-serif;
     letter-spacing: -0.01em;
+}
+
+/* ── Dashboard accents (Settings → Appearance) ───────────────────────────
+   Every brand-* utility reads var(--color-brand-*), so re-pointing the ramp
+   on the dashboard shell (data-accent on .pb-dash) re-tints the whole
+   workspace — modals included, since none of them portal out of the tree.
+   Orange is the @theme default above. Keep ramps 50→800 complete. */
+[data-accent="black"] {
+    --color-brand: #18181B;
+    --color-brand-50: #F4F4F5;  --color-brand-100: #E4E4E7; --color-brand-200: #D4D4D8;
+    --color-brand-300: #A1A1AA; --color-brand-400: #52525B; --color-brand-500: #18181B;
+    --color-brand-600: #27272A; --color-brand-700: #09090B; --color-brand-800: #000000;
+}
+[data-accent="blue"] {
+    --color-brand: #2F66C9;
+    --color-brand-50: #EEF4FF;  --color-brand-100: #DCE7FD; --color-brand-200: #BCD2FB;
+    --color-brand-300: #8DB2F5; --color-brand-400: #5B8DEB; --color-brand-500: #2F66C9;
+    --color-brand-600: #1F4FA8; --color-brand-700: #173F86; --color-brand-800: #0F2A5C;
+}
+[data-accent="green"] {
+    --color-brand: #1F8A55;
+    --color-brand-50: #ECF7F0;  --color-brand-100: #D3EEDC; --color-brand-200: #A9DCBC;
+    --color-brand-300: #75C496; --color-brand-400: #46A970; --color-brand-500: #1F8A55;
+    --color-brand-600: #1D7347; --color-brand-700: #155A37; --color-brand-800: #0D3A23;
+}
+[data-accent="purple"] {
+    --color-brand: #7D52C4;
+    --color-brand-50: #F5F0FC;  --color-brand-100: #E9DFF9; --color-brand-200: #D4C1F2;
+    --color-brand-300: #B79BE8; --color-brand-400: #9A75DA; --color-brand-500: #7D52C4;
+    --color-brand-600: #6A3FB0; --color-brand-700: #4C2580; --color-brand-800: #331653;
+}
+
+/* ── Dashboard shell tokens (Fernly-style calm workspace) ────────────────
+   Scoped to .pb-dash so the public site keeps its own look. Re-pointing the
+   radius/shadow/neutral tokens restyles every existing card, input and table
+   across all dashboards without touching each page. */
+.pb-dash {
+    --pb-page: #E9EBE9;
+    --pb-panel: #F5F6F5;
+    --pb-hatch: #A3ADA7;
+    --color-white: #FDFDFC;
+    --color-ink-50: #F3F4F3;
+    --color-ink-100: #ECEEEC;
+    --color-ink-200: #E3E7E4;
+    --color-ink-300: #CDD3CF;
+    --radius-lg: 0.75rem;
+    --radius-xl: 1.25rem;
+    --radius-2xl: 1.625rem;
+    --shadow-soft: 0 1px 2px rgba(19, 26, 21, 0.04), 0 8px 24px -12px rgba(19, 26, 21, 0.10);
+    --shadow-card: 0 1px 2px rgba(19, 26, 21, 0.04), 0 8px 24px -12px rgba(19, 26, 21, 0.10);
+    --shadow-lift: 0 2px 4px rgba(19, 26, 21, 0.05), 0 18px 36px -16px rgba(19, 26, 21, 0.18);
+    background: var(--pb-page);
+}
+/* Fernly sets headings in the body face — semibold, tight. */
+.pb-dash h1, .pb-dash h2, .pb-dash h3 {
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    letter-spacing: -0.02em;
+}
+.pb-dash h1 { font-weight: 600; }
+
+/* Hatched fill for "not yet / below target" chart bars. */
+.pb-hatch {
+    background-image: repeating-linear-gradient(135deg, var(--pb-hatch) 0 1.5px, transparent 1.5px 7px);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--pb-hatch) 55%, transparent);
+}
+/* Soft swirl texture on accent hero cards. */
+.pb-swirl {
+    background-image:
+        radial-gradient(120% 90% at 100% 0%, color-mix(in srgb, var(--color-brand-400) 28%, transparent) 0, transparent 60%),
+        repeating-radial-gradient(circle at 110% 120%, transparent 0 14px, color-mix(in srgb, #fff 7%, transparent) 14px 15px),
+        linear-gradient(135deg, var(--color-brand-600), var(--color-brand-800));
+}
+
+@keyframes pb-rise {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+.pb-rise { animation: pb-rise 0.5s cubic-bezier(.22, 1, .36, 1) both; }
+@keyframes pb-grow { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+.pb-grow { transform-origin: bottom; animation: pb-grow 0.7s cubic-bezier(.22, 1, .36, 1) both; }
+@media (prefers-reduced-motion: reduce) {
+    .pb-rise, .pb-grow { animation: none; }
 }
 
 /* ── Animations used by Components/NetworkErrorToast.tsx ─────────────── */

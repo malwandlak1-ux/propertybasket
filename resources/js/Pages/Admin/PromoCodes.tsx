@@ -63,7 +63,7 @@ export default function AdminPromoCodes({ codes }: Props) {
 
             <div className="px-4 sm:px-8 py-6 sm:py-7">
                 <div className="mb-6">
-                    <h1 className="text-2xl font-bold tracking-tight">Promo Codes</h1>
+                    <h1 className="text-[28px] sm:text-[32px] leading-tight tracking-tight">Promo Codes</h1>
                     <p className="text-[14px] text-ink-500 mt-1">
                         Issue full-access codes for agencies &amp; landlords. Each code grants free access for the set
                         duration; once it lapses the user is prompted to renew and can't reuse the same code.
@@ -82,7 +82,7 @@ export default function AdminPromoCodes({ codes }: Props) {
                 )}
 
                 {/* Create form */}
-                <form onSubmit={submit} className="bg-white rounded-xl border border-ink-200 p-5 shadow-soft mb-6">
+                <form onSubmit={submit} className="bg-white rounded-2xl border border-ink-200/60 p-5 shadow-soft mb-6">
                     <h2 className="text-[15px] font-bold mb-4">Create a code</h2>
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
                         <div className="col-span-2 lg:col-span-1">
@@ -158,7 +158,7 @@ export default function AdminPromoCodes({ codes }: Props) {
                 </form>
 
                 {/* Codes table */}
-                <div className="bg-white rounded-xl border border-ink-200 shadow-soft overflow-hidden">
+                <div className="bg-white rounded-2xl border border-ink-200/60 shadow-soft overflow-hidden">
                     <table className="w-full text-[13px]">
                         <thead className="bg-ink-50 text-ink-500 text-[11px] uppercase tracking-wider">
                             <tr>

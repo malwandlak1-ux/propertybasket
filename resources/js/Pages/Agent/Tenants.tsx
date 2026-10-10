@@ -50,7 +50,7 @@ function expiryHint(row: TenantRow): { label: string; tone: 'success' | 'warn' |
 function TenantCard({ row, archived }: { row: TenantRow; archived: boolean }) {
     const hint = expiryHint(row);
     return (
-        <div className="bg-white rounded-xl border border-ink-200 shadow-soft overflow-hidden hover:shadow-lift transition">
+        <div className="bg-white rounded-2xl border border-ink-200/60 shadow-soft overflow-hidden hover:shadow-lift transition">
             <div className="aspect-[16/9] bg-ink-100 relative">
                 {row.primary_image ? (
                     <img src={row.primary_image} alt={row.listing_title} className="absolute inset-0 w-full h-full object-cover" loading="lazy" />
@@ -163,7 +163,7 @@ export default function AgentTenants({ agent, active, archived, counts }: Props)
             <div className="px-4 sm:px-8 py-6 sm:py-7">
                 <div className="flex flex-wrap items-end justify-between gap-3 mb-6 flex-wrap gap-3">
                     <div>
-                        <h1 className="text-2xl font-bold tracking-tight">Tenants</h1>
+                        <h1 className="text-[28px] sm:text-[32px] leading-tight tracking-tight">Tenants</h1>
                         <p className="text-[14px] text-ink-500 mt-1">
                             Active tenants under your management, plus past tenants you can re-engage for new listings.
                         </p>
@@ -220,7 +220,7 @@ export default function AgentTenants({ agent, active, archived, counts }: Props)
                 )}
 
                 {list.length === 0 ? (
-                    <div className="bg-white rounded-xl border border-ink-200 p-16 text-center shadow-soft">
+                    <div className="bg-white rounded-2xl border border-ink-200/60 p-16 text-center shadow-soft">
                         <div className="w-12 h-12 rounded-xl bg-ink-100 flex items-center justify-center mx-auto mb-4">
                             <svg className="w-6 h-6 text-ink-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
                                 <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />

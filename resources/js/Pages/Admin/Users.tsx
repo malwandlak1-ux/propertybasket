@@ -109,12 +109,12 @@ export default function AdminUsers({ users, role_counts, filter, search }: Props
             <div className="px-4 sm:px-8 py-6 sm:py-7">
                 <div className="flex flex-wrap items-end justify-between gap-3 mb-6">
                     <div>
-                        <h1 className="text-2xl font-bold tracking-tight">User Management</h1>
+                        <h1 className="text-[28px] sm:text-[32px] leading-tight tracking-tight">User Management</h1>
                         <p className="text-[14px] text-ink-500 mt-1">
                             Every user across all dashboards · adjust roles, suspend, impersonate for support
                         </p>
                     </div>
-                    <button className="px-3.5 py-2 text-[13px] bg-ink-900 text-white rounded-lg hover:bg-brand-500 transition flex items-center gap-2">
+                    <button className="px-3.5 py-2 text-[13px] bg-brand-700 text-white rounded-full hover:bg-brand-800 transition flex items-center gap-2">
                         <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M12 5v14M5 12h14"/></svg>
                         Create User
                     </button>
@@ -150,7 +150,7 @@ export default function AdminUsers({ users, role_counts, filter, search }: Props
                 </div>
 
                 <div className={
-                    'bg-white rounded-xl border border-ink-200 shadow-soft overflow-visible transition-opacity duration-150 ' +
+                    'bg-white rounded-2xl border border-ink-200/60 shadow-soft overflow-visible transition-opacity duration-150 ' +
                     (loading ? 'opacity-50 pointer-events-none' : '')
                 }>
                     <div className="overflow-x-auto"><table className="w-full min-w-[700px]">

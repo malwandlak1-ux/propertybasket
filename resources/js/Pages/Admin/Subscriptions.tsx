@@ -37,7 +37,7 @@ export default function AdminSubscriptions({ plans, contractor_fee_percent }: Pr
             <div className="px-4 sm:px-8 py-6 sm:py-7">
                 <div className="flex flex-wrap items-end justify-between gap-3 mb-6">
                     <div>
-                        <h1 className="text-2xl font-bold tracking-tight">Subscription Plans</h1>
+                        <h1 className="text-[28px] sm:text-[32px] leading-tight tracking-tight">Subscription Plans</h1>
                         <p className="text-[14px] text-ink-500 mt-1">
                             Adjust pricing and features · changes propagate to every agency's Billing &amp; Plan tab on next load
                         </p>

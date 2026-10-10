@@ -65,7 +65,7 @@ export default function LandlordFinance({ landlord, kpis, payments, trend }: Pro
 
             <div className="px-4 sm:px-8 py-6 sm:py-7">
                 <div className="mb-6">
-                    <h1 className="text-2xl font-bold tracking-tight">Finance</h1>
+                    <h1 className="text-[28px] sm:text-[32px] leading-tight tracking-tight">Finance</h1>
                     <p className="text-[14px] text-ink-500 mt-1">Rent collection history and income overview</p>
                 </div>
 
@@ -77,7 +77,7 @@ export default function LandlordFinance({ landlord, kpis, payments, trend }: Pro
                         { label: 'This Month',          value: fmtMoney(kpis.this_month_collected), sub: 'Payments received',         color: 'text-ink-900' },
                         { label: 'Outstanding',         value: fmtMoney(kpis.outstanding),          sub: 'Past due payments',         color: kpis.outstanding > 0 ? 'text-danger' : 'text-success' },
                     ].map((k) => (
-                        <div key={k.label} className="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+                        <div key={k.label} className="bg-white rounded-2xl border border-ink-200/60 p-5 shadow-soft">
                             <p className="text-[11px] text-ink-500 uppercase tracking-wider font-semibold mb-2">{k.label}</p>
                             <p className={`text-2xl font-bold ${k.color}`}>{k.value}</p>
                             <p className="text-[11px] text-ink-400 mt-1">{k.sub}</p>
@@ -86,7 +86,7 @@ export default function LandlordFinance({ landlord, kpis, payments, trend }: Pro
                 </div>
 
                 {/* ── Trend chart ───────────────────────────────────────── */}
-                <div className="bg-white rounded-xl border border-ink-200 p-5 shadow-soft mb-6">
+                <div className="bg-white rounded-2xl border border-ink-200/60 p-5 shadow-soft mb-6">
                     <h2 className="text-base font-semibold mb-4">Last 6 Months — Rent Collected</h2>
                     <div className="flex items-end gap-3 h-28 overflow-x-auto">
                         {trend.map((t) => {
@@ -108,7 +108,7 @@ export default function LandlordFinance({ landlord, kpis, payments, trend }: Pro
                 </div>
 
                 {/* ── Payment history table ─────────────────────────────── */}
-                <div className="bg-white rounded-xl border border-ink-200 shadow-soft overflow-hidden">
+                <div className="bg-white rounded-2xl border border-ink-200/60 shadow-soft overflow-hidden">
                     <div className="p-5 border-b border-ink-200 flex items-center justify-between">
                         <div>
                             <h2 className="text-base font-semibold">Payment History</h2>

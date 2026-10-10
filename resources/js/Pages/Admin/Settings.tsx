@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Head, router, usePage } from '@inertiajs/react';
 import AdminLayout from '@/Layouts/AdminLayout';
+import AppearanceSettings from '@/Components/Dashboard/AppearanceSettings';
 
 type Tab = { key: string; label: string };
 type Currency = { code: string; label: string };
@@ -67,7 +68,7 @@ function Toggle({ on, onClick }: { on: boolean; onClick: () => void }) {
 
 function FieldGroup({ title, children }: { title: string; children: React.ReactNode }) {
     return (
-        <section className="bg-white rounded-xl border border-ink-200 p-6 shadow-soft">
+        <section className="bg-white rounded-2xl border border-ink-200/60 p-6 shadow-soft">
             <h2 className="text-base font-semibold mb-5">{title}</h2>
             {children}
         </section>
@@ -188,7 +189,7 @@ function TagEditor({
                     type="button"
                     onClick={add}
                     disabled={draft.trim() === ''}
-                    className="px-3 py-1.5 text-[12px] bg-ink-900 text-white rounded-lg hover:bg-brand-500 transition font-semibold disabled:opacity-40 disabled:cursor-not-allowed"
+                    className="px-3 py-1.5 text-[12px] bg-brand-700 text-white rounded-full hover:bg-brand-800 transition font-semibold disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                     Add
                 </button>
@@ -286,7 +287,7 @@ export default function AdminSettings({ tabs, settings: initial, currencies, has
 
             <div className="px-4 sm:px-8 py-6 sm:py-7">
                 <div className="mb-6">
-                    <h1 className="text-2xl font-bold tracking-tight">
+                    <h1 className="text-[28px] sm:text-[32px] leading-tight tracking-tight">
                         Platform Settings
                         {has_overrides && (
                             <span className="ml-2 text-[11px] px-1.5 py-0.5 rounded bg-warning/15 text-warning font-bold align-middle">CUSTOMIZED</span>
@@ -397,13 +398,7 @@ export default function AdminSettings({ tabs, settings: initial, currencies, has
                             </FieldGroup>
                         )}
 
-                        {activeTab === 'appearance' && (
-                            <FieldGroup title="Appearance">
-                                <p className="text-[12.5px] text-ink-500">
-                                    Brand colour, logo upload, and theme controls land here. Coming soon.
-                                </p>
-                            </FieldGroup>
-                        )}
+                        {activeTab === 'appearance' && <AppearanceSettings />}
 
                         {activeTab === 'paystack' && (
                             <FieldGroup title="Paystack / Integrations">
@@ -522,7 +517,7 @@ export default function AdminSettings({ tabs, settings: initial, currencies, has
                         <button
                             onClick={save}
                             disabled={!dirty || saving}
-                            className="px-3.5 py-2 text-[13px] bg-ink-900 text-white rounded-lg hover:bg-brand-500 transition font-semibold disabled:opacity-40 disabled:cursor-not-allowed"
+                            className="px-3.5 py-2 text-[13px] bg-brand-700 text-white rounded-full hover:bg-brand-800 transition font-semibold disabled:opacity-40 disabled:cursor-not-allowed"
                         >
                             {saving ? 'Saving…' : 'Save Changes'}
                         </button>

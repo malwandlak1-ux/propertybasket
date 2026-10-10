@@ -31,7 +31,7 @@ const STAGE_CFG: Record<RequestStage, { cls: string; label: string }> = {
 
 function Card({ req, onView }: { req: Req; onView: () => void }) {
     return (
-        <div className="bg-white rounded-xl border border-ink-200 p-5 shadow-soft hover:shadow-card transition">
+        <div className="bg-white rounded-2xl border border-ink-200/60 p-5 shadow-soft hover:shadow-card transition">
             <div className="flex items-center gap-2 mb-2 flex-wrap">
                 <span className={`text-[10px] px-2 py-0.5 rounded font-bold uppercase ${URGENCY_CFG[req.urgency] ?? 'bg-ink-100 text-ink-600'}`}>
                     {req.urgency}
@@ -97,7 +97,7 @@ export default function ContractorRequests({ counts, assigned, marketplace, spec
             <div className="px-4 sm:px-8 py-6 sm:py-7">
                 <div className="flex flex-wrap items-end justify-between gap-3 mb-6">
                     <div>
-                        <h1 className="text-2xl font-bold tracking-tight">Job Requests</h1>
+                        <h1 className="text-[28px] sm:text-[32px] leading-tight tracking-tight">Job Requests</h1>
                         <p className="text-[14px] text-ink-500 mt-1">
                             {assigned.length} assigned to you · {marketplace.length} available in marketplace
                             {specialities.length > 0 && <> · filtered by your specialities ({specialities.join(', ')})</>}
@@ -123,7 +123,7 @@ export default function ContractorRequests({ counts, assigned, marketplace, spec
                         <span className="text-[11px] bg-danger/15 text-danger px-2 py-0.5 rounded-full font-bold">{assigned.length}</span>
                     </div>
                     {assigned.length === 0 ? (
-                        <div className="bg-white rounded-xl border border-ink-200 p-8 text-center shadow-soft">
+                        <div className="bg-white rounded-2xl border border-ink-200/60 p-8 text-center shadow-soft">
                             <p className="text-[13px] text-ink-500">No direct job assignments right now</p>
                         </div>
                     ) : (
@@ -140,7 +140,7 @@ export default function ContractorRequests({ counts, assigned, marketplace, spec
                         <span className="text-[11px] bg-brand-50 text-brand-700 px-2 py-0.5 rounded-full font-bold">{marketplace.length}</span>
                     </div>
                     {marketplace.length === 0 ? (
-                        <div className="bg-white rounded-xl border border-ink-200 p-8 text-center shadow-soft">
+                        <div className="bg-white rounded-2xl border border-ink-200/60 p-8 text-center shadow-soft">
                             <p className="text-[13px] text-ink-500">No open marketplace jobs in your specialities</p>
                         </div>
                     ) : (

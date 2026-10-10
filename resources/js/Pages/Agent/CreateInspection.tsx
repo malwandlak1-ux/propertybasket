@@ -112,7 +112,7 @@ export default function AgentCreateInspection({ agent, type: initialType, leases
 
                 <form onSubmit={submit} className="space-y-5">
                     {/* Type toggle */}
-                    <div className="bg-white rounded-xl border border-ink-200 shadow-soft p-5">
+                    <div className="bg-white rounded-2xl border border-ink-200/60 shadow-soft p-5">
                         <label className="text-[12px] font-semibold text-ink-700 mb-2 block">Inspection type</label>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             {(['move_in', 'move_out'] as const).map((t) => (
@@ -136,7 +136,7 @@ export default function AgentCreateInspection({ agent, type: initialType, leases
                     </div>
 
                     {/* Lease select */}
-                    <div className="bg-white rounded-xl border border-ink-200 shadow-soft p-5 space-y-4">
+                    <div className="bg-white rounded-2xl border border-ink-200/60 shadow-soft p-5 space-y-4">
                         <div>
                             <label className="text-[12px] font-semibold text-ink-700 mb-1.5 block">Lease *</label>
                             <select
@@ -168,7 +168,7 @@ export default function AgentCreateInspection({ agent, type: initialType, leases
                     </div>
 
                     {/* Rooms */}
-                    <div className="bg-white rounded-xl border border-ink-200 shadow-soft p-5">
+                    <div className="bg-white rounded-2xl border border-ink-200/60 shadow-soft p-5">
                         <div className="flex items-center justify-between mb-3">
                             <label className="text-[12px] font-semibold text-ink-700">Rooms ({rooms.length})</label>
                             <button type="button" onClick={addRoom} className="text-[12px] text-brand-600 hover:text-brand-700 font-semibold">
@@ -281,7 +281,7 @@ export default function AgentCreateInspection({ agent, type: initialType, leases
                     </div>
 
                     {/* General notes */}
-                    <div className="bg-white rounded-xl border border-ink-200 shadow-soft p-5">
+                    <div className="bg-white rounded-2xl border border-ink-200/60 shadow-soft p-5">
                         <label className="text-[12px] font-semibold text-ink-700 mb-1.5 block">General notes</label>
                         <textarea
                             value={generalNotes}
@@ -293,7 +293,7 @@ export default function AgentCreateInspection({ agent, type: initialType, leases
                     </div>
 
                     {/* Submit */}
-                    <div className="flex items-center justify-between bg-white rounded-xl border border-ink-200 p-5 shadow-soft sticky bottom-4">
+                    <div className="flex items-center justify-between bg-white rounded-2xl border border-ink-200/60 p-5 shadow-soft sticky bottom-4">
                         <p className="text-[12px] text-ink-500">
                             ⚠ Inspections become read-only once saved.
                         </p>
@@ -304,7 +304,7 @@ export default function AgentCreateInspection({ agent, type: initialType, leases
                             <button
                                 type="submit"
                                 disabled={processing || ! canSubmit}
-                                className="px-5 py-2 text-[13px] bg-ink-900 text-white rounded-lg hover:bg-brand-500 disabled:opacity-60 disabled:cursor-not-allowed inline-flex items-center gap-2 font-semibold transition"
+                                className="px-5 py-2 text-[13px] bg-brand-700 text-white rounded-full hover:bg-brand-800 disabled:opacity-60 disabled:cursor-not-allowed inline-flex items-center gap-2 font-semibold transition"
                             >
                                 {processing && <Spinner size={13} />}
                                 {processing ? 'Saving…' : 'Save inspection'}

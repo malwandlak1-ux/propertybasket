@@ -61,7 +61,7 @@ export default function AgencyMaintenanceQuotes({ agency, quotes }: Props) {
 
             <div className="px-4 sm:px-8 py-6 sm:py-7">
                 <div className="mb-6">
-                    <h1 className="text-2xl font-bold tracking-tight">Maintenance quotes</h1>
+                    <h1 className="text-[28px] sm:text-[32px] leading-tight tracking-tight">Maintenance quotes</h1>
                     <p className="text-[14px] text-ink-500 mt-1">
                         Review and approve contractor quotes before they schedule work on your properties.
                     </p>
@@ -79,7 +79,7 @@ export default function AgencyMaintenanceQuotes({ agency, quotes }: Props) {
                     ) : (
                         <div className="space-y-3">
                             {pending.map((q) => (
-                                <div key={q.id} className="bg-white rounded-xl border border-ink-200 shadow-soft p-4 flex items-center gap-4 flex-wrap">
+                                <div key={q.id} className="bg-white rounded-2xl border border-ink-200/60 shadow-soft p-4 flex items-center gap-4 flex-wrap">
                                     <div className="flex-1 min-w-[200px]">
                                         <p className="text-[10px] uppercase tracking-wider text-ink-400 font-semibold font-mono">{q.reference}</p>
                                         <p className="text-[14px] font-bold mt-0.5">{q.job_title}</p>

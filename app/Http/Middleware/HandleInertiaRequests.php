@@ -44,6 +44,37 @@ class HandleInertiaRequests extends Middleware
             'subscription' => fn () => $this->subscriptionStatus($request),
             'notifications' => fn () => $this->notifications($request),
             'unread_messages' => fn () => $this->unreadMessagesCount($request),
+            'appearance' => fn () => $this->appearance($request),
+        ];
+    }
+
+    /**
+     * Dashboard accent + logo. An agent without a logo of their own inherits
+     * their agency owner's, so an agency's white-label mark reaches its team.
+     * Root-relative /storage URL (public disk symlink) so it works on any host.
+     */
+    private function appearance(Request $request): ?array
+    {
+        $user = $request->user();
+        if (! $user) return null;
+
+        $logo = $user->dashboard_logo;
+        $inherited = false;
+
+        if (! $logo) {
+            $pivot = AgencyAgent::where('user_id', $user->id)->where('status', 'active')->first();
+            $ownerLogo = $pivot?->agency?->owner?->dashboard_logo;
+            if ($ownerLogo) {
+                $logo = $ownerLogo;
+                $inherited = true;
+            }
+        }
+
+        return [
+            'accent'         => $user->theme_accent ?: 'orange',
+            'logo_url'       => $logo ? '/storage/' . ltrim($logo, '/') : null,
+            'logo_inherited' => $inherited,
+            'has_own_logo'   => (bool) $user->dashboard_logo,
         ];
     }
 

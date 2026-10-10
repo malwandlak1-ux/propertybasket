@@ -79,7 +79,7 @@ export default function AdminBlogIndex({ posts, filter, q, counts }: Props) {
             <section className="px-4 sm:px-4 sm:px-8 py-6 sm:py-7">
                 <div className="flex flex-wrap items-end justify-between gap-3 mb-6 flex-wrap gap-4">
                     <div>
-                        <h1 className="text-2xl font-bold tracking-tight">Blog</h1>
+                        <h1 className="text-[28px] sm:text-[32px] leading-tight tracking-tight">Blog</h1>
                         <p className="text-[14px] text-ink-500 mt-1">
                             Write and publish articles for the public Advice page. Tag posts to group them by topic.
                         </p>

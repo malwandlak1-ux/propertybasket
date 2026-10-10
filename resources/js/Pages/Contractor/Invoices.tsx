@@ -75,7 +75,7 @@ export default function ContractorInvoices({ counts, invoices, filter, tab_count
             <div className="px-4 sm:px-8 py-6 sm:py-7">
                 <div className="flex flex-wrap items-end justify-between gap-3 mb-6">
                     <div>
-                        <h1 className="text-2xl font-bold tracking-tight">Invoices</h1>
+                        <h1 className="text-[28px] sm:text-[32px] leading-tight tracking-tight">Invoices</h1>
                         <p className="text-[14px] text-ink-500 mt-1">
                             {fmtMoney(outstanding)} outstanding · {tab_counts.submitted + tab_counts.approved} awaiting payment
                         </p>
@@ -116,7 +116,7 @@ export default function ContractorInvoices({ counts, invoices, filter, tab_count
 
                 {/* Invoice table */}
                 <div className={
-                    'bg-white rounded-xl border border-ink-200 shadow-soft overflow-hidden transition-opacity duration-150 ' +
+                    'bg-white rounded-2xl border border-ink-200/60 shadow-soft overflow-hidden transition-opacity duration-150 ' +
                     (loading ? 'opacity-50 pointer-events-none' : '')
                 }>
                     {invoices.length === 0 ? (

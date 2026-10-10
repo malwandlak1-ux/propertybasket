@@ -2,6 +2,7 @@ import { FormEvent, useState } from 'react';
 import { Head, useForm, usePage } from '@inertiajs/react';
 import TenantLayout from '@/Layouts/TenantLayout';
 import { Spinner } from '@/Components/Skeleton';
+import AppearanceSettings from '@/Components/Dashboard/AppearanceSettings';
 
 type Props = {
     tenant: { id: number; name: string };
@@ -14,6 +15,7 @@ type SharedProps = { flash?: { success?: string | null; error?: string | null } 
 const TABS = [
     { key: 'contact',  label: 'Contact details' },
     { key: 'password', label: 'Password' },
+    { key: 'appearance', label: 'Appearance' },
 ] as const;
 type TabKey = (typeof TABS)[number]['key'];
 
@@ -30,7 +32,7 @@ export default function TenantSettings({ tenant, lease, profile }: Props) {
 
             <div className="px-4 sm:px-8 py-6 sm:py-7 max-w-4xl">
                 <div className="mb-6">
-                    <h1 className="text-2xl font-bold tracking-tight">Settings</h1>
+                    <h1 className="text-[28px] sm:text-[32px] leading-tight tracking-tight">Settings</h1>
                     <p className="text-[14px] text-ink-500 mt-1">
                         Keep your contact details up to date — your landlord and agent use these to reach you.
                     </p>
@@ -60,6 +62,7 @@ export default function TenantSettings({ tenant, lease, profile }: Props) {
                     </aside>
 
                     <div className="col-span-3 space-y-6">
+                        {tab === 'appearance' && <AppearanceSettings />}
                         {tab === 'contact' && <ContactPanel profile={profile} />}
                         {tab === 'password' && <PasswordPanel />}
                     </div>
@@ -80,7 +83,7 @@ function ContactPanel({ profile }: { profile: Props['profile'] }) {
         patch('/tenant/settings/profile', { preserveScroll: true });
     }
     return (
-        <form onSubmit={submit} className="bg-white rounded-xl border border-ink-200 shadow-soft p-6 space-y-4">
+        <form onSubmit={submit} className="bg-white rounded-2xl border border-ink-200/60 shadow-soft p-6 space-y-4">
             <div>
                 <h2 className="text-base font-bold">Contact details</h2>
                 <p className="text-[12px] text-ink-500 mt-0.5">How your landlord, agent, and Property Basket reach you.</p>
@@ -109,7 +112,7 @@ function ContactPanel({ profile }: { profile: Props['profile'] }) {
                 <button
                     type="submit"
                     disabled={! isDirty || processing}
-                    className="px-4 py-2 text-[13px] bg-ink-900 text-white rounded-lg hover:bg-brand-500 disabled:opacity-40 inline-flex items-center gap-2 font-semibold"
+                    className="px-4 py-2 text-[13px] bg-brand-700 text-white rounded-full hover:bg-brand-800 disabled:opacity-40 inline-flex items-center gap-2 font-semibold"
                 >
                     {processing && <Spinner size={13} />}
                     {processing ? 'Saving…' : 'Save contact details'}
@@ -133,7 +136,7 @@ function PasswordPanel() {
         });
     }
     return (
-        <form onSubmit={submit} className="bg-white rounded-xl border border-ink-200 shadow-soft p-6 space-y-4">
+        <form onSubmit={submit} className="bg-white rounded-2xl border border-ink-200/60 shadow-soft p-6 space-y-4">
             <div>
                 <h2 className="text-base font-bold">Change password</h2>
                 <p className="text-[12px] text-ink-500 mt-0.5">Use at least 8 characters. You'll stay signed in on this device.</p>
@@ -161,7 +164,7 @@ function PasswordPanel() {
                 <button
                     type="submit"
                     disabled={processing || ! data.current_password || ! data.password || data.password !== data.password_confirmation}
-                    className="px-4 py-2 text-[13px] bg-ink-900 text-white rounded-lg hover:bg-brand-500 disabled:opacity-40 inline-flex items-center gap-2 font-semibold"
+                    className="px-4 py-2 text-[13px] bg-brand-700 text-white rounded-full hover:bg-brand-800 disabled:opacity-40 inline-flex items-center gap-2 font-semibold"
                 >
                     {processing && <Spinner size={13} />}
                     {processing ? 'Saving…' : 'Change password'}

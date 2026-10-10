@@ -75,7 +75,7 @@ function fmtMoneyShort(n: number): string {
 
 function gradientFor(idx: number): string {
     const palette = [
-        'linear-gradient(135deg,#F26A1B,#B8470A)',
+        'linear-gradient(135deg,var(--color-brand-500),var(--color-brand-700))',
         'linear-gradient(135deg,#F472B6,#E11D48)',
         'linear-gradient(135deg,#38BDF8,#0284C7)',
         'linear-gradient(135deg,#34D399,#059669)',
@@ -156,14 +156,14 @@ export default function Commission({ agency, commissions, totals, next_batch, pa
             <section className="px-4 sm:px-8 py-6 sm:py-7">
                 <div className="flex flex-wrap items-end justify-between gap-3 mb-6">
                     <div>
-                        <h1 className="text-2xl font-bold tracking-tight">Commission &amp; Payouts</h1>
+                        <h1 className="text-[28px] sm:text-[32px] leading-tight tracking-tight">Commission &amp; Payouts</h1>
                         <p className="text-[14px] text-ink-500 mt-1">
                             Monthly payout day: <span className="font-semibold text-ink-900">{agency.payout_day}th of each month</span> ·
                             Paystack stub connected ✓
                         </p>
                     </div>
                     <div className="flex items-center gap-2">
-                        <button className="px-3.5 py-2 text-[13px] border border-ink-200 rounded-lg hover:bg-ink-100 flex items-center gap-2" disabled title="Coming soon">
+                        <button className="px-4 py-2 text-[13px] font-semibold border border-ink-900/70 bg-white/60 rounded-full hover:bg-white flex items-center gap-2" disabled title="Coming soon">
                             <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
                                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" />
                             </svg>
@@ -200,7 +200,7 @@ export default function Commission({ agency, commissions, totals, next_batch, pa
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                     <div
                         className="rounded-xl p-5 text-white shadow-card"
-                        style={{ background: 'linear-gradient(135deg,#F26A1B,#B8470A)' }}
+                        style={{ background: 'linear-gradient(135deg,var(--color-brand-500),var(--color-brand-700))' }}
                     >
                         <p className="text-[11px] uppercase tracking-wider opacity-80 font-semibold">Next Payout</p>
                         <p className="text-3xl font-bold mt-2">
@@ -228,7 +228,7 @@ export default function Commission({ agency, commissions, totals, next_batch, pa
                 </div>
 
                 {/* Payout queue */}
-                <div className="bg-white rounded-xl border border-ink-200 shadow-soft overflow-hidden mb-6">
+                <div className="bg-white rounded-2xl border border-ink-200/60 shadow-soft overflow-hidden mb-6">
                     <div className="p-5 border-b border-ink-200 flex items-center justify-between">
                         <div>
                             <h2 className="text-base font-semibold">Payout Queue</h2>
@@ -348,7 +348,7 @@ export default function Commission({ agency, commissions, totals, next_batch, pa
                 </div>
 
                 {/* Contractor invoices awaiting payment */}
-                <div className="bg-white rounded-xl border border-ink-200 shadow-soft overflow-hidden mb-6">
+                <div className="bg-white rounded-2xl border border-ink-200/60 shadow-soft overflow-hidden mb-6">
                     <div className="p-5 border-b border-ink-200 flex items-center justify-between gap-3 flex-wrap">
                         <div>
                             <h2 className="text-base font-semibold">Contractor Invoices</h2>
@@ -437,7 +437,7 @@ export default function Commission({ agency, commissions, totals, next_batch, pa
                 {/* Three side cards */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     {/* Paystack */}
-                    <div className="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+                    <div className="bg-white rounded-2xl border border-ink-200/60 p-5 shadow-soft">
                         <div className="flex items-center justify-between mb-3">
                             <div className="flex items-center gap-2">
                                 <div className="w-8 h-8 rounded-lg bg-sky-50 flex items-center justify-center">
@@ -459,7 +459,7 @@ export default function Commission({ agency, commissions, totals, next_batch, pa
                     </div>
 
                     {/* Recent transfers */}
-                    <div className="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+                    <div className="bg-white rounded-2xl border border-ink-200/60 p-5 shadow-soft">
                         <h3 className="text-base font-semibold mb-3">Recent Transfers</h3>
                         {recent_transfers.length === 0 ? (
                             <p className="text-[13px] text-ink-500">No completed batches yet. Run the first one above.</p>
@@ -480,7 +480,7 @@ export default function Commission({ agency, commissions, totals, next_batch, pa
                     </div>
 
                     {/* Settings */}
-                    <div className="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+                    <div className="bg-white rounded-2xl border border-ink-200/60 p-5 shadow-soft">
                         <h3 className="text-base font-semibold mb-3">Payout Settings</h3>
                         <div className="space-y-3 text-[12px]">
                             <div className="flex items-center justify-between py-1.5 border-b border-ink-100">
@@ -672,7 +672,7 @@ function CommissionRateModal({ sale, rental, onClose }: { sale: number; rental: 
 
                 <div className="mt-5 flex justify-end gap-2">
                     <button type="button" onClick={onClose} className="px-4 py-2 text-[13px] border border-ink-200 rounded-lg hover:bg-ink-100 font-semibold">Cancel</button>
-                    <button type="submit" disabled={form.processing} className="px-5 py-2 text-[13px] bg-ink-900 text-white rounded-lg hover:bg-brand-500 disabled:opacity-50 font-semibold">
+                    <button type="submit" disabled={form.processing} className="px-5 py-2 text-[13px] bg-brand-700 text-white rounded-full hover:bg-brand-800 disabled:opacity-50 font-semibold">
                         {form.processing ? 'Saving…' : 'Save structure'}
                     </button>
                 </div>
@@ -701,7 +701,7 @@ function RateField({ label, hint, value, onChange, error }: { label: string; hin
 
 function Stat({ label, value, meta }: { label: string; value: string; meta: string }) {
     return (
-        <div className="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+        <div className="bg-white rounded-2xl border border-ink-200/60 p-5 shadow-soft">
             <p className="text-[11px] text-ink-500 uppercase tracking-wider font-semibold">{label}</p>
             <p className="text-3xl font-bold mt-2">{value}</p>
             <p className="text-[11px] text-ink-500 mt-1">{meta}</p>

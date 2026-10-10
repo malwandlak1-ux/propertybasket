@@ -74,7 +74,7 @@ export default function Landlords({ agency, landlords, totals, available_listing
             <section className="px-4 sm:px-8 py-6 sm:py-7">
                 <div className="flex flex-wrap items-end justify-between gap-3 mb-6">
                     <div>
-                        <h1 className="text-2xl font-bold tracking-tight">Managed Landlords</h1>
+                        <h1 className="text-[28px] sm:text-[32px] leading-tight tracking-tight">Managed Landlords</h1>
                         <p className="text-[14px] text-ink-500 mt-1">
                             Landlords who appointed you to manage their rentals · payouts &amp; splits for {current_month}
                         </p>
@@ -101,7 +101,7 @@ export default function Landlords({ agency, landlords, totals, available_listing
                 </div>
 
                 {/* Performance graph */}
-                <div className="bg-white rounded-xl border border-ink-200 shadow-soft p-5 mb-6">
+                <div className="bg-white rounded-2xl border border-ink-200/60 shadow-soft p-5 mb-6">
                     <div className="flex items-center justify-between mb-4">
                         <div>
                             <h2 className="text-base font-semibold">Rental performance</h2>
@@ -136,13 +136,13 @@ export default function Landlords({ agency, landlords, totals, available_listing
 
                 {/* Landlords */}
                 {landlords.length === 0 ? (
-                    <div className="bg-white rounded-xl border border-ink-200 shadow-soft p-10 text-center text-ink-500 text-[14px]">
+                    <div className="bg-white rounded-2xl border border-ink-200/60 shadow-soft p-10 text-center text-ink-500 text-[14px]">
                         No managed landlords yet. Click <b>Add landlord</b> to capture one and link a rental property.
                     </div>
                 ) : (
                     <div className="space-y-4">
                         {landlords.map((l) => (
-                            <div key={l.id} className="bg-white rounded-xl border border-ink-200 shadow-soft p-5">
+                            <div key={l.id} className="bg-white rounded-2xl border border-ink-200/60 shadow-soft p-5">
                                 <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
                                     <div>
                                         <h3 className="text-[15px] font-bold">{l.name}</h3>
@@ -219,7 +219,7 @@ export default function Landlords({ agency, landlords, totals, available_listing
 
                 {/* Recent payouts */}
                 {recent_payouts.length > 0 && (
-                    <div className="bg-white rounded-xl border border-ink-200 shadow-soft mt-6 overflow-hidden">
+                    <div className="bg-white rounded-2xl border border-ink-200/60 shadow-soft mt-6 overflow-hidden">
                         <div className="px-5 py-4 border-b border-ink-100"><h2 className="text-base font-semibold">Payout history</h2></div>
                         <div className="overflow-x-auto">
                             <table className="w-full min-w-[640px] text-[13px]">
@@ -267,7 +267,7 @@ export default function Landlords({ agency, landlords, totals, available_listing
 
 function Kpi({ label, value, tone }: { label: string; value: string; tone?: 'brand' }) {
     return (
-        <div className="bg-white rounded-xl border border-ink-200 shadow-soft p-4">
+        <div className="bg-white rounded-2xl border border-ink-200/60 shadow-soft p-4">
             <p className="text-[11px] uppercase tracking-wider text-ink-400">{label}</p>
             <p className={'text-2xl font-bold mt-1 ' + (tone === 'brand' ? 'text-brand-600' : '')}>{value}</p>
         </div>

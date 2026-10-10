@@ -118,10 +118,10 @@ export default function TenantDocuments({ tenant, lease, deposit, ledger, docume
             <div className="px-4 sm:px-8 py-6 sm:py-7">
                 <div className="flex flex-wrap items-end justify-between gap-3 mb-6">
                     <div>
-                        <h1 className="text-2xl font-bold tracking-tight">Documents &amp; Deposit</h1>
+                        <h1 className="text-[28px] sm:text-[32px] leading-tight tracking-tight">Documents &amp; Deposit</h1>
                         <p className="text-[14px] text-ink-500 mt-1">Lease records, inspection reports, and your trust deposit ledger.</p>
                     </div>
-                    <button className="px-3.5 py-2 text-[13px] border border-ink-200 rounded-lg hover:bg-ink-100 flex items-center gap-2">
+                    <button className="px-4 py-2 text-[13px] font-semibold border border-ink-900/70 bg-white/60 rounded-full hover:bg-white flex items-center gap-2">
                         <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
                         Trust statement
                     </button>
@@ -156,7 +156,7 @@ export default function TenantDocuments({ tenant, lease, deposit, ledger, docume
                 <h2 className="text-base font-semibold mb-3">Lease Documents</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
                     {documents.map((d) => (
-                        <div key={d.id} className="bg-white rounded-xl border border-ink-200 p-5 shadow-soft hover:shadow-lift transition">
+                        <div key={d.id} className="bg-white rounded-2xl border border-ink-200/60 p-5 shadow-soft hover:shadow-lift transition">
                             <div className="flex items-start justify-between mb-3">
                                 <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${docTone(d.tone)}`}>
                                     <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
@@ -204,7 +204,7 @@ export default function TenantDocuments({ tenant, lease, deposit, ledger, docume
                 ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
                         {inspections.map((i) => (
-                            <div key={i.id} className="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+                            <div key={i.id} className="bg-white rounded-2xl border border-ink-200/60 p-5 shadow-soft">
                                 <div className="flex items-start justify-between mb-3">
                                     <div className="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center">
                                         <svg className="w-5 h-5 text-success" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M9 12l2 2 4-4"/><path d="M21 12c0 1-1 11-9 11s-9-10-9-11V5l9-3 9 3z"/></svg>
@@ -232,7 +232,7 @@ export default function TenantDocuments({ tenant, lease, deposit, ledger, docume
                 )}
 
                 {/* Trust Ledger */}
-                <div className="bg-white rounded-xl border border-ink-200 shadow-soft overflow-hidden">
+                <div className="bg-white rounded-2xl border border-ink-200/60 shadow-soft overflow-hidden">
                     <div className="p-5 border-b border-ink-200">
                         <h2 className="text-base font-semibold">Trust Ledger</h2>
                         <p className="text-[12px] text-ink-500 mt-0.5">Full transaction history for your deposit</p>

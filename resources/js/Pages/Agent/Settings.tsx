@@ -2,6 +2,7 @@ import { FormEvent, useState } from 'react';
 import { Head, useForm, usePage } from '@inertiajs/react';
 import AgentLayout from '@/Layouts/AgentLayout';
 import { Spinner } from '@/Components/Skeleton';
+import AppearanceSettings from '@/Components/Dashboard/AppearanceSettings';
 
 type ChannelKey = string;
 
@@ -25,13 +26,14 @@ type Props = {
     };
 };
 
-type Tab = 'profile' | 'password' | 'notifications' | 'banking';
+type Tab = 'profile' | 'password' | 'notifications' | 'banking' | 'appearance';
 
 const TABS: { key: Tab; label: string }[] = [
     { key: 'profile',       label: 'Profile' },
     { key: 'password',      label: 'Password' },
     { key: 'notifications', label: 'Notifications' },
     { key: 'banking',       label: 'Banking' },
+    { key: 'appearance',    label: 'Appearance' },
 ];
 
 const inputCls = 'w-full bg-ink-50 border border-ink-200 rounded-lg px-3.5 py-2.5 text-[14px] outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand';
@@ -46,7 +48,7 @@ export default function AgentSettings({ agent, profile, notifications, banking }
 
             <div className="px-4 sm:px-8 py-6 sm:py-7 max-w-5xl">
                 <div className="mb-6">
-                    <h1 className="text-2xl font-bold tracking-tight">Settings</h1>
+                    <h1 className="text-[28px] sm:text-[32px] leading-tight tracking-tight">Settings</h1>
                     <p className="text-[14px] text-ink-500 mt-1">Manage your profile, security, notification preferences, and payout details.</p>
                 </div>
 
@@ -65,7 +67,7 @@ export default function AgentSettings({ agent, profile, notifications, banking }
                                     onClick={() => setTab(t.key)}
                                     className={`w-full text-left px-3 py-2 rounded-lg text-[13px] transition ${
                                         tab === t.key
-                                            ? 'bg-ink-100 text-ink-900 font-semibold'
+                                            ? 'bg-brand-50 text-brand-800 font-semibold'
                                             : 'text-ink-500 hover:bg-ink-50'
                                     }`}
                                 >
@@ -76,6 +78,7 @@ export default function AgentSettings({ agent, profile, notifications, banking }
                     </aside>
 
                     <main className="col-span-12 md:col-span-9 space-y-5">
+                        {tab === 'appearance' && <AppearanceSettings />}
                         {tab === 'profile'       && <ProfileSection profile={profile} />}
                         {tab === 'password'      && <PasswordSection />}
                         {tab === 'notifications' && <NotificationsSection channels={notifications.channels} values={notifications.values} />}
@@ -105,7 +108,7 @@ function ProfileSection({ profile }: { profile: Props['profile'] }) {
     }
 
     return (
-        <section className="bg-white rounded-xl border border-ink-200 shadow-soft p-6">
+        <section className="bg-white rounded-2xl border border-ink-200/60 shadow-soft p-6">
             <h2 className="text-base font-bold">Profile information</h2>
             <p className="text-[12.5px] text-ink-500 mb-5">Your name, contact details, and avatar.</p>
 
@@ -151,7 +154,7 @@ function ProfileSection({ profile }: { profile: Props['profile'] }) {
                     <button
                         type="submit"
                         disabled={processing}
-                        className="px-5 py-2 text-[13px] bg-ink-900 text-white rounded-lg hover:bg-brand-500 disabled:opacity-60 inline-flex items-center gap-2 font-semibold transition"
+                        className="px-5 py-2 text-[13px] bg-brand-700 text-white rounded-full hover:bg-brand-800 disabled:opacity-60 inline-flex items-center gap-2 font-semibold transition"
                     >
                         {processing && <Spinner size={13} />}
                         {processing ? 'Saving…' : 'Save profile'}
@@ -177,7 +180,7 @@ function PasswordSection() {
     }
 
     return (
-        <section className="bg-white rounded-xl border border-ink-200 shadow-soft p-6">
+        <section className="bg-white rounded-2xl border border-ink-200/60 shadow-soft p-6">
             <h2 className="text-base font-bold">Change password</h2>
             <p className="text-[12.5px] text-ink-500 mb-5">Pick a strong password — at least 8 characters.</p>
 
@@ -202,7 +205,7 @@ function PasswordSection() {
                     <button
                         type="submit"
                         disabled={processing || ! data.current_password || data.password.length < 8 || data.password !== data.password_confirmation}
-                        className="px-5 py-2 text-[13px] bg-ink-900 text-white rounded-lg hover:bg-brand-500 disabled:opacity-60 disabled:cursor-not-allowed inline-flex items-center gap-2 font-semibold transition"
+                        className="px-5 py-2 text-[13px] bg-brand-700 text-white rounded-full hover:bg-brand-800 disabled:opacity-60 disabled:cursor-not-allowed inline-flex items-center gap-2 font-semibold transition"
                     >
                         {processing && <Spinner size={13} />}
                         {processing ? 'Updating…' : 'Update password'}
@@ -230,7 +233,7 @@ function NotificationsSection({ channels, values }: { channels: Record<string, s
     }
 
     return (
-        <section className="bg-white rounded-xl border border-ink-200 shadow-soft p-6">
+        <section className="bg-white rounded-2xl border border-ink-200/60 shadow-soft p-6">
             <h2 className="text-base font-bold">Notification preferences</h2>
             <p className="text-[12.5px] text-ink-500 mb-5">Choose which email alerts you'd like to receive.</p>
 
@@ -256,7 +259,7 @@ function NotificationsSection({ channels, values }: { channels: Record<string, s
                     <button
                         type="submit"
                         disabled={processing}
-                        className="px-5 py-2 text-[13px] bg-ink-900 text-white rounded-lg hover:bg-brand-500 disabled:opacity-60 inline-flex items-center gap-2 font-semibold transition"
+                        className="px-5 py-2 text-[13px] bg-brand-700 text-white rounded-full hover:bg-brand-800 disabled:opacity-60 inline-flex items-center gap-2 font-semibold transition"
                     >
                         {processing && <Spinner size={13} />}
                         {processing ? 'Saving…' : 'Save preferences'}
@@ -282,7 +285,7 @@ function BankingSection({ banking }: { banking: Props['banking'] }) {
     }
 
     return (
-        <section className="bg-white rounded-xl border border-ink-200 shadow-soft p-6">
+        <section className="bg-white rounded-2xl border border-ink-200/60 shadow-soft p-6">
             <h2 className="text-base font-bold">Banking &amp; payouts</h2>
             <p className="text-[12.5px] text-ink-500 mb-5">Commission payouts route to this bank account via Paystack.</p>
 
@@ -343,7 +346,7 @@ function BankingSection({ banking }: { banking: Props['banking'] }) {
                     <button
                         type="submit"
                         disabled={processing}
-                        className="px-5 py-2 text-[13px] bg-ink-900 text-white rounded-lg hover:bg-brand-500 disabled:opacity-60 inline-flex items-center gap-2 font-semibold transition"
+                        className="px-5 py-2 text-[13px] bg-brand-700 text-white rounded-full hover:bg-brand-800 disabled:opacity-60 inline-flex items-center gap-2 font-semibold transition"
                     >
                         {processing && <Spinner size={13} />}
                         {processing ? 'Saving…' : 'Save banking details'}

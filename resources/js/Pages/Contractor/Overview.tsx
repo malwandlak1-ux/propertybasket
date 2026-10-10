@@ -1,5 +1,6 @@
 import { Head, Link } from '@inertiajs/react';
 import ContractorLayout from '@/Layouts/ContractorLayout';
+import { KpiCard as FernKpi } from '@/Components/Dashboard/Charts';
 
 type Props = {
     counts: { requests?: number; active_jobs?: number; messages?: number };
@@ -81,7 +82,7 @@ export default function ContractorOverview({ counts, contractor, kpis, emergency
                         <p className="text-[13px] text-ink-500">
                             {new Date().toLocaleDateString('en-ZA', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
                         </p>
-                        <h1 className="text-3xl font-bold tracking-tight mt-1">Welcome back, {firstName} 🔧</h1>
+                        <h1 className="text-[28px] sm:text-[32px] leading-tight tracking-tight mt-1">Welcome back, {firstName} 🔧</h1>
                         <p className="text-[14px] text-ink-500 mt-1">
                             You have <span className="font-semibold text-ink-900">{kpis.active_jobs} active jobs</span>,{' '}
                             <span className="font-semibold text-ink-900">{kpis.open_requests} to commence</span>
@@ -89,11 +90,11 @@ export default function ContractorOverview({ counts, contractor, kpis, emergency
                         </p>
                     </div>
                     <div className="flex items-center gap-2">
-                        <Link href="/contractor/quotes" className="px-3.5 py-2 text-[13px] border border-ink-200 rounded-lg hover:bg-ink-100 flex items-center gap-2 transition">
+                        <Link href="/contractor/quotes" className="px-4 py-2 text-[13px] font-semibold border border-ink-900/70 bg-white/60 rounded-full hover:bg-white flex items-center gap-2 transition">
                             <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg>
                             New Quote
                         </Link>
-                        <Link href="/contractor/invoices" className="px-3.5 py-2 text-[13px] bg-ink-900 text-white rounded-lg hover:bg-brand-500 flex items-center gap-2 transition">
+                        <Link href="/contractor/invoices" className="px-3.5 py-2 text-[13px] bg-brand-700 text-white rounded-full hover:bg-brand-800 flex items-center gap-2 transition">
                             <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18"/></svg>
                             New Invoice
                         </Link>
@@ -123,7 +124,7 @@ export default function ContractorOverview({ counts, contractor, kpis, emergency
 
                 {/* KPI Grid */}
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                    <Kpi label="Active Jobs"   value={kpis.active_jobs.toString()} sub="In progress + awaiting payment" iconColor="text-brand-600" iconBg="bg-brand-50"   icon={<circle cx="12" cy="12" r="10"/>} />
+                    <Kpi hero label="Active Jobs"   value={kpis.active_jobs.toString()} sub="In progress + awaiting payment" iconColor="text-brand-600" iconBg="bg-brand-50"   icon={<circle cx="12" cy="12" r="10"/>} />
                     <Kpi label="To Commence"   value={kpis.open_requests.toString()} sub="Accepted, not started" iconColor="text-warning"   iconBg="bg-warning/15" icon={<path d="M22 12h-4l-3 9L9 3l-3 9H2"/>} />
                     <Kpi label="Pending Quotes" value={kpis.pending_quotes.toString()} sub="Awaiting client response" iconColor="text-amber-600" iconBg="bg-amber-50"   icon={<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>} />
                     <Kpi label="Earned MTD"     value={fmtMoney(kpis.month_earnings)} sub="Gross from paid invoices" iconColor="text-success"   iconBg="bg-success/15" icon={<><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></>} />
@@ -131,7 +132,7 @@ export default function ContractorOverview({ counts, contractor, kpis, emergency
 
                 {/* 2-col: active jobs + side rail */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <div className="col-span-2 bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+                    <div className="col-span-2 bg-white rounded-2xl border border-ink-200/60 p-5 shadow-soft">
                         <div className="flex items-center justify-between mb-4">
                             <div>
                                 <h2 className="text-base font-semibold">Active Jobs</h2>
@@ -169,7 +170,7 @@ export default function ContractorOverview({ counts, contractor, kpis, emergency
 
                     <div className="space-y-4">
                         {/* Profile card */}
-                        <div className="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+                        <div className="bg-white rounded-2xl border border-ink-200/60 p-5 shadow-soft">
                             <h2 className="text-base font-semibold mb-3">Your Reputation</h2>
                             <div className="flex items-center gap-2 mb-2">
                                 <span className="text-2xl font-bold">{contractor.average_rating > 0 ? contractor.average_rating.toFixed(1) : '—'}</span>
@@ -193,7 +194,7 @@ export default function ContractorOverview({ counts, contractor, kpis, emergency
                         )}
 
                         {/* Recent invoices */}
-                        <div className="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+                        <div className="bg-white rounded-2xl border border-ink-200/60 p-5 shadow-soft">
                             <h2 className="text-base font-semibold mb-3">Recent Invoices</h2>
                             <div className="space-y-2">
                                 {recent_invoices.length === 0 ? (
@@ -221,17 +222,26 @@ export default function ContractorOverview({ counts, contractor, kpis, emergency
     );
 }
 
-function Kpi({ label, value, sub, iconColor, iconBg, icon }: { label: string; value: string; sub: string; iconColor: string; iconBg: string; icon: React.ReactNode }) {
+function Kpi({ label, value, sub, subTone, hero, delta, deltaTone }: {
+    label: string; value: string; sub: string;
+    subTone?: 'warning' | 'danger'; hero?: boolean;
+    delta?: string; deltaTone?: 'success' | 'danger';
+    [legacy: string]: unknown;
+}) {
+    const subCls = hero ? '' : subTone === 'warning' ? 'text-warning' : subTone === 'danger' ? 'text-danger' : '';
     return (
-        <div className="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
-            <div className="flex items-center justify-between mb-3">
-                <span className="text-[11px] text-ink-500 uppercase tracking-wider font-semibold">{label}</span>
-                <span className={`w-7 h-7 rounded-lg ${iconBg} flex items-center justify-center`}>
-                    <svg className={`w-3.5 h-3.5 ${iconColor}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5}>{icon}</svg>
-                </span>
-            </div>
-            <p className="text-3xl font-bold">{value}</p>
-            <p className="text-[11px] text-ink-500 mt-1">{sub}</p>
-        </div>
+        <FernKpi
+            hero={hero}
+            label={label}
+            value={value}
+            sub={
+                <>
+                    {delta && (
+                        <span className={'font-semibold mr-1 ' + (hero ? 'text-white' : deltaTone === 'danger' ? 'text-danger' : 'text-success')}>{delta}</span>
+                    )}
+                    <span className={subCls}>{sub}</span>
+                </>
+            }
+        />
     );
 }

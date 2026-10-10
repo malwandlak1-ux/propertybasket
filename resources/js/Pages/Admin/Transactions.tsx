@@ -60,7 +60,7 @@ export default function AdminTransactions({ range, kpis, transactions }: Props) 
             <div className="px-4 sm:px-8 py-6 sm:py-7">
                 <div className="flex flex-wrap items-end justify-between gap-3 mb-6">
                     <div>
-                        <h1 className="text-2xl font-bold tracking-tight">Transactions</h1>
+                        <h1 className="text-[28px] sm:text-[32px] leading-tight tracking-tight">Transactions</h1>
                         <p className="text-[14px] text-ink-500 mt-1">
                             All subscription charges and platform fees · via Paystack
                         </p>
@@ -99,7 +99,7 @@ export default function AdminTransactions({ range, kpis, transactions }: Props) 
 
                 {/* Table */}
                 <div className={
-                    'bg-white rounded-xl border border-ink-200 shadow-soft overflow-hidden transition-opacity duration-150 ' +
+                    'bg-white rounded-2xl border border-ink-200/60 shadow-soft overflow-hidden transition-opacity duration-150 ' +
                     (loading ? 'opacity-50 pointer-events-none' : '')
                 }>
                     {transactions.length === 0 ? (
@@ -150,7 +150,7 @@ function Kpi({ label, value, tone }: { label: string; value: string; tone: 'succ
                 tone === 'danger'  ? 'text-danger' :
                                      'text-ink-900';
     return (
-        <div className="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+        <div className="bg-white rounded-2xl border border-ink-200/60 p-5 shadow-soft">
             <p className="text-[11px] text-ink-500 uppercase tracking-wider font-semibold mb-2">{label}</p>
             <p className={`text-2xl font-bold ${cls}`}>{value}</p>
         </div>

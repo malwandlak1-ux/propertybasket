@@ -51,7 +51,7 @@ export default function AgentShowInspection({ agent, inspection, lease, listing 
                     <Link href="/agent/inspections" className="text-[12px] text-ink-500 hover:text-ink-900">← Back to inspections</Link>
                     <div className="flex items-center justify-between mt-2 flex-wrap gap-3">
                         <div>
-                            <h1 className="text-2xl font-bold tracking-tight">
+                            <h1 className="text-[28px] sm:text-[32px] leading-tight tracking-tight">
                                 {isMoveIn ? 'Move-In' : 'Move-Out'} Inspection
                             </h1>
                             <p className="text-[14px] text-ink-500 mt-1">
@@ -62,7 +62,7 @@ export default function AgentShowInspection({ agent, inspection, lease, listing 
                             href={`${inspection.pdf_url}?download=1`}
                             target="_blank"
                             rel="noopener"
-                            className="px-3.5 py-2 text-[13px] bg-ink-900 text-white rounded-lg hover:bg-brand-500 transition inline-flex items-center gap-2"
+                            className="px-3.5 py-2 text-[13px] bg-brand-700 text-white rounded-full hover:bg-brand-800 transition inline-flex items-center gap-2"
                         >
                             <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
                                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" />
@@ -73,7 +73,7 @@ export default function AgentShowInspection({ agent, inspection, lease, listing 
                 </div>
 
                 {/* Property + lease */}
-                <div className="bg-white rounded-xl border border-ink-200 shadow-soft overflow-hidden mb-5">
+                <div className="bg-white rounded-2xl border border-ink-200/60 shadow-soft overflow-hidden mb-5">
                     <div className="flex">
                         <div className="w-48 shrink-0 aspect-[4/3] bg-ink-100 relative">
                             {listing.primary_image ? (
@@ -105,7 +105,7 @@ export default function AgentShowInspection({ agent, inspection, lease, listing 
                 </div>
 
                 {/* Rooms */}
-                <div className="bg-white rounded-xl border border-ink-200 shadow-soft p-5 mb-5">
+                <div className="bg-white rounded-2xl border border-ink-200/60 shadow-soft p-5 mb-5">
                     <h3 className="text-base font-bold mb-3">Room condition</h3>
                     <div className="space-y-2">
                         {inspection.rooms.length === 0 && (
@@ -155,7 +155,7 @@ export default function AgentShowInspection({ agent, inspection, lease, listing 
                 </div>
 
                 {/* Signatures */}
-                <div className="bg-white rounded-xl border border-ink-200 shadow-soft p-5">
+                <div className="bg-white rounded-2xl border border-ink-200/60 shadow-soft p-5">
                     <h3 className="text-base font-bold mb-3">Sign-off</h3>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="bg-ink-50/40 rounded-lg p-4 border border-ink-100">

@@ -1,5 +1,7 @@
 import { Head, Link } from '@inertiajs/react';
 import AgentLayout from '@/Layouts/AgentLayout';
+import ErrorBoundary from '@/Components/ErrorBoundary';
+import { Card, Gauge, KpiCard, PageHeader, PillBars, StatusPill, btnOutline, btnPrimary } from '@/Components/Dashboard/Charts';
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -68,14 +70,6 @@ type Props = {
     listing_performance: ListingRow[];
 };
 
-// ── Sparkline (static SVG paths) ────────────────────────────────────────────
-
-const Spark = ({ color }: { color: string }) => (
-    <svg className="w-full h-8 mt-3" viewBox="0 0 100 30" preserveAspectRatio="none">
-        <path d="M0,22 L15,18 L30,20 L45,12 L60,14 L75,8 L100,4" fill="none" stroke={color} strokeWidth="2" />
-    </svg>
-);
-
 // ── Hot lead tag ─────────────────────────────────────────────────────────────
 
 const hotTag = (status: string) => {
@@ -87,224 +81,178 @@ const hotTag = (status: string) => {
 const typeLabel = (t: string) => {
     if (t === 'for_sale') return <span className="text-[11px] px-2 py-0.5 rounded-full bg-emerald-50 text-success font-semibold">SALE</span>;
     if (t === 'long_term_rent') return <span className="text-[11px] px-2 py-0.5 rounded-full bg-brand-50 text-brand-700 font-semibold">RENT</span>;
-    return <span className="text-[11px] px-2 py-0.5 rounded-full bg-violet-50 text-brand-700 font-semibold">STAY</span>;
+    return <span className="text-[11px] px-2 py-0.5 rounded-full bg-violet-50 text-violet-700 font-semibold">STAY</span>;
 };
 
-// ── Page ─────────────────────────────────────────────────────────────────────
+/// ── Page ─────────────────────────────────────────────────────────────────────
 
 export default function AgentOverview({
     agent, kpis, pipeline_snapshot, pipeline_stats, today_schedule, hot_leads, listing_performance,
 }: Props) {
-    const maxValue = pipeline_stats.max_value || 1;
-
-    const kpiCards = [
-        {
-            label: 'Active Listings', value: kpis.active_listings.toString(),
-            sub: '+2 this week', subColor: 'text-success',
-            iconBg: 'bg-brand-50', iconColor: 'text-brand-600',
-            icon: <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5}><path d="M3 21V10l9-7 9 7v11H3z" /></svg>,
-            sparkColor: '#F26A1B',
-        },
-        {
-            label: 'Open Leads', value: kpis.open_leads.toString(),
-            sub: 'Active pipeline', subColor: 'text-ink-500',
-            iconBg: 'bg-amber-50', iconColor: 'text-warning',
-            icon: <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5}><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /></svg>,
-            sparkColor: '#F59E0B',
-        },
-        {
-            label: 'YTD Commission', value: fmtMoney(kpis.ytd_commission),
-            sub: 'Year to date', subColor: 'text-success',
-            iconBg: 'bg-emerald-50', iconColor: 'text-success',
-            icon: <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5}><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" /></svg>,
-            sparkColor: '#10B981',
-        },
-        {
-            label: 'Conversion Rate', value: kpis.conversion_rate + '%',
-            sub: 'Lead-to-close ratio', subColor: 'text-ink-500',
-            iconBg: 'bg-violet-50', iconColor: 'text-brand-600',
-            icon: <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5}><path d="M3 3v18h18" /><path d="M7 14l4-4 4 4 6-6" /></svg>,
-            sparkColor: '#F26A1B',
-        },
-    ];
+    const totalDeals = pipeline_snapshot.reduce((a, b) => a + b.count, 0);
+    const stage = (label: string) => pipeline_snapshot.find((r) => r.label === label)?.count ?? 0;
+    const closed = stage('Closed');
+    const inPlay = stage('Viewing') + stage('Offer');
+    const early = stage('New Lead') + stage('Qualified');
+    const closedPct = totalDeals > 0 ? Math.round((closed / totalDeals) * 100) : 0;
+    const next = today_schedule[0];
 
     return (
         <AgentLayout crumb="Dashboard" agencyName={agent.agency_name}>
             <Head title="Agent Dashboard" />
 
-            <div className="px-4 sm:px-8 py-6 sm:py-7">
-                {/* Greeting */}
-                <div className="flex flex-wrap items-end justify-between gap-3 mb-7">
-                    <div>
-                        <p className="text-[13px] text-ink-500">{today()}</p>
-                        <h1 className="text-3xl font-bold tracking-tight mt-1">
-                            {greet()}, {agent.name.split(' ')[0]} 👋
-                        </h1>
-                        <p className="text-[14px] text-ink-500 mt-1">
-                            You have{' '}
-                            <span className="font-semibold text-ink-900">{today_schedule.length} viewings</span> today
-                            {kpis.open_leads > 0 && (
-                                <> and <span className="font-semibold text-ink-900">{kpis.open_leads} leads</span> in your pipeline</>
-                            )}.
-                        </p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <Link
-                            href="/agent/pipeline?new=1"
-                            className="px-3.5 py-2 text-[13px] border border-ink-200 rounded-lg hover:bg-ink-100 transition flex items-center gap-2"
-                        >
-                            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M12 5v14M5 12h14" /></svg>
-                            New Lead
-                        </Link>
-                        <Link href="/agent/listings/create" className="px-3.5 py-2 text-[13px] bg-ink-900 text-white rounded-lg hover:bg-brand-500 transition flex items-center gap-2">
-                            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><circle cx="12" cy="12" r="9" /><path d="M12 8v8M8 12h8" /></svg>
-                            Create Listing
-                        </Link>
-                    </div>
+            <div className="px-4 sm:px-7 py-6">
+                <PageHeader
+                    title={`${greet()}, ${agent.name.split(' ')[0]}`}
+                    subtitle={
+                        <>
+                            {today()} · <span className="font-semibold text-ink-900">{today_schedule.length} viewings</span> today
+                            {kpis.open_leads > 0 && <> and <span className="font-semibold text-ink-900">{kpis.open_leads} leads</span> in your pipeline</>}.
+                        </>
+                    }
+                    actions={
+                        <>
+                            <Link href="/agent/listings/create" className={btnPrimary}>
+                                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2}><path d="M12 5v14M5 12h14" /></svg>
+                                Create Listing
+                            </Link>
+                            <Link href="/agent/pipeline?new=1" className={btnOutline}>
+                                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M19 8v6M22 11h-6" /></svg>
+                                New Lead
+                            </Link>
+                        </>
+                    }
+                />
+
+                {/* KPI row — first tile is the accent hero */}
+                <div className="grid grid-cols-2 xl:grid-cols-4 gap-4 mb-4">
+                    <KpiCard hero label="Active Listings" value={kpis.active_listings} sub="+2 this week" href="/agent/listings" />
+                    <KpiCard label="Open Leads" value={kpis.open_leads} sub="Active pipeline" href="/agent/pipeline" />
+                    <KpiCard label="YTD Commission" value={fmtMoney(kpis.ytd_commission)} sub="Year to date" href="/agent/commission" />
+                    <KpiCard label="Conversion Rate" value={kpis.conversion_rate + '%'} sub="Lead-to-close ratio" href="/agent/analytics" />
                 </div>
 
-                {/* KPI Grid */}
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                    {kpiCards.map((k) => (
-                        <div key={k.label} className="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
-                            <div className="flex items-center justify-between mb-3">
-                                <span className="text-[11px] text-ink-500 uppercase tracking-wider font-semibold">{k.label}</span>
-                                <span className={`w-7 h-7 rounded-lg ${k.iconBg} flex items-center justify-center`}>
-                                    <span className={k.iconColor}>{k.icon}</span>
-                                </span>
-                            </div>
-                            <div className="flex items-baseline gap-2">
-                                <span className="text-3xl font-bold">{k.value}</span>
-                                <span className={`text-xs font-semibold ${k.subColor}`}>{k.sub}</span>
-                            </div>
-                            <Spark color={k.sparkColor} />
-                        </div>
-                    ))}
-                </div>
+                <div className="grid grid-cols-1 xl:grid-cols-12 gap-4 mb-4">
+                    {/* Pipeline by stage — Fernly pill bars */}
+                    <Card
+                        className="xl:col-span-6"
+                        title="Pipeline Analytics"
+                        subtitle={`${totalDeals} active deals · ${fmtMoney(pipeline_stats.total_value)} potential value`}
+                        action={<Link href="/agent/pipeline" className="text-[12px] font-semibold text-brand-700 hover:underline">View pipeline →</Link>}
+                    >
+                        <ErrorBoundary variant="section" label="pipeline chart">
+                            <PillBars
+                                data={pipeline_snapshot.map((r) => ({ label: r.label.replace(' Lead', ''), value: r.count }))}
+                                peakLabel={(n) => `${n} ${n === 1 ? 'deal' : 'deals'}`}
+                            />
+                        </ErrorBoundary>
+                    </Card>
 
-                {/* Two-column body */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
-                    {/* LEFT: Pipeline snapshot */}
-                    <div className="col-span-2 bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
-                        <div className="flex items-center justify-between mb-4">
-                            <div>
-                                <h2 className="text-base font-semibold">Pipeline Snapshot</h2>
-                                <p className="text-xs text-ink-500 mt-0.5">
-                                    {pipeline_snapshot.reduce((a, b) => a + b.count, 0)} active deals ·{' '}
-                                    {fmtMoney(pipeline_stats.total_value)} potential value
-                                </p>
-                            </div>
-                            <Link href="/agent/pipeline" className="text-[12px] font-medium text-brand-600 hover:underline">
-                                View pipeline →
-                            </Link>
-                        </div>
-
-                        <div className="space-y-3">
-                            {pipeline_snapshot.map((row) => {
-                                const pct = row.color === 'success' ? 12.5 : Math.min(100, (row.value / maxValue) * 100);
-                                const bg = row.color === 'success' ? 'bg-success' : 'bg-brand-500';
-                                return (
-                                    <div key={row.label} className="flex items-center gap-3">
-                                        <span className="w-24 text-[12px] text-ink-500">{row.label}</span>
-                                        <div className="flex-1 h-7 bg-ink-100 rounded-md overflow-hidden">
-                                            {row.count > 0 && (
-                                                <div
-                                                    className={`h-full ${bg} flex items-center justify-end px-3 text-[11px] font-semibold text-white transition-all`}
-                                                    style={{ width: `${Math.max(pct, 15)}%` }}
-                                                >
-                                                    {row.count} {row.count === 1 ? 'lead' : 'leads'}
-                                                </div>
-                                            )}
-                                        </div>
-                                        <span className="w-20 text-right text-[12px] font-mono">{fmtMoney(row.value)}</span>
-                                    </div>
-                                );
-                            })}
-                        </div>
-
-                        <div className="mt-5 pt-5 border-t border-ink-200 grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
-                            <div>
-                                <p className="text-[11px] text-ink-500 uppercase tracking-wider">Total Deals</p>
-                                <p className="text-xl font-bold mt-1">{pipeline_snapshot.reduce((a, b) => a + b.count, 0)}</p>
-                            </div>
-                            <div>
-                                <p className="text-[11px] text-ink-500 uppercase tracking-wider">Win Rate</p>
-                                <p className="text-xl font-bold mt-1 text-success">{pipeline_stats.win_rate}%</p>
-                            </div>
-                            <div>
-                                <p className="text-[11px] text-ink-500 uppercase tracking-wider">Avg. Deal Size</p>
-                                <p className="text-xl font-bold mt-1">{fmtMoney(pipeline_stats.avg_deal_size)}</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* RIGHT: Today's schedule */}
-                    <div className="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
-                        <div className="flex items-center justify-between mb-4">
-                            <h2 className="text-base font-semibold">Today's Schedule</h2>
-                            <Link href="/agent/viewings" className="text-[12px] font-medium text-brand-600 hover:underline">
-                                All →
-                            </Link>
-                        </div>
-
-                        {today_schedule.length === 0 ? (
-                            <div className="py-8 text-center text-[13px] text-ink-400">No viewings today</div>
+                    {/* Today's schedule — Fernly reminder card */}
+                    <Card className="xl:col-span-3 flex flex-col" bodyClassName="flex-1 flex flex-col" title="Today's Schedule">
+                        {next ? (
+                            <>
+                                <p className="text-[20px] leading-snug font-semibold text-brand-700 tracking-tight">Viewing — {next.listing_title}</p>
+                                <p className="text-[12.5px] text-ink-500 mt-2">Time : {next.time} SAST</p>
+                                <p className="text-[12.5px] text-ink-500 truncate">{next.name} · {next.listing_address}</p>
+                                {today_schedule.length > 1 && (
+                                    <ul className="mt-3 space-y-1.5">
+                                        {today_schedule.slice(1, 4).map((v) => (
+                                            <li key={v.id} className="flex gap-2 text-[12px] text-ink-600">
+                                                <span className="font-semibold tabular-nums w-11 shrink-0">{v.time}</span>
+                                                <span className="truncate">{v.listing_title}</span>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                )}
+                            </>
                         ) : (
-                            <div className="space-y-3">
-                                {today_schedule.map((item, idx) => (
-                                    <div
-                                        key={item.id}
-                                        className={`flex gap-3 p-3 rounded-lg hover:bg-ink-50 ${idx === 0 ? 'border-l-2 border-brand-500 bg-brand-50/30' : ''}`}
-                                    >
-                                        <div className="text-center w-12 shrink-0">
-                                            <p className="text-[10px] text-ink-500 uppercase font-semibold">{item.time}</p>
-                                            <p className="text-[10px] text-ink-400">SAST</p>
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                            <p className="text-[13px] font-semibold truncate">Viewing — {item.listing_title}</p>
-                                            <p className="text-[11px] text-ink-500 truncate">{item.name} · {item.listing_address}</p>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
+                            <>
+                                <p className="text-[20px] leading-snug font-semibold text-brand-700 tracking-tight">No viewings today</p>
+                                <p className="text-[12.5px] text-ink-500 mt-2">A good day to follow up on warm leads.</p>
+                            </>
                         )}
+                        <div className="flex-1 min-h-4" />
+                        <Link href="/agent/viewings" className={btnPrimary + ' w-full mt-4'}>
+                            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><rect x="3" y="5" width="18" height="16" rx="2" /><path d="M16 3v4M8 3v4M3 10h18" /></svg>
+                            Open viewings
+                        </Link>
+                    </Card>
 
-                        {hot_leads.length > 0 && (
-                            <div className="mt-5 pt-4 border-t border-ink-200">
-                                <p className="text-[11px] text-ink-500 uppercase tracking-wider font-semibold mb-2">Hot Leads</p>
-                                <div className="space-y-2">
-                                    {hot_leads.map((lead) => (
-                                        <div key={lead.id} className="flex items-center justify-between p-2 rounded-md hover:bg-ink-50">
-                                            <div className="flex items-center gap-2 min-w-0">
-                                                <div className="w-7 h-7 rounded-full bg-gradient-to-br from-rose-400 to-rose-600 flex items-center justify-center text-white text-[10px] font-bold shrink-0">
-                                                    {lead.initials}
-                                                </div>
-                                                <div className="min-w-0">
-                                                    <p className="text-[12px] font-semibold truncate">{lead.name}</p>
-                                                    <p className="text-[10px] text-ink-500">{fmtMoney(lead.deal_value)} value</p>
-                                                </div>
-                                            </div>
-                                            {hotTag(lead.status)}
+                    {/* Hot leads — Fernly project list */}
+                    <Card
+                        className="xl:col-span-3 xl:row-span-2"
+                        title="Hot Leads"
+                        action={
+                            <Link href="/agent/pipeline?new=1" className="inline-flex items-center gap-1 rounded-full border border-ink-900/70 px-3 py-1 text-[12px] font-semibold hover:bg-ink-900 hover:text-white transition">
+                                <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5}><path d="M12 5v14M5 12h14" /></svg>New
+                            </Link>
+                        }
+                    >
+                        {hot_leads.length === 0 ? (
+                            <p className="py-8 text-center text-[13px] text-ink-400">No hot leads right now</p>
+                        ) : (
+                            <ul className="space-y-3.5">
+                                {hot_leads.map((lead, i) => (
+                                    <li key={lead.id} className="flex items-center gap-3">
+                                        <span className={`w-8 h-8 rounded-full flex items-center justify-center text-[10.5px] font-bold shrink-0 ${['bg-brand-100 text-brand-800', 'bg-amber-100 text-amber-800', 'bg-sky-100 text-sky-800', 'bg-rose-100 text-rose-800'][i % 4]}`}>
+                                            {lead.initials}
+                                        </span>
+                                        <div className="min-w-0 flex-1">
+                                            <p className="text-[13px] font-semibold truncate">{lead.name}</p>
+                                            <p className="text-[11px] text-ink-500">{fmtMoney(lead.deal_value)} value</p>
                                         </div>
-                                    ))}
-                                </div>
-                            </div>
+                                        {hotTag(lead.status)}
+                                    </li>
+                                ))}
+                            </ul>
                         )}
-                    </div>
+                    </Card>
+
+                    {/* Pipeline value by stage — Fernly team-collaboration rows */}
+                    <Card
+                        className="xl:col-span-5"
+                        title="Pipeline Snapshot"
+                        subtitle={`Win rate ${pipeline_stats.win_rate}% · avg. deal ${fmtMoney(pipeline_stats.avg_deal_size)}`}
+                    >
+                        <ul className="space-y-3">
+                            {pipeline_snapshot.map((row) => (
+                                <li key={row.label} className="flex items-center gap-3">
+                                    <span className={`w-8 h-8 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0 ${row.color === 'success' ? 'bg-success/10 text-success' : 'bg-brand-50 text-brand-700'}`}>
+                                        {row.count}
+                                    </span>
+                                    <div className="min-w-0 flex-1">
+                                        <p className="text-[13px] font-semibold">{row.label}</p>
+                                        <p className="text-[11px] text-ink-500">{row.count} {row.count === 1 ? 'lead' : 'leads'} · <span className="font-semibold text-ink-700">{fmtMoney(row.value)}</span></p>
+                                    </div>
+                                    <StatusPill tone={row.color === 'success' ? 'success' : row.label === 'Offer' || row.label === 'Viewing' ? 'warning' : 'muted'}>
+                                        {row.color === 'success' ? 'Won' : row.label === 'Offer' || row.label === 'Viewing' ? 'In progress' : 'Early'}
+                                    </StatusPill>
+                                </li>
+                            ))}
+                        </ul>
+                    </Card>
+
+                    {/* Deal progress gauge */}
+                    <Card className="xl:col-span-4" title="Deal Progress">
+                        <Gauge
+                            centerValue={`${closedPct}%`}
+                            centerLabel="Deals closed"
+                            segments={[
+                                { label: 'Closed', value: closed, tone: 'dark' },
+                                { label: 'In progress', value: inPlay, tone: 'mid' },
+                                { label: 'Early stage', value: early, tone: 'hatch' },
+                            ]}
+                        />
+                    </Card>
                 </div>
 
                 {/* Listing performance */}
-                <div className="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
-                    <div className="flex items-center justify-between mb-4">
-                        <div>
-                            <h2 className="text-base font-semibold">Listing Performance</h2>
-                            <p className="text-xs text-ink-500 mt-0.5">Your assigned properties</p>
-                        </div>
-                        <Link href="/agent/listings" className="text-[12px] font-medium text-brand-600 hover:underline">
-                            All listings →
-                        </Link>
-                    </div>
-
+                <Card
+                    title="Listing Performance"
+                    subtitle="Your assigned properties"
+                    action={<Link href="/agent/listings" className="text-[12px] font-semibold text-brand-700 hover:underline">All listings →</Link>}
+                >
                     {listing_performance.length === 0 ? (
                         <div className="py-8 text-center text-[13px] text-ink-400">No listings assigned yet</div>
                     ) : (
@@ -325,7 +273,7 @@ export default function AgentOverview({
                                     <tr key={l.id} className="border-b border-ink-100 hover:bg-ink-50">
                                         <td className="py-3">
                                             <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 rounded-md bg-gradient-to-br from-amber-200 to-amber-400 shrink-0" />
+                                                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-100 to-brand-300 shrink-0" />
                                                 <div>
                                                     <p className="font-medium">{l.title}</p>
                                                     <p className="text-[11px] text-ink-500">{l.location}</p>
@@ -333,17 +281,17 @@ export default function AgentOverview({
                                             </div>
                                         </td>
                                         <td>{typeLabel(l.listing_type)}</td>
-                                        <td className="text-right font-mono">{l.views.toLocaleString('en-ZA')}</td>
-                                        <td className="text-right font-mono">{l.inquiries}</td>
-                                        <td className="text-right font-mono">{l.viewings}</td>
-                                        <td className="text-right font-mono">{l.days_on_market}</td>
-                                        <td className="text-right font-mono font-semibold">{l.price_label}</td>
+                                        <td className="text-right tabular-nums">{l.views.toLocaleString('en-ZA')}</td>
+                                        <td className="text-right tabular-nums">{l.inquiries}</td>
+                                        <td className="text-right tabular-nums">{l.viewings}</td>
+                                        <td className="text-right tabular-nums">{l.days_on_market}</td>
+                                        <td className="text-right tabular-nums font-semibold">{l.price_label}</td>
                                     </tr>
                                 ))}
                             </tbody>
                         </table></div>
                     )}
-                </div>
+                </Card>
             </div>
         </AgentLayout>
     );

@@ -30,7 +30,7 @@ function initials(name: string): string {
 
 function ContractorCard({ c }: { c: Card }) {
     return (
-        <div className="bg-white rounded-xl border border-ink-200 shadow-soft hover:shadow-lift transition overflow-hidden">
+        <div className="bg-white rounded-2xl border border-ink-200/60 shadow-soft hover:shadow-lift transition overflow-hidden">
             <div className="p-5">
                 <div className="flex items-start gap-3 mb-3">
                     <div className="w-11 h-11 rounded-lg bg-brand-50 text-brand-700 flex items-center justify-center font-bold shrink-0">
@@ -115,14 +115,14 @@ export default function AgencyContractors({ agency, tab, list, counts }: Props) 
             <div className="px-4 sm:px-8 py-6 sm:py-7">
                 <div className="flex flex-wrap items-end justify-between gap-3 mb-6 flex-wrap gap-3">
                     <div>
-                        <h1 className="text-2xl font-bold tracking-tight">Contractors</h1>
+                        <h1 className="text-[28px] sm:text-[32px] leading-tight tracking-tight">Contractors</h1>
                         <p className="text-[14px] text-ink-500 mt-1">
                             Browse the open marketplace or manage your own preferred contractor list.
                         </p>
                     </div>
                     <button
                         onClick={() => setModalOpen(true)}
-                        className="px-3.5 py-2 text-[13px] bg-ink-900 text-white rounded-lg hover:bg-brand-500 transition flex items-center gap-2"
+                        className="px-3.5 py-2 text-[13px] bg-brand-700 text-white rounded-full hover:bg-brand-800 transition flex items-center gap-2"
                     >
                         <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M12 5v14M5 12h14" /></svg>
                         Add Contractor
@@ -155,7 +155,7 @@ export default function AgencyContractors({ agency, tab, list, counts }: Props) 
                 </div>
 
                 {tab === 'mine' && counts.mine === 0 ? (
-                    <div className="bg-white rounded-xl border border-ink-200 p-16 text-center shadow-soft">
+                    <div className="bg-white rounded-2xl border border-ink-200/60 p-16 text-center shadow-soft">
                         <div className="w-12 h-12 rounded-xl bg-ink-100 flex items-center justify-center mx-auto mb-4">
                             <svg className="w-6 h-6 text-ink-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
                                 <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
@@ -167,14 +167,14 @@ export default function AgencyContractors({ agency, tab, list, counts }: Props) 
                         </p>
                         <button
                             onClick={() => setModalOpen(true)}
-                            className="px-3.5 py-2 text-[13px] bg-ink-900 text-white rounded-lg hover:bg-brand-500 transition inline-flex items-center gap-2 font-semibold"
+                            className="px-3.5 py-2 text-[13px] bg-brand-700 text-white rounded-full hover:bg-brand-800 transition inline-flex items-center gap-2 font-semibold"
                         >
                             <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M12 5v14M5 12h14" /></svg>
                             Add your first contractor
                         </button>
                     </div>
                 ) : list.length === 0 ? (
-                    <div className="bg-white rounded-xl border border-ink-200 p-16 text-center shadow-soft">
+                    <div className="bg-white rounded-2xl border border-ink-200/60 p-16 text-center shadow-soft">
                         <p className="text-[15px] font-semibold text-ink-700 mb-1">No marketplace contractors yet</p>
                         <p className="text-[13px] text-ink-500">Check back as contractors join the platform.</p>
                     </div>

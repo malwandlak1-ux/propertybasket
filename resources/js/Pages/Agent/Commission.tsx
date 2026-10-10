@@ -69,12 +69,12 @@ export default function AgentCommission({ agent, stats, monthly_chart, max_bar, 
                 {/* Header */}
                 <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
                     <div>
-                        <h1 className="text-2xl font-bold tracking-tight">Commission Tracker</h1>
+                        <h1 className="text-[28px] sm:text-[32px] leading-tight tracking-tight">Commission Tracker</h1>
                         <p className="text-[14px] text-ink-500 mt-1">
                             Annual target: {fmtMoney(stats.annual_target)} · {stats.target_pct}% achieved
                         </p>
                     </div>
-                    <button className="px-3.5 py-2 text-[13px] border border-ink-200 rounded-lg hover:bg-ink-100 transition flex items-center gap-2">
+                    <button className="px-4 py-2 text-[13px] font-semibold border border-ink-900/70 bg-white/60 rounded-full hover:bg-white transition flex items-center gap-2">
                         <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
                             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12" />
                         </svg>
@@ -85,7 +85,7 @@ export default function AgentCommission({ agent, stats, monthly_chart, max_bar, 
                 {/* KPI row */}
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                     {kpis.map((k) => (
-                        <div key={k.label} className="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+                        <div key={k.label} className="bg-white rounded-2xl border border-ink-200/60 p-5 shadow-soft">
                             <p className="text-[11px] text-ink-500 uppercase tracking-wider font-semibold mb-2">{k.label}</p>
                             <p className={`text-2xl font-bold ${k.tone}`}>{k.value}</p>
                             <p className="text-[11px] text-ink-400 mt-1">{k.sub}</p>
@@ -94,7 +94,7 @@ export default function AgentCommission({ agent, stats, monthly_chart, max_bar, 
                 </div>
 
                 {/* Target progress bar */}
-                <div className="bg-white rounded-xl border border-ink-200 p-5 shadow-soft mb-6">
+                <div className="bg-white rounded-2xl border border-ink-200/60 p-5 shadow-soft mb-6">
                     <div className="flex items-center justify-between mb-3">
                         <div>
                             <h2 className="text-base font-semibold">Annual Progress</h2>
@@ -117,7 +117,7 @@ export default function AgentCommission({ agent, stats, monthly_chart, max_bar, 
                 </div>
 
                 {/* Monthly bar chart */}
-                <div className="bg-white rounded-xl border border-ink-200 p-5 shadow-soft mb-6">
+                <div className="bg-white rounded-2xl border border-ink-200/60 p-5 shadow-soft mb-6">
                     <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
                         <div>
                             <h2 className="text-base font-semibold">Monthly Earnings vs Target</h2>
@@ -165,7 +165,7 @@ export default function AgentCommission({ agent, stats, monthly_chart, max_bar, 
                 </div>
 
                 {/* Commission ledger */}
-                <div className="bg-white rounded-xl border border-ink-200 shadow-soft overflow-hidden">
+                <div className="bg-white rounded-2xl border border-ink-200/60 shadow-soft overflow-hidden">
                     <div className="p-5 border-b border-ink-200">
                         <h2 className="text-base font-semibold">Commission Ledger</h2>
                         <p className="text-[12px] text-ink-500 mt-0.5">Most recent {ledger.length} transactions</p>

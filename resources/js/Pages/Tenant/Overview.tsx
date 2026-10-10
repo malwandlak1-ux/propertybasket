@@ -131,7 +131,7 @@ export default function TenantOverview({ tenant, lease, next_due, streak, deposi
                 <div className="flex flex-wrap items-end justify-between gap-3 mb-7">
                     <div>
                         <p className="text-[13px] text-ink-500">{today()}</p>
-                        <h1 className="text-3xl font-bold tracking-tight mt-1">
+                        <h1 className="text-[28px] sm:text-[32px] leading-tight tracking-tight mt-1">
                             {greet()}, {tenant.name.split(' ')[0]} 👋
                         </h1>
                         <p className="text-[14px] text-ink-500 mt-1">
@@ -141,7 +141,7 @@ export default function TenantOverview({ tenant, lease, next_due, streak, deposi
                             </span>.
                         </p>
                     </div>
-                    <Link href="/tenant/payments" className="px-3.5 py-2 text-[13px] bg-ink-900 text-white rounded-lg hover:bg-brand-500 transition flex items-center gap-2">
+                    <Link href="/tenant/payments" className="px-3.5 py-2 text-[13px] bg-brand-700 text-white rounded-full hover:bg-brand-800 transition flex items-center gap-2">
                         <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
                         Pay Rent
                     </Link>
@@ -149,7 +149,7 @@ export default function TenantOverview({ tenant, lease, next_due, streak, deposi
 
                 {/* Hero row */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-                    <div className="col-span-2 bg-gradient-to-br from-brand-500 to-brand-700 rounded-xl p-6 text-white shadow-card relative overflow-hidden">
+                    <div className="sm:col-span-2 pb-swirl rounded-2xl p-6 text-white shadow-lift relative overflow-hidden">
                         <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-32 translate-x-32" />
                         <div className="absolute bottom-0 right-12 w-32 h-32 bg-white/5 rounded-full translate-y-16" />
                         <div className="relative">
@@ -182,14 +182,14 @@ export default function TenantOverview({ tenant, lease, next_due, streak, deposi
                                 <span className="text-[13px] opacity-90">{dueLabel}</span>
                             </div>
                             <div className="flex items-center gap-3">
-                                <Link href="/tenant/payments" className="px-4 py-2 bg-white text-brand-700 text-[13px] rounded-lg font-semibold hover:bg-white/90 flex items-center gap-2">
+                                <Link href="/tenant/payments" className="px-4 py-2 bg-white text-brand-800 text-[13px] rounded-full font-semibold hover:bg-white/90 flex items-center gap-2">
                                     <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5}><rect x="2" y="5" width="20" height="14" rx="2"/></svg>
                                     Pay with Paystack
                                 </Link>
                                 <button
                                     type="button"
                                     onClick={() => setDebitOpen(true)}
-                                    className="px-4 py-2 bg-white/10 border border-white/30 text-white text-[13px] rounded-lg font-semibold hover:bg-white/20 backdrop-blur inline-flex items-center gap-2"
+                                    className="px-4 py-2 bg-white/10 border border-white/30 text-white text-[13px] rounded-full font-semibold hover:bg-white/20 backdrop-blur inline-flex items-center gap-2"
                                 >
                                     {debit_order ? 'Manage debit order' : 'Set up debit order'}
                                     {debit_order && (
@@ -241,7 +241,7 @@ export default function TenantOverview({ tenant, lease, next_due, streak, deposi
                                 <p className="text-[10px] text-ink-500 mt-2">{deposit.interest_rate}% p.a. · Section 32 Trust · interest accrues once received</p>
                             </div>
                         ) : (
-                            <div className="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+                            <div className="bg-white rounded-2xl border border-ink-200/60 p-5 shadow-soft">
                                 <div className="flex items-center justify-between mb-3">
                                     <p className="text-[11px] text-ink-500 uppercase tracking-wider font-semibold">Deposit Held</p>
                                     <Link href="/tenant/documents" className="text-[11px] text-brand-600 font-medium">View →</Link>
@@ -255,7 +255,7 @@ export default function TenantOverview({ tenant, lease, next_due, streak, deposi
                             </div>
                         )}
 
-                        <div className="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+                        <div className="bg-white rounded-2xl border border-ink-200/60 p-5 shadow-soft">
                             <div className="flex items-center justify-between mb-3">
                                 <p className="text-[11px] text-ink-500 uppercase tracking-wider font-semibold">Lease Term</p>
                                 <span className="text-[10px] px-2 py-0.5 rounded-full bg-success/15 text-success font-bold uppercase">{lease.status}</span>
@@ -275,7 +275,7 @@ export default function TenantOverview({ tenant, lease, next_due, streak, deposi
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div className="col-span-2 space-y-4">
                         {/* Maintenance */}
-                        <div className="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+                        <div className="bg-white rounded-2xl border border-ink-200/60 p-5 shadow-soft">
                             <div className="flex items-center justify-between mb-4">
                                 <div>
                                     <h2 className="text-base font-semibold">Open Maintenance Request</h2>
@@ -383,7 +383,7 @@ export default function TenantOverview({ tenant, lease, next_due, streak, deposi
                         </div>
 
                         {/* Recent payments */}
-                        <div className="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+                        <div className="bg-white rounded-2xl border border-ink-200/60 p-5 shadow-soft">
                             <div className="flex items-center justify-between mb-4">
                                 <h2 className="text-base font-semibold">Recent Payments</h2>
                                 <Link href="/tenant/payments" className="text-[12px] font-medium text-brand-600 hover:underline">Full history →</Link>
@@ -413,7 +413,7 @@ export default function TenantOverview({ tenant, lease, next_due, streak, deposi
 
                     {/* RIGHT */}
                     <div className="space-y-4">
-                        <div className="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+                        <div className="bg-white rounded-2xl border border-ink-200/60 p-5 shadow-soft">
                             <h2 className="text-base font-semibold mb-3">Quick Actions</h2>
                             <div className="space-y-2">
                                 <Link href="/tenant/maintenance" className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-ink-50 border border-ink-200">
@@ -450,7 +450,7 @@ export default function TenantOverview({ tenant, lease, next_due, streak, deposi
                         </div>
 
                         {agent && (
-                            <div className="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+                            <div className="bg-white rounded-2xl border border-ink-200/60 p-5 shadow-soft">
                                 <h2 className="text-base font-semibold mb-3">Your Agent</h2>
                                 <div className="flex items-center gap-3 mb-3">
                                     <div className="w-12 h-12 rounded-full bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center text-white font-bold">{agent.initials}</div>

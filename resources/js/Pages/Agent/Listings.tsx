@@ -108,13 +108,13 @@ export default function AgentListings({ agent, listings, counts, type_filter, in
                 {/* Header */}
                 <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
                     <div>
-                        <h1 className="text-2xl font-bold tracking-tight">My Listings</h1>
+                        <h1 className="text-[28px] sm:text-[32px] leading-tight tracking-tight">My Listings</h1>
                         <p className="text-[14px] text-ink-500 mt-1">
                             {counts.all} propert{counts.all === 1 ? 'y' : 'ies'} assigned to you
                         </p>
                     </div>
                     <div className="flex items-center gap-2">
-                        <Link href="/agent/listings/create" className="px-3.5 py-2 text-[13px] bg-ink-900 text-white rounded-lg hover:bg-brand-500 transition flex items-center gap-2">
+                        <Link href="/agent/listings/create" className="px-3.5 py-2 text-[13px] bg-brand-700 text-white rounded-full hover:bg-brand-800 transition flex items-center gap-2">
                             <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M12 5v14M5 12h14" /></svg>
                             New Listing
                         </Link>
@@ -144,7 +144,7 @@ export default function AgentListings({ agent, listings, counts, type_filter, in
                 </div>
 
                 {listings.length === 0 ? (
-                    <div className="bg-white rounded-xl border border-ink-200 p-16 text-center shadow-soft">
+                    <div className="bg-white rounded-2xl border border-ink-200/60 p-16 text-center shadow-soft">
                         <div className="w-12 h-12 rounded-xl bg-ink-100 flex items-center justify-center mx-auto mb-4">
                             <svg className="w-6 h-6 text-ink-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
                                 <path d="M3 21V10l9-7 9 7v11H3z" />
@@ -158,7 +158,7 @@ export default function AgentListings({ agent, listings, counts, type_filter, in
                         {listings.map((l) => (
                             <div
                                 key={l.id}
-                                className="bg-white rounded-xl border border-ink-200 overflow-hidden shadow-soft hover:shadow-lift transition group"
+                                className="bg-white rounded-2xl border border-ink-200/60 overflow-hidden shadow-soft hover:shadow-lift transition group"
                             >
                                 <Link href={l.edit_url} className="block">
                                     <div className={`aspect-[4/3] relative overflow-hidden ${l.primary_image ? '' : `bg-gradient-to-br ${l.color_class}`}`}>

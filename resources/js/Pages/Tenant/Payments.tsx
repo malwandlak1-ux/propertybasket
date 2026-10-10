@@ -96,13 +96,13 @@ export default function TenantPayments({ tenant, lease, kpis, rows, upcoming }: 
                 )}
                 <div className="flex flex-wrap items-end justify-between gap-3 mb-6">
                     <div>
-                        <h1 className="text-2xl font-bold tracking-tight">Payment History</h1>
+                        <h1 className="text-[28px] sm:text-[32px] leading-tight tracking-tight">Payment History</h1>
                         <p className="text-[14px] text-ink-500 mt-1">
                             All your payments since lease started · {kpis.streak} consecutive on-time payment{kpis.streak === 1 ? '' : 's'}
                         </p>
                     </div>
                     <div className="flex items-center gap-2">
-                        <button className="px-3.5 py-2 text-[13px] border border-ink-200 rounded-lg hover:bg-ink-100 flex items-center gap-2">
+                        <button className="px-4 py-2 text-[13px] font-semibold border border-ink-900/70 bg-white/60 rounded-full hover:bg-white flex items-center gap-2">
                             <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
                             Download statement
                         </button>
@@ -153,22 +153,22 @@ export default function TenantPayments({ tenant, lease, kpis, rows, upcoming }: 
 
                 {/* KPI strip */}
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                    <div className="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+                    <div className="bg-white rounded-2xl border border-ink-200/60 p-5 shadow-soft">
                         <p className="text-[11px] text-ink-500 uppercase tracking-wider font-semibold">Total paid (lease)</p>
                         <p className="text-2xl font-bold mt-2">{fmtMoney(kpis.total_paid)}</p>
                         <p className="text-[11px] text-ink-500 mt-1">{kpis.count} payment{kpis.count === 1 ? '' : 's'}</p>
                     </div>
-                    <div className="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+                    <div className="bg-white rounded-2xl border border-ink-200/60 p-5 shadow-soft">
                         <p className="text-[11px] text-ink-500 uppercase tracking-wider font-semibold">On-time streak</p>
                         <p className="text-2xl font-bold mt-2 text-success">{kpis.streak} month{kpis.streak === 1 ? '' : 's'}</p>
                         <p className="text-[11px] text-success mt-1">{kpis.streak >= 6 ? '⭐ Excellent tenant' : 'Keep it up'}</p>
                     </div>
-                    <div className="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+                    <div className="bg-white rounded-2xl border border-ink-200/60 p-5 shadow-soft">
                         <p className="text-[11px] text-ink-500 uppercase tracking-wider font-semibold">Avg payment</p>
                         <p className="text-2xl font-bold mt-2">{fmtMoney(kpis.avg_payment)}</p>
                         <p className="text-[11px] text-ink-500 mt-1">Per month</p>
                     </div>
-                    <div className="bg-white rounded-xl border border-ink-200 p-5 shadow-soft">
+                    <div className="bg-white rounded-2xl border border-ink-200/60 p-5 shadow-soft">
                         <p className="text-[11px] text-ink-500 uppercase tracking-wider font-semibold">Outstanding</p>
                         <p className={`text-2xl font-bold mt-2 ${kpis.outstanding > 0 ? 'text-danger' : 'text-success'}`}>{fmtMoney(kpis.outstanding)}</p>
                         <p className="text-[11px] text-ink-500 mt-1">{kpis.outstanding > 0 ? 'Pay overdue rent' : 'Up to date'}</p>
@@ -191,7 +191,7 @@ export default function TenantPayments({ tenant, lease, kpis, rows, upcoming }: 
                 </div>
 
                 {/* Table */}
-                <div className="bg-white rounded-xl border border-ink-200 shadow-soft overflow-hidden">
+                <div className="bg-white rounded-2xl border border-ink-200/60 shadow-soft overflow-hidden">
                     <div className="overflow-x-auto"><table className="w-full min-w-[700px]">
                         <thead>
                             <tr className="text-left text-[11px] uppercase text-ink-500 tracking-wider border-b border-ink-200 bg-ink-50">
@@ -234,7 +234,7 @@ export default function TenantPayments({ tenant, lease, kpis, rows, upcoming }: 
                 </div>
 
                 {/* Upcoming */}
-                <div className="mt-6 bg-white rounded-xl border border-ink-200 shadow-soft p-5">
+                <div className="mt-6 bg-white rounded-2xl border border-ink-200/60 shadow-soft p-5">
                     <h2 className="text-base font-semibold mb-3">Upcoming Payments</h2>
                     <div className="space-y-2">
                         {upcoming.map((u, idx) => {

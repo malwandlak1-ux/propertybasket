@@ -115,11 +115,17 @@ class LeaseController extends Controller
     }
 
     /**
-     * Download / stream the lease agreement PDF.
+     * Download / stream the lease agreement. A signed agreement uploaded by
+     * the landlord wins; otherwise the generated PDF.
      */
     public function agreement(Request $request, PdfService $pdf)
     {
         $lease = $this->resolveLease($request);
+
+        if ($lease->document_path && \Illuminate\Support\Facades\Storage::disk('local')->exists($lease->document_path)) {
+            return \App\Http\Controllers\Landlord\TenantsController::streamAgreement($lease, $request->boolean('download'));
+        }
+
         return $pdf->leaseAgreement($lease, download: $request->boolean('download'));
     }
 

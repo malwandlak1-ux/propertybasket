@@ -1,5 +1,6 @@
-import { useState } from 'react';
-import { Head } from '@inertiajs/react';
+import { useRef, useState } from 'react';
+import { Head, router, usePage } from '@inertiajs/react';
+import { Spinner } from '@/Components/Skeleton';
 import LandlordLayout from '@/Layouts/LandlordLayout';
 import LandlordInviteTenantModal, { InvitableListing, PendingInvite } from '@/Components/LandlordInviteTenantModal';
 
@@ -18,6 +19,7 @@ type Tenant = {
     portal_status: 'active' | 'pending';
     days_to_expiry: number | null;
     lease_status: string;
+    has_agreement: boolean;
 };
 
 type Props = {
@@ -59,8 +61,78 @@ function PortalBadge({ status }: { status: Tenant['portal_status'] }) {
         : <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-ink-100 text-ink-500">PENDING</span>;
 }
 
+/**
+ * Signed lease agreement for one lease: upload (PDF/JPG/PNG ≤ 10 MB), view,
+ * replace or remove. Stored privately; the tenant sees it on their Lease page.
+ */
+function AgreementCell({ leaseId, hasAgreement }: { leaseId: number; hasAgreement: boolean }) {
+    const fileRef = useRef<HTMLInputElement>(null);
+    const [busy, setBusy] = useState(false);
+
+    function upload(file: File) {
+        setBusy(true);
+        router.post(`/landlord/leases/${leaseId}/agreement`, { agreement: file }, {
+            forceFormData: true,
+            preserveScroll: true,
+            onFinish: () => {
+                setBusy(false);
+                if (fileRef.current) fileRef.current.value = '';
+            },
+        });
+    }
+
+    function remove() {
+        if (!confirm('Remove the uploaded lease agreement for this tenant?')) return;
+        router.delete(`/landlord/leases/${leaseId}/agreement`, { preserveScroll: true });
+    }
+
+    return (
+        <div className="flex items-center gap-2 whitespace-nowrap">
+            <input
+                ref={fileRef}
+                type="file"
+                accept="application/pdf,image/jpeg,image/png"
+                className="hidden"
+                onChange={(e) => e.target.files?.[0] && upload(e.target.files[0])}
+            />
+            {hasAgreement ? (
+                <>
+                    <a
+                        href={`/landlord/leases/${leaseId}/agreement`}
+                        target="_blank"
+                        rel="noopener"
+                        className="inline-flex items-center gap-1.5 text-[11.5px] font-semibold text-success bg-success/10 px-2.5 py-1 rounded-full hover:bg-success/15"
+                    >
+                        <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 15l2 2 4-4"/></svg>
+                        View
+                    </a>
+                    <button type="button" disabled={busy} onClick={() => fileRef.current?.click()} className="text-[11.5px] font-semibold text-brand-700 hover:underline disabled:opacity-50">
+                        {busy ? 'Uploading…' : 'Replace'}
+                    </button>
+                    <button type="button" onClick={remove} className="text-[11.5px] text-ink-400 hover:text-danger" title="Remove agreement">✕</button>
+                </>
+            ) : (
+                <button
+                    type="button"
+                    disabled={busy}
+                    onClick={() => fileRef.current?.click()}
+                    className="inline-flex items-center gap-1.5 text-[11.5px] font-semibold border border-ink-900/70 bg-white/60 rounded-full px-3 py-1 hover:bg-white disabled:opacity-60"
+                >
+                    {busy ? <><Spinner size={12} />Uploading…</> : (
+                        <>
+                            <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+                            Upload
+                        </>
+                    )}
+                </button>
+            )}
+        </div>
+    );
+}
+
 export default function LandlordTenants({ landlord, tenants, invitable_listings, pending_invites }: Props) {
     const [inviteOpen, setInviteOpen] = useState(false);
+    const { flash, errors } = usePage<{ flash?: { success?: string | null; error?: string | null }; errors: Record<string, string> }>().props;
     const canInvite = pending_invites.length > 0 || invitable_listings.length > 0;
     return (
         <LandlordLayout crumb="Tenants" section="People">
@@ -95,6 +167,13 @@ export default function LandlordTenants({ landlord, tenants, invitable_listings,
                     </button>
                 </div>
 
+                {flash?.success && (
+                    <div className="mb-4 rounded-xl bg-success/10 border border-success/30 text-success px-4 py-3 text-[13px]">✓ {flash.success}</div>
+                )}
+                {(errors?.agreement || flash?.error) && (
+                    <div className="mb-4 rounded-xl bg-danger/10 border border-danger/30 text-danger px-4 py-3 text-[13px]">{errors?.agreement ?? flash?.error}</div>
+                )}
+
                 {/* Info banner */}
                 <div className="bg-brand-50 border border-brand-100 rounded-xl p-4 mb-6 flex items-start gap-3">
                     <svg className="w-5 h-5 text-brand-600 shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
@@ -119,7 +198,7 @@ export default function LandlordTenants({ landlord, tenants, invitable_listings,
                             <p className="text-[12px] text-ink-500 mt-0.5">Tenants currently leasing your properties</p>
                         </div>
 
-                        <div className="overflow-x-auto"><table className="w-full min-w-[700px]">
+                        <div className="overflow-x-auto"><table className="w-full min-w-[860px]">
                             <thead>
                                 <tr className="text-left text-[11px] uppercase text-ink-500 tracking-wider border-b border-ink-200 bg-ink-50">
                                     <th className="font-semibold px-5 py-3">Tenant</th>
@@ -128,6 +207,7 @@ export default function LandlordTenants({ landlord, tenants, invitable_listings,
                                     <th className="font-semibold py-3 text-right">Rent</th>
                                     <th className="font-semibold py-3">Portal</th>
                                     <th className="font-semibold py-3">Rent Status</th>
+                                    <th className="font-semibold py-3 pr-4">Lease Agreement</th>
                                     <th className="font-semibold py-3"></th>
                                 </tr>
                             </thead>
@@ -160,6 +240,9 @@ export default function LandlordTenants({ landlord, tenants, invitable_listings,
                                         </td>
                                         <td className="py-4">
                                             <PayBadge status={t.pay_status} />
+                                        </td>
+                                        <td className="py-4 pr-4">
+                                            <AgreementCell leaseId={t.lease_id} hasAgreement={t.has_agreement} />
                                         </td>
                                         <td className="py-4 pr-5">
                                             <a

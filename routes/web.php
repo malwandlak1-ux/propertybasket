@@ -295,6 +295,9 @@ Route::middleware('auth')->group(function () {
             Route::get('tenants',     [Landlord\TenantsController::class,     'index'])->name('tenants.index');
             Route::post('listings/{listing}/invite-tenant', [Landlord\TenantsController::class, 'inviteTenant'])->name('listings.invite-tenant');
             Route::post('leases/{lease}/resend-invite',     [Landlord\TenantsController::class, 'resendInvitation'])->name('leases.resend-invite');
+            Route::post('leases/{lease}/agreement',         [Landlord\TenantsController::class, 'uploadAgreement'])->name('leases.agreement.upload');
+            Route::get('leases/{lease}/agreement',          [Landlord\TenantsController::class, 'showAgreement'])->name('leases.agreement.show');
+            Route::delete('leases/{lease}/agreement',       [Landlord\TenantsController::class, 'destroyAgreement'])->name('leases.agreement.destroy');
             Route::get('maintenance', [Landlord\MaintenanceController::class, 'index'])->name('maintenance.index');
             Route::get('finance',     [Landlord\FinanceController::class,     'index'])->name('finance.index');
             Route::get('messages',    [Landlord\MessagesController::class,    'index'])->name('messages.index');

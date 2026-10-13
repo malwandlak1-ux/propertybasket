@@ -18,6 +18,8 @@ use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -71,6 +73,7 @@ class TenantsController extends Controller
                 'portal_status'   => $lease->tenant?->invite_accepted_at ? 'active' : 'pending',
                 'days_to_expiry'  => $daysLeft,
                 'lease_status'    => $lease->status,
+                'has_agreement'   => (bool) $lease->document_path,
             ];
         })->values()->all();
 
@@ -289,5 +292,83 @@ class TenantsController extends Controller
         return redirect()
             ->back()
             ->with('success', "Invitation re-sent to {$lease->tenant->name} ({$lease->tenant->email}).");
+    }
+
+    // ── Signed lease agreement (uploaded by the landlord) ──────────────────
+    // Stored on the private "local" disk (POPIA: personal documents never sit
+    // under public/storage). Served only to this landlord and the lease's
+    // tenant (Tenant\LeaseController::agreement prefers it over the generated PDF).
+
+    /** POST /landlord/leases/{lease}/agreement */
+    public function uploadAgreement(Request $request, Lease $lease): RedirectResponse
+    {
+        $this->authorizeLease($request, $lease);
+
+        $request->validate([
+            'agreement' => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:10240'],
+        ]);
+
+        $old  = $lease->document_path;
+        $file = $request->file('agreement');
+        $path = $file->storeAs(
+            "lease-agreements/{$lease->id}",
+            'lease-' . $lease->id . '-' . now()->format('YmdHis') . '.' . strtolower($file->getClientOriginalExtension()),
+            'local',
+        );
+
+        $lease->forceFill(['document_path' => $path])->save();
+
+        if ($old && $old !== $path) {
+            Storage::disk('local')->delete($old);
+        }
+
+        return back()->with('success', 'Lease agreement uploaded — the tenant can now view it on their portal.');
+    }
+
+    /** GET /landlord/leases/{lease}/agreement */
+    public function showAgreement(Request $request, Lease $lease): StreamedResponse
+    {
+        $this->authorizeLease($request, $lease);
+        abort_unless($lease->document_path && Storage::disk('local')->exists($lease->document_path), 404);
+
+        return self::streamAgreement($lease, $request->boolean('download'));
+    }
+
+    /** DELETE /landlord/leases/{lease}/agreement */
+    public function destroyAgreement(Request $request, Lease $lease): RedirectResponse
+    {
+        $this->authorizeLease($request, $lease);
+
+        if ($lease->document_path) {
+            Storage::disk('local')->delete($lease->document_path);
+            $lease->forceFill(['document_path' => null])->save();
+        }
+
+        return back()->with('success', 'Lease agreement removed.');
+    }
+
+    /** Inline (or ?download=1) response for a lease's uploaded agreement. */
+    public static function streamAgreement(Lease $lease, bool $download = false): StreamedResponse
+    {
+        $ext  = pathinfo($lease->document_path, PATHINFO_EXTENSION);
+        $name = 'lease-agreement-' . $lease->id . '.' . $ext;
+
+        return $download
+            ? Storage::disk('local')->download($lease->document_path, $name)
+            : Storage::disk('local')->response($lease->document_path, $name);
+    }
+
+    private function authorizeLease(Request $request, Lease $lease): void
+    {
+        $landlord = $this->resolveLandlord($request);
+        $lease->loadMissing('listing');
+
+        abort_unless(
+            $lease->listing
+                && $lease->listing->owner_type === Landlord::class
+                && $lease->listing->owner_id === $landlord->id,
+            403,
+            'You can only manage agreements for your own properties.',
+        );
     }
 }

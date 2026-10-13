@@ -54,37 +54,46 @@ class DocumentsController extends Controller
                 ];
             });
 
-        // Synthetic document set (real upload pipeline is a Phase 9 task).
-        // The lease card reflects the real tenant signature state.
+        // Only the lease agreement has a real file (the landlord's uploaded
+        // signed copy, else the generated PDF). The rest are listed honestly
+        // as not uploaded yet. Lease card reflects the real signature state.
+        $managedBy = $lease->agency?->name ?? $lease->landlord?->name;
         $documents = [
             [
-                'id'       => 'lease',
-                'title'    => 'Lease Agreement',
-                'subtitle' => $lease->tenant_signed_at
-                    ? 'Master lease · Signed by ' . ($lease->tenant_signature ?? $user->name)
-                    : 'Master lease · Awaiting your signature',
-                'meta'     => $lease->tenant_signed_at?->format('d M Y') ?? $start->format('d M Y'),
-                'tone'     => 'rose',
-                'signed'   => ! is_null($lease->tenant_signed_at),
-                'category' => 'lease',
+                'id'        => 'lease',
+                'title'     => 'Lease Agreement',
+                'subtitle'  => $lease->document_path
+                    ? 'Signed copy uploaded by ' . ($managedBy ?? 'your landlord')
+                    : ($lease->tenant_signed_at
+                        ? 'Signed by ' . ($lease->tenant_signature ?? $user->name)
+                        : 'Awaiting your signature'),
+                'meta'      => $lease->tenant_signed_at
+                    ? 'Signed ' . $lease->tenant_signed_at->format('d M Y')
+                    : 'Issued ' . $start->format('d M Y'),
+                'tone'      => 'rose',
+                'signed'    => ! is_null($lease->tenant_signed_at),
+                'available' => true,
+                'category'  => 'lease',
             ],
             [
-                'id'       => 'house-rules',
-                'title'    => 'House Rules',
-                'subtitle' => 'Body corporate conduct',
-                'meta'     => $start->format('d M Y'),
-                'tone'     => 'emerald',
-                'signed'   => true,
-                'category' => 'lease',
+                'id'        => 'house-rules',
+                'title'     => 'House Rules',
+                'subtitle'  => 'Conduct and building rules',
+                'meta'      => 'Not uploaded yet',
+                'tone'      => 'emerald',
+                'signed'    => false,
+                'available' => false,
+                'category'  => 'lease',
             ],
             [
-                'id'       => 'deposit-receipt',
-                'title'    => 'Deposit Receipt',
-                'subtitle' => 'Section 32 trust',
-                'meta'     => $start->format('d M Y'),
-                'tone'     => 'brand',
-                'signed'   => true,
-                'category' => 'lease',
+                'id'        => 'deposit-receipt',
+                'title'     => 'Deposit Receipt',
+                'subtitle'  => 'Proof of deposit paid',
+                'meta'      => 'Not uploaded yet',
+                'tone'      => 'brand',
+                'signed'    => false,
+                'available' => false,
+                'category'  => 'lease',
             ],
         ];
 
@@ -105,8 +114,10 @@ class DocumentsController extends Controller
                 'id'               => $lease->id,
                 'address'          => $lease->listing?->address ?? $lease->listing?->title ?? '',
                 'monthly_rent'     => (float) $lease->monthly_rent,
-                'start_date'       => $start->format('Y/m/d'),
-                'end_date'         => CarbonImmutable::parse($lease->end_date)->format('Y/m/d'),
+                'start_date'       => $start->format('d M Y'),
+                'end_date'         => CarbonImmutable::parse($lease->end_date)->format('d M Y'),
+                'managed_by'       => $managedBy,
+                'is_agency'        => (bool) $lease->agency_id,
                 'tenant_signed_at' => $lease->tenant_signed_at?->format('d M Y · H:i'),
                 'tenant_signature' => $lease->tenant_signature,
             ],
@@ -126,7 +137,7 @@ class DocumentsController extends Controller
             : $start;
 
         $rows[] = [
-            'date'        => $depositedAt->format('Y/m/d'),
+            'date'        => $depositedAt->format('d M Y'),
             'description' => 'Damage deposit',
             'sub'         => 'Lease commencement',
             'type'        => 'DEPOSIT',
@@ -147,7 +158,7 @@ class DocumentsController extends Controller
             while ($cursor->lessThan($now) && $count < 6) {
                 $running += $perMonth;
                 array_unshift($rows, [
-                    'date'        => $cursor->format('Y/m/d'),
+                    'date'        => $cursor->format('d M Y'),
                     'description' => 'Monthly interest accrual',
                     'sub'         => null,
                     'type'        => 'INTEREST',

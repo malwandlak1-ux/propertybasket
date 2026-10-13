@@ -157,18 +157,22 @@ class LeaseBillingService
         ];
     }
 
-    /** Ensure a deposit ledger row exists for the lease (raised as "due"). */
+    /**
+     * Ensure a deposit ledger row exists for the lease (raised as "due").
+     * A lease with no deposit gets a zero "held" row so nothing ever falls due.
+     */
     public function ensureDeposit(Lease $lease): Deposit
     {
         $deposit = Deposit::where('lease_id', $lease->id)->first();
+        $amount  = (float) ($lease->deposit_amount ?? 0);
 
         if (! $deposit) {
             $deposit = Deposit::create([
                 'lease_id'         => $lease->id,
-                'amount_deposited' => (float) ($lease->deposit_amount ?? 0),
+                'amount_deposited' => $amount,
                 'interest_rate'    => (float) ($lease->deposit_interest_rate ?? 6.75),
                 'accrued_interest' => 0,
-                'status'           => Deposit::STATUS_DUE,
+                'status'           => $amount > 0 ? Deposit::STATUS_DUE : Deposit::STATUS_HELD,
             ]);
         }
 

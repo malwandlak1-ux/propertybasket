@@ -86,6 +86,7 @@ class DashboardController extends Controller
                 ? round($depositAmount + (float) $depositModel->accrued_interest, 2)
                 : 0.0,
             'received_at'      => $depositModel->deposited_at?->format('d M Y'),
+            'none'             => $depositAmount <= 0 && (float) ($lease->deposit_amount ?? 0) <= 0,
             'trust'            => $depositModel->isDue() && $agency ? [
                 'bank'           => $agency->trust_bank,
                 'account_holder' => $agency->trust_account_holder ?: $agency->name,

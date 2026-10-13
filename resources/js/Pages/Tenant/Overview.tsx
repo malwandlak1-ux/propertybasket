@@ -54,6 +54,8 @@ type TrustAccount = {
 type DepositInfo = {
     status: 'due' | 'held' | string;
     is_due: boolean;
+    /** The lease has no security deposit. */
+    none?: boolean;
     amount_deposited: number;
     accrued_interest: number;
     interest_rate: number;
@@ -213,7 +215,13 @@ export default function TenantOverview({ tenant, lease, next_due, streak, deposi
                     </div>
 
                     <div className="space-y-4">
-                        {deposit.is_due ? (
+                        {deposit.none ? (
+                            <div className="bg-white rounded-2xl border border-ink-200/60 p-5 shadow-soft">
+                                <p className="text-[11px] text-ink-500 uppercase tracking-wider font-semibold mb-3">Deposit</p>
+                                <p className="text-2xl font-bold">None</p>
+                                <p className="text-[11px] text-ink-500 mt-1">Your lease doesn't require a security deposit.</p>
+                            </div>
+                        ) : deposit.is_due ? (
                             <div className="bg-white rounded-xl border border-warning/40 p-5 shadow-soft">
                                 <div className="flex items-center justify-between mb-3">
                                     <p className="text-[11px] text-warning uppercase tracking-wider font-semibold">Deposit Due</p>

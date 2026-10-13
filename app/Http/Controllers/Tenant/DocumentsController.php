@@ -88,6 +88,11 @@ class DocumentsController extends Controller
             ],
         ];
 
+        // No deposit on this lease → no deposit receipt to list.
+        if ($depositInfo['amount_deposited'] <= 0) {
+            $documents = array_values(array_filter($documents, fn ($d) => $d['id'] !== 'deposit-receipt'));
+        }
+
         // ── Deposit trust ledger (synthesised from accrual data) ─────────────
         $ledger = $this->buildLedger($lease, $deposit, $depositInfo);
 

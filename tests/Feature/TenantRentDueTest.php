@@ -75,4 +75,22 @@ class TenantRentDueTest extends TestCase
         $this->assertFalse($out['current_paid']);
         $this->assertSame(12000.0, $out['total_due']); // 3 arrears months + current
     }
+
+    #[Test]
+    public function lease_without_deposit_never_shows_a_deposit_due(): void
+    {
+        $this->lease->update(['deposit_amount' => 0]);
+        \App\Models\Deposit::where('lease_id', $this->lease->id)->delete();
+
+        $this->actingAs($this->tenant)->get('/tenant')
+            ->assertOk()
+            ->assertInertia(fn (Assert $p) => $p
+                ->where('deposit.none', true)
+                ->where('deposit.is_due', false)
+            );
+
+        $this->actingAs($this->tenant)->get('/tenant/documents')
+            ->assertOk()
+            ->assertInertia(fn (Assert $p) => $p->where('documents', fn ($docs) => collect($docs)->pluck('id')->doesntContain('deposit-receipt')));
+    }
 }

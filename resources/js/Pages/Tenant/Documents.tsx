@@ -77,6 +77,7 @@ const typeTone = (t: LedgerRow['tone']) => {
 };
 
 export default function TenantDocuments({ tenant, lease, deposit, ledger, documents, inspections }: Props) {
+    const hasDeposit = deposit.amount_deposited > 0;
     const { flash } = usePage<SharedProps>().props;
     const [signOpen, setSignOpen] = useState(false);
     const leaseSigned = !! lease.tenant_signed_at;
@@ -127,7 +128,8 @@ export default function TenantDocuments({ tenant, lease, deposit, ledger, docume
                     </button>
                 </div>
 
-                {/* Deposit hero */}
+                {/* Deposit hero (leases without a deposit get a short note instead) */}
+                {hasDeposit ? (
                 <div className="bg-gradient-to-br from-success to-emerald-700 rounded-xl p-6 text-white shadow-card mb-6 relative overflow-hidden">
                     <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-32 translate-x-32" />
                     <div className="relative grid grid-cols-1 sm:grid-cols-3 gap-8">
@@ -151,6 +153,13 @@ export default function TenantDocuments({ tenant, lease, deposit, ledger, docume
                         Interest accrues monthly · Tax-free under Rental Housing Act §5(3)(d) · Refunded within 14 days of move-out
                     </div>
                 </div>
+                ) : (
+                    <div className="bg-white rounded-2xl border border-ink-200/60 p-5 shadow-soft mb-6">
+                        <p className="text-[11px] text-ink-500 uppercase tracking-wider font-semibold">Deposit</p>
+                        <p className="text-[15px] font-semibold mt-1">No security deposit on this lease</p>
+                        <p className="text-[12px] text-ink-500 mt-1">Your lease agreement doesn't require a deposit, so there's no trust ledger to show.</p>
+                    </div>
+                )}
 
                 {/* Documents */}
                 <h2 className="text-base font-semibold mb-3">Lease Documents</h2>
@@ -231,6 +240,7 @@ export default function TenantDocuments({ tenant, lease, deposit, ledger, docume
                     </div>
                 )}
 
+                {hasDeposit && (<>
                 {/* Trust Ledger */}
                 <div className="bg-white rounded-2xl border border-ink-200/60 shadow-soft overflow-hidden">
                     <div className="p-5 border-b border-ink-200">
@@ -269,6 +279,7 @@ export default function TenantDocuments({ tenant, lease, deposit, ledger, docume
                 <p className="mt-4 text-[11px] text-ink-400 text-center">
                     Deposit held under EAAB Section 32 Trust account regulations · <Link href="/tenant/lease" className="text-brand-600 font-semibold">View lease for refund terms →</Link>
                 </p>
+                </>)}
             </div>
 
             {signOpen && (

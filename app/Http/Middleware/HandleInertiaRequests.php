@@ -213,6 +213,15 @@ class HandleInertiaRequests extends Middleware
      * Map a notification class + payload to a UI-ready { title, body, href, tone }.
      * Unknown types fall back to the class basename.
      */
+    private function maintenanceHref(): string
+    {
+        return match (request()->user()?->role?->value) {
+            'landlord' => '/landlord/maintenance',
+            'agent'    => '/agent/maintenance',
+            default    => '/agency/maintenance',
+        };
+    }
+
     private function formatNotification(string $type, array $data): array
     {
         return match ($type) {
@@ -287,10 +296,22 @@ class HandleInertiaRequests extends Middleware
                 'href'  => '/tenant/maintenance',
                 'tone'  => 'success',
             ],
+            \App\Notifications\QuoteSubmitted::class => [
+                'title' => 'Quote to approve',
+                'body'  => ($data['contractor'] ?? 'A contractor') . ' sent a quote of R ' . number_format((float) ($data['total'] ?? 0), 2) . '.',
+                'href'  => $data['href'] ?? '/agency/maintenance/quotes',
+                'tone'  => 'warning',
+            ],
+            \App\Notifications\InvoiceSubmitted::class => [
+                'title' => 'Invoice received',
+                'body'  => 'A contractor invoiced R ' . number_format((float) ($data['total'] ?? 0), 2) . ' for a completed job.',
+                'href'  => $data['href'] ?? '/agency/commission',
+                'tone'  => 'warning',
+            ],
             \App\Notifications\MaintenanceRequestSubmitted::class => [
                 'title' => 'New maintenance request',
                 'body'  => 'A tenant has submitted a maintenance request that needs your attention.',
-                'href'  => '/agency/maintenance',
+                'href'  => $this->maintenanceHref(),
                 'tone'  => 'warning',
             ],
             \App\Notifications\RentPaymentReceived::class => [

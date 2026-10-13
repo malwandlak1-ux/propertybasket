@@ -64,7 +64,7 @@ function fmtMoney(n: number) {
 const STAGE_BADGE: Record<RequestStage, { cls: string; label: string }> = {
     marketplace:       { cls: 'bg-brand-50 text-brand-700',     label: 'Marketplace' },
     needs_quote:       { cls: 'bg-warning/15 text-warning',     label: 'Needs quote' },
-    awaiting_approval: { cls: 'bg-amber-50 text-amber-700',     label: 'Awaiting agency approval' },
+    awaiting_approval: { cls: 'bg-amber-50 text-amber-700',     label: 'Awaiting approval' },
     quote_accepted:    { cls: 'bg-success/15 text-success',     label: 'Quote accepted — ready to schedule' },
     quote_rejected:    { cls: 'bg-danger/15 text-danger',       label: 'Quote rejected — re-quote needed' },
 };
@@ -75,7 +75,7 @@ export default function RequestDetailsModal({ req, vatRegistered, vatRate, onClo
     const [busy, setBusy]     = useState(false);
 
     function claim() {
-        if (! confirm('Claim this job? You\'ll need to submit a quote next for agency approval.')) return;
+        if (! confirm('Claim this job? You\'ll need to submit a quote next for approval.')) return;
         setBusy(true);
         router.post(`/contractor/requests/${req.id}/accept`, {}, {
             preserveScroll: true,
@@ -240,7 +240,7 @@ export default function RequestDetailsModal({ req, vatRegistered, vatRate, onClo
 
                             {req.stage === 'awaiting_approval' && (
                                 <div className="flex-1 text-[12px] text-ink-500 text-right pr-2 pt-2">
-                                    Waiting on the agency to approve {req.my_quote?.reference}. We'll notify you.
+                                    Waiting for the property manager to approve {req.my_quote?.reference}. We'll notify you.
                                 </div>
                             )}
 
@@ -431,7 +431,7 @@ function QuoteForm({
             </div>
 
             <p className="text-[11px] text-ink-500">
-                Submitting will send the quote for agency approval. You can only schedule the job once they accept it.
+                Submitting will send the quote for approval. You can only schedule the job once they accept it.
             </p>
 
             <div className="flex justify-end gap-2">

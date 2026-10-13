@@ -12,7 +12,6 @@ use App\Models\PayoutBatch;
 use App\Models\User;
 use App\Notifications\CommissionApproved;
 use App\Notifications\CommissionPaid;
-use App\Notifications\MaintenanceInvoicePaid;
 use App\Services\CommissionService;
 use App\Services\PaystackService;
 use Carbon\CarbonImmutable;
@@ -230,25 +229,7 @@ class CommissionController extends Controller
             'This contractor has not captured banking details yet. Ask them to add their payout account first.',
         );
 
-        $invoice->update([
-            'status'             => 'paid',
-            'paid_at'            => now(),
-            'approved_at'        => $invoice->approved_at ?? now(),
-            'paystack_reference' => 'PB_TRF_' . strtoupper(Str::random(12)),
-        ]);
-
-        // Close the loop on the job itself.
-        if ($invoice->request && $invoice->request->status === 'completed') {
-            $invoice->request->update(['status' => 'paid']);
-        }
-
-        if ($invoice->contractor?->user) {
-            try {
-                $invoice->contractor->user->notify(new MaintenanceInvoicePaid($invoice));
-            } catch (\Throwable $e) {
-                report($e);
-            }
-        }
+        app(\App\Services\MaintenanceWorkflow::class)->markInvoicePaid($invoice, 'PB_TRF_' . strtoupper(Str::random(12)));
 
         $name = $invoice->contractor?->business_name ?? 'the contractor';
 

@@ -30,7 +30,7 @@ class QuoteRejected extends Notification
         return (new MailMessage)
             ->subject("Quote {$ref} not accepted")
             ->greeting('Hi ' . $notifiable->name . ',')
-            ->line("The agency reviewed your quote **{$ref}** and didn't accept it.")
+            ->line("Your quote **{$ref}** was reviewed and not accepted.")
             ->line('Job: ' . ($quote->request?->title ?? '—'))
             ->line('You can revise and resubmit a new quote from the Job Requests page.')
             ->action('Review job', url('/contractor/requests'))

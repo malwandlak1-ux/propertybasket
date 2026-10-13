@@ -12,7 +12,7 @@ class Contractor extends Model
     use SoftDeletes;
 
     protected $fillable = [
-        'user_id', 'created_by_agency_id', 'business_name', 'trading_name', 'bio',
+        'user_id', 'created_by_agency_id', 'created_by_landlord_id', 'business_name', 'trading_name', 'bio',
         'specialities', 'service_areas',
         'vat_registered', 'vat_number', 'paystack_recipient_code',
         'bank_name', 'bank_account_holder', 'bank_account_number',

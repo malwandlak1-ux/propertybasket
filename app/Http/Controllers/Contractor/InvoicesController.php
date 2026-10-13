@@ -151,7 +151,7 @@ class InvoicesController extends Controller
 
         $status = $data['status'] ?? 'submitted';
 
-        MaintenanceInvoice::create([
+        $invoice = MaintenanceInvoice::create([
             'maintenance_request_id' => $req->id,
             'quote_id'               => $quote?->id,
             'contractor_id'          => $contractor->id,
@@ -165,6 +165,10 @@ class InvoicesController extends Controller
             'status'                 => $status,
             'submitted_at'           => $status === 'submitted' ? now() : null,
         ]);
+
+        if ($status === 'submitted') {
+            \App\Services\MaintenanceWorkflow::notifyManager($req, new \App\Notifications\InvoiceSubmitted($invoice));
+        }
 
         return redirect()
             ->route('contractor.invoices.index', ['filter' => $status])

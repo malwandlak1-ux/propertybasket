@@ -122,7 +122,7 @@ class QuotesController extends Controller
             ? CarbonImmutable::parse($data['valid_until'])
             : CarbonImmutable::now()->addDays(14);
 
-        MaintenanceQuote::create([
+        $quote = MaintenanceQuote::create([
             'maintenance_request_id' => $req->id,
             'contractor_id'          => $contractor->id,
             'line_items'             => $lineItems,
@@ -136,6 +136,10 @@ class QuotesController extends Controller
             'sent_at'                => $status === 'sent' ? now() : null,
             'expires_at'             => $status === 'sent' ? $validUntil : null,
         ]);
+
+        if ($status === 'sent') {
+            \App\Services\MaintenanceWorkflow::notifyManager($req, new \App\Notifications\QuoteSubmitted($quote));
+        }
 
         return redirect()
             ->route('contractor.quotes.index', ['filter' => $status])

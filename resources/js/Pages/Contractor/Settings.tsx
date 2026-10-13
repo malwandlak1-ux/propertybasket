@@ -288,7 +288,7 @@ function BankingPanel({ banking, banks, contractorName }: { banking: Props['bank
                 <div>
                     <h2 className="text-base font-bold">Payout bank account</h2>
                     <p className="text-[12px] text-ink-500 mt-0.5">
-                        Property Basket pays you via Paystack when an agency approves your invoice. Cleared funds settle into the account below.
+                        Property Basket pays you via Paystack when your invoice is approved. Cleared funds settle into the account below.
                     </p>
                 </div>
 
@@ -390,7 +390,7 @@ function BankingPanel({ banking, banks, contractorName }: { banking: Props['bank
 
             <div className="bg-ink-50/60 border border-ink-200 rounded-xl p-5 text-[12.5px] text-ink-600 leading-relaxed">
                 <p className="font-semibold text-ink-700 mb-1">How payouts work</p>
-                When an agency approves your maintenance invoice, Property Basket charges the landlord via Paystack and
+                When your maintenance invoice is approved, Property Basket charges the landlord via Paystack and
                 releases your share to this account. The platform retains its fee at source; no manual EFT is required.
             </div>
         </div>

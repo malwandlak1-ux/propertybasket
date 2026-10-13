@@ -299,6 +299,14 @@ Route::middleware('auth')->group(function () {
             Route::get('leases/{lease}/agreement',          [Landlord\TenantsController::class, 'showAgreement'])->name('leases.agreement.show');
             Route::delete('leases/{lease}/agreement',       [Landlord\TenantsController::class, 'destroyAgreement'])->name('leases.agreement.destroy');
             Route::get('maintenance', [Landlord\MaintenanceController::class, 'index'])->name('maintenance.index');
+            Route::post('maintenance/{maintenanceRequest}/assign', [Landlord\MaintenanceController::class, 'assign'])->name('maintenance.assign');
+            Route::post('maintenance/{maintenanceRequest}/rate',   [Landlord\MaintenanceController::class, 'rate'])->name('maintenance.rate');
+            Route::post('maintenance/quotes/{quote}/accept',       [Landlord\MaintenanceController::class, 'acceptQuote'])->name('maintenance.quotes.accept');
+            Route::post('maintenance/quotes/{quote}/reject',       [Landlord\MaintenanceController::class, 'rejectQuote'])->name('maintenance.quotes.reject');
+            Route::post('maintenance/invoices/{invoice}/paid',     [Landlord\MaintenanceController::class, 'markInvoicePaid'])->name('maintenance.invoices.paid');
+            Route::get('contractors',                 [Landlord\ContractorsController::class, 'index'])->name('contractors.index');
+            Route::post('contractors',                [Landlord\ContractorsController::class, 'store'])->name('contractors.store');
+            Route::delete('contractors/{contractor}', [Landlord\ContractorsController::class, 'destroy'])->name('contractors.destroy');
             Route::get('finance',     [Landlord\FinanceController::class,     'index'])->name('finance.index');
             Route::get('finance/statement.pdf', [Landlord\FinanceController::class, 'statement'])->name('finance.statement');
             Route::get('messages',    [Landlord\MessagesController::class,    'index'])->name('messages.index');

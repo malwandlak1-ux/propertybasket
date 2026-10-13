@@ -82,7 +82,7 @@ class RequestsController extends Controller
             abort_unless(
                 $hasAccepted,
                 422,
-                'Submit a quote and wait for the agency to accept it before scheduling.',
+                'Submit a quote and wait for it to be accepted before scheduling.',
             );
 
             $maintenanceRequest->update(['status' => 'in_progress']);

@@ -32,7 +32,8 @@ class ContractorsController extends Controller
 
         $marketplaceQuery = (clone $base)
             ->where('status', 'active')
-            ->whereNull('created_by_agency_id');
+            ->whereNull('created_by_agency_id')
+            ->whereNull('created_by_landlord_id');
 
         $mineQuery = (clone $base)
             ->where('created_by_agency_id', $agency->id);

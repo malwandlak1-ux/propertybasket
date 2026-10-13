@@ -30,7 +30,7 @@ class QuoteAccepted extends Notification
         return (new MailMessage)
             ->subject("Quote {$ref} accepted — you can schedule the job")
             ->greeting('Hi ' . $notifiable->name . ',')
-            ->line("Your quote **{$ref}** has been accepted by the agency.")
+            ->line("Your quote **{$ref}** has been accepted.")
             ->line('Job: ' . ($quote->request?->title ?? '—'))
             ->line('Property: ' . ($quote->request?->property?->title ?? '—'))
             ->line('Total: R ' . number_format((float) $quote->total, 2))

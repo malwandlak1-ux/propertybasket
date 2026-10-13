@@ -7,8 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Agency;
 use App\Models\Listing;
 use App\Models\MaintenanceQuote;
-use App\Notifications\QuoteAccepted;
-use App\Notifications\QuoteRejected;
+use App\Services\MaintenanceWorkflow;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -76,28 +75,7 @@ class QuotesController extends Controller
             'Only quotes that are awaiting review can be accepted.',
         );
 
-        // Reject competing quotes on the same job to keep the workflow clean.
-        $competing = MaintenanceQuote::where('maintenance_request_id', $quote->maintenance_request_id)
-            ->where('id', '!=', $quote->id)
-            ->whereIn('status', ['sent', 'draft'])
-            ->with('contractor.user')
-            ->get();
-        MaintenanceQuote::whereIn('id', $competing->pluck('id'))->update(['status' => 'rejected']);
-
-        $quote->update(['status' => 'accepted']);
-
-        // Notify the winning contractor; notify each losing contractor too so
-        // they're not left guessing why their card flipped to "Quote rejected".
-        $winner = $quote->loadMissing('contractor.user')->contractor?->user;
-        if ($winner) {
-            $winner->notify(new QuoteAccepted($quote));
-        }
-        foreach ($competing as $loser) {
-            $loserUser = $loser->contractor?->user;
-            if ($loserUser && (! $winner || $loserUser->id !== $winner->id)) {
-                $loserUser->notify(new QuoteRejected($loser));
-            }
-        }
+        app(MaintenanceWorkflow::class)->acceptQuote($quote);
 
         return back()->with('success', "Quote {$this->ref($quote)} accepted — the contractor can now schedule the job.");
     }
@@ -116,12 +94,7 @@ class QuotesController extends Controller
             'Only quotes awaiting review can be rejected.',
         );
 
-        $quote->update(['status' => 'rejected']);
-
-        $contractorUser = $quote->loadMissing('contractor.user')->contractor?->user;
-        if ($contractorUser) {
-            $contractorUser->notify(new QuoteRejected($quote));
-        }
+        app(MaintenanceWorkflow::class)->rejectQuote($quote);
 
         return back()->with('success', "Quote {$this->ref($quote)} rejected.");
     }

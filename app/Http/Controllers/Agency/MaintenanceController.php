@@ -203,6 +203,7 @@ class MaintenanceController extends Controller
                 ->get()->map($map)->values()->all(),
             'market' => Contractor::with('user:id,name')
                 ->whereNull('created_by_agency_id')
+                ->whereNull('created_by_landlord_id')
                 ->where('status', 'active')
                 ->orderByDesc('average_rating')
                 ->orderByDesc('total_jobs')

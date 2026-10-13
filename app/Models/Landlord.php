@@ -50,4 +50,16 @@ class Landlord extends Model
     {
         return $this->morphMany(Listing::class, 'owner');
     }
+
+    /** Contractors on this landlord's own roster. */
+    public function contractors(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(Contractor::class, 'landlord_contractor')->withTimestamps();
+    }
+
+    /** Display name (the landlord's user), so `$listing->owner->name` works for landlord-owned properties. */
+    public function getNameAttribute(): ?string
+    {
+        return $this->user?->name;
+    }
 }

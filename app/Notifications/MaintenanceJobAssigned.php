@@ -35,7 +35,7 @@ class MaintenanceJobAssigned extends Notification
                 ? 'Preferred visit: ' . $this->request->preferred_date->format('d M Y') . ($this->request->preferred_time_slot ? ' · ' . $this->request->preferred_time_slot : '')
                 : 'No preferred visit slot given.')
             ->action('View job & submit quote', url('/contractor/requests'))
-            ->line('Submit your quote so the agency can review and approve it.')
+            ->line('Submit your quote so the property manager can review and approve it.')
             ->salutation('— The Property Basket team');
     }
 

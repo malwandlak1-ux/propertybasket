@@ -26,6 +26,20 @@ class MaintenanceInvoicePaid extends Notification
     {
         $inv  = $this->invoice->loadMissing('request');
         $gross = (float) $inv->invoice_total;
+
+        // Paid directly by the property owner (EFT outside the platform): no platform fee.
+        if (str_starts_with((string) $inv->paystack_reference, 'PB_EFT_')) {
+            return (new MailMessage)
+                ->subject('Invoice paid — R ' . number_format($gross, 2))
+                ->greeting('Hi ' . $notifiable->name . ',')
+                ->line('Your invoice **INV-' . str_pad((string) $inv->id, 6, '0', STR_PAD_LEFT) . '** has been marked as paid by the property owner.')
+                ->line('Job: ' . ($inv->request?->title ?? '—'))
+                ->line('**Amount: R ' . number_format($gross, 2) . '**, paid by EFT to the account on your profile.')
+                ->line('If it has not reflected within 2 business days, reply to the owner from your Messages page.')
+                ->action('View invoices', url('/contractor/invoices'))
+                ->salutation('— Property Basket');
+        }
+
         $fee  = round($gross * PlatformPlans::CONTRACTOR_FEE_PERCENT / 100, 2);
         $net  = $gross - $fee;
 

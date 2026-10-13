@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Contractor;
 use App\Http\Controllers\Contractor\Concerns\ResolvesContractor;
 use App\Models\MaintenanceQuote;
 use App\Models\MaintenanceRequest;
+use App\Support\Edition;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
@@ -29,23 +30,30 @@ class RequestsController extends Controller
             ->map(fn ($r) => $this->mapRequest($r, 'assigned', $contractor->id));
 
         $specialities = $contractor->specialities ?? [];
-        $marketplaceQ = MaintenanceRequest::whereNull('assigned_to')
-            ->where('status', 'open');
-        if (! empty($specialities)) {
-            $marketplaceQ->whereIn('category', $specialities);
+        $marketplace = collect();
+
+        // Sites without the marketplace (CONTRACTOR_MARKETPLACE=false, careline)
+        // only show contractors the jobs assigned to them.
+        if (Edition::marketplaceEnabled()) {
+            $marketplaceQ = MaintenanceRequest::whereNull('assigned_to')
+                ->where('status', 'open');
+            if (! empty($specialities)) {
+                $marketplaceQ->whereIn('category', $specialities);
+            }
+            $marketplace = $marketplaceQ
+                ->with(['property', 'submitter'])
+                ->orderByRaw("CASE urgency WHEN 'emergency' THEN 1 WHEN 'high' THEN 2 WHEN 'medium' THEN 3 WHEN 'low' THEN 4 ELSE 5 END")
+                ->orderByDesc('created_at')
+                ->limit(20)
+                ->get()
+                ->map(fn ($r) => $this->mapRequest($r, 'marketplace', $contractor->id));
         }
-        $marketplace = $marketplaceQ
-            ->with(['property', 'submitter'])
-            ->orderByRaw("CASE urgency WHEN 'emergency' THEN 1 WHEN 'high' THEN 2 WHEN 'medium' THEN 3 WHEN 'low' THEN 4 ELSE 5 END")
-            ->orderByDesc('created_at')
-            ->limit(20)
-            ->get()
-            ->map(fn ($r) => $this->mapRequest($r, 'marketplace', $contractor->id));
 
         return Inertia::render('Contractor/Requests', [
             'counts'         => $this->sidebarCounts($contractor),
             'assigned'       => $assigned->values(),
             'marketplace'    => $marketplace->values(),
+            'marketplace_enabled' => Edition::marketplaceEnabled(),
             'specialities'   => $specialities,
             'vat_registered' => (bool) $contractor->vat_registered,
             'vat_rate'       => 15.0,
@@ -83,6 +91,15 @@ class RequestsController extends Controller
         }
 
         // Marketplace claim — self-assign. Quote must follow before scheduling.
+        // Only an unassigned, open job can be claimed (never another
+        // contractor's), and only where the marketplace is enabled.
+        abort_unless(Edition::marketplaceEnabled(), 404);
+        abort_unless(
+            $maintenanceRequest->assigned_to === null && $maintenanceRequest->status === 'open',
+            403,
+            'This job is not open for claiming.',
+        );
+
         $maintenanceRequest->update([
             'assigned_to' => $contractor->user_id,
             'status'      => 'open',
@@ -93,11 +110,16 @@ class RequestsController extends Controller
 
     public function decline(Request $request, MaintenanceRequest $maintenanceRequest): RedirectResponse
     {
-        $this->resolveContractor($request);
+        $contractor = $this->resolveContractor($request);
+
+        // Only the assigned contractor can hand a job back.
+        abort_unless($maintenanceRequest->assigned_to === $contractor->user_id, 403, 'This job is not assigned to you.');
 
         $maintenanceRequest->update(['assigned_to' => null]);
 
-        return back()->with('success', 'Job declined and returned to marketplace.');
+        return back()->with('success', Edition::marketplaceEnabled()
+            ? 'Job declined and returned to marketplace.'
+            : 'Job declined — the property owner will reassign it.');
     }
 
     private function mapRequest(MaintenanceRequest $r, string $kind, int $contractorId): array

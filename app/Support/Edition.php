@@ -37,4 +37,10 @@ class Edition
     {
         return (bool) config('edition.public_site', true);
     }
+
+    /** Contractors can browse + claim unassigned jobs (the marketplace). */
+    public static function marketplaceEnabled(): bool
+    {
+        return (bool) config('edition.contractor_marketplace', true);
+    }
 }

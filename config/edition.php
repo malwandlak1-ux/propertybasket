@@ -21,6 +21,10 @@ return [
     // redirect to the login screen (careline). Legal pages stay reachable.
     'public_site' => filter_var(env('PUBLIC_SITE', true), FILTER_VALIDATE_BOOL),
 
+    // false = contractors only see jobs assigned to them: no open-job
+    // marketplace and no self-claiming (careline). Default true.
+    'contractor_marketplace' => filter_var(env('CONTRACTOR_MARKETPLACE', true), FILTER_VALIDATE_BOOL),
+
     'disabled_roles' => array_values(array_filter(array_map(
         'trim',
         explode(',', (string) env('DISABLED_ROLES', ''))

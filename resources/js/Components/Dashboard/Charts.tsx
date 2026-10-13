@@ -206,8 +206,12 @@ export function AreaChart({
     const id = useId().replace(/:/g, '');
     const [hover, setHover] = useState<number | null>(null);
     const w = 600;
-    const max = niceMax(Math.max(1, ...series, ...(previous ?? [])));
+    const peak = Math.max(0, ...series, ...(previous ?? []));
+    // Tiny or empty ranges would round to duplicate labels (R1, R1, R0…), so
+    // keep at least 4 units of headroom and label only the zero line when empty.
+    const max = niceMax(Math.max(4, peak));
     const ticks = [0, 0.25, 0.5, 0.75, 1].map((t) => max * t);
+    const tickLabel = (t: number) => (peak <= 0 && t > 0 ? '' : format(Math.round(t)));
     const pts = pathFor(series, w, height, 0, max, 0);
     const prev = previous ? pathFor(previous, w, height, 0, max, 0) : null;
     const line = smooth(pts);
@@ -223,7 +227,7 @@ export function AreaChart({
             </div>
             <div className="flex gap-2">
                 <div className="flex flex-col justify-between text-[10.5px] text-ink-400 tabular-nums text-right w-9 shrink-0" style={{ height }}>
-                    {[...ticks].reverse().map((t) => <span key={t} className="-translate-y-1/2 first:translate-y-0 last:translate-y-0">{format(Math.round(t))}</span>)}
+                    {[...ticks].reverse().map((t) => <span key={t} className="-translate-y-1/2 first:translate-y-0 last:translate-y-0">{tickLabel(t)}</span>)}
                 </div>
                 <div
                     className="relative flex-1 min-w-0 text-brand-600"

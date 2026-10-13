@@ -29,10 +29,13 @@ class AppearanceController extends Controller
         return back()->with('success', 'Appearance updated.');
     }
 
-    /** Tenants see their landlord's / agency's branding and can't replace it. */
+    /**
+     * Tenants and contractors can't replace the dashboard logo — tenants see
+     * their landlord's / agency's branding, contractors the platform's.
+     */
     public static function canUploadLogo(\App\Models\User $user): bool
     {
-        return $user->role !== \App\Enums\Role::Tenant;
+        return ! in_array($user->role, [\App\Enums\Role::Tenant, \App\Enums\Role::Contractor], true);
     }
 
     public function uploadLogo(Request $request): RedirectResponse

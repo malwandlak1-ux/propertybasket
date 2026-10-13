@@ -10,6 +10,8 @@ type Props = {
     counts: { requests?: number; active_jobs?: number; messages?: number };
     assigned: Req[];
     marketplace: Req[];
+    /** false on sites without the contractor marketplace (careline). */
+    marketplace_enabled?: boolean;
     specialities: string[];
     vat_registered: boolean;
     vat_rate: number;
@@ -74,7 +76,7 @@ function Card({ req, onView }: { req: Req; onView: () => void }) {
                 {req.kind === 'assigned' && req.stage === 'needs_quote' && (
                     <button
                         onClick={() => {
-                            if (! confirm('Return this job to the marketplace?')) return;
+                            if (! confirm('Decline this job and hand it back?')) return;
                             router.post(`/contractor/requests/${req.id}/decline`, {}, { preserveScroll: true });
                         }}
                         className="px-3 py-1.5 text-[12px] border border-ink-200 rounded-md font-semibold hover:bg-ink-50 transition"
@@ -87,7 +89,7 @@ function Card({ req, onView }: { req: Req; onView: () => void }) {
     );
 }
 
-export default function ContractorRequests({ counts, assigned, marketplace, specialities, vat_registered, vat_rate }: Props) {
+export default function ContractorRequests({ counts, assigned, marketplace, marketplace_enabled = true, specialities, vat_registered, vat_rate }: Props) {
     const [openId, setOpenId] = useState<number | null>(null);
     const openReq = [...assigned, ...marketplace].find((r) => r.id === openId) ?? null;
 
@@ -100,8 +102,9 @@ export default function ContractorRequests({ counts, assigned, marketplace, spec
                     <div>
                         <h1 className="text-[28px] sm:text-[32px] leading-tight tracking-tight">Job Requests</h1>
                         <p className="text-[14px] text-ink-500 mt-1">
-                            {assigned.length} assigned to you · {marketplace.length} available in marketplace
-                            {specialities.length > 0 && <> · filtered by your specialities ({specialities.join(', ')})</>}
+                            {assigned.length} assigned to you
+                            {marketplace_enabled && <> · {marketplace.length} available in marketplace</>}
+                            {marketplace_enabled && specialities.length > 0 && <> · filtered by your specialities ({specialities.join(', ')})</>}
                         </p>
                     </div>
                 </div>
@@ -113,7 +116,7 @@ export default function ContractorRequests({ counts, assigned, marketplace, spec
                         <path d="M12 16v-4M12 8h.01" />
                     </svg>
                     <span>
-                        <strong>Workflow:</strong> View the job details and photos → submit a quote → wait for the agency to approve it → then schedule the work.
+                        <strong>Workflow:</strong> View the job details and photos → submit a quote → wait for {marketplace_enabled ? 'the agency' : 'the property owner'} to approve it → then schedule the work.
                     </span>
                 </div>
 
@@ -134,6 +137,7 @@ export default function ContractorRequests({ counts, assigned, marketplace, spec
                     )}
                 </section>
 
+                {marketplace_enabled && (
                 <section>
                     <div className="flex items-center gap-2 mb-3">
                         <span className="w-2 h-2 rounded-full bg-brand-500" />
@@ -150,6 +154,7 @@ export default function ContractorRequests({ counts, assigned, marketplace, spec
                         </div>
                     )}
                 </section>
+                )}
             </div>
 
             {openReq && (

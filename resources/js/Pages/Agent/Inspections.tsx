@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Head, Link } from '@inertiajs/react';
 import AgentLayout from '@/Layouts/AgentLayout';
+import Icon from '@/Components/Dashboard/Icon';
 
 type InspectionCard = {
     id: number;
@@ -80,7 +81,7 @@ function InspectionCardView({ card }: { card: InspectionCard }) {
                         {badge.label}
                     </span>
                     {isSigned && (
-                        <span className="text-[10px] bg-white/90 backdrop-blur px-2 py-1 rounded-md font-bold">✍ SIGNED</span>
+                        <span className="text-[10px] bg-white/90 backdrop-blur px-2 py-1 rounded-md font-bold inline-flex items-center gap-1"><Icon name="pen" className="w-3 h-3" />SIGNED</span>
                     )}
                 </div>
 
@@ -111,7 +112,7 @@ function InspectionCardView({ card }: { card: InspectionCard }) {
 
                 {card.photo_count > 0 && card.status === 'completed' && (
                     <div className="absolute bottom-3 right-3 bg-white/95 backdrop-blur rounded-md px-2 py-1">
-                        <p className="text-[10px] font-bold">📸 {card.photo_count} photos</p>
+                        <p className="text-[10px] font-bold inline-flex items-center gap-1"><Icon name="camera" className="w-3 h-3" />{card.photo_count} photos</p>
                     </div>
                 )}
             </div>
@@ -122,7 +123,7 @@ function InspectionCardView({ card }: { card: InspectionCard }) {
                     {card.tenant} · {card.type === 'move_in' ? 'MOVE-IN' : 'MOVE-OUT'}
                 </p>
                 <div className="flex items-center justify-between text-[11px] text-ink-500 pt-3 border-t border-ink-100">
-                    <span>📅 {card.date}</span>
+                    <span className="inline-flex items-center gap-1"><Icon name="calendar" className="w-3 h-3" />{card.date}</span>
                     {card.status === 'in_progress' && (
                         <span className="text-brand-600 font-semibold">Continue →</span>
                     )}
@@ -134,7 +135,7 @@ function InspectionCardView({ card }: { card: InspectionCard }) {
                             onClick={(e) => e.stopPropagation()}
                             className="text-brand-600 font-semibold hover:underline"
                         >
-                            📄 PDF ↓
+                            PDF ↓
                         </a>
                     )}
                     {card.status === 'completed' && !isSigned && (

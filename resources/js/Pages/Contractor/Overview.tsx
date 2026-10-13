@@ -1,6 +1,7 @@
 import { Head, Link } from '@inertiajs/react';
 import ContractorLayout from '@/Layouts/ContractorLayout';
 import { KpiCard as FernKpi } from '@/Components/Dashboard/Charts';
+import Icon from '@/Components/Dashboard/Icon';
 
 type Props = {
     counts: { requests?: number; active_jobs?: number; messages?: number };
@@ -82,7 +83,7 @@ export default function ContractorOverview({ counts, contractor, kpis, emergency
                         <p className="text-[13px] text-ink-500">
                             {new Date().toLocaleDateString('en-ZA', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
                         </p>
-                        <h1 className="text-[28px] sm:text-[32px] leading-tight tracking-tight mt-1">Welcome back, {firstName} 🔧</h1>
+                        <h1 className="text-[28px] sm:text-[32px] leading-tight tracking-tight mt-1">Welcome back, {firstName}</h1>
                         <p className="text-[14px] text-ink-500 mt-1">
                             You have <span className="font-semibold text-ink-900">{kpis.active_jobs} active jobs</span>,{' '}
                             <span className="font-semibold text-ink-900">{kpis.open_requests} to commence</span>
@@ -111,7 +112,7 @@ export default function ContractorOverview({ counts, contractor, kpis, emergency
                             </svg>
                         </div>
                         <div className="flex-1">
-                            <p className="text-[13px] font-bold text-danger">🚨 EMERGENCY · {emergency.created}</p>
+                            <p className="text-[13px] font-bold text-danger inline-flex items-center gap-1.5"><Icon name="alert" className="w-3.5 h-3.5" />EMERGENCY · {emergency.created}</p>
                             <p className="text-[12px] text-ink-700 mt-0.5">
                                 {emergency.agency} · {emergency.title} at {emergency.property} · 4-hour SLA
                             </p>

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Head, router } from '@inertiajs/react';
 import ContractorLayout from '@/Layouts/ContractorLayout';
 import RequestDetailsModal, { RequestDetails, RequestStage } from '@/Components/RequestDetailsModal';
+import Icon from '@/Components/Dashboard/Icon';
 
 type Req = RequestDetails;
 
@@ -45,10 +46,10 @@ function Card({ req, onView }: { req: Req; onView: () => void }) {
             {req.description && <p className="text-[12px] text-ink-600 mb-2 line-clamp-2">{req.description}</p>}
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] text-ink-500 mb-3">
-                <div>📍 {req.property}{req.address && <span className="block text-ink-400">{req.address}</span>}</div>
-                <div>👤 {req.tenant}</div>
-                <div>📅 {req.preferred ?? 'No date'}{req.time_slot && ` · ${req.time_slot}`}</div>
-                <div>📸 {req.photo_count} {req.photo_count === 1 ? 'photo' : 'photos'}</div>
+                <div className="flex gap-1.5"><Icon name="pin" className="w-3.5 h-3.5 mt-px" /><span>{req.property}{req.address && <span className="block text-ink-400">{req.address}</span>}</span></div>
+                <div className="flex items-center gap-1.5"><Icon name="user" className="w-3.5 h-3.5" />{req.tenant}</div>
+                <div className="flex items-center gap-1.5"><Icon name="calendar" className="w-3.5 h-3.5" />{req.preferred ?? 'No date'}{req.time_slot && ` · ${req.time_slot}`}</div>
+                <div className="flex items-center gap-1.5"><Icon name="camera" className="w-3.5 h-3.5" />{req.photo_count} {req.photo_count === 1 ? 'photo' : 'photos'}</div>
             </div>
 
             {req.my_quote && (

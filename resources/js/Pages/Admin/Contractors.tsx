@@ -153,7 +153,7 @@ export default function AdminContractors({ contractors, stats }: Props) {
                                     <td className="py-4 text-right font-mono">{c.total_jobs}</td>
                                     <td className="py-4 text-right font-mono">
                                         {c.average_rating > 0 ? (
-                                            <>⭐ {c.average_rating.toFixed(1)}</>
+                                            <><span className="text-warning">★</span> {c.average_rating.toFixed(1)}</>
                                         ) : (
                                             <span className="text-ink-400">—</span>
                                         )}

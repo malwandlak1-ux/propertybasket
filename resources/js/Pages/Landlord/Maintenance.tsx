@@ -114,7 +114,7 @@ function KanbanColumn({ title, color, items, count }: {
                         {item.status === 'paid' && item.completed_at && (
                             <div className="flex items-center justify-between mt-1">
                                 <span className="text-[10px] text-ink-500">{item.completed_at}</span>
-                                <button className="text-[10px] text-brand-600 font-semibold">Rate ⭐</button>
+                                <button className="text-[10px] text-brand-600 font-semibold">Rate contractor</button>
                             </div>
                         )}
                     </div>

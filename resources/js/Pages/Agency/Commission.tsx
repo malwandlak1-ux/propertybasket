@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Head, router, useForm, usePage } from '@inertiajs/react';
 import AgencyLayout from '@/Layouts/AgencyLayout';
 import { Spinner } from '@/Components/Skeleton';
+import Icon from '@/Components/Dashboard/Icon';
 
 type Commission = {
     id: number;
@@ -595,18 +596,18 @@ function PayInvoiceModal({ invoice, onClose }: { invoice: ContractorInvoice; onC
                         <div className="space-y-2">
                             {invoice.contact.phone && (
                                 <a href={`tel:${invoice.contact.phone}`} className="flex items-center gap-3 rounded-lg border border-ink-200 px-3 py-2.5 hover:bg-ink-50 transition">
-                                    <span className="w-8 h-8 rounded-full bg-success/10 text-success grid place-items-center">📞</span>
+                                    <span className="w-8 h-8 rounded-full bg-success/10 text-success grid place-items-center"><Icon name="phone" className="w-3.5 h-3.5" /></span>
                                     <span className="text-[13px]"><span className="text-ink-500">Call</span> · {invoice.contact.phone}</span>
                                 </a>
                             )}
                             {invoice.contact.email && (
                                 <a href={`mailto:${invoice.contact.email}?subject=Banking details needed for payment`} className="flex items-center gap-3 rounded-lg border border-ink-200 px-3 py-2.5 hover:bg-ink-50 transition">
-                                    <span className="w-8 h-8 rounded-full bg-brand-50 text-brand-700 grid place-items-center">✉</span>
+                                    <span className="w-8 h-8 rounded-full bg-brand-50 text-brand-700 grid place-items-center"><Icon name="mail" className="w-3.5 h-3.5" /></span>
                                     <span className="text-[13px] truncate"><span className="text-ink-500">Email</span> · {invoice.contact.email}</span>
                                 </a>
                             )}
                             <a href="/agency/messages" className="flex items-center gap-3 rounded-lg border border-ink-200 px-3 py-2.5 hover:bg-ink-50 transition">
-                                <span className="w-8 h-8 rounded-full bg-ink-100 text-ink-700 grid place-items-center">💬</span>
+                                <span className="w-8 h-8 rounded-full bg-ink-100 text-ink-700 grid place-items-center"><Icon name="chat" className="w-3.5 h-3.5" /></span>
                                 <span className="text-[13px]"><span className="text-ink-500">Message</span> · Open inbox</span>
                             </a>
                         </div>

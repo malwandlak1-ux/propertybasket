@@ -167,7 +167,7 @@ export default function TenantMaintenance({ lease, active, past }: Props) {
                                                         : 'border-ink-200 hover:bg-ink-100'
                                                 }`}
                                             >
-                                                {u === 'emergency' ? '🚨 Emergency' : u}
+                                                {u === 'emergency' ? 'Emergency' : u}
                                             </button>
                                         ))}
                                     </div>
@@ -328,7 +328,7 @@ function Card({ item, active, onRate }: { item: Item; active: boolean; onRate: (
                 )}
                 {!active && (
                     <div className="flex items-center justify-between gap-2 flex-wrap">
-                        <p className="text-[11px] text-success">⭐ Job completed</p>
+                        <p className="text-[11px] text-success">Job completed</p>
                         {item.can_rate && (
                             item.my_rating ? (
                                 <span className="inline-flex items-center gap-1.5 text-[11px] text-ink-600">

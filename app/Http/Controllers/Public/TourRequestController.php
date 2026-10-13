@@ -44,7 +44,7 @@ class TourRequestController extends Controller
         // Fold the structured tour details into the message so they appear in
         // both the dashboard notification and the agent's email.
         $lines = [
-            "🗓 Tour request: {$tourLabel}",
+            "Tour request: {$tourLabel}",
             "Requested slot: {$prettyDate} at {$data['time']}",
         ];
         if (! empty($data['message'])) {

@@ -187,7 +187,7 @@ class MessagesController extends Controller
             'participant_ids' => $participants,
             'participant_count' => count($participants),
             'other_initials' => $isBroadcast
-                ? '📢'
+                ? 'ALL'
                 : $this->initials($others->first()?->name ?? '?'),
             'preview' => $lastMessage?->body
                 ? mb_strimwidth($lastMessage->body, 0, 60, '…')

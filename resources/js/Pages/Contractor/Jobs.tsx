@@ -81,7 +81,7 @@ function JobCard({ job, columnKey }: { job: Job; columnKey: string }) {
                 <span className="text-ink-500">
                     {isPaid ? `Paid ${job.completed ?? ''}`
                         : isCompleted ? `Done ${job.completed ?? ''}`
-                        : `📅 ${job.when}${job.time_slot ? ` ${job.time_slot.split(' ')[0]}` : ''}`}
+                        : `${job.when}${job.time_slot ? ` ${job.time_slot.split(' ')[0]}` : ''}`}
                 </span>
                 <span className={isPaid ? 'text-success font-bold' : 'text-brand-600 font-semibold'}>
                     {job.agency}

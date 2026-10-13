@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Head, Link, router } from '@inertiajs/react';
 import AgentLayout from '@/Layouts/AgentLayout';
 import InviteTenantModal from '@/Components/InviteTenantModal';
+import Icon from '@/Components/Dashboard/Icon';
 
 type Listing = {
     id: number;
@@ -194,9 +195,9 @@ export default function AgentListings({ agent, listings, counts, type_filter, in
                                             <span className="text-[11px] text-ink-500 font-mono">{l.days_on_market}d on market</span>
                                         </div>
                                         <div className="flex items-center justify-between pt-3 border-t border-ink-100 text-[11px] text-ink-500">
-                                            <span>👁 {l.views.toLocaleString('en-ZA')}</span>
-                                            <span>📩 {l.inquiries}</span>
-                                            <span>📅 {l.viewings}</span>
+                                            <span className="inline-flex items-center gap-1" title="Views"><Icon name="eye" className="w-3 h-3" />{l.views.toLocaleString('en-ZA')}</span>
+                                            <span className="inline-flex items-center gap-1" title="Inquiries"><Icon name="mail" className="w-3 h-3" />{l.inquiries}</span>
+                                            <span className="inline-flex items-center gap-1" title="Viewings"><Icon name="calendar" className="w-3 h-3" />{l.viewings}</span>
                                         </div>
                                     </div>
                                 </Link>

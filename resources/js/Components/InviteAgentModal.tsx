@@ -111,7 +111,7 @@ export default function InviteAgentModal({ onClose }: Props) {
                     </div>
 
                     <div className="text-[11px] text-ink-500 bg-ink-50 border border-ink-100 rounded-lg p-2.5">
-                        💡 The agent receives a signup link valid for 14 days. They'll need to upload
+                        The agent receives a signup link valid for 14 days. They'll need to upload
                         their FFC certificate before any commission can be paid out.
                     </div>
 

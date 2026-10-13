@@ -132,7 +132,7 @@ export default function TenantOverview({ tenant, lease, next_due, streak, deposi
                     <div>
                         <p className="text-[13px] text-ink-500">{today()}</p>
                         <h1 className="text-[28px] sm:text-[32px] leading-tight tracking-tight mt-1">
-                            {greet()}, {tenant.name.split(' ')[0]} 👋
+                            {greet()}, {tenant.name.split(' ')[0]}
                         </h1>
                         <p className="text-[14px] text-ink-500 mt-1">
                             Welcome home. Your next rent is due in{' '}

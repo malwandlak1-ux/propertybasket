@@ -1,6 +1,7 @@
 import { FormEvent, useEffect, useRef, useState } from 'react';
 import { Head, router, useForm, usePage } from '@inertiajs/react';
 import AgencyLayout from '@/Layouts/AgencyLayout';
+import Icon from '@/Components/Dashboard/Icon';
 
 type ConversationSummary = {
     id: number;
@@ -159,7 +160,7 @@ export default function Messages({ agency, me, conversations, active, messages, 
                                     <p className="text-[14px] font-semibold truncate">{active.title}</p>
                                     <p className="text-[11px] text-success">
                                         {active.is_broadcast
-                                            ? `📣 ${active.participant_count - 1} agent${active.participant_count - 1 === 1 ? '' : 's'}`
+                                            ? `Broadcast · ${active.participant_count - 1} agent${active.participant_count - 1 === 1 ? '' : 's'}`
                                             : '● Online'}
                                     </p>
                                 </div>
@@ -195,7 +196,7 @@ function Avatar({ initials, broadcast, size }: { initials: string; broadcast: bo
     if (broadcast) {
         return (
             <div className={`${dim} rounded-full bg-ink-900 flex items-center justify-center text-white text-xs font-bold shrink-0`}>
-                📢
+                <Icon name="megaphone" className="w-4 h-4" />
             </div>
         );
     }
@@ -288,7 +289,7 @@ function BroadcastModal({ agents, onClose }: { agents: { id: number; name: strin
             <div className="bg-white rounded-xl shadow-lift max-w-md w-full p-6">
                 <div className="flex items-start justify-between">
                     <div>
-                        <h2 className="text-lg font-bold">📢 Broadcast to team</h2>
+                        <h2 className="text-lg font-bold flex items-center gap-2"><Icon name="megaphone" className="w-5 h-5" />Broadcast to team</h2>
                         <p className="text-[13px] text-ink-500 mt-1">
                             Sends to all {agents.length} agent{agents.length === 1 ? '' : 's'}. Shows up in their Team Messages view.
                         </p>

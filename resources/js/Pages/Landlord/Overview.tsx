@@ -3,6 +3,7 @@ import { Head } from '@inertiajs/react';
 import LandlordLayout from '@/Layouts/LandlordLayout';
 import LandlordInviteTenantModal, { InvitableListing, PendingInvite } from '@/Components/LandlordInviteTenantModal';
 import { KpiCard as FernKpi } from '@/Components/Dashboard/Charts';
+import Icon from '@/Components/Dashboard/Icon';
 
 type Property = {
     id: number;
@@ -81,7 +82,7 @@ export default function LandlordOverview({ landlord, kpis, properties, attention
                 <div className="flex flex-wrap items-end justify-between gap-3 mb-7">
                     <div>
                         <p className="text-[13px] text-ink-500">{new Date().toLocaleDateString('en-ZA', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
-                        <h1 className="text-[28px] sm:text-[32px] leading-tight tracking-tight mt-1">Welcome, {firstName} 🏡</h1>
+                        <h1 className="text-[28px] sm:text-[32px] leading-tight tracking-tight mt-1">Welcome, {firstName}</h1>
                         <p className="text-[14px] text-ink-500 mt-1">
                             {kpis.all_count} propert{kpis.all_count === 1 ? 'y' : 'ies'} ·{' '}
                             <span className="font-semibold text-success">{kpis.occupancy_pct}% occupied</span>
@@ -269,17 +270,17 @@ export default function LandlordOverview({ landlord, kpis, properties, attention
                             <h2 className="text-base font-semibold mb-3">Quick Actions</h2>
                             <div className="space-y-2">
                                 {[
-                                    { href: '/landlord/tenants', label: 'View all tenants', icon: '👥' },
-                                    { href: '/landlord/maintenance', label: 'Maintenance requests', icon: '🔧' },
-                                    { href: '/landlord/finance', label: 'Finance & payments', icon: '💰' },
-                                    { href: '/landlord/messages', label: 'Messages', icon: '💬' },
+                                    { href: '/landlord/tenants', label: 'View all tenants', icon: 'users' as const },
+                                    { href: '/landlord/maintenance', label: 'Maintenance requests', icon: 'wrench' as const },
+                                    { href: '/landlord/finance', label: 'Finance & payments', icon: 'wallet' as const },
+                                    { href: '/landlord/messages', label: 'Messages', icon: 'chat' as const },
                                 ].map((link) => (
                                     <a
                                         key={link.href}
                                         href={link.href}
                                         className="flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-ink-50 transition text-[12px] font-medium"
                                     >
-                                        <span className="text-base">{link.icon}</span>
+                                        <span className="w-7 h-7 rounded-lg bg-brand-50 text-brand-700 flex items-center justify-center"><Icon name={link.icon} className="w-4 h-4" /></span>
                                         <span>{link.label}</span>
                                         <svg className="w-3.5 h-3.5 text-ink-400 ml-auto" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M9 18l6-6-6-6"/></svg>
                                     </a>

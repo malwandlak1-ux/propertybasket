@@ -2,6 +2,7 @@ import { FormEvent, useState } from 'react';
 import { Head, Link, router } from '@inertiajs/react';
 import AgentLayout from '@/Layouts/AgentLayout';
 import { Spinner } from '@/Components/Skeleton';
+import Icon from '@/Components/Dashboard/Icon';
 
 type Lease = {
     id: number;
@@ -295,7 +296,7 @@ export default function AgentCreateInspection({ agent, type: initialType, leases
                     {/* Submit */}
                     <div className="flex items-center justify-between bg-white rounded-2xl border border-ink-200/60 p-5 shadow-soft sticky bottom-4">
                         <p className="text-[12px] text-ink-500">
-                            ⚠ Inspections become read-only once saved.
+                            <Icon name="alert" className="w-3.5 h-3.5" /> Inspections become read-only once saved.
                         </p>
                         <div className="flex gap-2">
                             <Link href="/agent/inspections" className="px-4 py-2 text-[13px] border border-ink-200 rounded-lg hover:bg-ink-100 transition">

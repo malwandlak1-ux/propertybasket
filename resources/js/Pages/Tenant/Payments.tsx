@@ -168,7 +168,7 @@ export default function TenantPayments({ tenant, lease, kpis, rows, upcoming, st
                     <div className="bg-white rounded-2xl border border-ink-200/60 p-5 shadow-soft">
                         <p className="text-[11px] text-ink-500 uppercase tracking-wider font-semibold">On-time streak</p>
                         <p className="text-2xl font-bold mt-2 text-success">{kpis.streak} month{kpis.streak === 1 ? '' : 's'}</p>
-                        <p className="text-[11px] text-success mt-1">{kpis.streak >= 6 ? '⭐ Excellent tenant' : 'Keep it up'}</p>
+                        <p className="text-[11px] text-success mt-1">{kpis.streak >= 6 ? 'Excellent tenant' : 'Keep it up'}</p>
                     </div>
                     <div className="bg-white rounded-2xl border border-ink-200/60 p-5 shadow-soft">
                         <p className="text-[11px] text-ink-500 uppercase tracking-wider font-semibold">Avg payment</p>

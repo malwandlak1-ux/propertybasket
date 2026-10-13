@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { router, usePage } from '@inertiajs/react';
 import RateContractorModal, { StarRow } from '@/Components/RateContractorModal';
+import Icon from '@/Components/Dashboard/Icon';
 
 /**
  * Shared maintenance-request management board used by the Agency and Agent
@@ -220,10 +221,10 @@ function Card({
             {r.description && <p className="text-[12px] text-ink-600 mt-1 line-clamp-2">{r.description}</p>}
 
             <div className="grid grid-cols-2 gap-2 text-[11px] text-ink-500 mt-3">
-                <div>📍 {r.property}{r.suburb && <span className="text-ink-400"> · {r.suburb}</span>}</div>
-                <div>👤 {r.tenant}{r.tenant_phone && <span className="text-ink-400"> · {r.tenant_phone}</span>}</div>
-                <div>📅 {r.preferred ?? 'No date'}{r.time_slot && ` · ${r.time_slot}`}</div>
-                <div>🕐 {r.created}</div>
+                <div className="flex items-center gap-1.5"><Icon name="pin" className="w-3.5 h-3.5" /><span>{r.property}{r.suburb && <span className="text-ink-400"> · {r.suburb}</span>}</span></div>
+                <div className="flex items-center gap-1.5"><Icon name="user" className="w-3.5 h-3.5" /><span>{r.tenant}{r.tenant_phone && <span className="text-ink-400"> · {r.tenant_phone}</span>}</span></div>
+                <div className="flex items-center gap-1.5"><Icon name="calendar" className="w-3.5 h-3.5" />{r.preferred ?? 'No date'}{r.time_slot && ` · ${r.time_slot}`}</div>
+                <div className="flex items-center gap-1.5"><Icon name="clock" className="w-3.5 h-3.5" />{r.created}</div>
             </div>
 
             {r.photos.length > 0 && (
@@ -355,7 +356,7 @@ function AllocateModal({
                                         {c.service_areas.length > 0 && <> · {c.service_areas.join(', ')}</>}
                                     </p>
                                     <p className="text-[11px] text-ink-400 mt-0.5">
-                                        ⭐ {c.average_rating.toFixed(1)} · {c.total_jobs} job{c.total_jobs === 1 ? '' : 's'} completed
+                                        <span className="text-warning">★</span> {c.average_rating.toFixed(1)} · {c.total_jobs} job{c.total_jobs === 1 ? '' : 's'} completed
                                     </p>
                                 </div>
                                 <button

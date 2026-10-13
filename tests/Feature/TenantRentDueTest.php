@@ -110,4 +110,20 @@ class TenantRentDueTest extends TestCase
         $this->actingAs($this->tenant)->post("/tenant/messages/{$conv->id}", ['body' => 'Hello'])->assertRedirect();
         $this->assertDatabaseHas('messages', ['conversation_id' => $conv->id, 'body' => 'Hello']);
     }
+
+    #[Test]
+    public function landlord_inbox_has_a_thread_per_active_tenant_shared_with_the_tenant(): void
+    {
+        $landlordUser = $this->lease->landlord;
+        $landlordUser->assignRole('landlord');
+        \App\Models\Landlord::where('user_id', $landlordUser->id)->first()->activateSubscription('promo', now()->addYear());
+
+        $this->actingAs($landlordUser)->get('/landlord/messages')
+            ->assertOk()
+            ->assertInertia(fn (Assert $p) => $p->has('conversations', 1));
+
+        // Tenant opening Messages re-uses that same thread (no duplicate).
+        $this->actingAs($this->tenant)->get('/tenant/messages');
+        $this->assertSame(1, \App\Models\Conversation::where('type', 'landlord_tenant')->count());
+    }
 }

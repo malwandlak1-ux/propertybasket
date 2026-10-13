@@ -22,6 +22,24 @@ class MessagesController extends Controller
         $user     = $request->user();
         $activeId = $request->integer('conversation_id', 0);
 
+        // A landlord can always reach each tenant on an active lease of theirs:
+        // make sure the landlord ↔ tenant thread exists (same thread the
+        // tenant's Messages page uses).
+        $tenantIds = \App\Models\Lease::whereIn('listing_id', $landlord->listings()->pluck('id'))
+            ->whereIn('status', ['active', 'pending'])
+            ->pluck('tenant_id')
+            ->filter()
+            ->unique();
+        foreach ($tenantIds as $tenantId) {
+            $exists = Conversation::where('type', 'landlord_tenant')
+                ->whereJsonContains('participants', $user->id)
+                ->whereJsonContains('participants', (int) $tenantId)
+                ->exists();
+            if (! $exists) {
+                Conversation::create(['type' => 'landlord_tenant', 'participants' => [$user->id, (int) $tenantId]]);
+            }
+        }
+
         $conversations = Conversation::whereJsonContains('participants', $user->id)
             ->with(['messages' => fn ($q) => $q->orderByDesc('created_at')->take(1)])
             ->orderByDesc('updated_at')

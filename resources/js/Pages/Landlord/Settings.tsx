@@ -3,6 +3,8 @@ import { Head, useForm, usePage } from '@inertiajs/react';
 import LandlordLayout from '@/Layouts/LandlordLayout';
 import { Spinner } from '@/Components/Skeleton';
 import AppearanceSettings from '@/Components/Dashboard/AppearanceSettings';
+import { PageHeader } from '@/Components/Dashboard/Charts';
+import Icon, { IconName } from '@/Components/Dashboard/Icon';
 
 type BankingState = 'verified' | 'pending_review' | 'missing';
 
@@ -28,14 +30,14 @@ type Props = {
 
 type SharedProps = { flash?: { success?: string | null; error?: string | null } };
 
-const TABS = [
-    { key: 'profile', label: 'Profile' },
-    { key: 'banking', label: 'Banking' },
-    { key: 'appearance', label: 'Appearance' },
-] as const;
+const TABS: { key: 'profile' | 'banking' | 'appearance'; label: string; hint: string; icon: IconName }[] = [
+    { key: 'profile',    label: 'Profile',    hint: 'Name, contact details and ID', icon: 'user' },
+    { key: 'banking',    label: 'Banking',    hint: 'Account that receives rent', icon: 'wallet' },
+    { key: 'appearance', label: 'Appearance', hint: 'Dashboard colour and logo', icon: 'eye' },
+];
 type TabKey = (typeof TABS)[number]['key'];
 
-const inputCls = 'w-full bg-ink-50 border border-ink-200 rounded-lg px-3.5 py-2.5 text-[14px] outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand';
+const inputCls = 'w-full bg-white border border-ink-200 rounded-xl px-3.5 py-2.5 text-[14px] focus:outline-none focus:border-brand-300 focus:ring-4 focus:ring-brand-100 transition';
 const labelCls = 'text-[12px] font-semibold text-ink-700 mb-1.5 block';
 
 const STATE_BANNER: Record<BankingState, { cls: string; title: string; body: string }> = {
@@ -60,42 +62,67 @@ export default function LandlordSettings({ landlord, profile, banking, banks }: 
     const { flash } = usePage<SharedProps>().props;
     const [tab, setTab] = useState<TabKey>('profile');
 
+    const initials = profile.name.split(' ').map((w) => w[0]).slice(0, 2).join('').toUpperCase();
+    const bankState = {
+        verified:       { label: 'Banking verified', cls: 'bg-success/20 text-white' },
+        pending_review: { label: 'Banking pending review', cls: 'bg-warning/30 text-white' },
+        missing:        { label: 'No banking on file', cls: 'bg-danger/40 text-white' },
+    }[banking.state];
+
     return (
         <LandlordLayout crumb="Settings">
             <Head title="Settings" />
 
-            <section className="px-4 sm:px-8 py-6 sm:py-7 max-w-4xl">
-                <div className="mb-6">
-                    <h1 className="text-[28px] sm:text-[32px] leading-tight tracking-tight">Settings</h1>
-                    <p className="text-[14px] text-ink-500 mt-1">
-                        Manage your contact details and the bank account that will receive rent and fund contractor payments.
-                    </p>
-                </div>
+            <section className="px-4 sm:px-7 py-6 max-w-6xl">
+                <PageHeader title="Settings" subtitle="Your contact details and the bank account that receives rent and funds contractor payments." />
 
                 {flash?.success && (
-                    <div className="mb-4 rounded-lg bg-success/10 border border-success/30 text-success px-4 py-3 text-[13px]">
-                        {flash.success}
-                    </div>
+                    <div className="mb-4 rounded-2xl bg-success/10 border border-success/30 text-success px-5 py-3 text-[13px] font-medium">{flash.success}</div>
+                )}
+                {flash?.error && (
+                    <div className="mb-4 rounded-2xl bg-danger/10 border border-danger/30 text-danger px-5 py-3 text-[13px] font-medium">{flash.error}</div>
                 )}
 
-                <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-                    <aside className="space-y-1">
-                        {TABS.map((t) => (
-                            <button
-                                type="button"
-                                key={t.key}
-                                onClick={() => setTab(t.key)}
-                                className={
-                                    'w-full text-left px-3 py-2 rounded-lg text-[13px] font-semibold transition ' +
-                                    (tab === t.key ? 'bg-ink-900 text-white' : 'hover:bg-ink-100 text-ink-700')
-                                }
-                            >
-                                {t.label}
-                            </button>
-                        ))}
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+                    <aside className="lg:col-span-4 space-y-4">
+                        <div className="pb-swirl rounded-2xl p-5 text-white shadow-lift pb-rise">
+                            <div className="flex items-center gap-3">
+                                <span className="w-12 h-12 rounded-full bg-white/15 ring-1 ring-white/25 flex items-center justify-center text-[15px] font-bold">{initials}</span>
+                                <div className="min-w-0">
+                                    <p className="text-[15px] font-semibold truncate">{profile.name}</p>
+                                    <p className="text-[12px] text-white/75 truncate">{profile.email}</p>
+                                </div>
+                            </div>
+                            <div className="mt-4 pt-3 border-t border-white/15 flex flex-wrap items-center gap-2 text-[12px] text-white/80">
+                                <span className={`px-2.5 py-1 rounded-full font-semibold text-[11px] ${bankState.cls}`}>{bankState.label}</span>
+                                {profile.phone && <span className="flex items-center gap-1.5"><Icon name="phone" />{profile.phone}</span>}
+                            </div>
+                        </div>
+
+                        <nav className="bg-white rounded-2xl border border-ink-200/60 shadow-soft p-2">
+                            {TABS.map((t) => {
+                                const on = tab === t.key;
+                                return (
+                                    <button
+                                        type="button"
+                                        key={t.key}
+                                        onClick={() => setTab(t.key)}
+                                        className={'w-full flex items-center gap-3 text-left px-3 py-2.5 rounded-xl transition ' + (on ? 'bg-brand-50' : 'hover:bg-ink-50')}
+                                    >
+                                        <span className={`w-9 h-9 rounded-xl flex items-center justify-center ${on ? 'bg-brand-700 text-white' : 'bg-ink-100 text-ink-500'}`}>
+                                            <Icon name={t.icon} className="w-4 h-4" />
+                                        </span>
+                                        <span className="min-w-0">
+                                            <span className={`block text-[13.5px] font-semibold ${on ? 'text-brand-800' : 'text-ink-800'}`}>{t.label}</span>
+                                            <span className="block text-[11.5px] text-ink-500 truncate">{t.hint}</span>
+                                        </span>
+                                    </button>
+                                );
+                            })}
+                        </nav>
                     </aside>
 
-                    <div className="col-span-3 space-y-6">
+                    <div className="lg:col-span-8 space-y-4">
                         {tab === 'appearance' && <AppearanceSettings />}
                         {tab === 'profile'  && <ProfilePanel profile={profile} />}
                         {tab === 'banking'  && <BankingPanel banking={banking} banks={banks} landlordName={landlord.name} />}
@@ -118,9 +145,9 @@ function ProfilePanel({ profile }: { profile: Props['profile'] }) {
         patch('/landlord/settings/profile', { preserveScroll: true });
     }
     return (
-        <form onSubmit={submit} className="bg-white rounded-2xl border border-ink-200/60 shadow-soft p-6 space-y-4">
+        <form onSubmit={submit} className="bg-white rounded-2xl border border-ink-200/60 shadow-soft p-5 sm:p-6 pb-rise space-y-4">
             <div>
-                <h2 className="text-base font-bold">Profile</h2>
+                <h2 className="text-[18px] font-semibold tracking-tight">Profile</h2>
                 <p className="text-[12px] text-ink-500 mt-0.5">How tenants, contractors and the platform reach you.</p>
             </div>
 
@@ -152,7 +179,7 @@ function ProfilePanel({ profile }: { profile: Props['profile'] }) {
                 <button
                     type="submit"
                     disabled={! isDirty || processing}
-                    className="px-4 py-2 text-[13px] bg-brand-700 text-white rounded-full hover:bg-brand-800 disabled:opacity-40 inline-flex items-center gap-2 font-semibold"
+                    className="px-4 py-2.5 text-[13px] bg-brand-700 text-white rounded-full hover:bg-brand-800 disabled:opacity-40 inline-flex items-center gap-2 font-semibold shadow-soft"
                 >
                     {processing && <Spinner size={13} />}
                     {processing ? 'Saving…' : 'Save profile'}
@@ -186,9 +213,9 @@ function BankingPanel({ banking, banks, landlordName }: { banking: Props['bankin
                 )}
             </div>
 
-            <form onSubmit={submit} className="bg-white rounded-2xl border border-ink-200/60 shadow-soft p-6 space-y-4">
+            <form onSubmit={submit} className="bg-white rounded-2xl border border-ink-200/60 shadow-soft p-5 sm:p-6 pb-rise space-y-4">
                 <div>
-                    <h2 className="text-base font-bold">Bank account</h2>
+                    <h2 className="text-[18px] font-semibold tracking-tight">Bank account</h2>
                     <p className="text-[12px] text-ink-500 mt-0.5">
                         This is the account that will receive rent from your tenants and fund maintenance contractor payouts.
                     </p>
@@ -266,7 +293,7 @@ function BankingPanel({ banking, banks, landlordName }: { banking: Props['bankin
                     <button
                         type="submit"
                         disabled={! isDirty || processing}
-                        className="px-4 py-2 text-[13px] bg-brand-700 text-white rounded-full hover:bg-brand-800 disabled:opacity-40 inline-flex items-center gap-2 font-semibold"
+                        className="px-4 py-2.5 text-[13px] bg-brand-700 text-white rounded-full hover:bg-brand-800 disabled:opacity-40 inline-flex items-center gap-2 font-semibold shadow-soft"
                     >
                         {processing && <Spinner size={13} />}
                         {processing ? 'Saving…' : 'Save banking'}

@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
 import { Head, router, usePage } from '@inertiajs/react';
 import { Spinner } from '@/Components/Skeleton';
+import { PageHeader, btnPrimary } from '@/Components/Dashboard/Charts';
 import LandlordLayout from '@/Layouts/LandlordLayout';
 import LandlordInviteTenantModal, { InvitableListing, PendingInvite } from '@/Components/LandlordInviteTenantModal';
 
@@ -34,11 +35,11 @@ function fmtMoney(n: number) {
 }
 
 const AVATAR_COLORS = [
-    'from-emerald-400 to-emerald-600',
-    'from-rose-400 to-rose-600',
-    'from-violet-400 to-violet-600',
-    'from-sky-400 to-sky-600',
-    'from-amber-400 to-amber-600',
+    'bg-brand-100 text-brand-800',
+    'bg-emerald-100 text-emerald-800',
+    'bg-sky-100 text-sky-800',
+    'bg-amber-100 text-amber-800',
+    'bg-rose-100 text-rose-800',
 ];
 function avatarColor(id: number) {
     return AVATAR_COLORS[id % AVATAR_COLORS.length];
@@ -138,49 +139,59 @@ export default function LandlordTenants({ landlord, tenants, invitable_listings,
         <LandlordLayout crumb="Tenants" section="People">
             <Head title="My Tenants" />
 
-            <div className="px-4 sm:px-8 py-6 sm:py-7">
-                <div className="flex flex-wrap items-end justify-between gap-3 mb-6">
-                    <div>
-                        <h1 className="text-[28px] sm:text-[32px] leading-tight tracking-tight">My Tenants</h1>
-                        <p className="text-[14px] text-ink-500 mt-1">
-                            {tenants.length} active lease{tenants.length !== 1 ? 's' : ''} across your portfolio
-                        </p>
-                    </div>
-                    <button
-                        type="button"
-                        onClick={() => setInviteOpen(true)}
-                        disabled={! canInvite}
-                        title={canInvite
-                            ? (pending_invites.length > 0
-                                ? `${pending_invites.length} tenant${pending_invites.length === 1 ? '' : 's'} pending portal acceptance`
-                                : 'Invite a tenant to one of your rentals')
-                            : 'You need an active lease or an available rental to invite a tenant'}
-                        className="px-3.5 py-2 text-[13px] bg-brand-700 text-white rounded-full hover:bg-brand-800 disabled:bg-ink-200 disabled:text-ink-500 disabled:cursor-not-allowed transition flex items-center gap-2"
-                    >
-                        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6M23 11h-6"/></svg>
-                        Invite Tenant
-                        {pending_invites.length > 0 && (
-                            <span className="text-[10px] font-bold bg-warning text-white px-1.5 py-0.5 rounded-full">
-                                {pending_invites.length}
-                            </span>
-                        )}
-                    </button>
-                </div>
+            <div className="px-4 sm:px-7 py-6">
+                <PageHeader
+                    title="My Tenants"
+                    subtitle={<>{tenants.length} active lease{tenants.length !== 1 ? 's' : ''} across your portfolio</>}
+                    actions={
+                        <button
+                            type="button"
+                            onClick={() => setInviteOpen(true)}
+                            disabled={! canInvite}
+                            title={canInvite
+                                ? (pending_invites.length > 0
+                                    ? `${pending_invites.length} tenant${pending_invites.length === 1 ? '' : 's'} pending portal acceptance`
+                                    : 'Invite a tenant to one of your rentals')
+                                : 'You need an available rental to invite a tenant'}
+                            className={btnPrimary}
+                        >
+                            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6M23 11h-6"/></svg>
+                            Invite tenant
+                            {pending_invites.length > 0 && (
+                                <span className="text-[10px] font-bold bg-white text-brand-800 px-1.5 py-0.5 rounded-full">{pending_invites.length}</span>
+                            )}
+                        </button>
+                    }
+                />
 
                 {flash?.success && (
-                    <div className="mb-4 rounded-xl bg-success/10 border border-success/30 text-success px-4 py-3 text-[13px]">✓ {flash.success}</div>
+                    <div className="mb-4 rounded-2xl bg-success/10 border border-success/30 text-success px-5 py-3 text-[13px] font-medium">{flash.success}</div>
                 )}
                 {(errors?.agreement || flash?.error) && (
-                    <div className="mb-4 rounded-xl bg-danger/10 border border-danger/30 text-danger px-4 py-3 text-[13px]">{errors?.agreement ?? flash?.error}</div>
+                    <div className="mb-4 rounded-2xl bg-danger/10 border border-danger/30 text-danger px-5 py-3 text-[13px] font-medium">{errors?.agreement ?? flash?.error}</div>
                 )}
 
-                {/* Info banner */}
-                <div className="bg-brand-50 border border-brand-100 rounded-xl p-4 mb-6 flex items-start gap-3">
-                    <svg className="w-5 h-5 text-brand-600 shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
-                    <p className="text-[12px] text-ink-700">
-                        Tenants can only create an account after you invite them — and invites are only available once a lease is active.
-                        This keeps the portal secure and lease-gated.
-                    </p>
+                {/* Summary tiles */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+                    <div className="pb-swirl rounded-2xl p-5 text-white shadow-lift pb-rise">
+                        <p className="text-[13px] font-medium">Active tenants</p>
+                        <p className="text-[34px] font-semibold tracking-tight mt-3 leading-none tabular-nums">{tenants.length}</p>
+                        <p className="text-[12px] text-white/80 mt-2">{tenants.filter((t) => t.portal_status === 'active').length} using the tenant portal</p>
+                    </div>
+                    <div className="bg-white rounded-2xl border border-ink-200/60 p-5 shadow-soft pb-rise">
+                        <p className="text-[13px] font-medium text-ink-700">Monthly rent</p>
+                        <p className="text-[34px] font-semibold tracking-tight mt-3 leading-none tabular-nums">{fmtMoney(tenants.reduce((sum, t) => sum + t.monthly_rent, 0))}</p>
+                        <p className="text-[12px] text-ink-500 mt-2">Across all active leases</p>
+                    </div>
+                    <div className="bg-white rounded-2xl border border-ink-200/60 p-5 shadow-soft pb-rise">
+                        <p className="text-[13px] font-medium text-ink-700">Paid this month</p>
+                        <p className="text-[34px] font-semibold tracking-tight mt-3 leading-none tabular-nums">
+                            {tenants.filter((t) => t.pay_status === 'paid').length}<span className="text-[16px] text-ink-400 font-medium"> / {tenants.length}</span>
+                        </p>
+                        <p className={`text-[12px] mt-2 ${tenants.some((t) => t.pay_status === 'overdue') ? 'text-danger' : 'text-ink-500'}`}>
+                            {tenants.some((t) => t.pay_status === 'overdue') ? `${tenants.filter((t) => t.pay_status === 'overdue').length} overdue` : 'No overdue rent'}
+                        </p>
+                    </div>
                 </div>
 
                 {tenants.length === 0 ? (
@@ -194,7 +205,7 @@ export default function LandlordTenants({ landlord, tenants, invitable_listings,
                 ) : (
                     <div className="bg-white rounded-2xl border border-ink-200/60 shadow-soft overflow-hidden">
                         <div className="p-5 border-b border-ink-200">
-                            <h2 className="text-base font-semibold">Active Leases</h2>
+                            <h2 className="text-[16px] font-semibold tracking-tight">Active Leases</h2>
                             <p className="text-[12px] text-ink-500 mt-0.5">Tenants currently leasing your properties</p>
                         </div>
 
@@ -216,7 +227,7 @@ export default function LandlordTenants({ landlord, tenants, invitable_listings,
                                     <tr key={t.lease_id} className="border-b border-ink-100 hover:bg-ink-50 transition">
                                         <td className="px-5 py-4">
                                             <div className="flex items-center gap-3">
-                                                <div className={`w-9 h-9 rounded-full bg-gradient-to-br ${avatarColor(t.tenant_id)} flex items-center justify-center text-white text-xs font-bold shrink-0`}>
+                                                <div className={`w-9 h-9 rounded-full ${avatarColor(t.tenant_id)} flex items-center justify-center text-xs font-bold shrink-0`}>
                                                     {t.tenant_initials}
                                                 </div>
                                                 <div>
@@ -247,7 +258,7 @@ export default function LandlordTenants({ landlord, tenants, invitable_listings,
                                         <td className="py-4 pr-5">
                                             <a
                                                 href="/landlord/messages"
-                                                className="text-[11px] text-brand-600 font-semibold hover:underline"
+                                                className="text-[12px] text-brand-700 font-semibold hover:underline whitespace-nowrap"
                                             >
                                                 Message →
                                             </a>

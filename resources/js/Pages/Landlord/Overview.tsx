@@ -77,9 +77,9 @@ export default function LandlordOverview({ landlord, kpis, properties, attention
         <LandlordLayout crumb="Dashboard" openMaint={kpis.open_maint}>
             <Head title="Landlord Dashboard" />
 
-            <div className="px-4 sm:px-8 py-6 sm:py-7">
+            <div className="px-4 sm:px-7 py-6">
                 {/* ── Welcome header ───────────────────────────────────── */}
-                <div className="flex flex-wrap items-end justify-between gap-3 mb-7">
+                <div className="flex flex-wrap items-end justify-between gap-3 mb-5 pb-rise">
                     <div>
                         <p className="text-[13px] text-ink-500">{new Date().toLocaleDateString('en-ZA', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
                         <h1 className="text-[28px] sm:text-[32px] leading-tight tracking-tight mt-1">Welcome, {firstName}</h1>
@@ -119,7 +119,7 @@ export default function LandlordOverview({ landlord, kpis, properties, attention
                 </div>
 
                 {/* ── KPI Grid ─────────────────────────────────────────── */}
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
                     <KpiCard hero
                         label="Monthly Rent Roll"
                         value={fmtFull(kpis.rent_roll)}
@@ -161,33 +161,35 @@ export default function LandlordOverview({ landlord, kpis, properties, attention
                 </div>
 
                 {/* ── 2-col layout ─────────────────────────────────────── */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
                     {/* LEFT: Properties at a glance */}
-                    <div className="col-span-2 bg-white rounded-2xl border border-ink-200/60 p-5 shadow-soft">
+                    <div className="lg:col-span-2 bg-white rounded-2xl border border-ink-200/60 p-5 shadow-soft">
                         <div className="flex items-center justify-between mb-4">
                             <div>
-                                <h2 className="text-base font-semibold">My Properties</h2>
+                                <h2 className="text-[16px] font-semibold tracking-tight">My Properties</h2>
                                 <p className="text-xs text-ink-500 mt-0.5">
                                     {kpis.all_count} of 5 slots used
                                 </p>
                             </div>
-                            <a href="/landlord/properties" className="text-[12px] font-medium text-brand-600 hover:underline">
+                            <a href="/landlord/properties" className="text-[12px] font-semibold text-brand-700 hover:underline">
                                 Manage →
                             </a>
                         </div>
 
                         <div className="space-y-3">
                             {properties.map((p) => (
-                                <div key={p.id} className="flex items-center gap-4 p-3 rounded-lg border border-ink-200 hover:shadow-soft transition">
-                                    <div className={`w-14 h-14 rounded-lg overflow-hidden shrink-0 ${p.primary_image ? '' : `bg-gradient-to-br ${p.color_class}`}`}>
-                                        {p.primary_image && (
+                                <div key={p.id} className="flex items-center gap-4 p-3 rounded-xl border border-ink-200/70 hover:shadow-soft transition">
+                                    <div className={`w-14 h-14 rounded-xl overflow-hidden shrink-0 flex items-center justify-center ${p.primary_image ? '' : 'bg-gradient-to-br from-brand-100 to-brand-50 text-brand-400'}`}>
+                                        {p.primary_image ? (
                                             <img src={p.primary_image} alt={p.title} className="w-full h-full object-cover" loading="lazy" />
+                                        ) : (
+                                            <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6}><path d="M3 21V10l9-7 9 7v11H3z" /><path d="M9 21v-7h6v7" /></svg>
                                         )}
                                     </div>
                                     <div className="flex-1 min-w-0">
-                                        <p className="text-[14px] font-bold truncate">{p.title.replace(/^Thandi - /, '')}</p>
+                                        <p className="text-[14px] font-semibold truncate">{p.title.replace(/^Thandi - /, '')}</p>
                                         <p className="text-[11px] text-ink-500">
-                                            {p.bedrooms}-bed · {p.status === 'occupied' ? `Tenant: ${p.tenant_name}` : 'Vacant'}
+                                            {p.bedrooms ? `${p.bedrooms}-bed · ` : ''}{p.status === 'occupied' ? `Tenant: ${p.tenant_name}` : 'Vacant'}
                                             {p.lease_end && ` · Lease to ${p.lease_end}`}
                                         </p>
                                     </div>
@@ -211,7 +213,7 @@ export default function LandlordOverview({ landlord, kpis, properties, attention
                     <div className="space-y-4">
                         {/* Needs Attention */}
                         <div className="bg-white rounded-2xl border border-ink-200/60 p-5 shadow-soft">
-                            <h2 className="text-base font-semibold mb-3">Needs Attention</h2>
+                            <h2 className="text-[16px] font-semibold tracking-tight mb-3">Needs Attention</h2>
                             {attention.length === 0 ? (
                                 <div className="py-4 text-center text-[12px] text-ink-400">
                                     <svg className="w-8 h-8 mx-auto mb-2 text-ink-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}><path d="M5 13l4 4L19 7"/></svg>
@@ -222,7 +224,7 @@ export default function LandlordOverview({ landlord, kpis, properties, attention
                                     {attention.map((item, idx) => (
                                         <div
                                             key={idx}
-                                            className={`flex items-start gap-3 p-2.5 rounded-lg border ${
+                                            className={`flex items-start gap-3 p-2.5 rounded-xl border ${
                                                 item.tone === 'danger'
                                                     ? 'bg-danger/5 border-danger/20'
                                                     : 'bg-warning/5 border-warning/20'
@@ -246,21 +248,21 @@ export default function LandlordOverview({ landlord, kpis, properties, attention
 
                         {/* This Month summary */}
                         <div className="bg-white rounded-2xl border border-ink-200/60 p-5 shadow-soft">
-                            <h2 className="text-base font-semibold mb-3">This Month</h2>
+                            <h2 className="text-[16px] font-semibold tracking-tight mb-3">This Month</h2>
                             <div className="space-y-2 text-[12px]">
                                 <div className="flex justify-between py-1.5 border-b border-ink-100">
                                     <span className="text-ink-500">Rent collected</span>
-                                    <span className="font-mono font-semibold text-success">{fmtFull(this_month.collected)}</span>
+                                    <span className="tabular-nums font-semibold text-success">{fmtFull(this_month.collected)}</span>
                                 </div>
                                 <div className="flex justify-between py-1.5 border-b border-ink-100">
                                     <span className="text-ink-500">Rent outstanding</span>
-                                    <span className={`font-mono font-semibold ${this_month.outstanding > 0 ? 'text-warning' : 'text-ink-500'}`}>
+                                    <span className={`tabular-nums font-semibold ${this_month.outstanding > 0 ? 'text-warning' : 'text-ink-500'}`}>
                                         {this_month.outstanding > 0 ? fmtFull(this_month.outstanding) : '—'}
                                     </span>
                                 </div>
                                 <div className="flex justify-between py-2 font-bold">
                                     <span>Net this month</span>
-                                    <span className="font-mono text-success">{fmtFull(this_month.net)}</span>
+                                    <span className="tabular-nums text-success">{fmtFull(this_month.net)}</span>
                                 </div>
                             </div>
                         </div>

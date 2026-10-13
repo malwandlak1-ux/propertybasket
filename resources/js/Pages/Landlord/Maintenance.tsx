@@ -1,5 +1,7 @@
 import { Head } from '@inertiajs/react';
 import LandlordLayout from '@/Layouts/LandlordLayout';
+import { PageHeader } from '@/Components/Dashboard/Charts';
+import Icon from '@/Components/Dashboard/Icon';
 
 type MaintItem = {
     id: number;
@@ -56,22 +58,22 @@ function KanbanColumn({ title, color, items, count }: {
     title: string; color: string; items: MaintItem[]; count: number;
 }) {
     return (
-        <div className="bg-ink-100/50 rounded-xl p-3 flex-1 min-w-0">
+        <div className="bg-white/60 border border-ink-200/60 rounded-2xl p-3 flex-1 min-w-[230px]">
             <div className="flex items-center gap-2 mb-3 px-1">
                 <span className={`w-2 h-2 rounded-full ${color}`} />
-                <p className="text-[12px] font-semibold uppercase tracking-wide">{title}</p>
-                <span className="text-[11px] bg-white px-1.5 py-0.5 rounded-full font-bold ml-1">{count}</span>
+                <p className="text-[13px] font-semibold">{title}</p>
+                <span className="text-[11px] bg-ink-100 px-2 py-0.5 rounded-full font-bold ml-auto">{count}</span>
             </div>
 
             <div className="space-y-2">
                 {items.length === 0 ? (
-                    <div className="bg-white/60 rounded-lg p-4 text-center text-[11px] text-ink-400">
+                    <div className="rounded-xl border border-dashed border-ink-200 p-5 text-center text-[11.5px] text-ink-400">
                         No items
                     </div>
                 ) : items.map((item) => (
                     <div
                         key={item.id}
-                        className={`bg-white rounded-lg p-3 shadow-soft border border-ink-200 ${BORDER_CFG[item.urgency] ? `border-l-2 ${BORDER_CFG[item.urgency]}` : ''}`}
+                        className={`bg-white rounded-xl p-3.5 shadow-soft border border-ink-200/70 ${BORDER_CFG[item.urgency] ? `border-l-2 ${BORDER_CFG[item.urgency]}` : ''}`}
                     >
                         <div className="flex items-center gap-1.5 mb-1.5">
                             <UrgencyBadge urgency={item.urgency} />
@@ -94,8 +96,8 @@ function KanbanColumn({ title, color, items, count }: {
                         )}
 
                         {item.contractor && (
-                            <div className="flex items-center gap-1.5 mb-2 bg-ink-50 rounded p-1.5">
-                                <div className="w-5 h-5 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center text-white text-[8px] font-bold">
+                            <div className="flex items-center gap-1.5 mb-2 bg-ink-50 rounded-lg p-1.5">
+                                <div className="w-5 h-5 rounded-full bg-brand-100 text-brand-800 flex items-center justify-center text-[8px] font-bold">
                                     {item.contractor.split(' ').map((s) => s[0]).slice(0, 2).join('')}
                                 </div>
                                 <span className="text-[10px] font-semibold truncate">{item.contractor}</span>
@@ -104,12 +106,12 @@ function KanbanColumn({ title, color, items, count }: {
 
                         {item.status === 'open' && (
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 mt-2">
-                                <button className="py-1.5 text-[10px] bg-ink-900 text-white rounded font-semibold hover:bg-brand-500 transition">Assign</button>
-                                <button className="py-1.5 text-[10px] border border-ink-200 rounded font-semibold hover:bg-ink-50 transition">Get Quotes</button>
+                                <button className="py-1.5 text-[11px] bg-brand-700 text-white rounded-full font-semibold hover:bg-brand-800 transition">Assign</button>
+                                <button className="py-1.5 text-[11px] border border-ink-300 rounded-full font-semibold hover:bg-ink-50 transition">Get quotes</button>
                             </div>
                         )}
                         {item.status === 'completed' && (
-                            <button className="w-full mt-1 py-1.5 text-[10px] border border-ink-200 rounded font-semibold hover:bg-ink-50 transition">Review invoice</button>
+                            <button className="w-full mt-1 py-1.5 text-[11px] border border-ink-300 rounded-full font-semibold hover:bg-ink-50 transition">Review invoice</button>
                         )}
                         {item.status === 'paid' && item.completed_at && (
                             <div className="flex items-center justify-between mt-1">
@@ -131,31 +133,52 @@ export default function LandlordMaintenance({ landlord, grouped, counts }: Props
         <LandlordLayout crumb="Maintenance" section="Workspace" openMaint={counts.open + counts.in_progress}>
             <Head title="Maintenance" />
 
-            <div className="px-4 sm:px-8 py-6 sm:py-7">
-                <div className="flex flex-wrap items-end justify-between gap-3 mb-6">
-                    <div>
-                        <h1 className="text-[28px] sm:text-[32px] leading-tight tracking-tight">Maintenance</h1>
-                        <p className="text-[14px] text-ink-500 mt-1">
-                            Tenant requests across your portfolio · {total} total
-                        </p>
+            <div className="px-4 sm:px-7 py-6">
+                <PageHeader title="Maintenance" subtitle={<>Tenant requests across your portfolio · {total} total</>} />
+
+                {/* Summary tiles */}
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+                    <div className="pb-swirl rounded-2xl p-5 text-white shadow-lift pb-rise">
+                        <p className="text-[13px] font-medium">Open</p>
+                        <p className="text-[34px] font-semibold tracking-tight mt-3 leading-none tabular-nums">{counts.open ?? 0}</p>
+                        <p className="text-[12px] text-white/80 mt-2">Waiting for a contractor</p>
                     </div>
+                    {[
+                        { label: 'In progress', value: counts.in_progress ?? 0, sub: 'Contractor on the job' },
+                        { label: 'Completed', value: counts.completed ?? 0, sub: 'Awaiting invoice payment' },
+                        { label: 'Paid', value: counts.paid ?? 0, sub: 'Closed out' },
+                    ].map((t) => (
+                        <div key={t.label} className="bg-white rounded-2xl border border-ink-200/60 p-5 shadow-soft pb-rise">
+                            <p className="text-[13px] font-medium text-ink-700">{t.label}</p>
+                            <p className="text-[34px] font-semibold tracking-tight mt-3 leading-none tabular-nums">{t.value}</p>
+                            <p className="text-[12px] text-ink-500 mt-2">{t.sub}</p>
+                        </div>
+                    ))}
                 </div>
 
-                {/* Emergency banner */}
-                <div className="bg-danger/5 border-2 border-danger/30 rounded-xl p-4 mb-6 flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-full bg-danger/20 flex items-center justify-center shrink-0">
-                        <svg className="w-5 h-5 text-danger" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5}><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4M12 17h.01"/></svg>
+                {/* Emergency status — red only when there actually is one */}
+                {(grouped.open.filter((i) => i.urgency === 'emergency').length + grouped.in_progress.filter((i) => i.urgency === 'emergency').length) > 0 ? (
+                    <div className="rounded-2xl border border-danger/30 bg-danger/10 p-4 mb-4 flex items-center gap-4">
+                        <span className="w-10 h-10 rounded-full bg-danger/20 text-danger flex items-center justify-center shrink-0"><Icon name="alert" className="w-5 h-5" /></span>
+                        <div className="flex-1">
+                            <p className="text-[13.5px] font-semibold text-danger">{grouped.open.filter((i) => i.urgency === 'emergency').length + grouped.in_progress.filter((i) => i.urgency === 'emergency').length} active emergenc{(grouped.open.filter((i) => i.urgency === 'emergency').length + grouped.in_progress.filter((i) => i.urgency === 'emergency').length) === 1 ? 'y' : 'ies'}</p>
+                            <p className="text-[12.5px] text-ink-700 mt-0.5">Assign a contractor immediately — emergencies carry a 4-hour response SLA.</p>
+                        </div>
                     </div>
-                    <div className="flex-1">
-                        <p className="text-[13px] font-bold text-danger">No active emergencies</p>
-                        <p className="text-[12px] text-ink-700 mt-0.5">
-                            If a tenant logs an emergency, you can assign an available contractor immediately (4-hour SLA).
-                        </p>
+                ) : (
+                    <div className="rounded-2xl border border-ink-200/60 bg-white shadow-soft p-4 mb-4 flex items-center gap-4">
+                        <span className="w-10 h-10 rounded-full bg-success/15 text-success flex items-center justify-center shrink-0">
+                            <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5}><path d="M5 13l4 4L19 7" /></svg>
+                        </span>
+                        <div className="flex-1">
+                            <p className="text-[13.5px] font-semibold">No active emergencies</p>
+                            <p className="text-[12.5px] text-ink-500 mt-0.5">If a tenant logs an emergency it appears here first (4-hour response SLA).</p>
+                        </div>
                     </div>
-                </div>
+                )}
 
                 {/* Kanban board */}
-                <div className="flex gap-3 min-h-[460px] overflow-x-auto pb-2">
+                <div className="flex gap-3 min-h-[420px] overflow-x-auto pb-2">
                     <KanbanColumn title="Open"        color="bg-warning"    items={grouped.open}        count={counts.open} />
                     <KanbanColumn title="In Progress" color="bg-brand-500"  items={grouped.in_progress} count={counts.in_progress} />
                     <KanbanColumn title="Completed"   color="bg-success"    items={grouped.completed}   count={counts.completed} />

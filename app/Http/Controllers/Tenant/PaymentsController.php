@@ -67,7 +67,7 @@ class PaymentsController extends Controller
 
             return [
                 'id'           => $p->id,
-                'date'         => ($p->paid_at ?? $due)->format('Y/m/d'),
+                'date'         => ($p->paid_at ?? $due)->format('d M Y'),
                 'description'  => $period->format('F Y') . ' rent',
                 'method'       => $p->payment_method,
                 'reference'    => $p->paystack_reference,

@@ -21,6 +21,13 @@ class MessagesController extends Controller
         $lease    = $this->resolveLease($request);
         $activeId = $request->integer('conversation_id', 0);
 
+        // Every tenant can always reach whoever manages their lease: make sure
+        // that thread exists, and open it when no conversation is selected.
+        $leaseThread = $this->ensureLeaseConversation($user, $lease);
+        if (! $activeId && $leaseThread) {
+            $activeId = $leaseThread->id;
+        }
+
         $conversations = Conversation::whereJsonContains('participants', $user->id)
             ->with(['messages' => fn ($q) => $q->orderByDesc('created_at')->take(1)])
             ->orderByDesc('updated_at')
@@ -148,5 +155,31 @@ class MessagesController extends Controller
         $conversation->touch();
 
         return back();
+    }
+
+    /**
+     * The tenant ↔ landlord (or ↔ agent, for agency-managed leases) thread for
+     * this lease, created on first visit so a tenant never lands on an empty
+     * inbox with nobody to message.
+     */
+    private function ensureLeaseConversation(User $tenant, $lease): ?Conversation
+    {
+        [$contactId, $type] = $lease->agency_id
+            ? [$lease->agent_id ?? $lease->agency?->user_id, 'agency_tenant']
+            : [$lease->landlord_id, 'landlord_tenant'];
+
+        if (! $contactId || $contactId === $tenant->id) {
+            return null;
+        }
+
+        $existing = Conversation::where('type', $type)
+            ->whereJsonContains('participants', $tenant->id)
+            ->whereJsonContains('participants', $contactId)
+            ->first();
+
+        return $existing ?? Conversation::create([
+            'type'         => $type,
+            'participants' => [$contactId, $tenant->id],
+        ]);
     }
 }

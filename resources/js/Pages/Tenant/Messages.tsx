@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Head, router } from '@inertiajs/react';
 import TenantLayout from '@/Layouts/TenantLayout';
 import { Spinner } from '@/Components/Skeleton';
+import Icon from '@/Components/Dashboard/Icon';
 
 type ConvItem = {
     id: number;
@@ -36,17 +37,14 @@ type Props = {
     messages: MessageItem[];
 };
 
-const AVATAR_COLORS = [
-    'from-brand-500 to-brand-700',
-    'from-emerald-400 to-emerald-600',
-    'from-rose-400 to-rose-600',
-    'from-sky-400 to-sky-600',
-    'from-amber-400 to-amber-600',
+const AVATAR_TINTS = [
+    'bg-brand-100 text-brand-800',
+    'bg-emerald-100 text-emerald-800',
+    'bg-sky-100 text-sky-800',
+    'bg-amber-100 text-amber-800',
+    'bg-rose-100 text-rose-800',
 ];
-
-function avatarColor(id: number): string {
-    return AVATAR_COLORS[id % AVATAR_COLORS.length];
-}
+const tint = (id: number) => AVATAR_TINTS[id % AVATAR_TINTS.length];
 
 export default function TenantMessages({ lease, conversations, active, messages }: Props) {
     const [body, setBody] = useState('');
@@ -54,7 +52,7 @@ export default function TenantMessages({ lease, conversations, active, messages 
     const endRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        endRef.current?.scrollIntoView({ behavior: 'smooth' });
+        endRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }, [messages]);
 
     function send() {
@@ -67,143 +65,147 @@ export default function TenantMessages({ lease, conversations, active, messages 
         });
     }
 
+    const hasMessages = messages.some((m) => m.type === 'message');
+
     return (
         <TenantLayout crumb="Messages" leaseAddress={lease.address}>
             <Head title="Messages" />
 
-            <div className="flex h-[calc(100vh-64px)]">
-                <div className="w-72 shrink-0 bg-white border-r border-ink-200 flex flex-col">
-                    <div className="p-4 border-b border-ink-200">
-                        <h2 className="text-sm font-semibold mb-1">Messages</h2>
-                        <p className="text-[11px] text-ink-500">Talk to your agent or assigned contractor</p>
-                    </div>
+            <section className="px-4 sm:px-7 py-6">
+                <div className="mb-5 pb-rise">
+                    <h1 className="text-[28px] sm:text-[32px] leading-tight tracking-tight">Messages</h1>
+                    <p className="text-[13.5px] text-ink-500 mt-1">Talk to your landlord and any contractor working on your home.</p>
+                </div>
 
-                    <div className="flex-1 overflow-y-auto">
-                        {conversations.length === 0 ? (
-                            <div className="p-6 text-center text-[12px] text-ink-400">No conversations yet</div>
-                        ) : (
-                            conversations.map((conv) => (
-                                <button
-                                    key={conv.id}
-                                    onClick={() => router.get('/tenant/messages', { conversation_id: conv.id }, { preserveState: true })}
-                                    className={`w-full text-left p-4 border-b border-ink-100 hover:bg-ink-50 transition ${
-                                        active?.id === conv.id ? 'bg-brand-50 border-l-2 border-l-brand-500' : ''
-                                    }`}
-                                >
-                                    <div className="flex items-center gap-3">
-                                        <div className={`w-9 h-9 rounded-full bg-gradient-to-br ${avatarColor(conv.id)} flex items-center justify-center text-white text-[12px] font-bold shrink-0`}>
-                                            {conv.initials}
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                            <div className="flex items-center justify-between">
-                                                <p className="text-[13px] font-semibold truncate">{conv.title}</p>
-                                                <span className="text-[10px] text-ink-400 shrink-0 ml-1">{conv.updated_at}</span>
-                                            </div>
-                                            <p className="text-[11px] text-ink-500 truncate mt-0.5">{conv.preview}</p>
-                                            {conv.unread_count > 0 && (
-                                                <span className="text-[10px] inline-block mt-1.5 bg-danger text-white px-1.5 rounded-full font-bold">
-                                                    {conv.unread_count}
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:h-[calc(100vh-15rem)] lg:min-h-[480px]">
+                    {/* Conversation list */}
+                    <aside className="lg:col-span-4 bg-white rounded-2xl border border-ink-200/60 shadow-soft flex flex-col overflow-hidden">
+                        <div className="px-5 py-4 border-b border-ink-100">
+                            <h2 className="text-[16px] font-semibold tracking-tight">Conversations</h2>
+                            <p className="text-[12px] text-ink-500 mt-0.5">{conversations.length} thread{conversations.length === 1 ? '' : 's'}</p>
+                        </div>
+                        <div className="flex-1 overflow-y-auto p-2">
+                            {conversations.length === 0 ? (
+                                <div className="p-6 text-center text-[12.5px] text-ink-400">No conversations yet</div>
+                            ) : (
+                                conversations.map((conv) => {
+                                    const on = active?.id === conv.id;
+                                    return (
+                                        <button
+                                            key={conv.id}
+                                            onClick={() => router.get('/tenant/messages', { conversation_id: conv.id }, { preserveState: true })}
+                                            className={`w-full text-left px-3 py-3 rounded-xl transition flex items-center gap-3 ${on ? 'bg-brand-50' : 'hover:bg-ink-50'}`}
+                                        >
+                                            <span className={`w-10 h-10 rounded-full flex items-center justify-center text-[12px] font-bold shrink-0 ${tint(conv.id)}`}>
+                                                {conv.initials}
+                                            </span>
+                                            <span className="flex-1 min-w-0">
+                                                <span className="flex items-center justify-between gap-2">
+                                                    <span className={`text-[13.5px] font-semibold truncate ${on ? 'text-brand-800' : ''}`}>{conv.title}</span>
+                                                    <span className="text-[10.5px] text-ink-400 shrink-0">{conv.updated_at}</span>
                                                 </span>
-                                            )}
-                                        </div>
+                                                <span className="flex items-center justify-between gap-2 mt-0.5">
+                                                    <span className="text-[12px] text-ink-500 truncate">{conv.preview}</span>
+                                                    {conv.unread_count > 0 && (
+                                                        <span className="text-[10px] min-w-[18px] text-center bg-danger text-white px-1.5 py-0.5 rounded-full font-bold shrink-0">{conv.unread_count}</span>
+                                                    )}
+                                                </span>
+                                            </span>
+                                        </button>
+                                    );
+                                })
+                            )}
+                        </div>
+                    </aside>
+
+                    {/* Chat */}
+                    <div className="lg:col-span-8 bg-white rounded-2xl border border-ink-200/60 shadow-soft flex flex-col overflow-hidden min-h-[480px]">
+                        {active ? (
+                            <>
+                                <div className="px-5 py-3.5 border-b border-ink-100 flex items-center gap-3 shrink-0">
+                                    <span className={`w-10 h-10 rounded-full flex items-center justify-center text-[12px] font-bold ${tint(active.id)}`}>{active.initials}</span>
+                                    <div className="min-w-0">
+                                        <p className="text-[14px] font-semibold truncate">{active.title}</p>
+                                        <p className="text-[11.5px] text-ink-500 capitalize">{active.subtitle ?? active.type?.replace('_', ' ')}</p>
                                     </div>
-                                </button>
-                            ))
+                                </div>
+
+                                <div className="flex-1 overflow-y-auto px-5 py-5 space-y-4 bg-[var(--pb-panel,#F5F6F5)]">
+                                    {! hasMessages && (
+                                        <div className="h-full flex flex-col items-center justify-center text-center py-10">
+                                            <span className="w-12 h-12 rounded-2xl bg-brand-50 text-brand-700 flex items-center justify-center mb-3">
+                                                <Icon name="chat" className="w-6 h-6" />
+                                            </span>
+                                            <p className="text-[14px] font-semibold">Start the conversation</p>
+                                            <p className="text-[12.5px] text-ink-500 mt-1 max-w-xs">Send {active.title} a message about your lease, rent or anything in your home.</p>
+                                        </div>
+                                    )}
+                                    {messages.map((item, idx) => {
+                                        if (item.type === 'date_divider') {
+                                            return (
+                                                <div key={idx} className="flex items-center justify-center">
+                                                    <span className="text-[11px] text-ink-500 font-semibold bg-white rounded-full px-3 py-1 shadow-soft">{item.label}</span>
+                                                </div>
+                                            );
+                                        }
+                                        return (
+                                            <div key={item.id} className={`flex gap-2.5 ${item.is_self ? 'flex-row-reverse' : 'flex-row'}`}>
+                                                {! item.is_self && (
+                                                    <span className={`w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5 ${tint(active.id)}`}>{active.initials}</span>
+                                                )}
+                                                <div className={`max-w-[70%] flex flex-col gap-1 ${item.is_self ? 'items-end' : 'items-start'}`}>
+                                                    <div className={`px-4 py-2.5 rounded-2xl text-[13.5px] leading-relaxed whitespace-pre-wrap ${
+                                                        item.is_self
+                                                            ? 'bg-brand-700 text-white rounded-br-md'
+                                                            : 'bg-white text-ink-900 rounded-bl-md shadow-soft'
+                                                    }`}>
+                                                        {item.body}
+                                                    </div>
+                                                    <span className="text-[10.5px] text-ink-400">{item.created_at}</span>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                    <div ref={endRef} />
+                                </div>
+
+                                <div className="border-t border-ink-100 p-4">
+                                    <div className="flex items-center gap-2 bg-ink-50 rounded-full pl-4 pr-1.5 py-1.5 border border-ink-200 focus-within:border-brand-300 focus-within:ring-4 focus-within:ring-brand-100 transition">
+                                        <input
+                                            value={body}
+                                            onChange={(e) => setBody(e.target.value)}
+                                            onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), send())}
+                                            className="flex-1 bg-transparent text-[13.5px] focus:outline-none py-1.5"
+                                            placeholder={`Message ${active.title}…`}
+                                        />
+                                        <button
+                                            onClick={send}
+                                            disabled={!body.trim() || sending}
+                                            className="inline-flex items-center gap-2 rounded-full bg-brand-700 hover:bg-brand-800 text-white px-4 py-2 text-[13px] font-semibold disabled:opacity-40 disabled:cursor-not-allowed transition min-w-[92px] justify-center"
+                                        >
+                                            {sending ? <><Spinner size={14} />Sending…</> : (
+                                                <>
+                                                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" /></svg>
+                                                    Send
+                                                </>
+                                            )}
+                                        </button>
+                                    </div>
+                                    <p className="text-[10.5px] text-ink-400 mt-2 px-1">Messages are kept securely in line with POPIA.</p>
+                                </div>
+                            </>
+                        ) : (
+                            <div className="flex-1 flex flex-col items-center justify-center text-center p-10">
+                                <span className="w-14 h-14 rounded-2xl bg-brand-50 text-brand-700 flex items-center justify-center mb-4">
+                                    <Icon name="chat" className="w-7 h-7" />
+                                </span>
+                                <p className="text-[15px] font-semibold">Your messages</p>
+                                <p className="text-[13px] text-ink-500 mt-1">Select a conversation to start messaging.</p>
+                            </div>
                         )}
                     </div>
                 </div>
-
-                {active ? (
-                    <div className="flex-1 flex flex-col min-w-0">
-                        <div className="h-14 border-b border-ink-200 bg-white flex items-center px-5 gap-3 shrink-0">
-                            <div className={`w-8 h-8 rounded-full bg-gradient-to-br ${avatarColor(active.id)} flex items-center justify-center text-white text-[11px] font-bold`}>
-                                {active.initials}
-                            </div>
-                            <div>
-                                <p className="text-[13px] font-semibold">{active.title}</p>
-                                <p className="text-[11px] text-ink-500">{active.subtitle ?? active.type?.replace('_', ' ')}</p>
-                            </div>
-                        </div>
-
-                        <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4 bg-ink-50/30">
-                            {messages.map((item, idx) => {
-                                if (item.type === 'date_divider') {
-                                    return (
-                                        <div key={idx} className="flex items-center gap-3">
-                                            <div className="flex-1 h-px bg-ink-200" />
-                                            <span className="text-[11px] text-ink-400 font-semibold">{item.label}</span>
-                                            <div className="flex-1 h-px bg-ink-200" />
-                                        </div>
-                                    );
-                                }
-
-                                return (
-                                    <div key={item.id} className={`flex gap-2.5 ${item.is_self ? 'flex-row-reverse' : 'flex-row'}`}>
-                                        {!item.is_self && (
-                                            <div className={`w-7 h-7 rounded-full bg-gradient-to-br ${avatarColor(active.id)} flex items-center justify-center text-white text-[9px] font-bold shrink-0 mt-0.5`}>
-                                                {active.initials}
-                                            </div>
-                                        )}
-                                        <div className={`max-w-[65%] ${item.is_self ? 'items-end' : 'items-start'} flex flex-col gap-1`}>
-                                            <div className={`px-3.5 py-2.5 rounded-2xl text-[13px] leading-relaxed ${
-                                                item.is_self
-                                                    ? 'bg-brand-500 text-white rounded-br-sm'
-                                                    : 'bg-white border border-ink-200 text-ink-900 rounded-bl-sm shadow-soft'
-                                            }`}>
-                                                {item.body}
-                                            </div>
-                                            <span className="text-[10px] text-ink-400">{item.created_at}</span>
-                                        </div>
-                                    </div>
-                                );
-                            })}
-                            <div ref={endRef} />
-                        </div>
-
-                        <div className="border-t border-ink-200 bg-white p-4">
-                            <div className="flex gap-3">
-                                <input
-                                    value={body}
-                                    onChange={(e) => setBody(e.target.value)}
-                                    onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), send())}
-                                    className="flex-1 bg-ink-50 border border-ink-200 rounded-xl px-4 py-2.5 text-[13px] focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand"
-                                    placeholder="Type a message…"
-                                />
-                                <button
-                                    onClick={send}
-                                    disabled={!body.trim() || sending}
-                                    className="px-4 py-2.5 bg-brand-500 text-white rounded-xl hover:bg-brand-600 disabled:opacity-40 disabled:cursor-not-allowed transition flex items-center gap-2 text-[13px] font-semibold min-w-[88px] justify-center"
-                                >
-                                    {sending ? (
-                                        <>
-                                            <Spinner size={14} />
-                                            Sending…
-                                        </>
-                                    ) : (
-                                        <>
-                                            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
-                                                <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
-                                            </svg>
-                                            Send
-                                        </>
-                                    )}
-                                </button>
-                            </div>
-                            <p className="text-[10px] text-ink-400 mt-2">Conversations are encrypted and retained per agency policy (POPIA-compliant).</p>
-                        </div>
-                    </div>
-                ) : (
-                    <div className="flex-1 flex flex-col items-center justify-center bg-ink-50/30 text-center">
-                        <div className="w-16 h-16 rounded-2xl bg-white border border-ink-200 flex items-center justify-center mb-4 shadow-soft">
-                            <svg className="w-8 h-8 text-ink-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}>
-                                <path d="M21 11.5a8.38 8.38 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.6-.8L3 21l1.9-5.7a8.5 8.5 0 0 1 16.1-3.8z" />
-                            </svg>
-                        </div>
-                        <p className="text-[15px] font-semibold text-ink-700 mb-1">Your messages</p>
-                        <p className="text-[13px] text-ink-500">Select a conversation to start messaging</p>
-                    </div>
-                )}
-            </div>
+            </section>
         </TenantLayout>
     );
 }

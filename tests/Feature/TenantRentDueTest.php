@@ -93,4 +93,21 @@ class TenantRentDueTest extends TestCase
             ->assertOk()
             ->assertInertia(fn (Assert $p) => $p->where('documents', fn ($docs) => collect($docs)->pluck('id')->doesntContain('deposit-receipt')));
     }
+
+    #[Test]
+    public function tenant_inbox_always_has_a_thread_with_the_landlord(): void
+    {
+        $this->actingAs($this->tenant)->get('/tenant/messages')
+            ->assertOk()
+            ->assertInertia(fn (Assert $p) => $p->has('conversations', 1)->where('active.title', $this->lease->landlord->name));
+
+        // Second visit re-uses the same thread; the landlord can see it too.
+        $this->actingAs($this->tenant)->get('/tenant/messages');
+        $this->assertSame(1, \App\Models\Conversation::where('type', 'landlord_tenant')->count());
+        $conv = \App\Models\Conversation::first();
+        $this->assertEqualsCanonicalizing([$this->lease->landlord_id, $this->tenant->id], $conv->participants);
+
+        $this->actingAs($this->tenant)->post("/tenant/messages/{$conv->id}", ['body' => 'Hello'])->assertRedirect();
+        $this->assertDatabaseHas('messages', ['conversation_id' => $conv->id, 'body' => 'Hello']);
+    }
 }

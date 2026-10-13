@@ -198,13 +198,13 @@ export default function LandlordTenants({ landlord, tenants, invitable_listings,
                             <p className="text-[12px] text-ink-500 mt-0.5">Tenants currently leasing your properties</p>
                         </div>
 
-                        <div className="overflow-x-auto"><table className="w-full min-w-[860px]">
+                        <div className="overflow-x-auto"><table className="w-full min-w-[1000px]">
                             <thead>
-                                <tr className="text-left text-[11px] uppercase text-ink-500 tracking-wider border-b border-ink-200 bg-ink-50">
+                                <tr className="text-left text-[11px] uppercase text-ink-500 tracking-wider border-b border-ink-200 bg-ink-50 whitespace-nowrap">
                                     <th className="font-semibold px-5 py-3">Tenant</th>
                                     <th className="font-semibold py-3">Property</th>
                                     <th className="font-semibold py-3">Lease Term</th>
-                                    <th className="font-semibold py-3 text-right">Rent</th>
+                                    <th className="font-semibold py-3 text-right pr-6">Rent</th>
                                     <th className="font-semibold py-3">Portal</th>
                                     <th className="font-semibold py-3">Rent Status</th>
                                     <th className="font-semibold py-3 pr-4">Lease Agreement</th>
@@ -229,10 +229,10 @@ export default function LandlordTenants({ landlord, tenants, invitable_listings,
                                             <p className="font-medium">{t.property}</p>
                                             <p className="text-[11px] text-ink-400 truncate max-w-[180px]">{t.property_title.replace(/^Thandi - /, '')}</p>
                                         </td>
-                                        <td className="py-4 font-mono text-[12px] text-ink-600">
+                                        <td className="py-4 text-[12px] text-ink-600 whitespace-nowrap pr-4">
                                             {t.lease_start} – {t.lease_end}
                                         </td>
-                                        <td className="py-4 text-right font-mono font-semibold">
+                                        <td className="py-4 text-right tabular-nums font-semibold whitespace-nowrap pr-6">
                                             {fmtMoney(t.monthly_rent)}
                                         </td>
                                         <td className="py-4">

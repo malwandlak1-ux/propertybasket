@@ -19,16 +19,16 @@
         <td class="left">
             <h3>Tenant</h3>
             <table class="kv">
-                <tr><th>Name</th><td>{{ $tenant->name }}</td></tr>
-                <tr><th>Email</th><td>{{ $tenant->email }}</td></tr>
+                <tr><th>Name</th><td>{{ $tenant?->name ?? '—' }}</td></tr>
+                <tr><th>Email</th><td>{{ $tenant?->email ?? '—' }}</td></tr>
                 <tr><th>Lease #</th><td class="mono">{{ str_pad($lease->id, 6, '0', STR_PAD_LEFT) }}</td></tr>
             </table>
         </td>
         <td class="right">
             <h3>Property</h3>
             <table class="kv">
-                <tr><th>Address</th><td>{{ $listing->address ?? $listing->title }}</td></tr>
-                <tr><th>Suburb</th><td>{{ trim(($listing->suburb ?? '') . ', ' . ($listing->city ?? ''), ', ') }}</td></tr>
+                <tr><th>Address</th><td>{{ $listing?->address ?? $listing?->title ?? '—' }}</td></tr>
+                <tr><th>Suburb</th><td>{{ trim(($listing?->suburb ?? '') . ', ' . ($listing?->city ?? ''), ', ') }}</td></tr>
                 <tr><th>{{ $agencyName ? 'Managed by' : 'Landlord' }}</th><td>{{ $agencyName ?? $landlordName ?? '—' }}</td></tr>
             </table>
         </td>

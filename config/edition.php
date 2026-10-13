@@ -17,6 +17,10 @@
 */
 
 return [
+    // false = no public property portal: '/', listings, advice, calculator…
+    // redirect to the login screen (careline). Legal pages stay reachable.
+    'public_site' => filter_var(env('PUBLIC_SITE', true), FILTER_VALIDATE_BOOL),
+
     'disabled_roles' => array_values(array_filter(array_map(
         'trim',
         explode(',', (string) env('DISABLED_ROLES', ''))

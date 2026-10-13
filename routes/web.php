@@ -23,32 +23,35 @@ use App\Http\Controllers\Public\LegalController;
 use App\Http\Controllers\Public\ListingController;
 use Illuminate\Support\Facades\Route;
 
-// Public
-Route::get('/', HomeController::class)->name('home');
-Route::get('/properties', [ListingController::class, 'index'])->name('properties.index');
-Route::get('/properties/{slug}', [ListingController::class, 'show'])->name('properties.show');
-Route::post('/inquiries', [InquiryController::class, 'store'])->name('inquiries.store');
-Route::post('/tour-requests', [TourRequestController::class, 'store'])->name('tour-requests.store');
-Route::middleware(EnsureRoleEnabled::class . ':agency_admin')->group(function () {
-    Route::get('/agencies', [AgencyController::class, 'index'])->name('agencies.index');
-    Route::get('/agencies/{slug}', [AgencyController::class, 'show'])->name('agencies.show');
+// Public property portal — switched off per site with PUBLIC_SITE=false (careline),
+// which redirects these pages to the login screen.
+Route::middleware(\App\Http\Middleware\EnsurePublicSite::class)->group(function () {
+    Route::get('/', HomeController::class)->name('home');
+    Route::get('/properties', [ListingController::class, 'index'])->name('properties.index');
+    Route::get('/properties/{slug}', [ListingController::class, 'show'])->name('properties.show');
+    Route::post('/inquiries', [InquiryController::class, 'store'])->name('inquiries.store');
+    Route::post('/tour-requests', [TourRequestController::class, 'store'])->name('tour-requests.store');
+    Route::middleware(EnsureRoleEnabled::class . ':agency_admin')->group(function () {
+        Route::get('/agencies', [AgencyController::class, 'index'])->name('agencies.index');
+        Route::get('/agencies/{slug}', [AgencyController::class, 'show'])->name('agencies.show');
+    });
+    Route::get('/advice', [AdviceController::class, 'index'])->name('advice.index');
+    Route::get('/advice/{slug}', [AdviceController::class, 'show'])->name('advice.show');
+    Route::get('/calculator', CalculatorController::class)->name('calculator');
+    Route::post('/demos', [DemoRequestController::class, 'store'])->name('demos.store');
+
+    // Marketing overview — serves the self-contained landing page (workflow videos embedded).
+    Route::get('/overview', function () {
+        abort_unless(is_file(public_path('property-basket-overview.html')), 404);
+        return response()->file(public_path('property-basket-overview.html'));
+    })->name('overview');
+
+    // How-to / help centre — self-contained tutorial page.
+    Route::get('/how-to', function () {
+        abort_unless(is_file(public_path('how-to.html')), 404);
+        return response()->file(public_path('how-to.html'));
+    })->name('how-to');
 });
-Route::get('/advice', [AdviceController::class, 'index'])->name('advice.index');
-Route::get('/advice/{slug}', [AdviceController::class, 'show'])->name('advice.show');
-Route::get('/calculator', CalculatorController::class)->name('calculator');
-Route::post('/demos', [DemoRequestController::class, 'store'])->name('demos.store');
-
-// Marketing overview — serves the self-contained landing page (workflow videos embedded).
-Route::get('/overview', function () {
-    abort_unless(is_file(public_path('property-basket-overview.html')), 404);
-    return response()->file(public_path('property-basket-overview.html'));
-})->name('overview');
-
-// How-to / help centre — self-contained tutorial page.
-Route::get('/how-to', function () {
-    abort_unless(is_file(public_path('how-to.html')), 404);
-    return response()->file(public_path('how-to.html'));
-})->name('how-to');
 
 Route::get('/privacy-policy',         [LegalController::class, 'privacyPolicy'])->name('legal.privacy');
 Route::get('/privacy-portal',         [LegalController::class, 'privacyPortal'])->name('legal.privacyPortal');

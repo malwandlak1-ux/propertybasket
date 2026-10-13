@@ -75,6 +75,28 @@ class EditionTest extends TestCase
     }
 
     #[Test]
+    public function without_public_site_portal_pages_go_to_login(): void
+    {
+        config(['edition.public_site' => false]);
+
+        $this->get('/')->assertRedirect(route('login'));
+        $this->get('/properties')->assertRedirect(route('login'));
+        $this->get('/calculator')->assertRedirect(route('login'));
+        $this->post('/inquiries', [])->assertNotFound();
+
+        // Login + legal pages still work; signed-in users land on their dashboard.
+        $this->get('/login')->assertOk();
+        $this->get('/privacy-policy')->assertOk();
+        $this->actingAs($this->user(Role::Tenant))->get('/')->assertRedirect(route('dashboard'));
+    }
+
+    #[Test]
+    public function public_site_is_on_by_default(): void
+    {
+        $this->get('/')->assertOk();
+    }
+
+    #[Test]
     public function signup_drops_the_agency_option(): void
     {
         $this->careline();

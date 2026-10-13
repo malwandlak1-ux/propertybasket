@@ -31,4 +31,10 @@ class Edition
     {
         return self::roleEnabled(Role::AgencyAdmin);
     }
+
+    /** The public property portal (home, listings, advice…) is part of this site. */
+    public static function publicSiteEnabled(): bool
+    {
+        return (bool) config('edition.public_site', true);
+    }
 }

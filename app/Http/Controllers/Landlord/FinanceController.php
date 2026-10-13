@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Landlord;
 use App\Http\Controllers\Landlord\Concerns\ResolvesLandlord;
 use App\Models\Lease;
 use App\Models\RentPayment;
+use App\Services\LandlordStatementService;
+use App\Services\PdfService;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
@@ -14,6 +16,8 @@ use Inertia\Response;
 class FinanceController extends Controller
 {
     use ResolvesLandlord;
+
+    public function __construct(private readonly LandlordStatementService $statements) {}
 
     public function index(Request $request): Response
     {
@@ -28,11 +32,6 @@ class FinanceController extends Controller
         // ── KPIs ──────────────────────────────────────────────────────────
         $monthlyRentRoll = Lease::whereIn('id', $leaseIds)->sum('monthly_rent');
 
-        $ytdCollected = RentPayment::whereIn('lease_id', $leaseIds)
-            ->whereNotNull('paid_at')
-            ->where('paid_at', '>=', $yearStart)
-            ->sum('amount');
-
         $thisMonthCollected = RentPayment::whereIn('lease_id', $leaseIds)
             ->where('period_month', $period)
             ->whereNotNull('paid_at')
@@ -42,6 +41,25 @@ class FinanceController extends Controller
             ->whereNull('paid_at')
             ->where('due_date', '<=', $now)
             ->sum('amount');
+
+        // ── Income statement (cash basis: rent received − maintenance paid) ─
+        $ytd = $this->statements->build($landlord, $yearStart, $now->endOfDay());
+        $netMargin = $ytd['income'] > 0 ? round(($ytd['net'] / $ytd['income']) * 100, 1) : 0.0;
+        $maintPct  = $ytd['income'] > 0 ? round(($ytd['maintenance'] / $ytd['income']) * 100, 1) : 0.0;
+
+        // ── Cash flow: last 6 months, income vs maintenance ────────────────
+        $entries = $this->statements->entries($landlord);
+        $cashflow = [];
+        for ($i = 5; $i >= 0; $i--) {
+            $mo = $now->startOfMonth()->subMonths($i);
+            $in = $entries->filter(fn ($e) => $e['date']->isSameMonth($mo));
+            $cashflow[] = [
+                'month'       => $mo->format('M'),
+                'period'      => $mo->format('Y-m'),
+                'income'      => round((float) $in->sum('income'), 2),
+                'maintenance' => round((float) $in->sum('expense'), 2),
+            ];
+        }
 
         // ── Payment history ───────────────────────────────────────────────
         $payments = RentPayment::whereIn('lease_id', $leaseIds)
@@ -66,29 +84,59 @@ class FinanceController extends Controller
             ->values()
             ->all();
 
-        // ── Monthly trend (last 6 months) ─────────────────────────────────
-        $trend = [];
-        for ($i = 5; $i >= 0; $i--) {
-            $mo      = $now->subMonths($i);
-            $p       = $mo->format('Y-m');
-            $label   = $mo->format('M');
-            $collected = RentPayment::whereIn('lease_id', $leaseIds)
-                ->where('period_month', $p)
-                ->whereNotNull('paid_at')
-                ->sum('amount');
-            $trend[] = ['label' => $label, 'period' => $p, 'collected' => (float) $collected];
-        }
+        // ── Maintenance paid (expenses) ───────────────────────────────────
+        $maintenance = $entries->where('type', 'maintenance')->sortByDesc(fn ($e) => $e['date']->format('YmdHis'))->take(20)
+            ->map(fn ($e) => [
+                'date'        => $e['date']->format('d M Y'),
+                'description' => $e['description'],
+                'property'    => $e['property'],
+                'reference'   => $e['reference'],
+                'amount'      => $e['expense'],
+            ])->values()->all();
+
+        // ── Monthly trend (last 6 months) — kept for compatibility ─────────
+        $trend = array_map(fn ($c) => ['label' => $c['month'], 'period' => $c['period'], 'collected' => $c['income']], $cashflow);
 
         return Inertia::render('Landlord/Finance', [
             'landlord'   => ['id' => $landlord->id, 'name' => $request->user()->name],
+            'year'       => (int) $now->format('Y'),
             'kpis'       => [
-                'monthly_roll'        => (float) $monthlyRentRoll,
-                'ytd_collected'       => (float) $ytdCollected,
-                'this_month_collected'=> (float) $thisMonthCollected,
-                'outstanding'         => (float) $outstanding,
+                'monthly_roll'         => (float) $monthlyRentRoll,
+                'ytd_collected'        => $ytd['income'],
+                'this_month_collected' => (float) $thisMonthCollected,
+                'outstanding'          => (float) $outstanding,
             ],
-            'payments'   => $payments,
-            'trend'      => $trend,
+            'income_statement' => [
+                'rent_income'     => $ytd['income'],
+                'maintenance'     => $ytd['maintenance'],
+                'net'             => $ytd['net'],
+                'net_margin_pct'  => $netMargin,
+                'maintenance_pct' => $maintPct,
+            ],
+            'cashflow'    => $cashflow,
+            'by_property' => $ytd['by_property'],
+            'statements'  => $this->statements->availableMonths($landlord),
+            'payments'    => $payments,
+            'maintenance' => $maintenance,
+            'trend'       => $trend,
         ]);
+    }
+
+    /**
+     * GET /landlord/finance/statement.pdf[?month=YYYY-MM] — owner statement:
+     * rent received less maintenance, full history or one month.
+     */
+    public function statement(Request $request, PdfService $pdf)
+    {
+        $landlord = $this->resolveLandlord($request);
+
+        $month = $request->query('month');
+        if ($month !== null) {
+            abort_unless(is_string($month) && preg_match('/^\d{4}-(0[1-9]|1[0-2])$/', $month), 404);
+            $first = $this->statements->firstMonth($landlord)->format('Y-m');
+            abort_if($month < $first || $month > CarbonImmutable::now()->format('Y-m'), 404);
+        }
+
+        return $pdf->landlordStatement($landlord, $month, download: $request->boolean('download'));
     }
 }

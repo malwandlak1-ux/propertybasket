@@ -300,6 +300,7 @@ Route::middleware('auth')->group(function () {
             Route::delete('leases/{lease}/agreement',       [Landlord\TenantsController::class, 'destroyAgreement'])->name('leases.agreement.destroy');
             Route::get('maintenance', [Landlord\MaintenanceController::class, 'index'])->name('maintenance.index');
             Route::get('finance',     [Landlord\FinanceController::class,     'index'])->name('finance.index');
+            Route::get('finance/statement.pdf', [Landlord\FinanceController::class, 'statement'])->name('finance.statement');
             Route::get('messages',    [Landlord\MessagesController::class,    'index'])->name('messages.index');
             Route::post('messages/{conversation}', [Landlord\MessagesController::class, 'store'])->name('messages.store');
 

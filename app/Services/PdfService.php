@@ -109,6 +109,28 @@ class PdfService
         return $download ? $pdf->download($filename) : $pdf->stream($filename);
     }
 
+    /**
+     * Landlord owner statement (rent received − maintenance) — the whole
+     * history, or one month when $period ("YYYY-MM") is given.
+     */
+    public function landlordStatement(\App\Models\Landlord $landlord, ?string $period = null, bool $download = false): Response
+    {
+        $landlord->loadMissing('user');
+        $statements = app(LandlordStatementService::class);
+
+        $statement = $period ? $statements->month($landlord, $period) : $statements->full($landlord);
+
+        $pdf = Pdf::loadView('pdfs.landlord-statement', [
+            'statement'     => $statement,
+            'landlordName'  => $landlord->user?->name ?? 'Landlord',
+            'landlordEmail' => $landlord->user?->email ?? '—',
+            'propertyCount' => $statements->listingIds($landlord)->count(),
+        ])->setPaper('A4');
+
+        $filename = 'owner-statement-' . ($period ?? 'full-' . now()->format('Y-m-d')) . '.pdf';
+        return $download ? $pdf->download($filename) : $pdf->stream($filename);
+    }
+
     public function inspectionReport(Inspection $inspection, bool $download = false): Response
     {
         $inspection->loadMissing(['lease.listing', 'tenant', 'conductor']);

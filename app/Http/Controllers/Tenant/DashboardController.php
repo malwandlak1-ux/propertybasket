@@ -36,16 +36,23 @@ class DashboardController extends Controller
         $out = $this->billing->outstanding($lease);
 
         $current = $out['current'];
+
+        // Fully paid up (this month settled, no arrears) → show next month's rent.
+        $paidUp = ($out['current_paid'] ?? false) && count($out['arrears']) === 0;
+        $nextMonth = $now->startOfMonth()->addMonth();
+
         $currentDue = $current
             ? CarbonImmutable::parse($current['period'] . '-01')->day(1)
-            : $now->day(1);
+            : ($paidUp ? $nextMonth : $now->day(1));
+        $currentAmount = (float) ($current['amount']
+            ?? $this->billing->rentForPeriod($lease, $paidUp ? $nextMonth : $now->startOfMonth()));
 
         $nextDueDisplay = [
-            'amount'         => (float) $out['total_due'],
-            'current_amount' => (float) ($current['amount'] ?? $this->billing->rentForPeriod($lease, $now->startOfMonth())),
+            'amount'         => $paidUp ? $currentAmount : (float) $out['total_due'],
+            'current_amount' => $currentAmount,
             'due_date'       => $currentDue->format('d M Y'),
             'days_remaining' => (int) $now->startOfDay()->diffInDays($currentDue->startOfDay(), false),
-            'period_month'   => $current['period'] ?? $now->format('Y-m'),
+            'period_month'   => $current['period'] ?? ($paidUp ? $nextMonth : $now)->format('Y-m'),
             'arrears_total'  => (float) $out['arrears_total'],
             'arrears'        => $out['arrears'],
             'has_arrears'    => count($out['arrears']) > 0,

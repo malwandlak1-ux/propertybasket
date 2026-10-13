@@ -134,15 +134,22 @@ class LeaseBillingService
         $arrearsTotal = array_sum(array_column($arrears, 'amount'));
         $currentAmount = $current['amount'] ?? 0.0;
 
+        // This month's rent is already settled — nothing current is owed.
+        $currentPaid = $current === null && RentPayment::where('lease_id', $lease->id)
+            ->where('period_month', $currentPeriod)
+            ->where('status', 'paid')
+            ->exists();
+
         // If the current month hasn't been generated yet (e.g. lease ended, or
         // called before ensureCharges), fall back to the escalated rent so the
-        // UI always has a figure to show.
-        if ($current === null) {
+        // UI always has a figure to show. Never for a month that's been paid.
+        if ($current === null && ! $currentPaid) {
             $currentAmount = $this->rentForPeriod($lease, $now->startOfMonth());
         }
 
         return [
             'current'       => $current,
+            'current_paid'  => $currentPaid,
             'arrears'       => $arrears,
             'arrears_total' => round((float) $arrearsTotal, 2),
             'total_due'     => round((float) ($currentAmount + $arrearsTotal), 2),

@@ -1,5 +1,7 @@
 import { Head, Link } from '@inertiajs/react';
 import TenantLayout from '@/Layouts/TenantLayout';
+import { PageHeader, btnOutline, btnPrimary } from '@/Components/Dashboard/Charts';
+import Icon from '@/Components/Dashboard/Icon';
 
 function fmtMoney(n: number): string {
     return 'R ' + Math.round(n).toLocaleString('en-ZA');
@@ -17,6 +19,12 @@ type Lease = {
     deposit_amount: number;
     start_date: string;
     end_date: string;
+    months_elapsed: number;
+    months_total: number;
+    managed_by: string | null;
+    is_agency: boolean;
+    has_deposit: boolean;
+    has_upload: boolean;
     notice_period_days: number;
     escalation_percent: number;
     status: string;
@@ -29,6 +37,7 @@ type Document = {
     tone: 'rose' | 'brand' | 'emerald';
     icon?: string;
     signed: boolean;
+    available: boolean;
 };
 type KeyDate = {
     label: string;
@@ -44,135 +53,163 @@ type Props = {
     key_dates: KeyDate[];
 };
 
-const toneAccent = (t: KeyDate['tone']) => {
-    if (t === 'success') return { border: 'border-success', bg: 'bg-success/15', text: 'text-success' };
-    if (t === 'warning') return { border: 'border-warning', bg: 'bg-warning/15', text: 'text-warning' };
-    if (t === 'danger')  return { border: 'border-danger',  bg: 'bg-danger/15',  text: 'text-danger' };
-    return { border: 'border-brand-500', bg: 'bg-brand-50', text: 'text-brand-600' };
-};
+const dot = (t: KeyDate['tone']) =>
+    t === 'success' ? 'bg-success' : t === 'warning' ? 'bg-warning' : t === 'danger' ? 'bg-danger' : 'bg-brand-600';
 
-const docTone = (t: Document['tone']) => {
-    if (t === 'rose')    return 'bg-rose-50 text-rose-600';
-    if (t === 'emerald') return 'bg-emerald-50 text-success';
-    return 'bg-brand-50 text-brand-600';
-};
+const chip = (t: KeyDate['tone']) =>
+    t === 'success' ? 'bg-success/10 text-success'
+        : t === 'warning' ? 'bg-warning/10 text-amber-700'
+            : t === 'danger' ? 'bg-danger/10 text-danger'
+                : 'bg-brand-50 text-brand-700';
 
 export default function TenantLease({ lease, documents, key_dates }: Props) {
+    const pct = Math.min(100, Math.round((lease.months_elapsed / Math.max(1, lease.months_total)) * 100));
+    const location = [lease.suburb, lease.city, lease.postal_code].filter(Boolean).join(', ');
+
     return (
         <TenantLayout crumb="My Lease" leaseAddress={lease.address}>
             <Head title="My Lease" />
 
-            <div className="px-4 sm:px-8 py-6 sm:py-7">
-                <div className="mb-6">
-                    <h1 className="text-[28px] sm:text-[32px] leading-tight tracking-tight">My Lease</h1>
-                    <p className="text-[14px] text-ink-500 mt-1">Lease agreement, addendums, and key dates</p>
-                </div>
+            <section className="px-4 sm:px-7 py-6">
+                <PageHeader
+                    title="My Lease"
+                    subtitle="Your lease agreement, documents and key dates"
+                    actions={
+                        <>
+                            <a href="/tenant/lease/agreement.pdf" target="_blank" rel="noopener" className={btnOutline}>
+                                <Icon name="eye" className="w-4 h-4" />
+                                View agreement
+                            </a>
+                            <a href="/tenant/lease/agreement.pdf?download=1" className={btnPrimary}>
+                                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" /></svg>
+                                Download
+                            </a>
+                        </>
+                    }
+                />
 
-                {/* Hero */}
-                <div className="bg-gradient-to-br from-ink-900 to-ink-800 rounded-xl p-6 text-white shadow-card mb-6">
-                    <div className="flex items-start justify-between mb-5">
-                        <div>
-                            <span className="text-[10px] bg-success/20 text-success px-2 py-1 rounded-full font-bold uppercase">{lease.status}</span>
-                            <p className="text-2xl font-bold mt-3">{lease.address}</p>
-                            <p className="text-[13px] opacity-70">
-                                {[lease.suburb, lease.city, lease.postal_code].filter(Boolean).join(', ')}
+                {/* Hero — accent swirl */}
+                <div className="pb-swirl rounded-2xl p-6 text-white shadow-lift mb-4 pb-rise">
+                    <div className="flex flex-wrap items-start justify-between gap-4">
+                        <div className="min-w-0">
+                            <span className="inline-flex items-center gap-1.5 text-[10.5px] bg-white/15 ring-1 ring-white/25 px-2.5 py-1 rounded-full font-semibold uppercase tracking-wide">
+                                <span className="w-1.5 h-1.5 rounded-full bg-white" />{lease.status}
+                            </span>
+                            <p className="text-[26px] sm:text-[30px] font-semibold tracking-tight mt-3 leading-tight">{lease.address}</p>
+                            <p className="text-[13px] text-white/75 mt-1">
+                                {location}
                                 {lease.bedrooms ? ` · ${lease.bedrooms}-bed ${lease.property_type ?? ''}` : ''}
                             </p>
                         </div>
-                        <div className="text-right">
-                            <p className="text-[11px] opacity-70 uppercase tracking-wider">Monthly Rent</p>
-                            <p className="text-3xl font-bold">{fmtMoney(lease.monthly_rent)}</p>
+                        <div className="sm:text-right">
+                            <p className="text-[11px] text-white/70 uppercase tracking-wider font-semibold">Monthly rent</p>
+                            <p className="text-[34px] font-semibold tracking-tight leading-none mt-1 tabular-nums">{fmtMoney(lease.monthly_rent)}</p>
+                            <p className="text-[11.5px] text-white/70 mt-1.5">Due on the 1st of each month</p>
                         </div>
                     </div>
-                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 pt-5 border-t border-white/10">
-                        <div>
-                            <p className="text-[10px] opacity-60 uppercase tracking-wider font-semibold">Start Date</p>
-                            <p className="text-[13px] font-semibold mt-1 font-mono">{lease.start_date}</p>
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-6 pt-5 border-t border-white/15">
+                        {[
+                            { label: 'Start date', value: lease.start_date },
+                            { label: 'End date', value: lease.end_date },
+                            { label: 'Notice period', value: `${lease.notice_period_days} days` },
+                            { label: 'Rent escalation', value: lease.escalation_percent > 0 ? `${lease.escalation_percent}% yearly` : 'None' },
+                        ].map((f) => (
+                            <div key={f.label}>
+                                <p className="text-[10.5px] text-white/65 uppercase tracking-wider font-semibold">{f.label}</p>
+                                <p className="text-[14px] font-semibold mt-1">{f.value}</p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Term · deposit · landlord */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                    <div className="bg-white rounded-2xl border border-ink-200/60 p-5 shadow-soft pb-rise">
+                        <p className="text-[13px] font-medium text-ink-700">Lease term</p>
+                        <p className="text-[30px] font-semibold tracking-tight mt-3 leading-none tabular-nums">
+                            {lease.months_elapsed}<span className="text-[15px] text-ink-400 font-medium"> / {lease.months_total} months</span>
+                        </p>
+                        <div className="h-2 rounded-full bg-ink-100 mt-4 overflow-hidden">
+                            <div className="h-full rounded-full bg-brand-600 transition-all duration-700" style={{ width: `${pct}%` }} />
                         </div>
-                        <div>
-                            <p className="text-[10px] opacity-60 uppercase tracking-wider font-semibold">End Date</p>
-                            <p className="text-[13px] font-semibold mt-1 font-mono">{lease.end_date}</p>
-                        </div>
-                        <div>
-                            <p className="text-[10px] opacity-60 uppercase tracking-wider font-semibold">Notice Period</p>
-                            <p className="text-[13px] font-semibold mt-1">{lease.notice_period_days} days</p>
-                        </div>
-                        <div>
-                            <p className="text-[10px] opacity-60 uppercase tracking-wider font-semibold">Rent Escalation</p>
-                            <p className="text-[13px] font-semibold mt-1">{lease.escalation_percent}% on renewal</p>
-                        </div>
+                        <p className="text-[11.5px] text-ink-500 mt-2">{pct}% elapsed · {Math.max(0, lease.months_total - lease.months_elapsed)} months remaining</p>
+                    </div>
+                    <div className="bg-white rounded-2xl border border-ink-200/60 p-5 shadow-soft pb-rise">
+                        <p className="text-[13px] font-medium text-ink-700">Deposit</p>
+                        <p className="text-[30px] font-semibold tracking-tight mt-3 leading-none tabular-nums">
+                            {lease.has_deposit ? fmtMoney(lease.deposit_amount) : 'None'}
+                        </p>
+                        <p className="text-[11.5px] text-ink-500 mt-3">
+                            {lease.has_deposit ? 'Held in trust, refundable at move-out' : "Your lease doesn't require a security deposit"}
+                        </p>
+                    </div>
+                    <div className="bg-white rounded-2xl border border-ink-200/60 p-5 shadow-soft pb-rise">
+                        <p className="text-[13px] font-medium text-ink-700">{lease.is_agency ? 'Managed by' : 'Landlord'}</p>
+                        <p className="text-[20px] font-semibold tracking-tight mt-3 leading-tight">{lease.managed_by ?? '—'}</p>
+                        <Link href="/tenant/messages" className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-brand-700 hover:underline mt-3">
+                            <Icon name="chat" />Send a message
+                        </Link>
                     </div>
                 </div>
 
                 {/* Documents */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-                    {documents.map((d) => (
-                        <div key={d.id} className="bg-white rounded-2xl border border-ink-200/60 p-5 shadow-soft hover:shadow-lift transition">
-                            <div className="flex items-start justify-between mb-3">
-                                <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${docTone(d.tone)}`}>
-                                    <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
-                                </div>
-                                {d.signed && (
-                                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-success/15 text-success font-bold">SIGNED</span>
-                                )}
-                            </div>
-                            <p className="text-[14px] font-bold">{d.title}</p>
-                            <p className="text-[11px] text-ink-500 mt-1">{d.subtitle}</p>
-                            <p className="text-[10px] text-ink-400 mt-2 font-mono">Signed: {d.meta}</p>
-                            <div className="flex items-center gap-2 mt-4 pt-3 border-t border-ink-100">
-                                {d.id === 'lease' ? (
-                                    <>
-                                        <a
-                                            href="/tenant/lease/agreement.pdf?download=1"
-                                            target="_blank"
-                                            rel="noopener"
-                                            className="text-[11px] px-2.5 py-1.5 bg-ink-900 text-white rounded-md font-medium flex items-center gap-1.5 hover:bg-brand-500 transition"
-                                        >
-                                            <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
-                                            Download
-                                        </a>
-                                        <a
-                                            href="/tenant/lease/agreement.pdf"
-                                            target="_blank"
-                                            rel="noopener"
-                                            className="text-[11px] px-2.5 py-1.5 border border-ink-200 rounded-md hover:bg-ink-100"
-                                        >
-                                            View online
-                                        </a>
-                                    </>
-                                ) : (
-                                    <span className="text-[11px] text-ink-400 italic">PDF coming soon</span>
-                                )}
-                            </div>
+                <div className="bg-white rounded-2xl border border-ink-200/60 shadow-soft p-5 mb-4">
+                    <div className="flex items-start justify-between gap-3 mb-4">
+                        <div>
+                            <h2 className="text-[16px] font-semibold tracking-tight">Lease Documents</h2>
+                            <p className="text-[12px] text-ink-500 mt-0.5">Agreements and supporting documents for this lease</p>
                         </div>
-                    ))}
-                </div>
-
-                {/* Key dates */}
-                <div className="bg-white rounded-2xl border border-ink-200/60 p-5 shadow-soft">
-                    <h2 className="text-base font-semibold mb-4">Key Dates &amp; Reminders</h2>
-                    <div className="space-y-3">
-                        {key_dates.map((k) => {
-                            const tone = toneAccent(k.tone);
-                            return (
-                                <div key={k.label} className={`flex items-center gap-4 p-3 rounded-lg hover:bg-ink-50 border-l-2 ${tone.border}`}>
-                                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${tone.bg}`}>
-                                        <svg className={`w-5 h-5 ${tone.text}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/></svg>
-                                    </div>
-                                    <div className="flex-1">
-                                        <p className="text-[13px] font-semibold">{k.label}</p>
-                                        <p className="text-[11px] text-ink-500">{k.sub}</p>
-                                    </div>
+                        <Link href="/tenant/documents" className="text-[12px] font-semibold text-brand-700 hover:underline">All documents →</Link>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
+                        {documents.map((d) => (
+                            <div key={d.id} className={`rounded-xl border px-4 py-4 flex items-start gap-3 ${d.available ? 'border-ink-200/80' : 'border-dashed border-ink-200 bg-ink-50/50'}`}>
+                                <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${d.available ? 'bg-brand-50 text-brand-700' : 'bg-ink-100 text-ink-400'}`}>
+                                    <Icon name="file" className="w-5 h-5" />
                                 </div>
-                            );
-                        })}
+                                <div className="min-w-0 flex-1">
+                                    <div className="flex items-center gap-2">
+                                        <p className={`text-[14px] font-semibold ${d.available ? '' : 'text-ink-500'}`}>{d.title}</p>
+                                        {d.signed && <span className="text-[10px] px-2 py-0.5 rounded-full bg-success/15 text-success font-bold">SIGNED</span>}
+                                    </div>
+                                    <p className="text-[11.5px] text-ink-500 mt-0.5 truncate">{d.subtitle}</p>
+                                    <p className="text-[11px] text-ink-400 mt-0.5">{d.meta}</p>
+                                    {d.available && d.id === 'lease' && (
+                                        <div className="flex items-center gap-3 mt-3">
+                                            <a href="/tenant/lease/agreement.pdf?download=1" className="text-[12px] font-semibold text-brand-700 hover:underline">Download</a>
+                                            <a href="/tenant/lease/agreement.pdf" target="_blank" rel="noopener" className="text-[12px] font-semibold text-ink-600 hover:text-ink-900">View online</a>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        ))}
                     </div>
                 </div>
 
-                <div className="mt-6 text-center">
-                    <Link href="/tenant/documents" className="text-[12px] font-semibold text-brand-600">View all documents →</Link>
+                {/* Key dates — timeline */}
+                <div className="bg-white rounded-2xl border border-ink-200/60 shadow-soft p-5">
+                    <h2 className="text-[16px] font-semibold tracking-tight mb-4">Key Dates &amp; Reminders</h2>
+                    <ol className="relative">
+                        {key_dates.map((k, i) => (
+                            <li key={k.label} className="relative flex gap-4 pb-5 last:pb-0">
+                                {i < key_dates.length - 1 && <span aria-hidden className="absolute left-[11px] top-7 bottom-0 w-px bg-ink-200" />}
+                                <span className={`relative mt-1 w-[23px] h-[23px] rounded-full ring-4 ring-white flex items-center justify-center shrink-0 ${dot(k.tone)}`}>
+                                    <span className="w-2 h-2 rounded-full bg-white" />
+                                </span>
+                                <div className="flex-1 min-w-0 flex flex-wrap items-center justify-between gap-2">
+                                    <div>
+                                        <p className="text-[13.5px] font-semibold">{k.label}</p>
+                                        <p className="text-[12px] text-ink-500">{k.sub}</p>
+                                    </div>
+                                    <span className={`text-[10.5px] font-semibold px-2 py-0.5 rounded-md ${chip(k.tone)}`}>
+                                        {k.tone === 'success' ? 'Done' : k.tone === 'danger' ? 'End of term' : k.tone === 'warning' ? 'Upcoming' : 'Pending'}
+                                    </span>
+                                </div>
+                            </li>
+                        ))}
+                    </ol>
                 </div>
-            </div>
+            </section>
         </TenantLayout>
     );
 }

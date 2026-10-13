@@ -25,36 +25,50 @@ class LeaseController extends Controller
         $start = CarbonImmutable::parse($lease->start_date);
         $end   = CarbonImmutable::parse($lease->end_date);
 
-        // ── Documents (synthesised — real upload pipeline is a Phase 9 task) ─
+        $hasDeposit = (float) $lease->deposit_amount > 0;
+        $managedBy  = $lease->agency?->name ?? $lease->landlord?->name;
+        $scheduler  = $lease->agency_id ? 'your agent' : 'your landlord';
+
+        // ── Documents ────────────────────────────────────────────────────────
+        // Only the lease agreement has a real file (uploaded signed copy, else
+        // the generated PDF). The others are listed as not yet available
+        // rather than pretending to be signed.
         $documents = [
             [
                 'id'         => 'lease',
                 'title'      => 'Lease Agreement',
-                'subtitle'   => 'Master lease · Signed',
-                'meta'       => $lease->signed_at?->format('d M Y') ?? $start->format('d M Y'),
+                'subtitle'   => $lease->document_path ? 'Signed copy uploaded by ' . ($managedBy ?? 'your landlord') : 'Master lease',
+                'meta'       => $lease->tenant_signed_at || $lease->signed_at
+                    ? 'Signed ' . ($lease->tenant_signed_at ?? $lease->signed_at)->format('d M Y')
+                    : 'Awaiting signature',
                 'tone'       => 'rose',
                 'icon'       => 'doc',
-                'signed'     => true,
+                'signed'     => (bool) ($lease->tenant_signed_at || $lease->signed_at),
+                'available'  => true,
             ],
             [
                 'id'         => 'house-rules',
                 'title'      => 'House Rules',
-                'subtitle'   => 'Body corporate conduct',
-                'meta'       => $start->format('d M Y'),
+                'subtitle'   => 'Conduct and building rules',
+                'meta'       => 'Not uploaded yet',
                 'tone'       => 'emerald',
                 'icon'       => 'building',
-                'signed'     => true,
-            ],
-            [
-                'id'         => 'deposit-receipt',
-                'title'      => 'Deposit Receipt',
-                'subtitle'   => 'Section 32 trust',
-                'meta'       => $start->format('d M Y'),
-                'tone'       => 'brand',
-                'icon'       => 'badge',
-                'signed'     => true,
+                'signed'     => false,
+                'available'  => false,
             ],
         ];
+        if ($hasDeposit) {
+            $documents[] = [
+                'id'         => 'deposit-receipt',
+                'title'      => 'Deposit Receipt',
+                'subtitle'   => 'Proof of deposit paid',
+                'meta'       => 'Not uploaded yet',
+                'tone'       => 'brand',
+                'icon'       => 'badge',
+                'signed'     => false,
+                'available'  => false,
+            ];
+        }
 
         // ── Key dates ─────────────────────────────────────────────────────────
         $moveIn = Inspection::where('lease_id', $lease->id)
@@ -70,7 +84,7 @@ class LeaseController extends Controller
                     ? ($moveIn->status === 'completed'
                         ? 'Completed ' . ($moveIn->agent_signed_at?->format('d M Y') ?? $start->format('d M Y'))
                         : 'In progress')
-                    : 'Pending — agent will schedule',
+                    : "Pending — {$scheduler} will schedule",
                 'tone'     => $moveIn && $moveIn->status === 'completed' ? 'success' : 'brand',
                 'icon'     => 'check',
             ],
@@ -103,8 +117,14 @@ class LeaseController extends Controller
                 'bedrooms'        => $lease->listing?->bedrooms,
                 'monthly_rent'    => (float) $lease->monthly_rent,
                 'deposit_amount'  => (float) $lease->deposit_amount,
-                'start_date'      => $start->format('Y/m/d'),
-                'end_date'        => $end->format('Y/m/d'),
+                'start_date'      => $start->format('d M Y'),
+                'end_date'        => $end->format('d M Y'),
+                'months_elapsed'  => max(0, (int) $start->diffInMonths(min($now, $end))),
+                'months_total'    => max(1, (int) round($start->diffInMonths($end))),
+                'managed_by'      => $managedBy,
+                'is_agency'       => (bool) $lease->agency_id,
+                'has_deposit'     => $hasDeposit,
+                'has_upload'      => (bool) $lease->document_path,
                 'notice_period_days'  => $lease->notice_period_days,
                 'escalation_percent'  => (float) $lease->escalation_percent,
                 'status'              => $lease->status,

@@ -12,6 +12,7 @@ class RentPayment extends Model
         'due_date', 'paid_at', 'payment_method',
         'paystack_reference', 'paystack_transaction_id',
         'status', 'receipt_path',
+        'late_fee', 'late_fee_applied_at', 'late_fee_waived_at',
     ];
 
     protected function casts(): array
@@ -20,6 +21,9 @@ class RentPayment extends Model
             'due_date' => 'date',
             'paid_at' => 'datetime',
             'amount' => 'decimal:2',
+            'late_fee' => 'decimal:2',
+            'late_fee_applied_at' => 'datetime',
+            'late_fee_waived_at' => 'datetime',
         ];
     }
 

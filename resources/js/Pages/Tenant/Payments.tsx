@@ -32,12 +32,13 @@ type Upcoming = {
     due_date: string;
     days_remaining: number;
     amount: number;
+    late_fee: number;
     is_overdue: boolean;
 };
 
 type Props = {
     tenant: { id: number; name: string };
-    lease: { id: number; monthly_rent: number; address: string };
+    lease: { id: number; monthly_rent: number; address: string; late_fee: string | null };
     kpis: { total_paid: number; count: number; streak: number; avg_payment: number; outstanding: number };
     rows: Row[];
     upcoming: Upcoming[];
@@ -171,6 +172,9 @@ export default function TenantPayments({ lease, kpis, rows, upcoming, statements
                         <div className="mt-4 pt-3 border-t border-ink-100 space-y-1.5 text-[12px]">
                             <div className="flex justify-between"><span className="text-ink-500">Monthly rent</span><span className="font-semibold tabular-nums">{fmtMoney(lease.monthly_rent)}</span></div>
                             <div className="flex justify-between"><span className="text-ink-500">Due on</span><span className="font-semibold">1st of each month</span></div>
+                            {lease.late_fee && (
+                                <div className="flex justify-between gap-3"><span className="text-ink-500">Late penalty</span><span className="font-semibold text-right">{lease.late_fee}</span></div>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -211,6 +215,9 @@ export default function TenantPayments({ lease, kpis, rows, upcoming, statements
                                             <p className="text-[11.5px] text-ink-500">
                                                 Due {u.due_date} · {u.is_overdue ? `${Math.abs(u.days_remaining)} days overdue` : `in ${u.days_remaining} day${u.days_remaining === 1 ? '' : 's'}`}
                                             </p>
+                                            {u.late_fee > 0 && (
+                                                <p className="text-[11.5px] text-danger font-semibold mt-0.5">Includes late payment penalty of {fmtMoney(u.late_fee)}</p>
+                                            )}
                                         </div>
                                     </div>
                                     <div className="flex items-center gap-3">

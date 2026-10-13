@@ -74,6 +74,76 @@ class LeaseBillingService
 
             $cursor = $cursor->addMonth();
         }
+
+        $this->applyLateFees($lease);
+    }
+
+    /**
+     * Add the lease's contractual late-payment penalty to any month still
+     * unpaid after the penalty day (e.g. 10% if not paid by the 10th).
+     * Applied at most once per month and never to a month whose deadline had
+     * already passed before the landlord switched penalties on. Idempotent.
+     */
+    public function applyLateFees(Lease $lease): void
+    {
+        if (! $lease->late_fee_enabled || (float) $lease->late_fee_value <= 0) {
+            return;
+        }
+
+        $now   = CarbonImmutable::now();
+        $since = $lease->late_fee_since ? CarbonImmutable::parse($lease->late_fee_since)->startOfDay() : null;
+
+        $charges = RentPayment::where('lease_id', $lease->id)
+            ->whereIn('status', self::UNPAID)
+            ->whereNull('late_fee_applied_at')
+            ->whereNull('late_fee_waived_at')
+            ->get();
+
+        foreach ($charges as $charge) {
+            $deadline = $this->lateFeeDeadline($lease, $charge);
+            if ($now->lessThanOrEqualTo($deadline)) {
+                continue;
+            }
+            if ($since && $deadline->lessThan($since)) {
+                continue;
+            }
+
+            $rent = (float) $charge->amount;
+            $fee  = $lease->late_fee_type === 'fixed'
+                ? (float) $lease->late_fee_value
+                : round($rent * (float) $lease->late_fee_value / 100, 2);
+
+            $charge->update([
+                'late_fee'            => $fee,
+                'amount'              => round($rent + $fee, 2),
+                'late_fee_applied_at' => $now,
+                'status'              => 'overdue',
+            ]);
+        }
+    }
+
+    /** End of the last day rent for this charge may be paid without a penalty. */
+    public function lateFeeDeadline(Lease $lease, RentPayment $charge): CarbonImmutable
+    {
+        $month = CarbonImmutable::parse($charge->period_month . '-01');
+        $day   = min(max(1, (int) $lease->late_fee_day), $month->daysInMonth);
+
+        return $month->day($day)->endOfDay();
+    }
+
+    /** Remove an applied penalty from an unpaid charge (landlord goodwill / payment in transit). */
+    public function waiveLateFee(RentPayment $charge): void
+    {
+        $fee = (float) $charge->late_fee;
+        if ($fee <= 0 || $charge->status === 'paid') {
+            return;
+        }
+
+        $charge->update([
+            'amount'             => round((float) $charge->amount - $fee, 2),
+            'late_fee'           => 0,
+            'late_fee_waived_at' => CarbonImmutable::now(),
+        ]);
     }
 
     /**
@@ -220,6 +290,7 @@ class LeaseBillingService
             'due_date'       => $due->format('d M Y'),
             'days_remaining' => (int) $now->startOfDay()->diffInDays($due->startOfDay(), false),
             'amount'         => (float) $p->amount,
+            'late_fee'       => (float) $p->late_fee,
             'status'         => $p->status,
             'is_overdue'     => $p->status === 'overdue' || $due->startOfDay()->lessThan($now->startOfDay()),
         ];

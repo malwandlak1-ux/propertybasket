@@ -307,6 +307,8 @@ Route::middleware('auth')->group(function () {
             Route::get('settings',          [Landlord\SettingsController::class, 'show'])->name('settings.show');
             Route::patch('settings/profile',[Landlord\SettingsController::class, 'updateProfile'])->name('settings.profile');
             Route::patch('settings/banking',[Landlord\SettingsController::class, 'updateBanking'])->name('settings.banking');
+            Route::patch('settings/penalties/{lease}', [Landlord\SettingsController::class, 'updatePenalty'])->name('settings.penalties.update');
+            Route::post('settings/penalties/charges/{payment}/waive', [Landlord\SettingsController::class, 'waivePenalty'])->name('settings.penalties.waive');
         });
 
     Route::prefix('tenant')->name('tenant.')->group(function () {

@@ -117,10 +117,21 @@ class TenantStatementService
                 'date'        => $due,
                 'description' => "Rent â€” {$period}",
                 'reference'   => 'INV-' . $p->period_month,
-                'charge'      => (float) $p->amount,
+                'charge'      => round((float) $p->amount - (float) $p->late_fee, 2),
                 'payment'     => 0.0,
                 'order'       => 0,
             ]);
+
+            if ((float) $p->late_fee > 0) {
+                $entries->push([
+                    'date'        => CarbonImmutable::parse($p->late_fee_applied_at ?? $p->due_date)->startOfDay(),
+                    'description' => "Late payment penalty — {$period}",
+                    'reference'   => 'PEN-' . $p->period_month,
+                    'charge'      => (float) $p->late_fee,
+                    'payment'     => 0.0,
+                    'order'       => 0,
+                ]);
+            }
 
             if ($p->status === 'paid' && $p->paid_at) {
                 $entries->push([

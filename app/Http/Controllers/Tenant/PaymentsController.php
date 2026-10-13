@@ -68,7 +68,8 @@ class PaymentsController extends Controller
             return [
                 'id'           => $p->id,
                 'date'         => ($p->paid_at ?? $due)->format('d M Y'),
-                'description'  => $period->format('F Y') . ' rent',
+                'description'  => $period->format('F Y') . ' rent' . ((float) $p->late_fee > 0 ? ' + late fee' : ''),
+                'late_fee'     => (float) $p->late_fee,
                 'method'       => $p->payment_method,
                 'reference'    => $p->paystack_reference,
                 'status'       => $p->status,
@@ -96,6 +97,7 @@ class PaymentsController extends Controller
                     'due_date'       => $due->format('d M Y'),
                     'days_remaining' => $days,
                     'amount'         => (float) $p->amount,
+                    'late_fee'       => (float) $p->late_fee,
                     'is_overdue'     => $days < 0,
                 ];
             });
@@ -110,7 +112,8 @@ class PaymentsController extends Controller
                 'period_label'   => $cursor->format('F Y') . ' rent',
                 'due_date'       => $cursor->format('d M Y'),
                 'days_remaining' => (int) $now->startOfDay()->diffInDays($cursor->startOfDay(), false),
-                'amount'         => (float) $lease->monthly_rent,
+                'amount'         => $this->billing->rentForPeriod($lease, $cursor),
+                'late_fee'       => 0.0,
                 'is_overdue'     => false,
             ]]);
         }
@@ -124,6 +127,7 @@ class PaymentsController extends Controller
                 'id'           => $lease->id,
                 'monthly_rent' => (float) $lease->monthly_rent,
                 'address'      => $lease->listing?->address ?? $lease->listing?->title ?? '',
+                'late_fee'     => $lease->lateFeeSummary(),
             ],
             'kpis' => [
                 'total_paid'  => $totalPaid,

@@ -1,5 +1,5 @@
 import { FormEvent, useState } from 'react';
-import { Head, useForm, usePage } from '@inertiajs/react';
+import { Head, router, useForm, usePage } from '@inertiajs/react';
 import LandlordLayout from '@/Layouts/LandlordLayout';
 import { Spinner } from '@/Components/Skeleton';
 import AppearanceSettings from '@/Components/Dashboard/AppearanceSettings';
@@ -26,13 +26,29 @@ type Props = {
         state: BankingState;
     };
     banks: string[];
+    penalties: Penalty[];
+};
+
+type Penalty = {
+    lease_id: number;
+    property: string;
+    tenant: string | null;
+    monthly_rent: number;
+    enabled: boolean;
+    type: 'percent' | 'fixed';
+    value: number;
+    day: number;
+    since: string | null;
+    summary: string | null;
+    applied: { id: number; period_label: string; late_fee: number; status: string; applied_at: string | null; can_waive: boolean }[];
 };
 
 type SharedProps = { flash?: { success?: string | null; error?: string | null } };
 
-const TABS: { key: 'profile' | 'banking' | 'appearance'; label: string; hint: string; icon: IconName }[] = [
+const TABS: { key: 'profile' | 'banking' | 'penalties' | 'appearance'; label: string; hint: string; icon: IconName }[] = [
     { key: 'profile',    label: 'Profile',    hint: 'Name, contact details and ID', icon: 'user' },
     { key: 'banking',    label: 'Banking',    hint: 'Account that receives rent', icon: 'wallet' },
+    { key: 'penalties',  label: 'Late payment penalties', hint: 'Per property, as per the lease', icon: 'alert' },
     { key: 'appearance', label: 'Appearance', hint: 'Dashboard colour and logo', icon: 'eye' },
 ];
 type TabKey = (typeof TABS)[number]['key'];
@@ -58,7 +74,7 @@ const STATE_BANNER: Record<BankingState, { cls: string; title: string; body: str
     },
 };
 
-export default function LandlordSettings({ landlord, profile, banking, banks }: Props) {
+export default function LandlordSettings({ landlord, profile, banking, banks, penalties }: Props) {
     const { flash } = usePage<SharedProps>().props;
     const [tab, setTab] = useState<TabKey>('profile');
 
@@ -126,6 +142,7 @@ export default function LandlordSettings({ landlord, profile, banking, banks }: 
                         {tab === 'appearance' && <AppearanceSettings />}
                         {tab === 'profile'  && <ProfilePanel profile={profile} />}
                         {tab === 'banking'  && <BankingPanel banking={banking} banks={banks} landlordName={landlord.name} />}
+                        {tab === 'penalties' && <PenaltiesPanel penalties={penalties} />}
                     </div>
                 </div>
             </section>
@@ -307,5 +324,153 @@ function BankingPanel({ banking, banks, landlordName }: { banking: Props['bankin
                 invoice, the platform debits the same account and pays the contractor directly — no manual EFT required.
             </div>
         </div>
+    );
+}
+
+const fmtR = (n: number) => `R ${Math.round(n).toLocaleString('en-ZA')}`;
+const ordinal = (d: number) => d + ([11, 12, 13].includes(d % 100) ? 'th' : (['th', 'st', 'nd', 'rd'][d % 10] ?? 'th'));
+
+function PenaltiesPanel({ penalties }: { penalties: Penalty[] }) {
+    return (
+        <div className="space-y-4">
+            <div className="bg-white rounded-2xl border border-ink-200/60 shadow-soft p-5 sm:p-6 pb-rise">
+                <h2 className="text-[18px] font-semibold tracking-tight">Late payment penalties</h2>
+                <p className="text-[13px] text-ink-500 mt-1">
+                    Set the penalty agreed in each lease. If a month's rent is still unpaid after the cut-off day, the penalty is added to
+                    that month automatically and shows on the tenant's payments and statement. Penalties count from the day you switch
+                    them on, never for past months, and you can waive any penalty that is still unpaid.
+                </p>
+            </div>
+
+            {penalties.length === 0 ? (
+                <div className="bg-white rounded-2xl border border-dashed border-ink-200 p-8 text-center text-[13px] text-ink-500">
+                    No active leases yet. Penalties are set per property once a tenant's lease is captured.
+                </div>
+            ) : (
+                penalties.map((p) => <PenaltyCard key={p.lease_id} p={p} />)
+            )}
+        </div>
+    );
+}
+
+function PenaltyCard({ p }: { p: Penalty }) {
+    const { data, setData, patch, processing, errors, isDirty } = useForm({
+        enabled: p.enabled,
+        type: p.type,
+        value: p.value ? String(p.value) : '',
+        day: String(p.day || 7),
+    });
+    const [waiving, setWaiving] = useState<number | null>(null);
+
+    function submit(e: FormEvent) {
+        e.preventDefault();
+        patch(`/landlord/settings/penalties/${p.lease_id}`, { preserveScroll: true });
+    }
+
+    function waive(id: number) {
+        if (! confirm('Waive this penalty? It will be removed from what the tenant owes.')) return;
+        setWaiving(id);
+        router.post(`/landlord/settings/penalties/charges/${id}/waive`, {}, { preserveScroll: true, onFinish: () => setWaiving(null) });
+    }
+
+    const value = parseFloat(data.value) || 0;
+    const example = data.type === 'percent' ? (p.monthly_rent * value) / 100 : value;
+
+    return (
+        <form onSubmit={submit} className="bg-white rounded-2xl border border-ink-200/60 shadow-soft p-5 sm:p-6 space-y-4 pb-rise">
+            <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                    <p className="text-[15px] font-semibold tracking-tight flex items-center gap-1.5 min-w-0"><Icon name="pin" /><span className="truncate" title={p.property}>{p.property}</span></p>
+                    <p className="text-[12px] text-ink-500 mt-0.5">{p.tenant ?? 'No tenant yet'} · Rent {fmtR(p.monthly_rent)}/mo</p>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                    <span className={`text-[12px] font-semibold ${data.enabled ? 'text-brand-700' : 'text-ink-500'}`}>{data.enabled ? 'On' : 'Off'}</span>
+                    <button
+                        type="button"
+                        role="switch"
+                        aria-checked={data.enabled}
+                        aria-label="Apply late payment penalty"
+                        onClick={() => setData('enabled', ! data.enabled)}
+                        className={`relative w-11 h-6 rounded-full transition ${data.enabled ? 'bg-brand-600' : 'bg-ink-200'}`}
+                    >
+                        <span className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow-soft transition-all ${data.enabled ? 'left-[22px]' : 'left-0.5'}`} />
+                    </button>
+                </div>
+            </div>
+
+            {data.enabled && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+                    <div>
+                        <label className={labelCls}>Penalty type</label>
+                        <select value={data.type} onChange={(e) => setData('type', e.target.value as Penalty['type'])} className={inputCls}>
+                            <option value="percent">Percentage of rent</option>
+                            <option value="fixed">Fixed amount (R)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label className={labelCls}>{data.type === 'percent' ? 'Percentage (%)' : 'Amount (R)'}</label>
+                        <input
+                            type="number"
+                            min="0"
+                            step="0.01"
+                            max={data.type === 'percent' ? 100 : undefined}
+                            value={data.value}
+                            onChange={(e) => setData('value', e.target.value)}
+                            className={inputCls}
+                            placeholder={data.type === 'percent' ? '10' : '500'}
+                        />
+                        {errors.value && <p className="text-[11px] text-danger mt-1">{errors.value}</p>}
+                    </div>
+                    <div>
+                        <label className={labelCls}>Pay-by day</label>
+                        <select value={data.day} onChange={(e) => setData('day', e.target.value)} className={inputCls}>
+                            {Array.from({ length: 28 }, (_, i) => i + 1).map((d) => <option key={d} value={d}>{ordinal(d)} of the month</option>)}
+                        </select>
+                        {errors.day && <p className="text-[11px] text-danger mt-1">{errors.day}</p>}
+                    </div>
+                </div>
+            )}
+
+            {data.enabled && value > 0 && (
+                <p className="text-[12.5px] text-ink-600 bg-ink-50 rounded-xl px-3.5 py-2.5">
+                    If rent is not paid by the {ordinal(+data.day)}, <span className="font-semibold">{fmtR(example)}</span> is added to that month's rent.
+                    {p.enabled && p.since && <> Active since {p.since}.</>}
+                </p>
+            )}
+
+            {p.applied.length > 0 && (
+                <div className="border-t border-ink-100 pt-3">
+                    <p className="text-[12px] font-semibold text-ink-700 mb-2">Penalties charged</p>
+                    <div className="space-y-1.5">
+                        {p.applied.map((a) => (
+                            <div key={a.id} className="flex items-center justify-between gap-3 text-[12.5px]">
+                                <span className="text-ink-700">{a.period_label}{a.applied_at && <span className="text-ink-400"> · {a.applied_at}</span>}</span>
+                                <span className="flex items-center gap-2">
+                                    <span className="font-semibold tabular-nums">{fmtR(a.late_fee)}</span>
+                                    {a.status === 'paid' ? (
+                                        <span className="text-[10.5px] px-2 py-0.5 rounded-full font-semibold bg-success/15 text-success">Paid</span>
+                                    ) : a.can_waive && (
+                                        <button type="button" onClick={() => waive(a.id)} disabled={waiving === a.id} className="text-[11.5px] font-semibold text-brand-700 hover:underline disabled:opacity-40">
+                                            {waiving === a.id ? 'Waiving…' : 'Waive'}
+                                        </button>
+                                    )}
+                                </span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
+
+            <div className="flex justify-end">
+                <button
+                    type="submit"
+                    disabled={! isDirty || processing}
+                    className="px-4 py-2.5 text-[13px] bg-brand-700 text-white rounded-full hover:bg-brand-800 disabled:opacity-40 inline-flex items-center gap-2 font-semibold shadow-soft"
+                >
+                    {processing && <Spinner size={13} />}
+                    {processing ? 'Saving…' : 'Save penalty'}
+                </button>
+            </div>
+        </form>
     );
 }

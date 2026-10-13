@@ -3,6 +3,11 @@
 namespace App\Http\Controllers\Landlord;
 
 use App\Http\Controllers\Landlord\Concerns\ResolvesLandlord;
+use App\Models\Lease;
+use App\Models\Landlord;
+use App\Models\RentPayment;
+use App\Services\LeaseBillingService;
+use Carbon\CarbonImmutable;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
@@ -42,6 +47,7 @@ class SettingsController extends Controller
                     ? 'verified'
                     : ($bankingComplete ? 'pending_review' : 'missing'),
             ],
+            'penalties' => $this->penalties($landlord),
             'banks' => [
                 'ABSA Bank',
                 'Capitec Bank',
@@ -106,5 +112,105 @@ class SettingsController extends Controller
         $landlord->save();
 
         return back()->with('success', 'Banking details saved. Pending platform verification before payouts resume.');
+    }
+
+    /** Leases on this landlord's portfolio, with their late-payment penalty terms. */
+    private function penalties(Landlord $landlord): array
+    {
+        $billing = app(LeaseBillingService::class);
+
+        return $this->portfolioLeases($landlord)
+            ->with(['listing:id,title,address', 'tenant:id,name'])
+            ->orderBy('id')
+            ->get()
+            ->map(function (Lease $lease) use ($billing) {
+                $billing->ensureCharges($lease);
+
+                $applied = RentPayment::where('lease_id', $lease->id)
+                    ->where('late_fee', '>', 0)
+                    ->orderByDesc('period_month')
+                    ->take(6)
+                    ->get()
+                    ->map(fn (RentPayment $p) => [
+                        'id'           => $p->id,
+                        'period_label' => CarbonImmutable::parse($p->period_month . '-01')->format('F Y'),
+                        'late_fee'     => (float) $p->late_fee,
+                        'status'       => $p->status,
+                        'applied_at'   => $p->late_fee_applied_at?->format('d M Y'),
+                        'can_waive'    => $p->status !== 'paid',
+                    ])->values();
+
+                return [
+                    'lease_id'     => $lease->id,
+                    'property'     => $lease->listing?->address ?: $lease->listing?->title ?: 'Property',
+                    'tenant'       => $lease->tenant?->name,
+                    'monthly_rent' => (float) $lease->monthly_rent,
+                    'enabled'      => (bool) $lease->late_fee_enabled,
+                    'type'         => $lease->late_fee_type ?: 'percent',
+                    'value'        => (float) $lease->late_fee_value,
+                    'day'          => (int) ($lease->late_fee_day ?: 7),
+                    'since'        => $lease->late_fee_since?->format('d M Y'),
+                    'summary'      => $lease->lateFeeSummary(),
+                    'applied'      => $applied,
+                ];
+            })
+            ->values()
+            ->all();
+    }
+
+    private function portfolioLeases(Landlord $landlord)
+    {
+        return Lease::whereIn('listing_id', $landlord->listings()->pluck('id'))
+            ->whereIn('status', ['active', 'pending']);
+    }
+
+    /** PATCH /landlord/settings/penalties/{lease} — late-payment penalty terms for one property. */
+    public function updatePenalty(Request $request, Lease $lease): RedirectResponse
+    {
+        $landlord = $this->resolveLandlord($request);
+        abort_unless($this->portfolioLeases($landlord)->whereKey($lease->id)->exists(), 403);
+
+        $data = $request->validate([
+            'enabled' => ['required', 'boolean'],
+            'type'    => ['required', 'in:percent,fixed'],
+            'value'   => ['required_if:enabled,true', 'numeric', 'min:0', $request->input('type') === 'percent' ? 'max:100' : 'max:1000000'],
+            'day'     => ['required', 'integer', 'min:1', 'max:28'],
+        ]);
+
+        $enabled = (bool) $data['enabled'];
+        if ($enabled && (float) $data['value'] <= 0) {
+            return back()->withErrors(['value' => 'Enter the penalty amount from the lease agreement.']);
+        }
+
+        $lease->update([
+            'late_fee_enabled' => $enabled,
+            'late_fee_type'    => $data['type'],
+            'late_fee_value'   => (float) ($data['value'] ?? 0),
+            'late_fee_day'     => (int) $data['day'],
+            // Penalties only count from the day they're switched on — never back-charged.
+            'late_fee_since'   => $enabled
+                ? ($lease->late_fee_enabled && $lease->late_fee_since ? $lease->late_fee_since : now()->toDateString())
+                : null,
+        ]);
+
+        if ($enabled) {
+            app(LeaseBillingService::class)->ensureCharges($lease->fresh());
+        }
+
+        return back()->with('success', $enabled
+            ? 'Late payment penalty saved: ' . $lease->fresh()->lateFeeSummary() . '.'
+            : 'Late payment penalties switched off for this property.');
+    }
+
+    /** POST /landlord/settings/penalties/charges/{payment}/waive */
+    public function waivePenalty(Request $request, RentPayment $payment): RedirectResponse
+    {
+        $landlord = $this->resolveLandlord($request);
+        abort_unless($this->portfolioLeases($landlord)->whereKey($payment->lease_id)->exists(), 403);
+        abort_if($payment->status === 'paid' || (float) $payment->late_fee <= 0, 422, 'There is no unpaid penalty to waive.');
+
+        app(LeaseBillingService::class)->waiveLateFee($payment);
+
+        return back()->with('success', 'Penalty waived.');
     }
 }

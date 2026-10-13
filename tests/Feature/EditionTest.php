@@ -1,0 +1,95 @@
+<?php
+
+namespace Tests\Feature;
+
+use App\Enums\Role;
+use App\Enums\UserStatus;
+use App\Models\User;
+use Database\Seeders\RolesAndPermissionsSeeder;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Inertia\Testing\AssertableInertia as Assert;
+use PHPUnit\Framework\Attributes\Test;
+use Tests\TestCase;
+
+/** DISABLED_ROLES site switch (careline runs without agencies/agents). */
+class EditionTest extends TestCase
+{
+    use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->seed(RolesAndPermissionsSeeder::class);
+    }
+
+    private function careline(): void
+    {
+        config(['edition.disabled_roles' => ['agency_admin', 'agent']]);
+    }
+
+    private function user(Role $role): User
+    {
+        return User::factory()->create(['role' => $role, 'status' => UserStatus::Active]);
+    }
+
+    #[Test]
+    public function every_role_is_enabled_by_default(): void
+    {
+        $this->get('/register')->assertInertia(fn (Assert $p) => $p
+            ->where('roles', ['agency', 'landlord', 'contractor'])
+            ->where('edition.disabled_roles', [])
+        );
+        $this->get('/agencies')->assertOk();
+    }
+
+    #[Test]
+    public function disabled_roles_lose_their_routes(): void
+    {
+        $this->careline();
+
+        $this->get('/agencies')->assertNotFound();
+        $this->actingAs($this->user(Role::Agent))->get('/agent')->assertNotFound();
+        $this->actingAs($this->user(Role::AgencyAdmin))->get('/agency')->assertNotFound();
+        $this->actingAs($this->user(Role::SuperAdmin))->get('/admin/agencies')->assertNotFound();
+    }
+
+    #[Test]
+    public function enabled_dashboards_still_resolve(): void
+    {
+        $this->careline();
+
+        $this->actingAs($this->user(Role::Tenant))->get('/dashboard')->assertRedirect(route('tenant.overview'));
+        $this->actingAs($this->user(Role::Contractor))->get('/dashboard')->assertRedirect(route('contractor.overview'));
+        $this->actingAs($this->user(Role::SuperAdmin))->get('/dashboard')->assertRedirect(route('admin.overview'));
+    }
+
+    #[Test]
+    public function disabled_role_user_is_signed_out_at_dashboard(): void
+    {
+        $this->careline();
+
+        $this->actingAs($this->user(Role::Agent))->get('/dashboard')
+            ->assertRedirect(route('login'))
+            ->assertSessionHasErrors('email');
+        $this->assertGuest();
+    }
+
+    #[Test]
+    public function signup_drops_the_agency_option(): void
+    {
+        $this->careline();
+
+        $this->get('/register')->assertInertia(fn (Assert $p) => $p
+            ->where('roles', ['landlord', 'contractor'])
+            ->where('edition.disabled_roles', ['agency_admin', 'agent'])
+        );
+
+        $this->post('/register', [
+            'role' => 'agency', 'name' => 'X', 'email' => 'x@example.test',
+            'password' => 'password123', 'password_confirmation' => 'password123',
+            'business_name' => 'X Realty', 'compliance_number' => '123', 'terms_accepted' => true,
+        ])->assertSessionHasErrors('role');
+
+        $this->assertDatabaseMissing('users', ['email' => 'x@example.test']);
+    }
+}

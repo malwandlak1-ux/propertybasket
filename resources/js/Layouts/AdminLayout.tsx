@@ -1,5 +1,6 @@
 import { ReactNode } from 'react';
 import Shell, { ShellNavItem } from '@/Components/Dashboard/Shell';
+import { useEdition } from '@/Hooks/useEdition';
 
 type Props = {
     children: ReactNode;
@@ -42,8 +43,9 @@ export default function AdminLayout({ children, crumb = 'Overview', section = 'P
     const numberBadge = (n?: number): NavItem['badge'] =>
         n != null && n > 0 ? { text: n.toLocaleString('en-ZA'), tone: 'muted' } : undefined;
 
+    const { agenciesEnabled } = useEdition();
     const accounts: NavItem[] = [
-        { label: 'Agencies',    href: '/admin/agencies',    icon: I.agencies,    badge: numberBadge(counts?.agencies) },
+        ...(agenciesEnabled ? [{ label: 'Agencies', href: '/admin/agencies', icon: I.agencies, badge: numberBadge(counts?.agencies) }] : []),
         { label: 'Landlords',   href: '/admin/landlords',   icon: I.landlords,   badge: numberBadge(counts?.landlords) },
         { label: 'Contractors', href: '/admin/contractors', icon: I.contractors, badge: numberBadge(counts?.contractors) },
     ];

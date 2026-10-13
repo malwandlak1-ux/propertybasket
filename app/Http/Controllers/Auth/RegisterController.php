@@ -25,13 +25,15 @@ class RegisterController extends Controller
 {
     public function create(): Response
     {
-        return Inertia::render('Auth/Register');
+        return Inertia::render('Auth/Register', [
+            'roles' => $this->signupRoles(),
+        ]);
     }
 
     public function store(Request $request): RedirectResponse
     {
         $data = $request->validate([
-            'role' => ['required', Rule::in(['agency', 'landlord', 'contractor'])],
+            'role' => ['required', Rule::in($this->signupRoles())],
             'name' => ['required', 'string', 'max:120'],
             'email' => ['required', 'email', 'max:180', Rule::unique('users', 'email')->whereNull('deleted_at')],
             'phone' => ['nullable', 'string', 'max:30'],
@@ -99,5 +101,13 @@ class RegisterController extends Controller
         }
 
         return redirect()->route('dashboard');
+    }
+
+    /** Self-signup role keys this site offers (agency drops out when agencies are disabled). */
+    private function signupRoles(): array
+    {
+        $roles = ['agency' => Role::AgencyAdmin, 'landlord' => Role::Landlord, 'contractor' => Role::Contractor];
+
+        return array_keys(array_filter($roles, fn (Role $r) => \App\Support\Edition::roleEnabled($r)));
     }
 }

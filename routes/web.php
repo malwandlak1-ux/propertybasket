@@ -11,6 +11,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\ContractorController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Middleware\EnsureRoleEnabled;
 use App\Http\Controllers\Public\AdviceController;
 use App\Http\Controllers\Public\AgencyController;
 use App\Http\Controllers\Public\CalculatorController;
@@ -28,8 +29,10 @@ Route::get('/properties', [ListingController::class, 'index'])->name('properties
 Route::get('/properties/{slug}', [ListingController::class, 'show'])->name('properties.show');
 Route::post('/inquiries', [InquiryController::class, 'store'])->name('inquiries.store');
 Route::post('/tour-requests', [TourRequestController::class, 'store'])->name('tour-requests.store');
-Route::get('/agencies', [AgencyController::class, 'index'])->name('agencies.index');
-Route::get('/agencies/{slug}', [AgencyController::class, 'show'])->name('agencies.show');
+Route::middleware(EnsureRoleEnabled::class . ':agency_admin')->group(function () {
+    Route::get('/agencies', [AgencyController::class, 'index'])->name('agencies.index');
+    Route::get('/agencies/{slug}', [AgencyController::class, 'show'])->name('agencies.show');
+});
 Route::get('/advice', [AdviceController::class, 'index'])->name('advice.index');
 Route::get('/advice/{slug}', [AdviceController::class, 'show'])->name('advice.show');
 Route::get('/calculator', CalculatorController::class)->name('calculator');
@@ -100,7 +103,7 @@ Route::middleware('auth')->group(function () {
     Route::post('billing/promo',   [\App\Http\Controllers\Billing\SubscriptionController::class, 'applyPromo'])->name('billing.promo');
     Route::get('billing/callback', [\App\Http\Controllers\Billing\SubscriptionController::class, 'callback'])->name('billing.callback');
 
-    Route::prefix('agency')->name('agency.')->middleware('subscribed')->group(function () {
+    Route::prefix('agency')->name('agency.')->middleware([EnsureRoleEnabled::class . ':agency_admin', 'subscribed'])->group(function () {
         Route::get('/', [AgencyDashboardController::class, 'overview'])->name('overview');
 
         Route::get('agents', [\App\Http\Controllers\Agency\AgentsController::class, 'index'])->name('agents.index');
@@ -167,7 +170,7 @@ Route::middleware('auth')->group(function () {
         Route::post('messages-broadcast', [\App\Http\Controllers\Agency\MessagesController::class, 'broadcast'])->name('messages.broadcast');
     });
 
-    Route::prefix('agent')->name('agent.')->middleware('ffc')->group(function () {
+    Route::prefix('agent')->name('agent.')->middleware([EnsureRoleEnabled::class . ':agent', 'ffc'])->group(function () {
         Route::get('ffc',         [Agent\FfcController::class, 'index'])->name('ffc.index');
         Route::post('ffc',        [Agent\FfcController::class, 'update'])->name('ffc.update');
         Route::get('ffc/certificate', [Agent\FfcController::class, 'certificate'])->name('ffc.certificate');
@@ -210,7 +213,7 @@ Route::middleware('auth')->group(function () {
     Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/',              [Admin\OverviewController::class,      'index'])->name('overview');
         Route::get('overview.pdf',   [Admin\OverviewController::class,      'exportPdf'])->name('overview.pdf');
-        Route::get('agencies',       [Admin\AgenciesController::class,      'index'])->name('agencies.index');
+        Route::get('agencies',       [Admin\AgenciesController::class,      'index'])->name('agencies.index')->middleware(EnsureRoleEnabled::class . ':agency_admin');
         Route::post('agencies/{agency}/approve',      [Admin\AgenciesController::class, 'approve'])->name('agencies.approve');
         Route::post('agencies/{agency}/suspend',      [Admin\AgenciesController::class, 'suspend'])->name('agencies.suspend');
         Route::post('agencies/{agency}/reactivate',   [Admin\AgenciesController::class, 'reactivate'])->name('agencies.reactivate');

@@ -60,7 +60,9 @@ const ROLES: RoleConfig[] = [
     },
 ];
 
-export default function Register() {
+export default function Register({ roles }: { roles?: RoleKey[] }) {
+    // Only the sign-up types this site offers (careline has no agencies).
+    const available = ROLES.filter((r) => !roles || roles.includes(r.key));
     const { data, setData, post, processing, errors } = useForm({
         role: '' as RoleKey | '',
         business_name: '',
@@ -96,7 +98,7 @@ export default function Register() {
 
             <form onSubmit={submit}>
                 <div className="space-y-2.5 mt-6">
-                    {ROLES.map((role) => {
+                    {available.map((role) => {
                         const isSelected = data.role === role.key;
                         return (
                             <button

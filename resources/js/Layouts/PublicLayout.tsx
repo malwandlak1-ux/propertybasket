@@ -1,6 +1,7 @@
 import { ReactNode, useState } from 'react';
 import { Link, usePage } from '@inertiajs/react';
 import AppLogo from '@/Components/AppLogo';
+import { useEdition } from '@/Hooks/useEdition';
 
 type Props = { children: ReactNode };
 
@@ -8,6 +9,7 @@ type SharedProps = { auth?: { user?: { id: number; name: string; role: string } 
 
 export default function PublicLayout({ children }: Props) {
     const { auth } = usePage<SharedProps>().props;
+    const { agenciesEnabled } = useEdition();
     const user = auth?.user;
     const [menuOpen, setMenuOpen] = useState(false);
 
@@ -23,7 +25,7 @@ export default function PublicLayout({ children }: Props) {
 
                     <nav className="hidden md:flex items-center gap-7 text-[14px] font-medium text-ink-700">
                         <Link href="/properties" className="hover:text-ink-900">Properties</Link>
-                        <Link href="/agencies" className="hover:text-ink-900">Agencies</Link>
+                        {agenciesEnabled && <Link href="/agencies" className="hover:text-ink-900">Agencies</Link>}
                         <Link href="/calculator" className="hover:text-ink-900">Calculator</Link>
                         <Link href="/advice" className="hover:text-ink-900">Advice</Link>
                         {user && <Link href="/contractors" className="hover:text-ink-900">Contractors</Link>}
@@ -71,7 +73,7 @@ export default function PublicLayout({ children }: Props) {
                 {menuOpen && (
                     <nav className="md:hidden border-t border-ink-200 bg-white px-4 py-3 space-y-1">
                         <Link href="/properties" className="block px-3 py-2 rounded-lg text-[14px] hover:bg-ink-100">Properties</Link>
-                        <Link href="/agencies" className="block px-3 py-2 rounded-lg text-[14px] hover:bg-ink-100">Agencies</Link>
+                        {agenciesEnabled && <Link href="/agencies" className="block px-3 py-2 rounded-lg text-[14px] hover:bg-ink-100">Agencies</Link>}
                         <Link href="/calculator" className="block px-3 py-2 rounded-lg text-[14px] hover:bg-ink-100">Calculator</Link>
                         <Link href="/advice" className="block px-3 py-2 rounded-lg text-[14px] hover:bg-ink-100">Advice</Link>
                         {user && <Link href="/contractors" className="block px-3 py-2 rounded-lg text-[14px] hover:bg-ink-100">Contractors</Link>}
@@ -101,6 +103,7 @@ export default function PublicLayout({ children }: Props) {
 }
 
 function SiteFooter() {
+    const { agenciesEnabled } = useEdition();
     const [email, setEmail]     = useState('');
     const [subscribed, setSubscribed] = useState(false);
 
@@ -139,7 +142,7 @@ function SiteFooter() {
                     <div className="space-y-3">
                         <Link href="/" className={linkCls}>Board</Link>
                         <Link href="/news" className={linkCls}>News updates</Link>
-                        <Link href="/agencies" className={linkCls}>Agents</Link>
+                        {agenciesEnabled && <Link href="/agencies" className={linkCls}>Agents</Link>}
                         <Link href="/privacy-policy" className={linkCls}>Privacy Policy</Link>
                     </div>
                 </div>

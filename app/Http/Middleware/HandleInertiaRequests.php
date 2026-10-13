@@ -45,6 +45,7 @@ class HandleInertiaRequests extends Middleware
             'notifications' => fn () => $this->notifications($request),
             'unread_messages' => fn () => $this->unreadMessagesCount($request),
             'appearance' => fn () => $this->appearance($request),
+            'edition' => ['disabled_roles' => \App\Support\Edition::disabledRoles()],
         ];
     }
 

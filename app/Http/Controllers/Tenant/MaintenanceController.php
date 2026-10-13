@@ -67,6 +67,9 @@ class MaintenanceController extends Controller
             'lease' => [
                 'id'      => $lease->id,
                 'address' => $lease->listing?->address ?? $lease->listing?->title ?? '',
+                // Who receives requests: the managing agency, else the landlord.
+                'managed_by' => $lease->agency?->name ?? $lease->landlord?->name,
+                'is_agency'  => (bool) $lease->agency_id,
             ],
             'active' => $active,
             'past'   => $past,

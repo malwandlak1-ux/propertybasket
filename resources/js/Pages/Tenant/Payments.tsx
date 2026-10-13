@@ -39,7 +39,10 @@ type Props = {
     kpis: { total_paid: number; count: number; streak: number; avg_payment: number; outstanding: number };
     rows: Row[];
     upcoming: Upcoming[];
+    statements: Statement[];
 };
+
+type Statement = { period: string; label: string; charged: number; paid: number; closing: number };
 
 const statusTone = (s: string) => {
     if (s === 'paid')    return 'bg-success/15 text-success';
@@ -58,7 +61,7 @@ const methodLabel = (m: string | null) => {
     }[m] ?? m;
 };
 
-export default function TenantPayments({ tenant, lease, kpis, rows, upcoming }: Props) {
+export default function TenantPayments({ tenant, lease, kpis, rows, upcoming, statements }: Props) {
     const [payingPeriod, setPayingPeriod] = useState<string | null>(null);
     const { flash } = usePage<FlashShared>().props;
 
@@ -102,10 +105,14 @@ export default function TenantPayments({ tenant, lease, kpis, rows, upcoming }: 
                         </p>
                     </div>
                     <div className="flex items-center gap-2">
-                        <button className="px-4 py-2 text-[13px] font-semibold border border-ink-900/70 bg-white/60 rounded-full hover:bg-white flex items-center gap-2">
+                        <a
+                            href="/tenant/payments/statement.pdf?download=1"
+                            title="Full rent account statement since your lease started (PDF)"
+                            className="px-4 py-2 text-[13px] font-semibold border border-ink-900/70 bg-white/60 rounded-full hover:bg-white flex items-center gap-2"
+                        >
                             <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
                             Download statement
-                        </button>
+                        </a>
                         {(() => {
                             // Pick the most urgent unpaid period: overdue first, then soonest-due.
                             const nextDue = [...upcoming].sort((a, b) => {
@@ -231,6 +238,54 @@ export default function TenantPayments({ tenant, lease, kpis, rows, upcoming }: 
                             </tr>
                         </tfoot>
                     </table></div>
+                </div>
+
+                {/* Monthly statements */}
+                <div className="mt-6 bg-white rounded-2xl border border-ink-200/60 shadow-soft p-5">
+                    <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
+                        <div>
+                            <h2 className="text-base font-semibold">Monthly Statements</h2>
+                            <p className="text-[12px] text-ink-500 mt-0.5">Opening balance, rent charged, payments and closing balance for each month</p>
+                        </div>
+                        <a href="/tenant/payments/statement.pdf" target="_blank" rel="noopener" className="text-[12px] font-semibold text-brand-700 hover:underline">
+                            View full statement →
+                        </a>
+                    </div>
+                    {statements.length === 0 ? (
+                        <p className="py-6 text-center text-[13px] text-ink-400">No statements yet.</p>
+                    ) : (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-2.5">
+                            {statements.map((st) => (
+                                <div key={st.period} className="flex items-center gap-3 rounded-xl border border-ink-200/70 px-3.5 py-3 hover:bg-ink-50 transition">
+                                    <div className="w-9 h-9 rounded-lg bg-brand-50 text-brand-700 flex items-center justify-center shrink-0">
+                                        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h5"/></svg>
+                                    </div>
+                                    <div className="min-w-0 flex-1">
+                                        <p className="text-[13px] font-semibold">{st.label}</p>
+                                        <p className="text-[11px] text-ink-500">
+                                            Paid {fmtMoney(st.paid)} · {st.closing > 0.004 ? <span className="text-danger font-semibold">{fmtMoney(st.closing)} owing</span> : <span className="text-success font-semibold">settled</span>}
+                                        </p>
+                                    </div>
+                                    <a
+                                        href={`/tenant/payments/statement.pdf?month=${st.period}`}
+                                        target="_blank"
+                                        rel="noopener"
+                                        className="text-[11.5px] font-semibold text-ink-600 hover:text-ink-900"
+                                        title={`View ${st.label} statement`}
+                                    >
+                                        View
+                                    </a>
+                                    <a
+                                        href={`/tenant/payments/statement.pdf?month=${st.period}&download=1`}
+                                        className="text-[11.5px] font-semibold text-brand-700 hover:underline"
+                                        title={`Download ${st.label} statement`}
+                                    >
+                                        PDF ↓
+                                    </a>
+                                </div>
+                            ))}
+                        </div>
+                    )}
                 </div>
 
                 {/* Upcoming */}

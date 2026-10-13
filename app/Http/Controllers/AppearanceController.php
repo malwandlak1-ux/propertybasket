@@ -29,8 +29,16 @@ class AppearanceController extends Controller
         return back()->with('success', 'Appearance updated.');
     }
 
+    /** Tenants see their landlord's / agency's branding and can't replace it. */
+    public static function canUploadLogo(\App\Models\User $user): bool
+    {
+        return $user->role !== \App\Enums\Role::Tenant;
+    }
+
     public function uploadLogo(Request $request): RedirectResponse
     {
+        abort_unless(self::canUploadLogo($request->user()), 403, 'Your account type cannot change the dashboard logo.');
+
         // SVG deliberately excluded — served from our origin it can carry script.
         $request->validate([
             'logo' => ['required', 'file', 'image', 'mimes:png,jpg,jpeg,webp', 'max:2048'],
@@ -52,6 +60,7 @@ class AppearanceController extends Controller
     public function destroyLogo(Request $request): RedirectResponse
     {
         $user = $request->user();
+        abort_unless(self::canUploadLogo($user), 403, 'Your account type cannot change the dashboard logo.');
 
         if ($user->dashboard_logo) {
             Storage::disk('public')->delete($user->dashboard_logo);

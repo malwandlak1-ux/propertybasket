@@ -111,7 +111,7 @@ class AppearanceTest extends TestCase
     #[Test]
     public function logo_must_be_a_raster_image(): void
     {
-        $user = $this->user();
+        $user = $this->user(Role::Landlord);
 
         $this->actingAs($user)->post('/settings/logo', [
             'logo' => UploadedFile::fake()->create('logo.svg', 4, 'image/svg+xml'),

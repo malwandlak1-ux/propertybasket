@@ -52,6 +52,8 @@ class HandleInertiaRequests extends Middleware
     /**
      * Dashboard accent + logo. An agent without a logo of their own inherits
      * their agency owner's, so an agency's white-label mark reaches its team.
+     * Tenants can't set a logo (AppearanceController::canUploadLogo) — they
+     * see their lease's agency logo, else their landlord's.
      * Root-relative /storage URL (public disk symlink) so it works on any host.
      */
     private function appearance(Request $request): ?array
@@ -59,10 +61,19 @@ class HandleInertiaRequests extends Middleware
         $user = $request->user();
         if (! $user) return null;
 
-        $logo = $user->dashboard_logo;
+        $canUpload = \App\Http\Controllers\AppearanceController::canUploadLogo($user);
+        $logo = $canUpload ? $user->dashboard_logo : null;
         $inherited = false;
 
-        if (! $logo) {
+        if (! $logo && $user->role === \App\Enums\Role::Tenant) {
+            $lease = \App\Models\Lease::where('tenant_id', $user->id)
+                ->whereIn('status', ['active', 'pending'])
+                ->with(['agency.owner', 'landlord'])
+                ->orderByDesc('start_date')
+                ->first();
+            $logo = $lease?->agency?->owner?->dashboard_logo ?: $lease?->landlord?->dashboard_logo;
+            $inherited = (bool) $logo;
+        } elseif (! $logo) {
             $pivot = AgencyAgent::where('user_id', $user->id)->where('status', 'active')->first();
             $ownerLogo = $pivot?->agency?->owner?->dashboard_logo;
             if ($ownerLogo) {
@@ -72,10 +83,11 @@ class HandleInertiaRequests extends Middleware
         }
 
         return [
-            'accent'         => $user->theme_accent ?: 'orange',
-            'logo_url'       => $logo ? '/storage/' . ltrim($logo, '/') : null,
-            'logo_inherited' => $inherited,
-            'has_own_logo'   => (bool) $user->dashboard_logo,
+            'accent'          => $user->theme_accent ?: 'orange',
+            'logo_url'        => $logo ? '/storage/' . ltrim($logo, '/') : null,
+            'logo_inherited'  => $inherited,
+            'has_own_logo'    => $canUpload && (bool) $user->dashboard_logo,
+            'can_upload_logo' => $canUpload,
         ];
     }
 

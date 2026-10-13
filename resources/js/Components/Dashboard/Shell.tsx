@@ -22,6 +22,7 @@ export type Appearance = {
     logo_url: string | null;
     logo_inherited?: boolean;
     has_own_logo?: boolean;
+    can_upload_logo?: boolean;
 };
 
 export type ShellNavItem = {

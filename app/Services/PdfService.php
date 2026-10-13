@@ -84,6 +84,31 @@ class PdfService
         return $download ? $pdf->download($filename) : $pdf->stream($filename);
     }
 
+    /**
+     * Tenant rent statement — the whole account, or one month when $period
+     * ("YYYY-MM") is given. Built by TenantStatementService.
+     */
+    public function tenantStatement(Lease $lease, ?string $period = null, bool $download = false): Response
+    {
+        $lease->loadMissing(['listing', 'tenant', 'agency', 'landlord']);
+        $statements = app(TenantStatementService::class);
+
+        $statement = $period ? $statements->month($lease, $period) : $statements->full($lease);
+
+        $pdf = Pdf::loadView('pdfs.tenant-statement', [
+            'statement'    => $statement,
+            'lease'        => $lease,
+            'listing'      => $lease->listing,
+            'tenant'       => $lease->tenant,
+            'deposit'      => $statements->deposit($lease),
+            'agencyName'   => $lease->agency?->name,
+            'landlordName' => $lease->landlord?->name,
+        ])->setPaper('A4');
+
+        $filename = 'statement-' . ($period ?? 'full-' . now()->format('Y-m-d')) . '-lease-' . str_pad($lease->id, 6, '0', STR_PAD_LEFT) . '.pdf';
+        return $download ? $pdf->download($filename) : $pdf->stream($filename);
+    }
+
     public function inspectionReport(Inspection $inspection, bool $download = false): Response
     {
         $inspection->loadMissing(['lease.listing', 'tenant', 'conductor']);

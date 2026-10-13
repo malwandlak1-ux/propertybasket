@@ -100,12 +100,10 @@ class PaymentsController extends Controller
                 ];
             });
 
-        // If no pending exists, synthesize the next month
+        // Paid up: synthesize next month's rent (due on the 1st). The current
+        // month is already settled, so it must never be offered again.
         if ($upcoming->isEmpty()) {
-            $cursor = $now->day(25);
-            if ($cursor->lessThan($now)) {
-                $cursor = $cursor->addMonth();
-            }
+            $cursor = $now->startOfMonth()->addMonth();
             $upcoming = collect([[
                 'id'             => null,
                 'period'         => $cursor->format('Y-m'),
@@ -134,8 +132,9 @@ class PaymentsController extends Controller
                 'avg_payment' => $avgPayment,
                 'outstanding' => $outstanding,
             ],
-            'rows'     => $rows,
-            'upcoming' => $upcoming->values(),
+            'rows'       => $rows,
+            'upcoming'   => $upcoming->values(),
+            'statements' => app(\App\Services\TenantStatementService::class)->availableMonths($lease),
         ]);
     }
 
@@ -150,5 +149,24 @@ class PaymentsController extends Controller
         abort_unless($payment->paid_at !== null, 404, 'Receipt is only available for paid payments.');
 
         return $pdf->rentReceipt($payment, download: $request->boolean('download'));
+    }
+
+    /**
+     * GET /tenant/payments/statement.pdf[?month=YYYY-MM] — full account
+     * statement, or a single month's statement.
+     */
+    public function statement(Request $request, PdfService $pdf)
+    {
+        $lease = $this->resolveLease($request);
+        $this->billing->ensureCharges($lease);
+
+        $month = $request->query('month');
+        if ($month !== null) {
+            abort_unless(is_string($month) && preg_match('/^\d{4}-(0[1-9]|1[0-2])$/', $month), 404);
+            $start = CarbonImmutable::parse($lease->start_date)->format('Y-m');
+            abort_if($month < $start || $month > CarbonImmutable::now()->format('Y-m'), 404);
+        }
+
+        return $pdf->tenantStatement($lease, $month, download: $request->boolean('download'));
     }
 }

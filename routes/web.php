@@ -315,6 +315,7 @@ Route::middleware('auth')->group(function () {
         Route::post('lease/sign',  [Tenant\LeaseController::class,       'sign'])->name('lease.sign');
         Route::get('payments',     [Tenant\PaymentsController::class,    'index'])->name('payments.index');
         Route::get('payments/{payment}/receipt.pdf', [Tenant\PaymentsController::class, 'receipt'])->name('payments.receipt');
+        Route::get('payments/statement.pdf',         [Tenant\PaymentsController::class, 'statement'])->name('payments.statement');
         Route::post('payments/pay', [\App\Http\Controllers\Payments\PaystackController::class, 'initialize'])->name('payments.pay');
         Route::get('maintenance',  [Tenant\MaintenanceController::class, 'index'])->name('maintenance.index');
         Route::post('maintenance', [Tenant\MaintenanceController::class, 'store'])->name('maintenance.store');

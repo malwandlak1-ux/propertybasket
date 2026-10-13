@@ -92,6 +92,7 @@ export default function AppearanceSettings({ className = '' }: { className?: str
                 })}
             </div>
 
+            {appearance.can_upload_logo !== false && (<>
             <p className="text-[11px] font-semibold tracking-[0.12em] text-ink-500 uppercase mt-7 mb-2.5">Dashboard logo</p>
             <div className="flex flex-col sm:flex-row sm:items-center gap-4">
                 <div className="w-full sm:w-[240px] h-[84px] rounded-xl bg-[var(--pb-panel,#F5F6F5)] border border-dashed border-ink-300 flex items-center justify-center px-4 shrink-0">
@@ -125,6 +126,7 @@ export default function AppearanceSettings({ className = '' }: { className?: str
                     </div>
                 </div>
             </div>
+            </>)}
         </section>
     );
 }

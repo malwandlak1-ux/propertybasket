@@ -14,7 +14,11 @@ class LoginController extends Controller
 {
     public function create(): Response
     {
-        return Inertia::render('Auth/Login');
+        // Sign in and sign up share one sliding page.
+        return Inertia::render('Auth/Access', [
+            'mode'  => 'signin',
+            'roles' => RegisterController::signupRoles(),
+        ]);
     }
 
     public function store(Request $request): RedirectResponse

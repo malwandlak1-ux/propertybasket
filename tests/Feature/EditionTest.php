@@ -181,4 +181,14 @@ class EditionTest extends TestCase
         $this->actingAs($user)->get('/landlord')
             ->assertInertia(fn (Assert $p) => $p->where('kpis.slots_max', 20));
     }
+
+    #[Test]
+    public function login_and_register_share_the_sliding_access_page(): void
+    {
+        $this->get('/login')->assertOk()->assertInertia(fn (Assert $p) => $p
+            ->component('Auth/Access')->where('mode', 'signin')->has('roles'));
+        $this->get('/register')->assertOk()->assertInertia(fn (Assert $p) => $p
+            ->component('Auth/Access')->where('mode', 'signup')->has('roles'));
+        $this->get('/forgot-password')->assertOk()->assertInertia(fn (Assert $p) => $p->component('Auth/ForgotPassword'));
+    }
 }

@@ -3,8 +3,10 @@
     $periodLabel = $isMonthly
         ? $statement['from']->format('F Y')
         : $statement['from']->format('d M Y') . ' – ' . $statement['to']->format('d M Y');
-    $title = ($isMonthly ? 'Monthly owner statement ' : 'Owner statement ') . $periodLabel;
-    $docMeta = '<strong>OWNER STATEMENT</strong><br>' . e($periodLabel);
+    $propertyName = $propertyName ?? null;
+    $rangeLabel = $rangeLabel ?? null;
+    $title = ($isMonthly ? 'Monthly owner statement ' : 'Owner statement ') . $periodLabel . ($propertyName ? ' · ' . $propertyName : '');
+    $docMeta = '<strong>OWNER STATEMENT</strong><br>' . e($periodLabel) . ($propertyName ? '<br>' . e($propertyName) : '');
     $money = fn ($n) => 'R ' . number_format((float) $n, 2, '.', ' ');
     $signed = fn ($n) => ($n < -0.004 ? '- ' : '') . $money(abs($n));
 @endphp
@@ -12,12 +14,16 @@
 <x-pdf-layout :title="$title" :docMeta="$docMeta">
 
 <h1>{{ $isMonthly ? 'Monthly Owner Statement' : 'Owner Statement' }}</h1>
-<p class="subtitle">{{ $periodLabel }} · rent received less maintenance · generated {{ now()->format('d M Y') }}</p>
+<p class="subtitle">{{ $rangeLabel ? $rangeLabel . ' · ' : '' }}{{ $periodLabel }} · rent received less maintenance · generated {{ now()->format('d M Y') }}</p>
 
 <table class="kv">
     <tr><th>Landlord</th><td>{{ $landlordName }}</td></tr>
     <tr><th>Email</th><td>{{ $landlordEmail }}</td></tr>
-    <tr><th>Properties</th><td>{{ count($statement['by_property']) ?: $propertyCount }}</td></tr>
+    @if ($propertyName)
+        <tr><th>Property</th><td>{{ $propertyName }}</td></tr>
+    @else
+        <tr><th>Properties</th><td>All properties ({{ $propertyCount }})</td></tr>
+    @endif
 </table>
 
 <div class="box" style="margin-top: 14px;">
@@ -31,7 +37,7 @@
     </table>
 </div>
 
-@if (count($statement['by_property']) > 1 || ! $isMonthly)
+@if (! $propertyName && (count($statement['by_property']) > 1 || ! $isMonthly))
     <h2>By property</h2>
     <table class="lines">
         <thead>

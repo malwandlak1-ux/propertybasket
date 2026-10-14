@@ -113,21 +113,39 @@ class PdfService
      * Landlord owner statement (rent received − maintenance) — the whole
      * history, or one month when $period ("YYYY-MM") is given.
      */
-    public function landlordStatement(\App\Models\Landlord $landlord, ?string $period = null, bool $download = false): Response
+    /**
+     * Owner statement: one month ($period = YYYY-MM), a range filter
+     * ($range = 3|6|12|lease), or the full history; optionally for a single
+     * property ($listingId).
+     */
+    public function landlordStatement(\App\Models\Landlord $landlord, ?string $period = null, bool $download = false, ?int $listingId = null, ?string $range = null): Response
     {
         $landlord->loadMissing('user');
         $statements = app(LandlordStatementService::class);
+        $listing = $statements->ownedListing($landlord, $listingId);
+        $listingId = $listing?->id;
 
-        $statement = $period ? $statements->month($landlord, $period) : $statements->full($landlord);
+        if ($period) {
+            $statement = $statements->month($landlord, $period, $listingId);
+        } elseif ($range && $range !== 'lease') {
+            [$from, $to] = $statements->period($landlord, $range, $listingId);
+            $statement = $statements->build($landlord, $from, $to, $listingId);
+        } else {
+            $statement = $statements->full($landlord, $listingId);
+        }
 
         $pdf = Pdf::loadView('pdfs.landlord-statement', [
             'statement'     => $statement,
             'landlordName'  => $landlord->user?->name ?? 'Landlord',
             'landlordEmail' => $landlord->user?->email ?? '—',
-            'propertyCount' => $statements->listingIds($landlord)->count(),
+            'propertyCount' => $listingId ? 1 : $statements->listingIds($landlord)->count(),
+            'propertyName'  => $statements->propertyName($listing),
+            'rangeLabel'    => $period ? null : (LandlordStatementService::RANGE_LABELS[$range ?? 'lease'] ?? null),
         ])->setPaper('A4');
 
-        $filename = 'owner-statement-' . ($period ?? 'full-' . now()->format('Y-m-d')) . '.pdf';
+        $scope = $listing ? \Illuminate\Support\Str::slug(\Illuminate\Support\Str::limit($statements->propertyName($listing), 32, '')) . '-' : '';
+        $when = $period ?? (($range && $range !== 'lease' ? 'last-' . $range . '-months-' : 'full-') . now()->format('Y-m-d'));
+        $filename = 'owner-statement-' . $scope . $when . '.pdf';
         return $download ? $pdf->download($filename) : $pdf->stream($filename);
     }
 

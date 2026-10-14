@@ -1,8 +1,10 @@
 import { useState } from 'react';
-import { Head } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 import LandlordLayout from '@/Layouts/LandlordLayout';
 import ErrorBoundary from '@/Components/ErrorBoundary';
-import { AreaChart, Donut, PageHeader, btnOutline } from '@/Components/Dashboard/Charts';
+import { AreaChart, Donut, PageHeader, Segmented, btnPrimary } from '@/Components/Dashboard/Charts';
+import { useInertiaLoading } from '@/Hooks/useInertiaLoading';
+import Icon from '@/Components/Dashboard/Icon';
 
 type Payment = {
     id: number;
@@ -20,9 +22,14 @@ type Payment = {
 type Statement = { period: string; label: string; income: number; maintenance: number; net: number };
 type Expense = { date: string; description: string; property: string; reference: string; amount: number };
 
+type Range = '3' | '6' | '12' | 'lease';
+
 type Props = {
     landlord: { id: number; name: string };
     year: number;
+    filters: { property: number | null; range: Range; range_label: string; from: string; to: string };
+    properties: { id: number; name: string }[];
+    ranges: { key: Range; label: string }[];
     kpis: {
         monthly_roll: number;
         ytd_collected: number;
@@ -77,10 +84,27 @@ function Cell({ label, value, sub, tone }: { label: string; value: string; sub: 
     );
 }
 
+/** Query string for the statement PDF matching the current filters. */
+function statementQuery(f: Props['filters'], extra: Record<string, string> = {}): string {
+    const q = new URLSearchParams({ range: f.range, ...extra });
+    if (f.property) q.set('property', String(f.property));
+    return q.toString();
+}
+
 export default function LandlordFinance({
-    year, kpis, income_statement: pl, cashflow, by_property, statements, payments, maintenance,
+    kpis, income_statement: pl, cashflow, by_property, statements, payments, maintenance, filters, properties, ranges,
 }: Props) {
     const [filter, setFilter] = useState<Filter>('all');
+    const loading = useInertiaLoading();
+
+    const scope = filters.property ? properties.find((p) => p.id === filters.property)?.name ?? 'Property' : 'All properties';
+    const periodShort = filters.range === 'lease' ? 'full lease period' : filters.range_label.toLowerCase();
+
+    function applyFilters(next: { property?: number | null; range?: Range }) {
+        const property = next.property !== undefined ? next.property : filters.property;
+        const range = next.range ?? filters.range;
+        router.get('/landlord/finance', { ...(property ? { property } : {}), range }, { preserveScroll: true, preserveState: true });
+    }
 
     const filtered = filter === 'all' ? payments : payments.filter((p) => {
         if (filter === 'paid')    return p.status === 'paid';
@@ -96,30 +120,51 @@ export default function LandlordFinance({
                 <PageHeader
                     title="Finance"
                     subtitle="Rent income · maintenance · net to you · monthly statements"
-                    actions={
-                        <>
-                            <span className="text-[12px] bg-white border border-ink-200 rounded-full px-3.5 py-2 font-semibold text-ink-700">
-                                FY {year} · YTD
-                            </span>
-                            <a href="/landlord/finance/statement.pdf?download=1" className={btnOutline}>
-                                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" /></svg>
-                                Download statement
-                            </a>
-                        </>
-                    }
                 />
+
+                {/* Filters: property + period. Everything below, and the statement download, follows them. */}
+                <div className="bg-white rounded-2xl border border-ink-200/60 shadow-soft p-4 mb-4 flex flex-col xl:flex-row xl:items-center gap-3">
+                    <label className="flex items-center gap-2.5 min-w-0">
+                        <span className="w-9 h-9 rounded-xl bg-brand-50 text-brand-700 flex items-center justify-center shrink-0"><Icon name="pin" className="w-4 h-4" /></span>
+                        <span className="sr-only">Property</span>
+                        <select
+                            value={filters.property ?? ''}
+                            onChange={(e) => applyFilters({ property: e.target.value ? Number(e.target.value) : null })}
+                            className="min-w-0 w-full sm:w-[300px] bg-white border border-ink-200 rounded-xl px-3.5 py-2.5 text-[13.5px] font-semibold focus:outline-none focus:border-brand-300 focus:ring-4 focus:ring-brand-100"
+                        >
+                            <option value="">All properties ({properties.length})</option>
+                            {properties.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
+                        </select>
+                    </label>
+                    <div className="overflow-x-auto -mx-1 px-1">
+                        <Segmented<Range>
+                            options={ranges.map((r) => ({ value: r.key, label: r.label }))}
+                            value={filters.range}
+                            onChange={(range) => applyFilters({ range })}
+                        />
+                    </div>
+                    <div className="flex items-center gap-3 xl:ml-auto">
+                        <span className="text-[12px] text-ink-500 whitespace-nowrap">{filters.from} – {filters.to}</span>
+                        <a href={`/landlord/finance/statement.pdf?${statementQuery(filters, { download: '1' })}`} className={btnPrimary + ' whitespace-nowrap'}>
+                            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" /></svg>
+                            Download statement
+                        </a>
+                    </div>
+                </div>
+
+                <div className={loading ? 'opacity-50 pointer-events-none transition-opacity' : 'transition-opacity'}>
 
                 {/* Income statement summary */}
                 <div className="bg-white rounded-2xl border border-ink-200/60 shadow-soft overflow-hidden mb-4">
                     <div className="p-5 border-b border-ink-200">
                         <h2 className="text-base font-semibold">Income Statement Summary</h2>
-                        <p className="text-[12px] text-ink-500 mt-0.5">YTD · {year} · cash basis (rent received, maintenance paid)</p>
+                        <p className="text-[12px] text-ink-500 mt-0.5">{scope} · {filters.range_label} · cash basis (rent received, maintenance paid)</p>
                     </div>
                     <div className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-ink-200">
                         <Cell
                             label="Rental Income"
                             value={fmtMoney(pl.rent_income)}
-                            sub={pl.rent_income > 0 ? 'Rent received YTD' : 'No rent received yet'}
+                            sub={pl.rent_income > 0 ? `Rent received · ${periodShort}` : 'No rent received in this period'}
                             tone="default"
                         />
                         <Cell
@@ -147,7 +192,7 @@ export default function LandlordFinance({
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
                     <div className="lg:col-span-2 bg-white rounded-2xl border border-ink-200/60 p-5 shadow-soft">
                         <h2 className="text-base font-semibold mb-1">Cash Flow Trend</h2>
-                        <p className="text-[12px] text-ink-500 mb-4">Rent received vs maintenance paid · last 6 months</p>
+                        <p className="text-[12px] text-ink-500 mb-4">Rent received vs maintenance paid · {periodShort}</p>
                         <ErrorBoundary variant="section" label="cash flow chart">
                             <AreaChart
                                 labels={cashflow.map((m) => m.month)}
@@ -168,7 +213,7 @@ export default function LandlordFinance({
                                 {kpis.outstanding > 0 ? 'ARREARS' : 'UP TO DATE'}
                             </span>
                         </div>
-                        <p className="text-[11px] text-ink-500 mb-3">Active long-term leases</p>
+                        <p className="text-[11px] text-ink-500 mb-3">Active long-term leases · {scope}</p>
                         <div className="pb-swirl rounded-2xl p-4 text-white mb-4">
                             <p className="text-[10px] uppercase tracking-wider opacity-70 font-semibold">Monthly rent roll</p>
                             <p className="text-3xl font-semibold mt-1 tabular-nums">{fmtMoneyShort(kpis.monthly_roll)}</p>
@@ -180,7 +225,7 @@ export default function LandlordFinance({
                                 <span className="tabular-nums font-semibold">{fmtMoney(kpis.this_month_collected)}</span>
                             </div>
                             <div className="flex justify-between">
-                                <span className="text-ink-500">Collected YTD</span>
+                                <span className="text-ink-500">Collected · {periodShort}</span>
                                 <span className="tabular-nums font-semibold">{fmtMoney(kpis.ytd_collected)}</span>
                             </div>
                             <div className="flex justify-between pt-2 border-t border-ink-100">
@@ -195,14 +240,14 @@ export default function LandlordFinance({
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
                     <div className="bg-white rounded-2xl border border-ink-200/60 p-5 shadow-soft">
                         <h2 className="text-base font-semibold mb-1">Income by Property</h2>
-                        <p className="text-[12px] text-ink-500 mb-4">Rent received · YTD</p>
+                        <p className="text-[12px] text-ink-500 mb-4">Rent received · {periodShort}</p>
                         {by_property.length === 0 ? (
-                            <p className="py-10 text-center text-[13px] text-ink-400">No income recorded this year.</p>
+                            <p className="py-10 text-center text-[13px] text-ink-400">No income recorded in this period.</p>
                         ) : (
                             <Donut
                                 size={150}
                                 centerValue={fmtMoneyShort(pl.rent_income)}
-                                centerLabel="income YTD"
+                                centerLabel="income"
                                 segments={by_property.map((r) => ({
                                     label: r.property,
                                     value: r.income,
@@ -215,17 +260,17 @@ export default function LandlordFinance({
                         <div className="pb-swirl rounded-2xl p-5 text-white shadow-lift">
                             <p className="text-[13px] font-medium">Net to Landlord</p>
                             <p className="text-[34px] font-semibold tracking-tight mt-4 leading-none tabular-nums">{fmtMoneyShort(pl.net)}</p>
-                            <p className="text-[12px] text-white/80 mt-2.5">{pl.net_margin_pct}% net margin · YTD</p>
+                            <p className="text-[12px] text-white/80 mt-2.5">{pl.net_margin_pct}% net margin · {periodShort}</p>
                         </div>
                         <div className="bg-white rounded-2xl border border-ink-200/60 p-5 shadow-soft">
                             <p className="text-[13px] font-medium text-ink-700">Maintenance</p>
                             <p className="text-[34px] font-semibold tracking-tight mt-4 leading-none tabular-nums">{fmtMoneyShort(pl.maintenance)}</p>
-                            <p className="text-[12px] text-ink-500 mt-2.5">{pl.maintenance_pct}% of income · YTD</p>
+                            <p className="text-[12px] text-ink-500 mt-2.5">{pl.maintenance_pct}% of income · {periodShort}</p>
                         </div>
                         <div className="bg-white rounded-2xl border border-ink-200/60 p-5 shadow-soft">
                             <p className="text-[13px] font-medium text-ink-700">Rental Income</p>
                             <p className="text-[34px] font-semibold tracking-tight mt-4 leading-none tabular-nums">{fmtMoneyShort(pl.rent_income)}</p>
-                            <p className="text-[12px] text-ink-500 mt-2.5">Rent received · YTD</p>
+                            <p className="text-[12px] text-ink-500 mt-2.5">Rent received · {periodShort}</p>
                         </div>
                         <div className="bg-white rounded-2xl border border-ink-200/60 p-5 shadow-soft">
                             <p className="text-[13px] font-medium text-ink-700">Outstanding</p>
@@ -240,10 +285,10 @@ export default function LandlordFinance({
                     <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
                         <div>
                             <h2 className="text-base font-semibold">Monthly Statements</h2>
-                            <p className="text-[12px] text-ink-500 mt-0.5">Rent received less maintenance, per month</p>
+                            <p className="text-[12px] text-ink-500 mt-0.5">Rent received less maintenance, per month · {scope}</p>
                         </div>
-                        <a href="/landlord/finance/statement.pdf" target="_blank" rel="noopener" className="text-[12px] font-semibold text-brand-700 hover:underline">
-                            View full statement →
+                        <a href={`/landlord/finance/statement.pdf?${statementQuery(filters)}`} target="_blank" rel="noopener" className="text-[12px] font-semibold text-brand-700 hover:underline">
+                            View statement · {periodShort} →
                         </a>
                     </div>
                     {statements.length === 0 ? (
@@ -264,8 +309,8 @@ export default function LandlordFinance({
                                             Net {st.net < 0 ? '- ' : ''}{fmtMoney(Math.abs(st.net))}
                                         </p>
                                     </div>
-                                    <a href={`/landlord/finance/statement.pdf?month=${st.period}`} target="_blank" rel="noopener" className="text-[11.5px] font-semibold text-ink-600 hover:text-ink-900">View</a>
-                                    <a href={`/landlord/finance/statement.pdf?month=${st.period}&download=1`} className="text-[11.5px] font-semibold text-brand-700 hover:underline">PDF ↓</a>
+                                    <a href={`/landlord/finance/statement.pdf?${statementQuery(filters, { month: st.period })}`} target="_blank" rel="noopener" className="text-[11.5px] font-semibold text-ink-600 hover:text-ink-900">View</a>
+                                    <a href={`/landlord/finance/statement.pdf?${statementQuery(filters, { month: st.period, download: '1' })}`} className="text-[11.5px] font-semibold text-brand-700 hover:underline">PDF ↓</a>
                                 </div>
                             ))}
                         </div>
@@ -277,7 +322,7 @@ export default function LandlordFinance({
                     <div className="p-5 border-b border-ink-200 flex flex-wrap gap-3 items-center justify-between">
                         <div>
                             <h2 className="text-base font-semibold">Rent Payment History</h2>
-                            <p className="text-[12px] text-ink-500 mt-0.5">{payments.length} payments recorded</p>
+                            <p className="text-[12px] text-ink-500 mt-0.5">{payments.length} rent charge{payments.length === 1 ? '' : 's'} · {scope} · {periodShort}</p>
                         </div>
                         <div className="flex gap-2">
                             {(['all', 'paid', 'pending'] as Filter[]).map((f) => (
@@ -330,10 +375,10 @@ export default function LandlordFinance({
                 <div className="bg-white rounded-2xl border border-ink-200/60 shadow-soft overflow-hidden">
                     <div className="p-5 border-b border-ink-200">
                         <h2 className="text-base font-semibold">Maintenance Expenses</h2>
-                        <p className="text-[12px] text-ink-500 mt-0.5">Contractor invoices paid on your properties</p>
+                        <p className="text-[12px] text-ink-500 mt-0.5">Contractor invoices paid · {scope} · {periodShort}</p>
                     </div>
                     {maintenance.length === 0 ? (
-                        <div className="p-10 text-center text-[13px] text-ink-400">No maintenance has been paid yet.</div>
+                        <div className="p-10 text-center text-[13px] text-ink-400">No maintenance paid in this period.</div>
                     ) : (
                         <div className="overflow-x-auto"><table className="w-full min-w-[640px]">
                             <thead>
@@ -358,6 +403,7 @@ export default function LandlordFinance({
                             </tbody>
                         </table></div>
                     )}
+                </div>
                 </div>
             </section>
         </LandlordLayout>

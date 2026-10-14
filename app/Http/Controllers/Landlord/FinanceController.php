@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Landlord;
 
 use App\Http\Controllers\Landlord\Concerns\ResolvesLandlord;
+use App\Models\Landlord;
 use App\Models\Lease;
 use App\Models\RentPayment;
 use App\Services\LandlordStatementService;
@@ -19,17 +20,25 @@ class FinanceController extends Controller
 
     public function __construct(private readonly LandlordStatementService $statements) {}
 
+    /**
+     * GET /landlord/finance[?property={listing}&range=3|6|12|lease] — every
+     * figure on the page follows the property + period filters.
+     */
     public function index(Request $request): Response
     {
-        $landlord   = $this->resolveLandlord($request);
-        $now        = CarbonImmutable::now();
-        $period     = $now->format('Y-m');
-        $yearStart  = $now->startOfYear();
+        $landlord = $this->resolveLandlord($request);
+        $now      = CarbonImmutable::now();
+        $period   = $now->format('Y-m');
 
-        $listingIds = $landlord->listings()->where('listing_type', 'long_term_rent')->pluck('id');
-        $leaseIds   = Lease::whereIn('listing_id', $listingIds)->where('status', 'active')->pluck('id');
+        [$listingId, $range] = $this->filters($request, $landlord);
+        [$from, $to] = $this->statements->period($landlord, $range, $listingId);
 
-        // ── KPIs ──────────────────────────────────────────────────────────
+        $listingIds = $landlord->listings()->where('listing_type', 'long_term_rent')
+            ->when($listingId, fn ($q) => $q->whereKey($listingId))
+            ->pluck('id');
+        $leaseIds = Lease::whereIn('listing_id', $listingIds)->where('status', 'active')->pluck('id');
+
+        // ── KPIs (current position for the selected property / portfolio) ─
         $monthlyRentRoll = Lease::whereIn('id', $leaseIds)->sum('monthly_rent');
 
         $thisMonthCollected = RentPayment::whereIn('lease_id', $leaseIds)
@@ -42,50 +51,50 @@ class FinanceController extends Controller
             ->where('due_date', '<=', $now)
             ->sum('amount');
 
-        // ── Income statement (cash basis: rent received − maintenance paid) ─
-        $ytd = $this->statements->build($landlord, $yearStart, $now->endOfDay());
-        $netMargin = $ytd['income'] > 0 ? round(($ytd['net'] / $ytd['income']) * 100, 1) : 0.0;
-        $maintPct  = $ytd['income'] > 0 ? round(($ytd['maintenance'] / $ytd['income']) * 100, 1) : 0.0;
+        // ── Income statement for the selected period (cash basis) ──────────
+        $summary   = $this->statements->build($landlord, $from, $to, $listingId);
+        $netMargin = $summary['income'] > 0 ? round(($summary['net'] / $summary['income']) * 100, 1) : 0.0;
+        $maintPct  = $summary['income'] > 0 ? round(($summary['maintenance'] / $summary['income']) * 100, 1) : 0.0;
 
-        // ── Cash flow: last 6 months, income vs maintenance ────────────────
-        $entries = $this->statements->entries($landlord);
+        // ── Cash flow: each month in the period, income vs maintenance ─────
+        $entries = $this->statements->entries($landlord, $listingId);
         $cashflow = [];
-        for ($i = 5; $i >= 0; $i--) {
-            $mo = $now->startOfMonth()->subMonths($i);
+        for ($mo = $from->startOfMonth(); $mo->lte($now->startOfMonth()); $mo = $mo->addMonth()) {
             $in = $entries->filter(fn ($e) => $e['date']->isSameMonth($mo));
             $cashflow[] = [
-                'month'       => $mo->format('M'),
+                'month'       => $mo->format($from->diffInMonths($now) > 11 ? 'M y' : 'M'),
                 'period'      => $mo->format('Y-m'),
                 'income'      => round((float) $in->sum('income'), 2),
                 'maintenance' => round((float) $in->sum('expense'), 2),
             ];
         }
 
-        // ── Payment history ───────────────────────────────────────────────
-        $payments = RentPayment::whereIn('lease_id', $leaseIds)
+        // ── Rent charges in the period ────────────────────────────────────
+        $payments = RentPayment::whereIn('lease_id', Lease::whereIn('listing_id', $listingIds)->pluck('id'))
+            ->where('due_date', '>=', $from->toDateString())
+            ->where('due_date', '<=', $to->toDateString())
             ->with(['lease.listing', 'lease.tenant'])
             ->orderByDesc('due_date')
-            ->limit(36)
+            ->limit(60)
             ->get()
-            ->map(function ($p) {
-                return [
-                    'id'           => $p->id,
-                    'period'       => $p->period_month,
-                    'amount'       => (float) $p->amount,
-                    'due_date'     => $p->due_date->format('d M Y'),
-                    'paid_at'      => $p->paid_at?->format('d M Y'),
-                    'status'       => $p->paid_at ? 'paid' : ($p->due_date->isPast() ? 'overdue' : 'pending'),
-                    'property'     => $p->lease?->listing?->suburb,
-                    'tenant'       => $p->lease?->tenant?->name,
-                    'method'       => $p->payment_method ?? 'eft',
-                    'reference'    => $p->paystack_reference,
-                ];
-            })
+            ->map(fn ($p) => [
+                'id'        => $p->id,
+                'period'    => $p->period_month,
+                'amount'    => (float) $p->amount,
+                'due_date'  => $p->due_date->format('d M Y'),
+                'paid_at'   => $p->paid_at?->format('d M Y'),
+                'status'    => $p->paid_at ? 'paid' : ($p->due_date->isPast() ? 'overdue' : 'pending'),
+                'property'  => $p->lease?->listing?->address ?: $p->lease?->listing?->suburb,
+                'tenant'    => $p->lease?->tenant?->name,
+                'method'    => $p->payment_method ?? 'eft',
+                'reference' => $p->paystack_reference,
+            ])
             ->values()
             ->all();
 
-        // ── Maintenance paid (expenses) ───────────────────────────────────
-        $maintenance = $entries->where('type', 'maintenance')->sortByDesc(fn ($e) => $e['date']->format('YmdHis'))->take(20)
+        // ── Maintenance paid in the period ────────────────────────────────
+        $maintenance = collect($summary['lines'])->where('type', 'maintenance')
+            ->sortByDesc(fn ($e) => $e['date']->format('YmdHis'))->take(20)
             ->map(fn ($e) => [
                 'date'        => $e['date']->format('d M Y'),
                 'description' => $e['description'],
@@ -94,28 +103,39 @@ class FinanceController extends Controller
                 'amount'      => $e['expense'],
             ])->values()->all();
 
-        // ── Monthly trend (last 6 months) — kept for compatibility ─────────
         $trend = array_map(fn ($c) => ['label' => $c['month'], 'period' => $c['period'], 'collected' => $c['income']], $cashflow);
+
+        $properties = $landlord->listings()->orderBy('id')->get(['id', 'title', 'address'])
+            ->map(fn ($l) => ['id' => $l->id, 'name' => $l->address ?: $l->title])->values();
 
         return Inertia::render('Landlord/Finance', [
             'landlord'   => ['id' => $landlord->id, 'name' => $request->user()->name],
             'year'       => (int) $now->format('Y'),
+            'filters'    => [
+                'property'    => $listingId,
+                'range'       => $range,
+                'range_label' => LandlordStatementService::RANGE_LABELS[$range],
+                'from'        => $from->format('d M Y'),
+                'to'          => $to->format('d M Y'),
+            ],
+            'properties' => $properties,
+            'ranges'     => collect(LandlordStatementService::RANGE_LABELS)->map(fn ($label, $key) => ['key' => (string) $key, 'label' => $label])->values(),
             'kpis'       => [
                 'monthly_roll'         => (float) $monthlyRentRoll,
-                'ytd_collected'        => $ytd['income'],
+                'ytd_collected'        => $summary['income'],
                 'this_month_collected' => (float) $thisMonthCollected,
                 'outstanding'          => (float) $outstanding,
             ],
             'income_statement' => [
-                'rent_income'     => $ytd['income'],
-                'maintenance'     => $ytd['maintenance'],
-                'net'             => $ytd['net'],
+                'rent_income'     => $summary['income'],
+                'maintenance'     => $summary['maintenance'],
+                'net'             => $summary['net'],
                 'net_margin_pct'  => $netMargin,
                 'maintenance_pct' => $maintPct,
             ],
             'cashflow'    => $cashflow,
-            'by_property' => $ytd['by_property'],
-            'statements'  => $this->statements->availableMonths($landlord),
+            'by_property' => $summary['by_property'],
+            'statements'  => $this->statements->availableMonths($landlord, $listingId, $from),
             'payments'    => $payments,
             'maintenance' => $maintenance,
             'trend'       => $trend,
@@ -123,20 +143,46 @@ class FinanceController extends Controller
     }
 
     /**
-     * GET /landlord/finance/statement.pdf[?month=YYYY-MM] — owner statement:
-     * rent received less maintenance, full history or one month.
+     * GET /landlord/finance/statement.pdf — owner statement: rent received
+     * less maintenance. ?month=YYYY-MM for one month, else ?range=3|6|12|lease
+     * (default: full lease period). ?property={listing} limits it to one
+     * property.
      */
     public function statement(Request $request, PdfService $pdf)
     {
         $landlord = $this->resolveLandlord($request);
+        [$listingId, $range] = $this->filters($request, $landlord, default: 'lease');
 
         $month = $request->query('month');
         if ($month !== null) {
             abort_unless(is_string($month) && preg_match('/^\d{4}-(0[1-9]|1[0-2])$/', $month), 404);
-            $first = $this->statements->firstMonth($landlord)->format('Y-m');
+            $first = $this->statements->firstMonth($landlord, $listingId)->format('Y-m');
             abort_if($month < $first || $month > CarbonImmutable::now()->format('Y-m'), 404);
         }
 
-        return $pdf->landlordStatement($landlord, $month, download: $request->boolean('download'));
+        return $pdf->landlordStatement($landlord, $month, download: $request->boolean('download'), listingId: $listingId, range: $range);
+    }
+
+    /**
+     * Validated filters: a property that belongs to this landlord (else 404)
+     * and a known period.
+     *
+     * @return array{0: ?int, 1: string}
+     */
+    private function filters(Request $request, Landlord $landlord, string $default = '12'): array
+    {
+        $listingId = null;
+        if ($request->filled('property')) {
+            $listing = $this->statements->ownedListing($landlord, (int) $request->query('property'));
+            abort_if($listing === null, 404);
+            $listingId = $listing->id;
+        }
+
+        $range = (string) $request->query('range', $default);
+        if (! in_array($range, LandlordStatementService::RANGES, true)) {
+            $range = $default;
+        }
+
+        return [$listingId, $range];
     }
 }

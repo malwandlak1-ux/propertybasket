@@ -121,7 +121,8 @@ class LandlordStatementTest extends TestCase
             ->assertInertia(fn (Assert $p) => $p
                 ->component('Landlord/Finance')
                 ->has('statements', 3)
-                ->has('cashflow', 6)
+                ->has('cashflow', 12) // default period: last 12 months
+                ->where('filters.range', '12')
                 ->has('maintenance', 1)
                 ->where('income_statement.maintenance', 800)
             );
@@ -139,5 +140,68 @@ class LandlordStatementTest extends TestCase
     public function tenants_cannot_reach_landlord_statements(): void
     {
         $this->actingAs($this->tenant)->get('/landlord/finance/statement.pdf')->assertForbidden();
+    }
+
+    #[Test]
+    public function finance_filters_by_property_and_period(): void
+    {
+        // A second property of the same landlord: R5,000 rent paid 5 months ago only.
+        $second = Listing::create([
+            'ulid' => (string) Str::ulid(), 'owner_type' => Landlord::class, 'owner_id' => $this->landlord->id,
+            'title' => 'Office OTB 1', 'address' => 'Office OTB 1', 'slug' => 'test-' . Str::random(8),
+            'listing_type' => 'long_term_rent', 'property_type' => 'house', 'status' => 'leased',
+        ]);
+        $lease = Lease::create([
+            'listing_id' => $second->id, 'tenant_id' => $this->tenant->id, 'landlord_id' => $this->landlordUser->id,
+            'start_date' => now()->subMonths(5)->startOfMonth(), 'end_date' => now()->subMonths(5)->endOfMonth(),
+            'monthly_rent' => 5000, 'deposit_amount' => 0, 'status' => 'expired',
+        ]);
+        RentPayment::create([
+            'lease_id' => $lease->id, 'period_month' => now()->subMonths(5)->format('Y-m'), 'amount' => 5000,
+            'due_date' => now()->subMonths(5)->startOfMonth(), 'paid_at' => now()->subMonths(5)->startOfMonth()->addDay(),
+            'status' => 'paid', 'payment_method' => 'manual',
+        ]);
+
+        $as = $this->actingAs($this->landlordUser);
+
+        // All properties, last 12 months: R9,000 + R5,000 rent, R800 maintenance.
+        $as->get('/landlord/finance?range=12')->assertInertia(fn (Assert $p) => $p
+            ->where('income_statement.rent_income', 14000)
+            ->has('properties', 2)
+            ->where('filters.property', null));
+
+        // Last 3 months excludes the older office rent.
+        $as->get('/landlord/finance?range=3')->assertInertia(fn (Assert $p) => $p
+            ->where('income_statement.rent_income', 9000)
+            ->has('cashflow', 3));
+
+        // One property only.
+        $as->get("/landlord/finance?property={$second->id}&range=12")->assertInertia(fn (Assert $p) => $p
+            ->where('filters.property', $second->id)
+            ->where('income_statement.rent_income', 5000)
+            ->where('income_statement.maintenance', 0)
+            ->has('by_property', 1));
+
+        // Full lease period for that property starts at its lease.
+        $as->get("/landlord/finance?property={$second->id}&range=lease")->assertInertia(fn (Assert $p) => $p
+            ->where('filters.from', now()->subMonths(5)->startOfMonth()->format('d M Y')));
+
+        // Statement PDFs follow the same filters.
+        $pdf = $as->get("/landlord/finance/statement.pdf?property={$second->id}&range=6&download=1");
+        $pdf->assertOk();
+        $this->assertStringContainsString('owner-statement-office-otb-1-last-6-months', (string) $pdf->headers->get('Content-Disposition'));
+        $as->get('/landlord/finance/statement.pdf?range=3')->assertOk();
+        $as->get("/landlord/finance/statement.pdf?property={$this->listing->id}&month=" . now()->format('Y-m'))->assertOk();
+
+        $this->assertSame(5000.0, app(LandlordStatementService::class)->full($this->landlord, $second->id)['income']);
+    }
+
+    #[Test]
+    public function another_landlords_property_cannot_be_filtered_on(): void
+    {
+        [, , $foreign] = $this->landlordWithProperty('99 Other Road');
+
+        $this->actingAs($this->landlordUser)->get("/landlord/finance?property={$foreign->id}")->assertNotFound();
+        $this->actingAs($this->landlordUser)->get("/landlord/finance/statement.pdf?property={$foreign->id}")->assertNotFound();
     }
 }

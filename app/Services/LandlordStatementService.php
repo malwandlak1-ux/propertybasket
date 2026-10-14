@@ -18,9 +18,49 @@ use Illuminate\Support\Collection;
  *
  * Used by the Finance page (summary, trend, per-property split, monthly list)
  * and the owner statement PDFs (full + monthly).
+ *
+ * Every method takes an optional $listingId to scope to one property; null
+ * means the whole portfolio.
  */
 class LandlordStatementService
 {
+    /** Period filters offered on the Finance page. */
+    public const RANGES = ['3', '6', '12', 'lease'];
+
+    public const RANGE_LABELS = [
+        '3'     => 'Last 3 months',
+        '6'     => 'Last 6 months',
+        '12'    => 'Last 12 months',
+        'lease' => 'Full lease period',
+    ];
+
+    /**
+     * [from, to] for a range filter: the last N calendar months including the
+     * current one, or from the first lease start to today.
+     *
+     * @return array{0: CarbonImmutable, 1: CarbonImmutable}
+     */
+    public function period(Landlord $landlord, string $range, ?int $listingId = null): array
+    {
+        $to = CarbonImmutable::now()->endOfDay();
+        $from = $range === 'lease'
+            ? $this->firstMonth($landlord, $listingId)
+            : CarbonImmutable::now()->startOfMonth()->subMonths(max(1, (int) $range) - 1);
+
+        return [$from, $to];
+    }
+
+    /** The property the filter points at, if it is one of this landlord's. */
+    public function ownedListing(Landlord $landlord, ?int $listingId): ?Listing
+    {
+        return $listingId ? Listing::where('owner_type', Landlord::class)->where('owner_id', $landlord->id)->find($listingId) : null;
+    }
+
+    public function propertyName(?Listing $listing): ?string
+    {
+        return $listing ? $this->propertyLabel($listing) : null;
+    }
+
     /** @return Collection<int, int> the landlord's property (listing) ids */
     public function listingIds(Landlord $landlord): Collection
     {
@@ -32,9 +72,9 @@ class LandlordStatementService
      *
      * @return Collection<int, array{date: CarbonImmutable, type: string, description: string, property: string, reference: string, income: float, expense: float}>
      */
-    public function entries(Landlord $landlord): Collection
+    public function entries(Landlord $landlord, ?int $listingId = null): Collection
     {
-        $listingIds = $this->listingIds($landlord);
+        $listingIds = $this->scopedIds($landlord, $listingId);
         $leaseIds = Lease::whereIn('listing_id', $listingIds)->pluck('id');
 
         $income = RentPayment::whereIn('lease_id', $leaseIds)
@@ -77,11 +117,11 @@ class LandlordStatementService
      *
      * @return array{from: CarbonImmutable, to: CarbonImmutable, income: float, maintenance: float, net: float, lines: array, by_property: array}
      */
-    public function build(Landlord $landlord, CarbonImmutable $from, CarbonImmutable $to): array
+    public function build(Landlord $landlord, CarbonImmutable $from, CarbonImmutable $to, ?int $listingId = null): array
     {
         $lines = [];
         $running = 0.0;
-        foreach ($this->entries($landlord)->filter(fn ($e) => $e['date']->between($from, $to)) as $e) {
+        foreach ($this->entries($landlord, $listingId)->filter(fn ($e) => $e['date']->between($from, $to)) as $e) {
             $running += $e['income'] - $e['expense'];
             $lines[] = $e + ['net' => round($running, 2)];
         }
@@ -107,31 +147,35 @@ class LandlordStatementService
         ];
     }
 
-    public function firstMonth(Landlord $landlord): CarbonImmutable
+    public function firstMonth(Landlord $landlord, ?int $listingId = null): CarbonImmutable
     {
-        $start = Lease::whereIn('listing_id', $this->listingIds($landlord))->min('start_date');
+        $start = Lease::whereIn('listing_id', $this->scopedIds($landlord, $listingId))->min('start_date');
 
         return CarbonImmutable::parse($start ?? now())->startOfMonth();
     }
 
-    public function full(Landlord $landlord): array
+    public function full(Landlord $landlord, ?int $listingId = null): array
     {
-        return $this->build($landlord, $this->firstMonth($landlord), CarbonImmutable::now()->endOfDay());
+        return $this->build($landlord, $this->firstMonth($landlord, $listingId), CarbonImmutable::now()->endOfDay(), $listingId);
     }
 
-    public function month(Landlord $landlord, string $period): array
+    public function month(Landlord $landlord, string $period, ?int $listingId = null): array
     {
         $start = CarbonImmutable::createFromFormat('Y-m-d', $period . '-01')->startOfDay();
 
-        return $this->build($landlord, $start, $start->endOfMonth());
+        return $this->build($landlord, $start, $start->endOfMonth(), $listingId);
     }
 
     /** @return array<int, array{period: string, label: string, income: float, maintenance: float, net: float}> newest first */
-    public function availableMonths(Landlord $landlord): array
+    public function availableMonths(Landlord $landlord, ?int $listingId = null, ?CarbonImmutable $from = null): array
     {
-        $entries = $this->entries($landlord);
+        $entries = $this->entries($landlord, $listingId);
+        $first = $this->firstMonth($landlord, $listingId);
+        if ($from && $from->startOfMonth()->gt($first)) {
+            $first = $from->startOfMonth();
+        }
         $months = [];
-        for ($m = CarbonImmutable::now()->startOfMonth(), $first = $this->firstMonth($landlord); $m->gte($first); $m = $m->subMonth()) {
+        for ($m = CarbonImmutable::now()->startOfMonth(); $m->gte($first); $m = $m->subMonth()) {
             $in = $entries->filter(fn ($e) => $e['date']->isSameMonth($m));
             $income = round((float) $in->sum('income'), 2);
             $maint = round((float) $in->sum('expense'), 2);
@@ -145,6 +189,14 @@ class LandlordStatementService
         }
 
         return $months;
+    }
+
+    /** All the landlord's property ids, or just the one being filtered on. */
+    private function scopedIds(Landlord $landlord, ?int $listingId): Collection
+    {
+        $ids = $this->listingIds($landlord);
+
+        return $listingId ? $ids->filter(fn ($id) => (int) $id === $listingId)->values() : $ids;
     }
 
     private function propertyLabel(?Listing $listing): string

@@ -43,7 +43,7 @@ class SettingsController extends Controller
                 'bank_account_type'   => $user->bank_account_type,
                 'complete'            => DebitOrderController::hasSavedBanking($user),
             ],
-            'debit_order' => $this->debitOrder($lease->id),
+            'debit_order' => $this->debitOrder($lease),
             'managed_by'  => $lease->agency?->name ?? $lease->landlord?->name,
             'banks'       => self::BANKS,
         ]);
@@ -132,14 +132,32 @@ class SettingsController extends Controller
         'First National Bank (FNB)', 'Investec', 'Nedbank', 'Standard Bank', 'TymeBank',
     ];
 
-    private function debitOrder(int $leaseId): ?array
+    private function debitOrder(\App\Models\Lease $lease): ?array
     {
-        $do = DebitOrder::where('lease_id', $leaseId)->where('status', 'active')->latest('id')->first();
+        $do = DebitOrder::where('lease_id', $lease->id)->where('status', 'active')->latest('id')->first();
         if (! $do) {
             return null;
         }
 
+        $next = $do->nextDebitDate();
+        $collector = app(\App\Services\DebitOrderCollector::class);
+
         return [
+            'next_date'      => $next->format('d M Y'),
+            'next_amount'    => app(\App\Services\LeaseBillingService::class)->rentForPeriod($lease, $next->startOfMonth()),
+            'simulated'      => $collector->driver() === 'stub',
+            'collecting'     => $collector->enabled(),
+            'collections'    => \App\Models\DebitOrderCollection::where('lease_id', $lease->id)
+                ->with('rentPayment:id,period_month')
+                ->latest('id')->take(6)->get()
+                ->map(fn ($c) => [
+                    'id'     => $c->id,
+                    'date'   => $c->attempted_at?->format('d M Y'),
+                    'period' => $c->rentPayment ? \Carbon\CarbonImmutable::parse($c->rentPayment->period_month . '-01')->format('F Y') : null,
+                    'amount' => (float) $c->amount,
+                    'status' => $c->status,
+                    'reason' => $c->failure_reason,
+                ])->values()->all(),
             'bank_name'      => $do->bank_name,
             'account_holder' => $do->account_holder,
             'account_masked' => str_repeat('•', max(strlen((string) $do->account_number) - 4, 0)) . substr((string) $do->account_number, -4),

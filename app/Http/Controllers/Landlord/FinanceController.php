@@ -71,8 +71,8 @@ class FinanceController extends Controller
 
         // ── Rent charges in the period ────────────────────────────────────
         $payments = RentPayment::whereIn('lease_id', Lease::whereIn('listing_id', $listingIds)->pluck('id'))
-            ->where('due_date', '>=', $from->toDateString())
-            ->where('due_date', '<=', $to->toDateString())
+            ->whereDate('due_date', '>=', $from->toDateString())
+            ->whereDate('due_date', '<=', $to->toDateString())
             ->with(['lease.listing', 'lease.tenant'])
             ->orderByDesc('due_date')
             ->limit(60)

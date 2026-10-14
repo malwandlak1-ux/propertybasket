@@ -57,7 +57,8 @@ class DebitOrderController extends Controller
             ]);
         }
 
-        $hadOne = DebitOrder::where('lease_id', $lease->id)->where('status', 'active')->exists();
+        $previous = DebitOrder::where('lease_id', $lease->id)->where('status', 'active')->latest('id')->first();
+        $hadOne = $previous !== null;
 
         // Cancel any existing active mandate so we always have a single source of truth.
         DebitOrder::where('lease_id', $lease->id)
@@ -73,13 +74,16 @@ class DebitOrderController extends Controller
             'branch_code'    => $data['branch_code'],
             'account_type'   => $data['account_type'],
             'debit_day'      => $data['debit_day'],
+            'collect_from'   => $previous ? $previous->collectsFrom()->toDateString() : now()->toDateString(),
             'status'         => 'active',
             'signed_at'      => now(),
         ]);
 
         self::notifyManager($lease, $debitOrder, $hadOne ? 'updated' : 'activated');
 
-        return back()->with('success', "Debit order active. Rent will be collected on day {$data['debit_day']} each month from your {$data['bank_name']} account.");
+        $first = $debitOrder->nextDebitDate()->format('d M Y');
+
+        return back()->with('success', "Debit order active. Rent will be collected on day {$data['debit_day']} each month from your {$data['bank_name']} account, starting {$first}.");
     }
 
     /**

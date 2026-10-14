@@ -25,6 +25,11 @@ type Props = {
         account_type: string;
         debit_day: number;
         signed_at: string | null;
+        next_date: string;
+        next_amount: number;
+        simulated: boolean;
+        collecting: boolean;
+        collections: { id: number; date: string | null; period: string | null; amount: number; status: 'succeeded' | 'failed' | 'pending'; reason: string | null }[];
     } | null;
     managed_by: string | null;
     banks: string[];
@@ -340,6 +345,32 @@ function DebitOrderPanel({ banking, debitOrder, rent, payee, onAddBanking }: {
                             {debitOrder.signed_at && <p className="text-[11.5px] text-white/70 mt-1">Authorised {debitOrder.signed_at}</p>}
                         </div>
                         <span className="w-10 h-10 rounded-xl bg-white/15 flex items-center justify-center shrink-0"><Icon name="calendar" className="w-5 h-5" /></span>
+                    </div>
+                    <div className="mt-4 pt-3 border-t border-white/15 flex flex-wrap items-center justify-between gap-2 text-[12.5px]">
+                        <span>{debitOrder.collecting ? <>Next collection <span className="font-semibold">{debitOrder.next_date}</span> · {fmtRand(debitOrder.next_amount)}</> : 'Automatic collection is not switched on yet.'}</span>
+                        {debitOrder.simulated && <span className="text-[10.5px] px-2 py-0.5 rounded-full bg-white/15 font-semibold">Test mode · no real money moves</span>}
+                    </div>
+                </div>
+            )}
+
+            {debitOrder && debitOrder.collections.length > 0 && (
+                <div className="bg-white rounded-2xl border border-ink-200/60 shadow-soft p-5 pb-rise">
+                    <h3 className="text-[14px] font-semibold tracking-tight mb-3">Recent collections</h3>
+                    <div className="divide-y divide-ink-100">
+                        {debitOrder.collections.map((c) => (
+                            <div key={c.id} className="py-2.5 flex items-center justify-between gap-3 text-[12.5px]">
+                                <div className="min-w-0">
+                                    <p className="font-medium">{c.period ? `${c.period} rent` : 'Rent'}</p>
+                                    <p className="text-[11px] text-ink-500">{c.date}{c.status === 'failed' && c.reason ? ` · ${c.reason}` : ''}</p>
+                                </div>
+                                <div className="flex items-center gap-2 shrink-0">
+                                    <span className="tabular-nums font-semibold">{fmtRand(c.amount)}</span>
+                                    <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${c.status === 'succeeded' ? 'bg-success/15 text-success' : c.status === 'failed' ? 'bg-danger/15 text-danger' : 'bg-ink-100 text-ink-600'}`}>
+                                        {c.status === 'succeeded' ? 'COLLECTED' : c.status === 'failed' ? 'UNSUCCESSFUL' : 'PENDING'}
+                                    </span>
+                                </div>
+                            </div>
+                        ))}
                     </div>
                 </div>
             )}

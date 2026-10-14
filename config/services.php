@@ -46,4 +46,14 @@ return [
         'callback_url' => env('PAYSTACK_CALLBACK_URL', null), // null = use route('paystack.callback')
     ],
 
+    // Rent debit-order collection (App\Services\DebitOrderCollector).
+    // auto = simulated collection while Paystack is in stub/test mode, else off
+    // until a live debit-order provider is wired. stub | disabled force it.
+    'debit_orders' => [
+        'driver' => env('DEBIT_ORDER_DRIVER', 'auto'),
+        // Also check for due collections during normal site traffic (at most
+        // every 15 minutes), for hosts where the scheduler cron isn't running.
+        'run_on_requests' => env('DEBIT_ORDER_RUN_ON_REQUESTS', true),
+    ],
+
 ];

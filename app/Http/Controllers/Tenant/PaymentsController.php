@@ -43,8 +43,8 @@ class PaymentsController extends Controller
         [$from, $to] = app(TenantStatementService::class)->period($selected, $range);
 
         $history = RentPayment::where('lease_id', $selected->id)
-            ->where('due_date', '>=', $from->toDateString())
-            ->where('due_date', '<=', $to->toDateString())
+            ->whereDate('due_date', '>=', $from->toDateString())
+            ->whereDate('due_date', '<=', $to->toDateString())
             ->orderByDesc('due_date')
             ->get();
 

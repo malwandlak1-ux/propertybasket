@@ -297,6 +297,16 @@ class HandleInertiaRequests extends Middleware
                 'href'  => '/tenant/maintenance',
                 'tone'  => 'success',
             ],
+            \App\Notifications\DebitOrderCollectionResult::class => [
+                'title' => ($data['status'] ?? '') === 'succeeded' ? 'Debit order collected' : 'Debit order unsuccessful',
+                'body'  => ($data['status'] ?? '') === 'succeeded'
+                    ? 'R ' . number_format((float) ($data['amount'] ?? 0), 2) . ' rent collected from ' . ($data['tenant'] ?? 'a tenant') . '.'
+                    : (! empty($data['for_tenant'])
+                        ? 'Your debit order of R ' . number_format((float) ($data['amount'] ?? 0), 2) . ' did not go through. Please pay by EFT or online.'
+                        : 'The debit order for ' . ($data['tenant'] ?? 'a tenant') . ' did not go through.'),
+                'href'  => ! empty($data['for_tenant']) ? '/tenant/payments' : '/landlord/finance',
+                'tone'  => ($data['status'] ?? '') === 'succeeded' ? 'success' : 'danger',
+            ],
             \App\Notifications\DebitOrderChanged::class => [
                 'title' => ($data['event'] ?? '') === 'cancelled' ? 'Debit order cancelled' : 'Debit order ' . ($data['event'] ?? 'activated'),
                 'body'  => ($data['tenant'] ?? 'A tenant') . (($data['event'] ?? '') === 'cancelled'

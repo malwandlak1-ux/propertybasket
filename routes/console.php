@@ -14,3 +14,6 @@ Schedule::command('ffc:remind')->dailyAt('08:00');
 // Daily 00:05 SAST: raise the current month's rent (pay-and-stay), roll unpaid
 // prior months into arrears/overdue, ensure deposits, accrue PPRA interest.
 Schedule::command('rent:generate')->dailyAt('00:05');
+
+// Hourly: collect rent on active debit orders whose debit date has arrived.
+Schedule::command('debit:collect')->hourly();

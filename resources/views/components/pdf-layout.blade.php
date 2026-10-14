@@ -1,15 +1,17 @@
 {{-- Shared layout for all platform-generated PDFs --}}
+@php($brand = \App\Support\Edition::brand())
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>{{ $title ?? 'Property Basket Document' }}</title>
+    <title>{{ $title ?? $brand['name'] . ' Document' }}</title>
     <style>
         @page { margin: 28mm 18mm 22mm 18mm; }
         body { font-family: DejaVu Sans, sans-serif; color: #0B0B0F; font-size: 11px; line-height: 1.5; }
         header { position: fixed; top: -22mm; left: 0; right: 0; height: 18mm;
-            border-bottom: 1.5px solid #F26A1B; padding-bottom: 6px; }
-        header .brand { color: #F26A1B; font-weight: bold; font-size: 16px; }
+            border-bottom: 1.5px solid {{ $brand['color'] }}; padding-bottom: 6px; }
+        header .brand { color: {{ $brand['color'] }}; font-weight: bold; font-size: 16px; }
+        header .brand-logo { height: 13mm; width: auto; }
         header .doc-meta { float: right; text-align: right; color: #6B7280; font-size: 10px; }
         footer { position: fixed; bottom: -16mm; left: 0; right: 0; height: 12mm;
             border-top: 1px solid #E5E7EB; padding-top: 6px;
@@ -63,7 +65,11 @@
 <body>
 
 <header>
-    <span class="brand">Property Basket</span>
+    @if ($brand['logo'] && is_file(public_path(ltrim($brand['logo'], '/'))))
+        <img class="brand-logo" src="{{ public_path(ltrim($brand['logo'], '/')) }}" alt="{{ $brand['name'] }}">
+    @else
+        <span class="brand">{{ $brand['name'] }}</span>
+    @endif
     <span class="doc-meta">
         @if (! empty($docMeta ?? null))
             {!! $docMeta !!}
@@ -72,7 +78,7 @@
 </header>
 
 <footer>
-    Generated on {{ now()->format('d M Y \a\t H:i') }} · POPIA &amp; EAAB compliant · propertybasket.co.za
+    Generated on {{ now()->format('d M Y \a\t H:i') }} · POPIA &amp; EAAB compliant · @if ($brand['custom']){{ $brand['name'] }} · powered by Property Basket @else propertybasket.co.za @endif
     <span class="pager">Page <script type="text/php">if(isset($pdf)){$pdf->page_text(530, 12, "{PAGE_NUM} of {PAGE_COUNT}", null, 8, [0.62,0.65,0.69]);}</script></span>
 </footer>
 

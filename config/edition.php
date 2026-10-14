@@ -25,6 +25,20 @@ return [
     // marketplace and no self-claiming (careline). Default true.
     'contractor_marketplace' => filter_var(env('CONTRACTOR_MARKETPLACE', true), FILTER_VALIDATE_BOOL),
 
+    // White-label branding for a client site (careline = Careline Clinic).
+    // Unset = Property Basket. Logo/icon are paths under public/.
+    //   BRAND_NAME="Careline Clinic"
+    //   BRAND_LOGO=/images/brands/careline-clinic.png
+    //   BRAND_ICON=/images/brands/careline-clinic-icon.png
+    //   BRAND_COLOR=#2E8FA8   BRAND_COLOR_ALT=#8DC63F
+    'brand' => [
+        'name'      => env('BRAND_NAME') ?: 'Property Basket',
+        'logo'      => env('BRAND_LOGO') ?: null,
+        'icon'      => env('BRAND_ICON') ?: null,
+        'color'     => env('BRAND_COLOR') ?: '#F26A1B',
+        'color_alt' => env('BRAND_COLOR_ALT') ?: null,
+    ],
+
     'disabled_roles' => array_values(array_filter(array_map(
         'trim',
         explode(',', (string) env('DISABLED_ROLES', ''))

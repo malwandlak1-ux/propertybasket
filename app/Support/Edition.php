@@ -38,6 +38,27 @@ class Edition
         return (bool) config('edition.public_site', true);
     }
 
+    /**
+     * Site branding: a client site (careline) shows its own name + logo in
+     * place of Property Basket's.
+     *
+     * @return array{name: string, logo: ?string, icon: ?string, color: string, color_alt: ?string, custom: bool}
+     */
+    public static function brand(): array
+    {
+        $b = (array) config('edition.brand', []);
+        $logo = $b['logo'] ?? null;
+
+        return [
+            'name'      => $b['name'] ?? 'Property Basket',
+            'logo'      => $logo,
+            'icon'      => $b['icon'] ?? null,
+            'color'     => $b['color'] ?? '#F26A1B',
+            'color_alt' => $b['color_alt'] ?? null,
+            'custom'    => ! empty($logo),
+        ];
+    }
+
     /** Contractors can browse + claim unassigned jobs (the marketplace). */
     public static function marketplaceEnabled(): bool
     {

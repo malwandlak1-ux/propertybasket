@@ -109,7 +109,7 @@ function ContactPanel({ profile }: { profile: Props['profile'] }) {
         <form onSubmit={submit} className="bg-white rounded-2xl border border-ink-200/60 shadow-soft p-5 sm:p-6 space-y-5 pb-rise">
             <div>
                 <h2 className="text-[18px] font-semibold tracking-tight">Contact details</h2>
-                <p className="text-[13px] text-ink-500 mt-1">How your landlord and Property Basket reach you.</p>
+                <p className="text-[13px] text-ink-500 mt-1">How your landlord reaches you.</p>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

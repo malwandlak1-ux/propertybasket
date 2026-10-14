@@ -48,6 +48,7 @@ class HandleInertiaRequests extends Middleware
             'edition' => [
                 'disabled_roles' => \App\Support\Edition::disabledRoles(),
                 'marketplace'    => \App\Support\Edition::marketplaceEnabled(),
+                'brand'          => \App\Support\Edition::brand(),
             ],
         ];
     }

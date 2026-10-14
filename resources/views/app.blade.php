@@ -5,14 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title inertia>{{ config('app.name', 'Property Basket') }}</title>
+    @php($brand = \App\Support\Edition::brand())
+    <title inertia>{{ $brand['name'] }}</title>
 
     {{-- Favicon — use the dark logo-icon PNG. Modern browsers happily use PNG
          in place of .ico, so we don't need to convert. The empty favicon.ico
          in /public is kept only so root requests don't 404. --}}
-    <link rel="icon" type="image/png" href="/images/logo-icon.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="/images/logo-icon.png">
-    <link rel="shortcut icon" href="/images/logo-icon.png" type="image/png">
+    @php($icon = $brand['icon'] ?: '/images/logo-icon.png')
+    <link rel="icon" type="image/png" href="{{ $icon }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ $icon }}">
+    <link rel="shortcut icon" href="{{ $icon }}" type="image/png">
 
     {{-- Per-page SEO: server-rendered so social scrapers & search crawlers
          (which don't run our client JS) see OpenGraph, Twitter cards and

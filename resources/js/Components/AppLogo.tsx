@@ -1,4 +1,5 @@
 import { Link } from '@inertiajs/react';
+import { useBrand } from '@/Hooks/useEdition';
 
 /**
  * AppLogo — shared logo component used in every dashboard layout and auth screen.
@@ -12,6 +13,10 @@ import { Link } from '@inertiajs/react';
  * Both variants render the icon PNG + a two-line text block so the visual size
  * is predictable regardless of any padding inside the icon file.
  *
+ * On a white-label site (edition brand logo set, e.g. careline) the client's
+ * own logo image replaces the Property Basket mark; on dark backgrounds it
+ * sits on a white chip so its colours stay legible.
+ *
  * Pass `href` to make the whole logo a link (e.g. dashboards link back to the
  * public home page). Without `href` it renders as a plain, non-clickable mark.
  */
@@ -24,7 +29,19 @@ type Props = {
 };
 
 export default function AppLogo({ variant = 'dark', height = 32, href }: Props) {
+    const brand = useBrand();
     const isWhite = variant === 'white';
+
+    if (brand.logo) {
+        // Wordmark logos read small at icon height — give them a bit more room.
+        const h = Math.round(height * 2.2);
+        const img = <img src={brand.logo} alt={brand.name} style={{ height: h, width: 'auto' }} className="shrink-0 max-w-[210px] object-contain" />;
+        const mark = isWhite ? <span className="inline-flex rounded-xl bg-white px-3 py-2 shadow-soft">{img}</span> : img;
+        return href ? (
+            <Link href={href} aria-label={`${brand.name} home`} className="inline-flex items-center">{mark}</Link>
+        ) : mark;
+    }
+
     const iconSrc = isWhite ? '/images/logo-icon-white.png' : '/images/logo-icon.png';
     const textColor = isWhite ? 'text-white' : 'text-ink-900';
 

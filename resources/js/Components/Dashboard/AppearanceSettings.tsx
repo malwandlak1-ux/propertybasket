@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
 import { router, usePage } from '@inertiajs/react';
 import AppLogo from '@/Components/AppLogo';
+import { useBrand } from '@/Hooks/useEdition';
 import { Spinner } from '@/Components/Skeleton';
 import { Accent, useAppearance } from '@/Components/Dashboard/Shell';
 import { btnOutline, btnPrimary } from '@/Components/Dashboard/Charts';
@@ -22,6 +23,7 @@ const ACCENTS: { key: Accent; label: string; swatch: string }[] = [
 
 export default function AppearanceSettings({ className = '' }: { className?: string }) {
     const appearance = useAppearance();
+    const brand = useBrand();
     const { errors } = usePage<{ errors: Record<string, string> }>().props;
     const [accent, setAccent] = useState<Accent>(appearance.accent);
     const [uploading, setUploading] = useState(false);
@@ -58,7 +60,7 @@ export default function AppearanceSettings({ className = '' }: { className?: str
     }
 
     function removeLogo() {
-        if (!confirm('Remove your logo and go back to the Property Basket logo?')) return;
+        if (!confirm(`Remove your logo and go back to the ${brand.name} logo?`)) return;
         router.delete('/settings/logo', { preserveScroll: true, preserveState: true });
     }
 
@@ -102,7 +104,7 @@ export default function AppearanceSettings({ className = '' }: { className?: str
                 </div>
                 <div className="text-[12.5px] text-ink-500 space-y-2.5">
                     <p>
-                        Replaces the Property Basket logo in your sidebar. PNG, JPG or WebP, up to 2&nbsp;MB —
+                        Replaces the {brand.name} logo in your sidebar. PNG, JPG or WebP, up to 2&nbsp;MB —
                         a wide logo on a transparent background works best.
                     </p>
                     {appearance.logo_inherited && (

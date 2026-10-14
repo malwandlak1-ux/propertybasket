@@ -1,5 +1,6 @@
 import { ReactNode } from 'react';
 import AppLogo from '@/Components/AppLogo';
+import { useBrand } from '@/Hooks/useEdition';
 
 type AuthLayoutProps = {
     children: ReactNode;
@@ -9,14 +10,16 @@ type AuthLayoutProps = {
 };
 
 export default function AuthLayout({ children, heading, subheading, bullets }: AuthLayoutProps) {
+    const brand = useBrand();
+    const background = brand.custom
+        ? `linear-gradient(60deg, ${brand.color} 0%, ${brand.color_alt ?? brand.color} 100%)`
+        : 'linear-gradient(60deg, #FFC976 0%, #F26A1B 50%, #E81613 100%)';
+
     return (
         <div className="min-h-screen flex">
             <aside
                 className="hidden lg:flex w-[44%] text-white p-12 flex-col justify-between relative overflow-hidden"
-                style={{
-                    background:
-                        'linear-gradient(60deg, #FFC976 0%, #F26A1B 50%, #E81613 100%)',
-                }}
+                style={{ background }}
             >
                 <div className="relative z-10">
                     <AppLogo variant="white" height={32} />
@@ -39,8 +42,10 @@ export default function AuthLayout({ children, heading, subheading, bullets }: A
                     )}
                 </div>
 
-                <div className="relative z-10 text-[12px] text-white/50">
-                    🇿🇦 Built for the South African market · POPIA &amp; EAAB compliant
+                <div className="relative z-10 text-[12px] text-white/60">
+                    {brand.custom
+                        ? <>{brand.name} portal · powered by Property Basket · POPIA compliant</>
+                        : <>Built for the South African market · POPIA &amp; EAAB compliant</>}
                 </div>
             </aside>
 

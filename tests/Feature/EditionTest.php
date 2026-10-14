@@ -114,4 +114,34 @@ class EditionTest extends TestCase
 
         $this->assertDatabaseMissing('users', ['email' => 'x@example.test']);
     }
+
+    #[Test]
+    public function brand_defaults_to_property_basket(): void
+    {
+        $this->get('/login')->assertOk()
+            ->assertSee('<title inertia>Property Basket</title>', false)
+            ->assertInertia(fn (Assert $p) => $p
+                ->where('edition.brand.name', 'Property Basket')
+                ->where('edition.brand.custom', false)
+            );
+    }
+
+    #[Test]
+    public function client_site_shares_its_own_brand(): void
+    {
+        config(['edition.brand' => [
+            'name' => 'Careline Clinic', 'logo' => '/images/brands/careline-clinic.png',
+            'icon' => '/images/brands/careline-clinic-icon.png', 'color' => '#2E8FA8', 'color_alt' => '#8DC63F',
+        ]]);
+
+        $this->get('/login')->assertOk()
+            ->assertSee('<title inertia>Careline Clinic</title>', false)
+            ->assertSee('/images/brands/careline-clinic-icon.png', false)
+            ->assertInertia(fn (Assert $p) => $p
+                ->where('edition.brand.name', 'Careline Clinic')
+                ->where('edition.brand.logo', '/images/brands/careline-clinic.png')
+                ->where('edition.brand.custom', true)
+            );
+        $this->assertFileExists(public_path('images/brands/careline-clinic.png'));
+    }
 }

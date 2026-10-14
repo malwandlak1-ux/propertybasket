@@ -10,3 +10,21 @@ export function useEdition() {
     const roleEnabled = (role: string) => !disabled.includes(role);
     return { roleEnabled, agenciesEnabled: roleEnabled('agency_admin') };
 }
+
+export type Brand = {
+    name: string;
+    logo: string | null;
+    icon: string | null;
+    color: string;
+    color_alt: string | null;
+    /** true on a white-label client site (e.g. careline = Careline Clinic). */
+    custom: boolean;
+};
+
+const DEFAULT_BRAND: Brand = { name: 'Property Basket', logo: null, icon: null, color: '#F26A1B', color_alt: null, custom: false };
+
+/** Site branding (config/edition.php `brand`). */
+export function useBrand(): Brand {
+    const { edition } = usePage<{ edition?: { brand?: Brand } }>().props;
+    return edition?.brand ?? DEFAULT_BRAND;
+}

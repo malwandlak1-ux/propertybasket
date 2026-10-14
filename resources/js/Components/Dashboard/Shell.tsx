@@ -46,7 +46,7 @@ export function useAppearance(): Appearance {
     return appearance ?? { accent: 'orange', logo_url: null };
 }
 
-/** Sidebar mark: the user's uploaded logo, else the Property Basket logo. */
+/** Sidebar mark: the user's uploaded logo, else the site logo (Property Basket or the client brand). */
 export function BrandMark() {
     const { logo_url } = useAppearance();
     if (logo_url) {

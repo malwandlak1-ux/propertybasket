@@ -144,4 +144,24 @@ class EditionTest extends TestCase
             );
         $this->assertFileExists(public_path('images/brands/careline-clinic.png'));
     }
+
+    #[Test]
+    public function site_accent_is_the_default_but_a_users_own_choice_wins(): void
+    {
+        config(['edition.brand.accent' => 'teal']);
+
+        $user = User::factory()->create(['role' => Role::Landlord, 'status' => UserStatus::Active]);
+        $user->assignRole('landlord');
+        \App\Models\Landlord::create(['user_id' => $user->id])->activateSubscription('promo', now()->addYear());
+
+        $this->actingAs($user)->get('/landlord/settings')
+            ->assertInertia(fn (Assert $p) => $p->where('appearance.accent', 'teal'));
+
+        $this->actingAs($user)->post('/settings/appearance', ['accent' => 'purple'])->assertRedirect();
+        $this->actingAs($user)->get('/landlord/settings')
+            ->assertInertia(fn (Assert $p) => $p->where('appearance.accent', 'purple'));
+
+        $this->actingAs($user)->post('/settings/appearance', ['accent' => 'teal'])->assertRedirect();
+        $this->assertSame('teal', $user->fresh()->theme_accent);
+    }
 }

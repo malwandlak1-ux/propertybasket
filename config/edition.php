@@ -37,6 +37,8 @@ return [
         'icon'      => env('BRAND_ICON') ?: null,
         'color'     => env('BRAND_COLOR') ?: '#F26A1B',
         'color_alt' => env('BRAND_COLOR_ALT') ?: null,
+        // Dashboard accent for users who haven't picked one (BRAND_ACCENT=teal).
+        'accent'    => env('BRAND_ACCENT') ?: 'orange',
     ],
 
     'disabled_roles' => array_values(array_filter(array_map(

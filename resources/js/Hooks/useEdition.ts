@@ -17,11 +17,13 @@ export type Brand = {
     icon: string | null;
     color: string;
     color_alt: string | null;
+    /** Dashboard accent for users who haven't chosen one. */
+    accent: string;
     /** true on a white-label client site (e.g. careline = Careline Clinic). */
     custom: boolean;
 };
 
-const DEFAULT_BRAND: Brand = { name: 'Property Basket', logo: null, icon: null, color: '#F26A1B', color_alt: null, custom: false };
+const DEFAULT_BRAND: Brand = { name: 'Property Basket', logo: null, icon: null, color: '#F26A1B', color_alt: null, accent: 'orange', custom: false };
 
 /** Site branding (config/edition.php `brand`). */
 export function useBrand(): Brand {

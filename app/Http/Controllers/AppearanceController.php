@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Storage;
  */
 class AppearanceController extends Controller
 {
-    public const ACCENTS = ['orange', 'black', 'blue', 'green', 'purple'];
+    public const ACCENTS = ['orange', 'black', 'blue', 'green', 'purple', 'teal'];
 
     public function updateAccent(Request $request): RedirectResponse
     {

@@ -15,7 +15,7 @@ import NotificationBell, { NotificationItem } from '@/Components/NotificationBel
  * Layouts own their nav definitions + banners; the Shell owns the chrome.
  */
 
-export type Accent = 'orange' | 'black' | 'blue' | 'green' | 'purple';
+export type Accent = 'orange' | 'black' | 'blue' | 'green' | 'purple' | 'teal';
 
 export type Appearance = {
     accent: Accent;

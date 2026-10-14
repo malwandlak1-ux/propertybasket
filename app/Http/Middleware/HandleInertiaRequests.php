@@ -87,7 +87,7 @@ class HandleInertiaRequests extends Middleware
         }
 
         return [
-            'accent'          => $user->theme_accent ?: 'orange',
+            'accent'          => $user->theme_accent ?: \App\Support\Edition::brand()['accent'],
             'logo_url'        => $logo ? '/storage/' . ltrim($logo, '/') : null,
             'logo_inherited'  => $inherited,
             'has_own_logo'    => $canUpload && (bool) $user->dashboard_logo,

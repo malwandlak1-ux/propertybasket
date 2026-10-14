@@ -21,6 +21,11 @@ const ACCENTS: { key: Accent; label: string; swatch: string }[] = [
     { key: 'purple', label: 'Purple', swatch: 'linear-gradient(135deg,#9A75DA,#4C2580)' },
 ];
 
+/** The client's own accent, offered on its white-label site (careline = teal). */
+const BRAND_ACCENTS: Partial<Record<Accent, { label: string; swatch: string }>> = {
+    teal: { label: 'Teal', swatch: 'linear-gradient(135deg,#4AA2B9,#1C5F72)' },
+};
+
 export default function AppearanceSettings({ className = '' }: { className?: string }) {
     const appearance = useAppearance();
     const brand = useBrand();
@@ -66,6 +71,12 @@ export default function AppearanceSettings({ className = '' }: { className?: str
 
     const shownLogo = preview ?? appearance.logo_url;
 
+    // On a white-label site its own colour leads the list (e.g. Careline teal).
+    const brandAccent = brand.custom ? BRAND_ACCENTS[brand.accent as Accent] : undefined;
+    const accents = brandAccent
+        ? [{ key: brand.accent as Accent, label: `${brand.name} ${brandAccent.label.toLowerCase()}`, swatch: brandAccent.swatch }, ...ACCENTS]
+        : ACCENTS;
+
     return (
         <section className={`bg-white rounded-2xl shadow-soft p-5 sm:p-6 ${className}`}>
             <h2 className="text-[18px] font-semibold tracking-tight">Appearance</h2>
@@ -73,7 +84,7 @@ export default function AppearanceSettings({ className = '' }: { className?: str
 
             <p className="text-[11px] font-semibold tracking-[0.12em] text-ink-500 uppercase mt-6 mb-2.5">Accent</p>
             <div className="flex flex-wrap gap-2.5" role="radiogroup" aria-label="Accent colour">
-                {ACCENTS.map((a) => {
+                {accents.map((a) => {
                     const on = accent === a.key;
                     return (
                         <button

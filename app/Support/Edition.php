@@ -42,7 +42,7 @@ class Edition
      * Site branding: a client site (careline) shows its own name + logo in
      * place of Property Basket's.
      *
-     * @return array{name: string, logo: ?string, icon: ?string, color: string, color_alt: ?string, custom: bool}
+     * @return array{name: string, logo: ?string, icon: ?string, color: string, color_alt: ?string, accent: string, custom: bool}
      */
     public static function brand(): array
     {
@@ -55,6 +55,7 @@ class Edition
             'icon'      => $b['icon'] ?? null,
             'color'     => $b['color'] ?? '#F26A1B',
             'color_alt' => $b['color_alt'] ?? null,
+            'accent'    => $b['accent'] ?? 'orange',
             'custom'    => ! empty($logo),
         ];
     }

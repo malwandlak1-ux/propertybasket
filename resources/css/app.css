@@ -89,6 +89,14 @@ h1, h2, h3 {
     --color-brand-600: #6A3FB0; --color-brand-700: #4C2580; --color-brand-800: #331653;
 }
 
+/* Careline Clinic teal (white-label default on careline, BRAND_ACCENT=teal). */
+[data-accent="teal"] {
+    --color-brand: #2E8FA8;
+    --color-brand-50: #ECF6F9;  --color-brand-100: #D2EAF0; --color-brand-200: #A8D4E0;
+    --color-brand-300: #74B9CC; --color-brand-400: #4AA2B9; --color-brand-500: #2E8FA8;
+    --color-brand-600: #24768C; --color-brand-700: #1C5F72; --color-brand-800: #134552;
+}
+
 /* ── Dashboard shell tokens (Fernly-style calm workspace) ────────────────
    Scoped to .pb-dash so the public site keeps its own look. Re-pointing the
    radius/shadow/neutral tokens restyles every existing card, input and table

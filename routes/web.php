@@ -300,6 +300,9 @@ Route::middleware('auth')->group(function () {
             Route::delete('leases/{lease}/agreement',       [Landlord\TenantsController::class, 'destroyAgreement'])->name('leases.agreement.destroy');
             Route::get('maintenance', [Landlord\MaintenanceController::class, 'index'])->name('maintenance.index');
             Route::post('maintenance/{maintenanceRequest}/assign', [Landlord\MaintenanceController::class, 'assign'])->name('maintenance.assign');
+            Route::post('finance/eft/{eft}/confirm', [Landlord\EftPaymentsController::class, 'confirm'])->name('finance.eft.confirm');
+            Route::post('finance/eft/{eft}/reject',  [Landlord\EftPaymentsController::class, 'reject'])->name('finance.eft.reject');
+            Route::get('finance/eft/{eft}/proof',    [Landlord\EftPaymentsController::class, 'proof'])->name('finance.eft.proof');
             Route::post('maintenance/{maintenanceRequest}/rate',   [Landlord\MaintenanceController::class, 'rate'])->name('maintenance.rate');
             Route::post('maintenance/quotes/{quote}/accept',       [Landlord\MaintenanceController::class, 'acceptQuote'])->name('maintenance.quotes.accept');
             Route::post('maintenance/quotes/{quote}/reject',       [Landlord\MaintenanceController::class, 'rejectQuote'])->name('maintenance.quotes.reject');
@@ -328,6 +331,7 @@ Route::middleware('auth')->group(function () {
         Route::get('payments/{payment}/receipt.pdf', [Tenant\PaymentsController::class, 'receipt'])->name('payments.receipt');
         Route::get('payments/statement.pdf',         [Tenant\PaymentsController::class, 'statement'])->name('payments.statement');
         Route::post('payments/pay', [\App\Http\Controllers\Payments\PaystackController::class, 'initialize'])->name('payments.pay');
+        Route::post('payments/eft', [Tenant\EftPaymentController::class, 'store'])->name('payments.eft');
         Route::get('maintenance',  [Tenant\MaintenanceController::class, 'index'])->name('maintenance.index');
         Route::post('maintenance', [Tenant\MaintenanceController::class, 'store'])->name('maintenance.store');
         Route::post('maintenance/{maintenanceRequest}/rate', [Tenant\MaintenanceController::class, 'rate'])->name('maintenance.rate');

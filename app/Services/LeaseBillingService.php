@@ -107,6 +107,13 @@ class LeaseBillingService
             if ($since && $deadline->lessThan($since)) {
                 continue;
             }
+            $paidInTime = \App\Models\EftPayment::where('rent_payment_id', $charge->id)
+                ->where('status', 'submitted')
+                ->whereDate('paid_on', '<=', $deadline->toDateString())
+                ->exists();
+            if ($paidInTime) {
+                continue;
+            }
 
             $rent = (float) $charge->amount;
             $fee  = $lease->late_fee_type === 'fixed'

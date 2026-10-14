@@ -98,6 +98,7 @@ class DebitOrderCollector
             ->whereIn('status', LeaseBillingService::UNPAID)
             ->whereDate('due_date', '>=', $mandate->collectsFrom()->toDateString())
             ->whereDate('due_date', '<=', $today->toDateString())
+            ->whereDoesntHave('eftPayments', fn ($q) => $q->where('status', 'submitted'))
             ->orderBy('due_date')
             ->get();
 

@@ -136,6 +136,23 @@ class FinanceController extends Controller
             'cashflow'    => $cashflow,
             'by_property' => $summary['by_property'],
             'statements'  => $this->statements->availableMonths($landlord, $listingId, $from),
+            'eft_pending' => \App\Models\EftPayment::where('status', 'submitted')
+                ->whereHas('lease', fn ($q) => $q->whereIn('listing_id', $landlord->listings()->pluck('id')))
+                ->with(['tenant:id,name', 'lease.listing:id,title,address', 'rentPayment:id,period_month,amount'])
+                ->orderBy('paid_on')
+                ->get()
+                ->map(fn ($e) => [
+                    'id'        => $e->id,
+                    'tenant'    => $e->tenant?->name,
+                    'property'  => $e->lease?->listing?->address ?: $e->lease?->listing?->title,
+                    'period'    => $e->rentPayment ? CarbonImmutable::parse($e->rentPayment->period_month . '-01')->format('F Y') : null,
+                    'due'       => (float) ($e->rentPayment?->amount ?? 0),
+                    'amount'    => (float) $e->amount,
+                    'paid_on'   => $e->paid_on->format('d M Y'),
+                    'reference' => $e->reference,
+                    'note'      => $e->note,
+                    'has_proof' => (bool) $e->proof_path,
+                ])->values(),
             'payments'    => $payments,
             'maintenance' => $maintenance,
             'trend'       => $trend,

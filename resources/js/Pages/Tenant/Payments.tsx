@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Head, router, usePage } from '@inertiajs/react';
+import { FormEvent, useState } from 'react';
+import { Head, router, useForm, usePage } from '@inertiajs/react';
 import TenantLayout from '@/Layouts/TenantLayout';
 import { useInertiaLoading } from '@/Hooks/useInertiaLoading';
 import { Spinner } from '@/Components/Skeleton';
@@ -35,7 +35,11 @@ type Upcoming = {
     amount: number;
     late_fee: number;
     is_overdue: boolean;
+    /** Date of an EFT the tenant reported that is awaiting confirmation. */
+    eft_pending: string | null;
 };
+
+type Payee = { name: string; holder: string; bank: string; account: string; branch: string; type: string | null; reference: string };
 
 type Range = '3' | '6' | '12' | 'lease';
 
@@ -44,6 +48,7 @@ type Props = {
     filters: { lease: number | null; range: Range; range_label: string; from: string; to: string };
     ranges: { key: Range; label: string }[];
     leases: { id: number; name: string; current: boolean }[];
+    payee: Payee | null;
     lease: { id: number; monthly_rent: number; address: string; late_fee: string | null };
     kpis: { total_paid: number; count: number; streak: number; avg_payment: number; outstanding: number };
     rows: Row[];
@@ -78,7 +83,8 @@ function statementQuery(f: Props['filters'], extra: Record<string, string> = {})
     return q.toString();
 }
 
-export default function TenantPayments({ lease, kpis, rows, upcoming, statements, filters, ranges, leases }: Props) {
+export default function TenantPayments({ lease, kpis, rows, upcoming, statements, filters, ranges, leases, payee }: Props) {
+    const [eftFor, setEftFor] = useState<Upcoming | null>(null);
     const loading = useInertiaLoading();
     const periodShort = filters.range === 'lease' ? 'full lease period' : filters.range_label.toLowerCase();
 
@@ -135,7 +141,12 @@ export default function TenantPayments({ lease, kpis, rows, upcoming, statements
                                     title={`Pay rent for ${nextDue.period_label} (${fmtMoney(nextDue.amount)})`}
                                 >
                                     {busy ? <Spinner size={14} /> : <Icon name="wallet" className="w-4 h-4" />}
-                                    {busy ? 'Redirecting…' : `Pay ${fmtMoney(nextDue.amount)}`}
+                                    {busy ? 'Redirecting…' : `Pay ${fmtMoney(nextDue.amount)} online`}
+                                </button>
+                            )}
+                            {nextDue && nextDue.id && ! nextDue.eft_pending && (
+                                <button type="button" onClick={() => setEftFor(nextDue)} className={btnOutline}>
+                                    <Icon name="file" className="w-4 h-4" />Pay via EFT
                                 </button>
                             )}
                         </>
@@ -170,8 +181,13 @@ export default function TenantPayments({ lease, kpis, rows, upcoming, statements
                                 {kpis.outstanding > 0 ? 'Arrears owing' : 'Up to date'}
                             </span>
                         </div>
-                        {nextDue && (
-                            <div className="flex flex-wrap items-center gap-3 mt-5">
+                        {nextDue && nextDue.eft_pending && (
+                            <p className="mt-5 inline-flex items-center gap-2 rounded-full bg-white/15 ring-1 ring-white/25 px-4 py-2 text-[12.5px] font-semibold">
+                                <Icon name="clock" className="w-4 h-4" />EFT of {nextDue.eft_pending} reported · waiting for {payee?.name ?? 'your landlord'} to confirm
+                            </p>
+                        )}
+                        {nextDue && ! nextDue.eft_pending && (
+                            <div className="flex flex-wrap items-center gap-2.5 mt-5">
                                 <button
                                     type="button"
                                     onClick={() => payNow(nextDue.period)}
@@ -179,9 +195,18 @@ export default function TenantPayments({ lease, kpis, rows, upcoming, statements
                                     className="inline-flex items-center gap-2 rounded-full bg-white text-ink-900 px-4 py-2.5 text-[13px] font-semibold hover:bg-white/90 disabled:opacity-60"
                                 >
                                     {busy ? <Spinner size={14} /> : <Icon name="wallet" className="w-4 h-4" />}
-                                    {busy ? 'Redirecting…' : 'Pay with Paystack'}
+                                    {busy ? 'Redirecting…' : 'Pay online'}
                                 </button>
-                                <span className="text-[12px] text-white/75">or pay by EFT using your lease reference</span>
+                                {nextDue.id && (
+                                    <button
+                                        type="button"
+                                        onClick={() => setEftFor(nextDue)}
+                                        className="inline-flex items-center gap-2 rounded-full bg-white/15 ring-1 ring-white/40 text-white px-4 py-2.5 text-[13px] font-semibold hover:bg-white/25"
+                                    >
+                                        <Icon name="file" className="w-4 h-4" />Pay via EFT
+                                    </button>
+                                )}
+                                {payee && <span className="text-[12px] text-white/75">EFT reference: <span className="font-semibold text-white">{payee.reference}</span></span>}
                             </div>
                         )}
                     </div>
@@ -285,15 +310,27 @@ export default function TenantPayments({ lease, kpis, rows, upcoming, statements
                                     </div>
                                     <div className="flex items-center gap-3">
                                         <span className="font-semibold tabular-nums">{fmtMoney(u.amount)}</span>
-                                        {(isFirst || u.is_overdue) && (
-                                            <button
-                                                onClick={() => payNow(u.period)}
-                                                disabled={payingPeriod !== null}
-                                                className="inline-flex items-center gap-1.5 rounded-full bg-brand-700 hover:bg-brand-800 text-white px-3.5 py-1.5 text-[12px] font-semibold disabled:opacity-60"
-                                            >
-                                                {payingPeriod === u.period && <Spinner size={11} />}
-                                                {payingPeriod === u.period ? 'Redirecting…' : 'Pay now'}
-                                            </button>
+                                        {u.eft_pending ? (
+                                            <span className="text-[11px] px-2.5 py-1 rounded-full font-semibold bg-warning/15 text-amber-700 whitespace-nowrap">EFT reported · awaiting confirmation</span>
+                                        ) : (isFirst || u.is_overdue) && (
+                                            <>
+                                                <button
+                                                    onClick={() => payNow(u.period)}
+                                                    disabled={payingPeriod !== null}
+                                                    className="inline-flex items-center gap-1.5 rounded-full bg-brand-700 hover:bg-brand-800 text-white px-3.5 py-1.5 text-[12px] font-semibold disabled:opacity-60"
+                                                >
+                                                    {payingPeriod === u.period && <Spinner size={11} />}
+                                                    {payingPeriod === u.period ? 'Redirecting…' : 'Pay online'}
+                                                </button>
+                                                {u.id && (
+                                                    <button
+                                                        onClick={() => setEftFor(u)}
+                                                        className="inline-flex items-center gap-1.5 rounded-full border border-ink-300 hover:bg-ink-50 px-3.5 py-1.5 text-[12px] font-semibold"
+                                                    >
+                                                        EFT
+                                                    </button>
+                                                )}
+                                            </>
                                         )}
                                     </div>
                                 </li>
@@ -391,6 +428,120 @@ export default function TenantPayments({ lease, kpis, rows, upcoming, statements
                 </div>
                 </div>
             </section>
+
+            {eftFor && <EftModal charge={eftFor} payee={payee} onClose={() => setEftFor(null)} />}
         </TenantLayout>
+    );
+}
+
+function CopyRow({ label, value }: { label: string; value: string }) {
+    const [copied, setCopied] = useState(false);
+    function copy() {
+        navigator.clipboard?.writeText(value).then(() => {
+            setCopied(true);
+            setTimeout(() => setCopied(false), 1500);
+        });
+    }
+    return (
+        <div className="flex items-center justify-between gap-3 py-2 border-b border-ink-100 last:border-0">
+            <span className="text-[12px] text-ink-500">{label}</span>
+            <span className="flex items-center gap-2 min-w-0">
+                <span className="text-[13px] font-semibold tabular-nums truncate">{value}</span>
+                <button type="button" onClick={copy} className="text-[11px] font-semibold text-brand-700 hover:underline shrink-0">{copied ? 'Copied' : 'Copy'}</button>
+            </span>
+        </div>
+    );
+}
+
+function EftModal({ charge, payee, onClose }: { charge: Upcoming; payee: Payee | null; onClose: () => void }) {
+    const today = new Date().toISOString().slice(0, 10);
+    const { data, setData, post, processing, errors, progress } = useForm<{
+        rent_payment_id: number | null; amount: string; paid_on: string; proof: File | null; note: string;
+    }>({
+        rent_payment_id: charge.id,
+        amount: String(charge.amount),
+        paid_on: today,
+        proof: null,
+        note: '',
+    });
+
+    function submit(e: FormEvent) {
+        e.preventDefault();
+        post('/tenant/payments/eft', { preserveScroll: true, forceFormData: true, onSuccess: () => onClose() });
+    }
+
+    const inputCls = 'w-full bg-white border border-ink-200 rounded-xl px-3.5 py-2.5 text-[14px] focus:outline-none focus:border-brand-300 focus:ring-4 focus:ring-brand-100 transition';
+
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div className="absolute inset-0 bg-ink-900/50" onClick={onClose} />
+            <div className="relative bg-white rounded-2xl shadow-card w-full max-w-lg max-h-[90vh] overflow-y-auto">
+                <div className="p-5 border-b border-ink-100 flex items-start justify-between gap-3">
+                    <div>
+                        <h2 className="text-[18px] font-semibold tracking-tight">Pay via EFT</h2>
+                        <p className="text-[12.5px] text-ink-500 mt-0.5">{charge.period_label} · {fmtMoney(charge.amount)}</p>
+                    </div>
+                    <button type="button" onClick={onClose} className="text-ink-400 hover:text-ink-700 text-xl leading-none">×</button>
+                </div>
+
+                <div className="p-5 space-y-5">
+                    {payee ? (
+                        <div>
+                            <p className="text-[12px] font-semibold text-ink-700 mb-1">1. Pay into this account from your banking app</p>
+                            <div className="rounded-xl border border-ink-200/70 px-4 py-1">
+                                <CopyRow label="Account holder" value={payee.holder} />
+                                <CopyRow label="Bank" value={payee.bank} />
+                                <CopyRow label="Account number" value={payee.account} />
+                                <CopyRow label="Branch code" value={payee.branch} />
+                                {payee.type && <CopyRow label="Account type" value={payee.type.charAt(0).toUpperCase() + payee.type.slice(1)} />}
+                                <CopyRow label="Reference" value={payee.reference} />
+                                <CopyRow label="Amount" value={charge.amount.toFixed(2)} />
+                            </div>
+                            <p className="text-[11.5px] text-ink-500 mt-2">Use the reference exactly as shown so the payment can be matched to you.</p>
+                        </div>
+                    ) : (
+                        <div className="rounded-xl bg-warning/10 border border-warning/30 px-4 py-3 text-[12.5px] text-amber-800">
+                            Your landlord hasn't added their bank account to the portal yet. Use the banking details in your lease agreement, then let us know below.
+                        </div>
+                    )}
+
+                    <form onSubmit={submit} className="space-y-4">
+                        <p className="text-[12px] font-semibold text-ink-700">2. Let us know once you've paid</p>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label className="text-[12px] font-semibold text-ink-700 mb-1.5 block">Amount paid (R)</label>
+                                <input type="number" min="1" step="0.01" value={data.amount} onChange={(e) => setData('amount', e.target.value)} required className={inputCls + ' tabular-nums'} />
+                                {errors.amount && <p className="text-[11px] text-danger mt-1">{errors.amount}</p>}
+                            </div>
+                            <div>
+                                <label className="text-[12px] font-semibold text-ink-700 mb-1.5 block">Date paid</label>
+                                <input type="date" max={today} value={data.paid_on} onChange={(e) => setData('paid_on', e.target.value)} required className={inputCls} />
+                                {errors.paid_on && <p className="text-[11px] text-danger mt-1">{errors.paid_on}</p>}
+                            </div>
+                        </div>
+                        <div>
+                            <label className="text-[12px] font-semibold text-ink-700 mb-1.5 block">Proof of payment <span className="font-normal text-ink-400">(optional · PDF, JPG or PNG, up to 5 MB)</span></label>
+                            <input type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={(e) => setData('proof', e.target.files?.[0] ?? null)} className="block w-full text-[12.5px] file:mr-3 file:rounded-full file:border-0 file:bg-brand-50 file:text-brand-700 file:px-3.5 file:py-1.5 file:font-semibold" />
+                            {progress && <p className="text-[11px] text-ink-500 mt-1">Uploading {progress.percentage}%</p>}
+                            {errors.proof && <p className="text-[11px] text-danger mt-1">{errors.proof}</p>}
+                        </div>
+                        <div>
+                            <label className="text-[12px] font-semibold text-ink-700 mb-1.5 block">Note <span className="font-normal text-ink-400">(optional)</span></label>
+                            <input value={data.note} onChange={(e) => setData('note', e.target.value)} maxLength={500} className={inputCls} placeholder="e.g. Paid from my partner's account" />
+                        </div>
+                        {errors.rent_payment_id && <p className="text-[12px] text-danger">{errors.rent_payment_id}</p>}
+
+                        <p className="text-[11.5px] text-ink-500">Your rent shows as paid once {payee?.name ?? 'your landlord'} confirms the money has reflected (usually 1 to 2 working days).</p>
+
+                        <div className="flex justify-end gap-2 pt-1">
+                            <button type="button" onClick={onClose} className="px-4 py-2.5 text-[13px] rounded-full border border-ink-200 font-semibold hover:bg-ink-50">Cancel</button>
+                            <button type="submit" disabled={processing} className={btnPrimary}>
+                                {processing && <Spinner size={13} />}I've paid
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     );
 }

@@ -297,6 +297,20 @@ class HandleInertiaRequests extends Middleware
                 'href'  => '/tenant/maintenance',
                 'tone'  => 'success',
             ],
+            \App\Notifications\EftPaymentSubmitted::class => [
+                'title' => 'EFT to confirm',
+                'body'  => ($data['tenant'] ?? 'A tenant') . ' says they paid R ' . number_format((float) ($data['amount'] ?? 0), 2) . ' by EFT.',
+                'href'  => '/landlord/finance',
+                'tone'  => 'warning',
+            ],
+            \App\Notifications\EftPaymentReviewed::class => [
+                'title' => ($data['status'] ?? '') === 'confirmed' ? 'EFT received' : 'EFT not confirmed',
+                'body'  => ($data['status'] ?? '') === 'confirmed'
+                    ? 'Your EFT of R ' . number_format((float) ($data['amount'] ?? 0), 2) . ' was received. Rent is marked paid.'
+                    : 'Your EFT could not be confirmed: ' . ($data['reason'] ?? 'not found in the account') . '.',
+                'href'  => '/tenant/payments',
+                'tone'  => ($data['status'] ?? '') === 'confirmed' ? 'success' : 'danger',
+            ],
             \App\Notifications\DebitOrderCollectionResult::class => [
                 'title' => ($data['status'] ?? '') === 'succeeded' ? 'Debit order collected' : 'Debit order unsuccessful',
                 'body'  => ($data['status'] ?? '') === 'succeeded'

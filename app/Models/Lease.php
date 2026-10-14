@@ -17,6 +17,7 @@ class Lease extends Model
         'status', 'signed_at', 'document_path',
         'tenant_signed_at', 'tenant_signature',
         'late_fee_enabled', 'late_fee_type', 'late_fee_value', 'late_fee_day', 'late_fee_since',
+        'payment_reference',
     ];
 
     protected function casts(): array

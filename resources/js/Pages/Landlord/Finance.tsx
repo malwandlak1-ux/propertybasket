@@ -24,6 +24,11 @@ type Expense = { date: string; description: string; property: string; reference:
 
 type Range = '3' | '6' | '12' | 'lease';
 
+type EftPending = {
+    id: number; tenant: string | null; property: string | null; period: string | null;
+    due: number; amount: number; paid_on: string; reference: string | null; note: string | null; has_proof: boolean;
+};
+
 type Props = {
     landlord: { id: number; name: string };
     year: number;
@@ -46,6 +51,7 @@ type Props = {
     cashflow: { month: string; period: string; income: number; maintenance: number }[];
     by_property: { property: string; income: number; maintenance: number; net: number }[];
     statements: Statement[];
+    eft_pending: EftPending[];
     payments: Payment[];
     maintenance: Expense[];
 };
@@ -92,7 +98,7 @@ function statementQuery(f: Props['filters'], extra: Record<string, string> = {})
 }
 
 export default function LandlordFinance({
-    kpis, income_statement: pl, cashflow, by_property, statements, payments, maintenance, filters, properties, ranges,
+    kpis, income_statement: pl, cashflow, by_property, statements, payments, maintenance, filters, properties, ranges, eft_pending,
 }: Props) {
     const [filter, setFilter] = useState<Filter>('all');
     const loading = useInertiaLoading();
@@ -153,6 +159,8 @@ export default function LandlordFinance({
                 </div>
 
                 <div className={loading ? 'opacity-50 pointer-events-none transition-opacity' : 'transition-opacity'}>
+
+                {eft_pending.length > 0 && <EftToConfirm items={eft_pending} />}
 
                 {/* Income statement summary */}
                 <div className="bg-white rounded-2xl border border-ink-200/60 shadow-soft overflow-hidden mb-4">
@@ -407,5 +415,57 @@ export default function LandlordFinance({
                 </div>
             </section>
         </LandlordLayout>
+    );
+}
+
+/** Tenants' "I've paid by EFT" notices: confirm once the money reflects, or reject. */
+function EftToConfirm({ items }: { items: EftPending[] }) {
+    const [busy, setBusy] = useState<number | null>(null);
+
+    function confirmEft(e: EftPending) {
+        if (! window.confirm(`Confirm that ${fmtMoney(e.amount)} from ${e.tenant ?? 'the tenant'} has reflected in your account? Their ${e.period ?? ''} rent will be marked paid.`)) return;
+        setBusy(e.id);
+        router.post(`/landlord/finance/eft/${e.id}/confirm`, {}, { preserveScroll: true, onFinish: () => setBusy(null) });
+    }
+    function rejectEft(e: EftPending) {
+        const reason = window.prompt('Why can\'t this EFT be confirmed? The tenant will see this.', 'Payment not found in the account');
+        if (! reason) return;
+        setBusy(e.id);
+        router.post(`/landlord/finance/eft/${e.id}/reject`, { reason }, { preserveScroll: true, onFinish: () => setBusy(null) });
+    }
+
+    return (
+        <div className="bg-white rounded-2xl border border-warning/40 shadow-soft overflow-hidden mb-4 pb-rise">
+            <div className="p-5 border-b border-ink-100 flex items-center gap-3">
+                <span className="w-9 h-9 rounded-xl bg-warning/15 text-amber-700 flex items-center justify-center shrink-0"><Icon name="alert" className="w-4 h-4" /></span>
+                <div>
+                    <h2 className="text-base font-semibold">EFT payments to confirm</h2>
+                    <p className="text-[12px] text-ink-500 mt-0.5">Tenants say they've paid by EFT. Check your bank account, then confirm so the rent is marked paid.</p>
+                </div>
+                <span className="ml-auto text-[11px] bg-warning/15 text-amber-700 px-2.5 py-1 rounded-full font-bold">{items.length}</span>
+            </div>
+            <div className="divide-y divide-ink-100">
+                {items.map((e) => (
+                    <div key={e.id} className="px-5 py-3.5 flex flex-wrap items-center gap-3">
+                        <div className="min-w-0 flex-1">
+                            <p className="text-[13.5px] font-semibold">{e.tenant} · {e.period} rent</p>
+                            <p className="text-[11.5px] text-ink-500 truncate">
+                                {e.property} · paid {e.paid_on} · ref {e.reference ?? '—'}
+                                {Math.abs(e.amount - e.due) > 0.01 && <span className="text-amber-700 font-semibold"> · rent due {fmtMoney(e.due)}</span>}
+                            </p>
+                            {e.note && <p className="text-[11.5px] text-ink-600 mt-0.5">"{e.note}"</p>}
+                        </div>
+                        <span className="text-[15px] font-semibold tabular-nums">{fmtMoney(e.amount)}</span>
+                        {e.has_proof && (
+                            <a href={`/landlord/finance/eft/${e.id}/proof`} target="_blank" rel="noopener" className="text-[12px] font-semibold text-brand-700 hover:underline">Proof</a>
+                        )}
+                        <button type="button" onClick={() => rejectEft(e)} disabled={busy !== null} className="px-3.5 py-1.5 text-[12px] rounded-full border border-ink-200 font-semibold hover:bg-ink-50 disabled:opacity-50">Not received</button>
+                        <button type="button" onClick={() => confirmEft(e)} disabled={busy !== null} className="px-3.5 py-1.5 text-[12px] rounded-full bg-brand-700 text-white font-semibold hover:bg-brand-800 disabled:opacity-50">
+                            {busy === e.id ? 'Saving…' : 'Confirm received'}
+                        </button>
+                    </div>
+                ))}
+            </div>
+        </div>
     );
 }

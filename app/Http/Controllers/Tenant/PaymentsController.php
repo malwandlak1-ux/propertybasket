@@ -96,6 +96,9 @@ class PaymentsController extends Controller
             ];
         })->values();
 
+        $eftPending = \App\Models\EftPayment::where('lease_id', $lease->id)->where('status', 'submitted')
+            ->get()->keyBy('rent_payment_id');
+
         // ── Due now (arrears first, then current) ────────────────────────────
         // Overdue prior months surface ahead of the current month so the tenant
         // clears arrears first (pay-and-stay).
@@ -104,7 +107,7 @@ class PaymentsController extends Controller
             ->sortBy('due_date')
             ->values()
             ->take(4)
-            ->map(function (RentPayment $p) use ($now) {
+            ->map(function (RentPayment $p) use ($now, $eftPending) {
                 $due = CarbonImmutable::parse($p->due_date);
                 $days = (int) $now->startOfDay()->diffInDays($due->startOfDay(), false);
                 return [
@@ -116,6 +119,7 @@ class PaymentsController extends Controller
                     'amount'         => (float) $p->amount,
                     'late_fee'       => (float) $p->late_fee,
                     'is_overdue'     => $days < 0,
+                    'eft_pending'    => $eftPending->has($p->id) ? $eftPending[$p->id]->paid_on->format('d M Y') : null,
                 ];
             });
 
@@ -132,6 +136,7 @@ class PaymentsController extends Controller
                 'amount'         => $this->billing->rentForPeriod($lease, $cursor),
                 'late_fee'       => 0.0,
                 'is_overdue'     => false,
+                'eft_pending'    => null,
             ]]);
         }
 
@@ -156,6 +161,7 @@ class PaymentsController extends Controller
             'rows'       => $rows,
             'upcoming'   => $upcoming->values(),
             'statements' => app(TenantStatementService::class)->availableMonths($selected, $from),
+            'payee'      => app(\App\Services\RentPayee::class)->for($lease),
             'filters'    => [
                 'lease'       => $selected->id === $lease->id ? null : $selected->id,
                 'range'       => $range,

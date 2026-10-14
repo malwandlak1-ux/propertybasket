@@ -31,4 +31,9 @@ class RentPayment extends Model
     {
         return $this->belongsTo(Lease::class);
     }
+
+    public function eftPayments(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(EftPayment::class);
+    }
 }

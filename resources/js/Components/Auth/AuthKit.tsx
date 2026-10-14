@@ -21,14 +21,10 @@ export function useAuthColors() {
     };
 }
 
-/** Page background with the decorative coral triangle and yellow circle. */
+/** Plain soft-grey page background behind the card. */
 export function AuthBackground({ children }: { children: ReactNode }) {
     return (
         <div className="min-h-screen bg-[#EEF1F0] relative overflow-hidden flex items-center justify-center px-4 py-10">
-            <div aria-hidden className="absolute -top-24 right-[8%] w-[420px] h-[420px] opacity-90 hidden md:block"
-                 style={{ background: '#E85D6A', clipPath: 'polygon(100% 0, 100% 100%, 0 0)' }} />
-            <div aria-hidden className="absolute -bottom-40 -left-32 w-[420px] h-[420px] rounded-full opacity-95 hidden md:block"
-                 style={{ background: 'linear-gradient(135deg, #FFD54F, #F9B233)' }} />
             {children}
         </div>
     );

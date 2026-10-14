@@ -39,7 +39,7 @@ export default function TenantLayout({ children, crumb = 'Dashboard', section = 
     ];
     const account: NavItem[] = [
         { label: 'Settings',      href: '/tenant/settings', icon: I.settings },
-        { label: 'Help & Support',icon: I.help },
+        { label: 'Help & Support',href: '/tenant/help', icon: I.help },
     ];
 
 

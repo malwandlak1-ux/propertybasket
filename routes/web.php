@@ -263,6 +263,7 @@ Route::middleware('auth')->group(function () {
 
     Route::prefix('contractor')->name('contractor.')->group(function () {
         Route::get('/',           [Contractor\DashboardController::class, 'overview'])->name('overview');
+        Route::get('help',        [\App\Http\Controllers\HelpController::class, 'contractor'])->name('help');
         Route::get('requests',    [Contractor\RequestsController::class,  'index'])->name('requests.index');
         Route::post('requests/{maintenanceRequest}/accept',  [Contractor\RequestsController::class, 'accept'])->name('requests.accept');
         Route::post('requests/{maintenanceRequest}/decline', [Contractor\RequestsController::class, 'decline'])->name('requests.decline');
@@ -316,6 +317,7 @@ Route::middleware('auth')->group(function () {
             Route::post('messages/{conversation}', [Landlord\MessagesController::class, 'store'])->name('messages.store');
 
             Route::get('settings',          [Landlord\SettingsController::class, 'show'])->name('settings.show');
+            Route::get('help',              [\App\Http\Controllers\HelpController::class, 'landlord'])->name('help');
             Route::patch('settings/profile',[Landlord\SettingsController::class, 'updateProfile'])->name('settings.profile');
             Route::patch('settings/banking',[Landlord\SettingsController::class, 'updateBanking'])->name('settings.banking');
             Route::patch('settings/penalties/{lease}', [Landlord\SettingsController::class, 'updatePenalty'])->name('settings.penalties.update');
@@ -343,6 +345,7 @@ Route::middleware('auth')->group(function () {
         Route::post('debit-order/cancel',[Tenant\DebitOrderController::class, 'cancel'])->name('debit-order.cancel');
 
         Route::get('settings',           [Tenant\SettingsController::class, 'show'])->name('settings.show');
+        Route::get('help',               [\App\Http\Controllers\HelpController::class, 'tenant'])->name('help');
         Route::patch('settings/profile', [Tenant\SettingsController::class, 'updateProfile'])->name('settings.profile');
         Route::patch('settings/password',[Tenant\SettingsController::class, 'updatePassword'])->name('settings.password');
         Route::patch('settings/banking', [Tenant\SettingsController::class, 'updateBanking'])->name('settings.banking');

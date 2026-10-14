@@ -55,7 +55,7 @@ export default function LandlordLayout({
 
     const account: NavItem[] = [
         { label: 'Settings',      href: '/landlord/settings', icon: I.settings },
-        { label: 'Help & Support', icon: I.help },
+        { label: 'Help & Support', href: '/landlord/help', icon: I.help },
     ];
 
     return (

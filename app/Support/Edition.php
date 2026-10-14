@@ -60,6 +60,12 @@ class Edition
         ];
     }
 
+    /** Property slots a self-managing landlord has on this site. */
+    public static function landlordPropertySlots(): int
+    {
+        return max(1, (int) config('edition.landlord_property_slots', 5));
+    }
+
     /** Contractors can browse + claim unassigned jobs (the marketplace). */
     public static function marketplaceEnabled(): bool
     {

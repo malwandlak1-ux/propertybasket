@@ -23,7 +23,7 @@ class PropertiesController extends Controller
             ->with(['leases' => fn($q) => $q->whereIn('status', ['active', 'pending'])->with(['tenant', 'rentPayments'])])
             ->get();
 
-        $maxSlots = 5;
+        $maxSlots = \App\Support\Edition::landlordPropertySlots();
 
         $properties = $listings->map(function ($listing) use ($now, $period) {
             $lease       = $listing->leases->first();

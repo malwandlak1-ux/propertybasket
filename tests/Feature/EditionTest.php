@@ -164,4 +164,21 @@ class EditionTest extends TestCase
         $this->actingAs($user)->post('/settings/appearance', ['accent' => 'teal'])->assertRedirect();
         $this->assertSame('teal', $user->fresh()->theme_accent);
     }
+
+    #[Test]
+    public function landlord_property_slots_follow_the_site_setting(): void
+    {
+        $user = User::factory()->create(['role' => Role::Landlord, 'status' => UserStatus::Active]);
+        $user->assignRole('landlord');
+        \App\Models\Landlord::create(['user_id' => $user->id])->activateSubscription('promo', now()->addYear());
+
+        $this->actingAs($user)->get('/landlord/properties')
+            ->assertInertia(fn (Assert $p) => $p->where('slots_max', 5));
+
+        config(['edition.landlord_property_slots' => 20]);
+        $this->actingAs($user)->get('/landlord/properties')
+            ->assertInertia(fn (Assert $p) => $p->where('slots_max', 20));
+        $this->actingAs($user)->get('/landlord')
+            ->assertInertia(fn (Assert $p) => $p->where('kpis.slots_max', 20));
+    }
 }

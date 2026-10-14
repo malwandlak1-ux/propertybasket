@@ -60,7 +60,8 @@ function PayChip({ status }: { status: Property['pay_status'] }) {
 
 export default function LandlordProperties({ properties, slots_used, slots_max }: Props) {
     const { agenciesEnabled } = useEdition();
-    const emptySlots = Array.from({ length: Math.max(0, slots_max - slots_used) }, (_, i) => i);
+    const slotsLeft = Math.max(0, slots_max - slots_used);
+    const emptySlots = slotsLeft > 0 ? [0] : [];
     const occupied = properties.filter((p) => p.occupied).length;
     const rentRoll = properties.filter((p) => p.occupied && p.listing_type === 'long_term_rent').reduce((s, p) => s + (p.monthly_rent || 0), 0);
     const slotPct = Math.min(100, Math.round((slots_used / Math.max(1, slots_max)) * 100));
@@ -176,7 +177,7 @@ export default function LandlordProperties({ properties, slots_used, slots_max }
                                 <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M12 5v14M5 12h14" /></svg>
                             </span>
                             <span className="text-[13px] font-semibold">Add property</span>
-                            <span className="text-[11.5px]">Slot {slots_used + i + 1} of {slots_max}</span>
+                            <span className="text-[11.5px]">{slotsLeft} of {slots_max} slot{slots_max === 1 ? '' : 's'} free</span>
                         </Link>
                     ))}
                 </div>

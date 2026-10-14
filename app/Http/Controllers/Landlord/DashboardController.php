@@ -140,6 +140,7 @@ class DashboardController extends Controller
                 'occupied_count' => $occupiedCount,
                 'total_count'    => $totalLongTerm,
                 'all_count'      => $allListings->count(),
+                'slots_max'      => \App\Support\Edition::landlordPropertySlots(),
                 'open_maint'     => $openMaint,
                 'needs_quote'    => $needsQuoteCount,
             ],

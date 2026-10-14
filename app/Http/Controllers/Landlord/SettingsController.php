@@ -164,7 +164,7 @@ class SettingsController extends Controller
             ->whereIn('status', ['active', 'pending']);
     }
 
-    /** PATCH /landlord/settings/penalties/{lease} — late-payment penalty terms for one property. */
+    /** PATCH /landlord/settings/penalties/{lease} â€” late-payment penalty terms for one property. */
     public function updatePenalty(Request $request, Lease $lease): RedirectResponse
     {
         $landlord = $this->resolveLandlord($request);
@@ -187,7 +187,7 @@ class SettingsController extends Controller
             'late_fee_type'    => $data['type'],
             'late_fee_value'   => (float) ($data['value'] ?? 0),
             'late_fee_day'     => (int) $data['day'],
-            // Penalties only count from the day they're switched on — never back-charged.
+            // Penalties only count from the day they're switched on â€” never back-charged.
             'late_fee_since'   => $enabled
                 ? ($lease->late_fee_enabled && $lease->late_fee_since ? $lease->late_fee_since : now()->toDateString())
                 : null,

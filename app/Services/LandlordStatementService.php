@@ -7,6 +7,7 @@ use App\Models\Lease;
 use App\Models\Listing;
 use App\Models\MaintenanceInvoice;
 use App\Models\RentPayment;
+use App\Support\StatementRange;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Collection;
 
@@ -24,15 +25,10 @@ use Illuminate\Support\Collection;
  */
 class LandlordStatementService
 {
-    /** Period filters offered on the Finance page. */
-    public const RANGES = ['3', '6', '12', 'lease'];
+    /** Period filters offered on the Finance page (see StatementRange). */
+    public const RANGES = StatementRange::KEYS;
 
-    public const RANGE_LABELS = [
-        '3'     => 'Last 3 months',
-        '6'     => 'Last 6 months',
-        '12'    => 'Last 12 months',
-        'lease' => 'Full lease period',
-    ];
+    public const RANGE_LABELS = StatementRange::LABELS;
 
     /**
      * [from, to] for a range filter: the last N calendar months including the
@@ -43,9 +39,7 @@ class LandlordStatementService
     public function period(Landlord $landlord, string $range, ?int $listingId = null): array
     {
         $to = CarbonImmutable::now()->endOfDay();
-        $from = $range === 'lease'
-            ? $this->firstMonth($landlord, $listingId)
-            : CarbonImmutable::now()->startOfMonth()->subMonths(max(1, (int) $range) - 1);
+        $from = StatementRange::from($range) ?? $this->firstMonth($landlord, $listingId);
 
         return [$from, $to];
     }

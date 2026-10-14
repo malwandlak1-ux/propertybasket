@@ -88,12 +88,16 @@ class PdfService
      * Tenant rent statement — the whole account, or one month when $period
      * ("YYYY-MM") is given. Built by TenantStatementService.
      */
-    public function tenantStatement(Lease $lease, ?string $period = null, bool $download = false): Response
+    public function tenantStatement(Lease $lease, ?string $period = null, bool $download = false, ?string $range = null): Response
     {
         $lease->loadMissing(['listing', 'tenant', 'agency', 'landlord']);
         $statements = app(TenantStatementService::class);
 
-        $statement = $period ? $statements->month($lease, $period) : $statements->full($lease);
+        $statement = match (true) {
+            $period !== null                       => $statements->month($lease, $period),
+            $range !== null && $range !== 'lease'  => $statements->range($lease, $range),
+            default                                => $statements->full($lease),
+        };
 
         $pdf = Pdf::loadView('pdfs.tenant-statement', [
             'statement'    => $statement,
@@ -103,9 +107,11 @@ class PdfService
             'deposit'      => $statements->deposit($lease),
             'agencyName'   => $lease->agency?->name,
             'landlordName' => $lease->landlord?->name,
+            'rangeLabel'   => $period ? null : (\App\Support\StatementRange::LABELS[$range ?? 'lease'] ?? null),
         ])->setPaper('A4');
 
-        $filename = 'statement-' . ($period ?? 'full-' . now()->format('Y-m-d')) . '-lease-' . str_pad($lease->id, 6, '0', STR_PAD_LEFT) . '.pdf';
+        $when = $period ?? (($range && $range !== 'lease' ? 'last-' . $range . '-months-' : 'full-') . now()->format('Y-m-d'));
+        $filename = 'statement-' . $when . '-lease-' . str_pad($lease->id, 6, '0', STR_PAD_LEFT) . '.pdf';
         return $download ? $pdf->download($filename) : $pdf->stream($filename);
     }
 

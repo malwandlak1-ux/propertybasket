@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Deposit;
 use App\Models\Lease;
 use App\Models\RentPayment;
+use App\Support\StatementRange;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Collection;
 
@@ -62,6 +63,36 @@ class TenantStatementService
         return $this->build($lease, $from, $to);
     }
 
+    /**
+     * [from, to] for a period filter (3|6|12|lease), kept inside the lease:
+     * never before its start, never past its end.
+     *
+     * @return array{0: CarbonImmutable, 1: CarbonImmutable}
+     */
+    public function period(Lease $lease, string $range): array
+    {
+        $start = CarbonImmutable::parse($lease->start_date)->startOfMonth();
+        $to    = CarbonImmutable::now()->endOfDay();
+        if ($lease->end_date && CarbonImmutable::parse($lease->end_date)->endOfDay()->lt($to)) {
+            $to = CarbonImmutable::parse($lease->end_date)->endOfDay();
+        }
+
+        $from = StatementRange::from($range) ?? $start;
+        if ($from->lt($start)) {
+            $from = $start;
+        }
+
+        return [$from, $to];
+    }
+
+    /** Statement for a period filter. */
+    public function range(Lease $lease, string $range): array
+    {
+        [$from, $to] = $this->period($lease, $range);
+
+        return $this->build($lease, $from, $to);
+    }
+
     /** One calendar month, e.g. "2026-09". */
     public function month(Lease $lease, string $period): array
     {
@@ -75,9 +106,12 @@ class TenantStatementService
      *
      * @return array<int, array{period: string, label: string, charged: float, paid: float, closing: float}>
      */
-    public function availableMonths(Lease $lease): array
+    public function availableMonths(Lease $lease, ?CarbonImmutable $from = null): array
     {
         $first = CarbonImmutable::parse($lease->start_date)->startOfMonth();
+        if ($from && $from->startOfMonth()->gt($first)) {
+            $first = $from->startOfMonth();
+        }
         $last  = CarbonImmutable::now()->startOfMonth();
         if ($lease->end_date && CarbonImmutable::parse($lease->end_date)->startOfMonth()->lt($last)) {
             $last = CarbonImmutable::parse($lease->end_date)->startOfMonth();
@@ -125,7 +159,7 @@ class TenantStatementService
             if ((float) $p->late_fee > 0) {
                 $entries->push([
                     'date'        => CarbonImmutable::parse($p->late_fee_applied_at ?? $p->due_date)->startOfDay(),
-                    'description' => "Late payment penalty — {$period}",
+                    'description' => "Late payment penalty â€” {$period}",
                     'reference'   => 'PEN-' . $p->period_month,
                     'charge'      => (float) $p->late_fee,
                     'payment'     => 0.0,

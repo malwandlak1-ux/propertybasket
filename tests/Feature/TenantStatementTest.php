@@ -124,4 +124,74 @@ class TenantStatementTest extends TestCase
                 ->where('appearance.logo_inherited', true)
             );
     }
+
+    #[Test]
+    public function payments_page_filters_by_period(): void
+    {
+        $as = $this->actingAs($this->tenant);
+
+        // Default: last 12 months -> all 4 charges; paid total R6,000.
+        $as->get('/tenant/payments')->assertInertia(fn (Assert $p) => $p
+            ->where('filters.range', '12')
+            ->has('rows', 4)
+            ->where('kpis.total_paid', 6000)
+            ->has('leases', 1));
+
+        // Last 3 months: the oldest (paid) month drops out.
+        $as->get('/tenant/payments?range=3')->assertInertia(fn (Assert $p) => $p
+            ->has('rows', 3)
+            ->where('kpis.total_paid', 3000)
+            ->has('statements', 3)
+            // "Due now" always follows the current lease, whatever the filter.
+            ->where('kpis.outstanding', 6000));
+
+        // Full lease period starts at the lease.
+        $as->get('/tenant/payments?range=lease')->assertInertia(fn (Assert $p) => $p
+            ->where('filters.from', CarbonImmutable::parse($this->lease->start_date)->format('d M Y')));
+
+        $pdf = $as->get('/tenant/payments/statement.pdf?range=6&download=1');
+        $pdf->assertOk();
+        $this->assertStringContainsString('statement-last-6-months-', (string) $pdf->headers->get('Content-Disposition'));
+    }
+
+    #[Test]
+    public function tenant_with_two_leases_can_pick_either_but_not_someone_elses(): void
+    {
+        // An earlier, ended lease on another unit, fully paid.
+        $old = Lease::create([
+            'listing_id' => $this->lease->listing_id, 'tenant_id' => $this->tenant->id, 'landlord_id' => $this->landlordUser->id,
+            'start_date' => now()->subMonths(9)->startOfMonth(), 'end_date' => now()->subMonths(8)->endOfMonth(),
+            'monthly_rent' => 2500, 'deposit_amount' => 0, 'status' => 'expired',
+        ]);
+        foreach ([9, 8] as $ago) {
+            RentPayment::create([
+                'lease_id' => $old->id, 'period_month' => now()->subMonths($ago)->format('Y-m'), 'amount' => 2500,
+                'due_date' => now()->subMonths($ago)->startOfMonth(), 'paid_at' => now()->subMonths($ago)->startOfMonth()->addDay(),
+                'status' => 'paid', 'payment_method' => 'manual',
+            ]);
+        }
+        $receipt = RentPayment::where('lease_id', $old->id)->first();
+
+        $as = $this->actingAs($this->tenant);
+        $as->get("/tenant/payments?lease={$old->id}&range=lease")->assertInertia(fn (Assert $p) => $p
+            ->has('leases', 2)
+            ->where('filters.lease', $old->id)
+            ->has('rows', 2)
+            ->where('kpis.total_paid', 5000)
+            // The pay-now card still belongs to the current lease.
+            ->where('lease.id', $this->lease->id));
+
+        $as->get("/tenant/payments/statement.pdf?lease={$old->id}")->assertOk();
+        $as->get("/tenant/payments/{$receipt->id}/receipt.pdf")->assertOk();
+
+        // Someone else's lease.
+        $other = User::factory()->create(['role' => Role::Tenant, 'status' => UserStatus::Active]);
+        $foreign = Lease::create([
+            'listing_id' => $this->lease->listing_id, 'tenant_id' => $other->id, 'landlord_id' => $this->landlordUser->id,
+            'start_date' => now()->subMonths(2)->startOfMonth(), 'end_date' => now()->addYear(),
+            'monthly_rent' => 4000, 'deposit_amount' => 0, 'status' => 'active',
+        ]);
+        $as->get("/tenant/payments?lease={$foreign->id}")->assertNotFound();
+        $as->get("/tenant/payments/statement.pdf?lease={$foreign->id}")->assertNotFound();
+    }
 }

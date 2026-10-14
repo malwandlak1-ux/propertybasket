@@ -95,7 +95,7 @@ class PaystackService
 
         $resp = $this->http()->post('/transaction/initialize', [
             'email'        => $lease->tenant?->email,
-            'amount'       => (int) round((float) $payment->amount * 100), // kobo — includes escalation + any late fee
+            'amount'       => (int) round((float) $payment->amount * 100), // kobo â€” includes escalation + any late fee
             'reference'    => $reference,
             'currency'     => 'ZAR',
             'callback_url' => config('services.paystack.callback_url') ?: url('/payments/paystack/callback'),

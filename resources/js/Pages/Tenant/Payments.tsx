@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Head, router, usePage } from '@inertiajs/react';
 import TenantLayout from '@/Layouts/TenantLayout';
+import { useInertiaLoading } from '@/Hooks/useInertiaLoading';
 import { Spinner } from '@/Components/Skeleton';
 import { PageHeader, Segmented, btnOutline, btnPrimary } from '@/Components/Dashboard/Charts';
 import Icon from '@/Components/Dashboard/Icon';
@@ -36,8 +37,13 @@ type Upcoming = {
     is_overdue: boolean;
 };
 
+type Range = '3' | '6' | '12' | 'lease';
+
 type Props = {
     tenant: { id: number; name: string };
+    filters: { lease: number | null; range: Range; range_label: string; from: string; to: string };
+    ranges: { key: Range; label: string }[];
+    leases: { id: number; name: string; current: boolean }[];
     lease: { id: number; monthly_rent: number; address: string; late_fee: string | null };
     kpis: { total_paid: number; count: number; streak: number; avg_payment: number; outstanding: number };
     rows: Row[];
@@ -65,7 +71,22 @@ const methodLabel = (m: string | null) => {
     }[m] ?? m;
 };
 
-export default function TenantPayments({ lease, kpis, rows, upcoming, statements }: Props) {
+/** Query string for the statement PDF matching the current filters. */
+function statementQuery(f: Props['filters'], extra: Record<string, string> = {}): string {
+    const q = new URLSearchParams({ range: f.range, ...extra });
+    if (f.lease) q.set('lease', String(f.lease));
+    return q.toString();
+}
+
+export default function TenantPayments({ lease, kpis, rows, upcoming, statements, filters, ranges, leases }: Props) {
+    const loading = useInertiaLoading();
+    const periodShort = filters.range === 'lease' ? 'full lease period' : filters.range_label.toLowerCase();
+
+    function applyFilters(next: { lease?: number | null; range?: Range }) {
+        const l = next.lease !== undefined ? next.lease : filters.lease;
+        const range = next.range ?? filters.range;
+        router.get('/tenant/payments', { ...(l ? { lease: l } : {}), range }, { preserveScroll: true, preserveState: true });
+    }
     const [payingPeriod, setPayingPeriod] = useState<string | null>(null);
     const [filter, setFilter] = useState<Filter>('all');
     const { flash } = usePage<FlashShared>().props;
@@ -101,7 +122,7 @@ export default function TenantPayments({ lease, kpis, rows, upcoming, statements
                     subtitle={<>All your rent payments since the lease started · {kpis.streak} consecutive on-time payment{kpis.streak === 1 ? '' : 's'}</>}
                     actions={
                         <>
-                            <a href="/tenant/payments/statement.pdf?download=1" className={btnOutline}>
+                            <a href={`/tenant/payments/statement.pdf?${statementQuery(filters, { download: '1' })}`} className={btnOutline}>
                                 <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" /></svg>
                                 Download statement
                             </a>
@@ -179,12 +200,52 @@ export default function TenantPayments({ lease, kpis, rows, upcoming, statements
                     </div>
                 </div>
 
+                {/* Filters: lease (if more than one) + period. History, totals and statements follow them. */}
+                <div className="bg-white rounded-2xl border border-ink-200/60 shadow-soft p-4 mb-4 flex flex-col xl:flex-row xl:items-center gap-3">
+                    <div className="flex items-center gap-2.5 min-w-0">
+                        <span className="w-9 h-9 rounded-xl bg-brand-50 text-brand-700 flex items-center justify-center shrink-0"><Icon name="calendar" className="w-4 h-4" /></span>
+                        {leases.length > 1 ? (
+                            <select
+                                aria-label="Lease"
+                                value={filters.lease ?? leases.find((l) => l.current)?.id ?? ''}
+                                onChange={(e) => {
+                                    const id = Number(e.target.value);
+                                    applyFilters({ lease: leases.find((l) => l.id === id)?.current ? null : id });
+                                }}
+                                className="min-w-0 w-full sm:w-[320px] bg-white border border-ink-200 rounded-xl px-3.5 py-2.5 text-[13.5px] font-semibold focus:outline-none focus:border-brand-300 focus:ring-4 focus:ring-brand-100"
+                            >
+                                {leases.map((l) => <option key={l.id} value={l.id}>{l.name}{l.current ? ' (current)' : ''}</option>)}
+                            </select>
+                        ) : (
+                            <div className="min-w-0">
+                                <p className="text-[13.5px] font-semibold">Payment history &amp; statements</p>
+                                <p className="text-[11.5px] text-ink-500 truncate">{lease.address}</p>
+                            </div>
+                        )}
+                    </div>
+                    <div className="overflow-x-auto -mx-1 px-1">
+                        <Segmented<Range>
+                            options={ranges.map((r) => ({ value: r.key, label: r.label }))}
+                            value={filters.range}
+                            onChange={(range) => applyFilters({ range })}
+                        />
+                    </div>
+                    <div className="flex items-center gap-3 xl:ml-auto">
+                        <span className="text-[12px] text-ink-500 whitespace-nowrap">{filters.from} – {filters.to}</span>
+                        <a href={`/tenant/payments/statement.pdf?${statementQuery(filters, { download: '1' })}`} className={btnPrimary + ' whitespace-nowrap'}>
+                            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" /></svg>
+                            Download statement
+                        </a>
+                    </div>
+                </div>
+
+                <div className={loading ? 'opacity-50 pointer-events-none transition-opacity' : 'transition-opacity'}>
                 {/* KPI tiles */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
                     <div className="bg-white rounded-2xl border border-ink-200/60 p-5 shadow-soft pb-rise">
                         <p className="text-[13px] font-medium text-ink-700">Total paid</p>
                         <p className="text-[30px] font-semibold tracking-tight mt-3 leading-none tabular-nums">{fmtMoney(kpis.total_paid)}</p>
-                        <p className="text-[11.5px] text-ink-500 mt-2">{kpis.count} payment{kpis.count === 1 ? '' : 's'} on this lease</p>
+                        <p className="text-[11.5px] text-ink-500 mt-2">{kpis.count} payment{kpis.count === 1 ? '' : 's'} · {periodShort}</p>
                     </div>
                     <div className="bg-white rounded-2xl border border-ink-200/60 p-5 shadow-soft pb-rise">
                         <p className="text-[13px] font-medium text-ink-700">On-time streak</p>
@@ -196,6 +257,8 @@ export default function TenantPayments({ lease, kpis, rows, upcoming, statements
                         <p className="text-[30px] font-semibold tracking-tight mt-3 leading-none tabular-nums">{fmtMoney(kpis.avg_payment)}</p>
                         <p className="text-[11.5px] text-ink-500 mt-2">Per month</p>
                     </div>
+                </div>
+
                 </div>
 
                 {/* Upcoming */}
@@ -239,12 +302,13 @@ export default function TenantPayments({ lease, kpis, rows, upcoming, statements
                     </ul>
                 </div>
 
+                <div className={loading ? 'opacity-50 pointer-events-none transition-opacity' : 'transition-opacity'}>
                 {/* Payment history */}
                 <div className="bg-white rounded-2xl border border-ink-200/60 shadow-soft overflow-hidden mb-4">
                     <div className="p-5 border-b border-ink-200 flex flex-wrap items-center justify-between gap-3">
                         <div>
                             <h2 className="text-[16px] font-semibold tracking-tight">Payment History</h2>
-                            <p className="text-[12px] text-ink-500 mt-0.5">{rows.length} rent charge{rows.length === 1 ? '' : 's'} · a receipt for every paid month</p>
+                            <p className="text-[12px] text-ink-500 mt-0.5">{rows.length} rent charge{rows.length === 1 ? '' : 's'} · {periodShort} · a receipt for every paid month</p>
                         </div>
                         <Segmented
                             options={[{ value: 'all', label: 'All' }, { value: 'paid', label: 'Paid' }, { value: 'pending', label: 'Unpaid' }]}
@@ -283,7 +347,7 @@ export default function TenantPayments({ lease, kpis, rows, upcoming, statements
                         </tbody>
                         <tfoot className="bg-ink-50 border-t border-ink-200">
                             <tr className="text-[13px] font-semibold">
-                                <td colSpan={4} className="px-5 py-3">Total paid on this lease</td>
+                                <td colSpan={4} className="px-5 py-3">Total paid · {periodShort}</td>
                                 <td className="text-right pr-6 tabular-nums py-3">{fmtMoney(kpis.total_paid)}</td>
                                 <td />
                             </tr>
@@ -298,8 +362,8 @@ export default function TenantPayments({ lease, kpis, rows, upcoming, statements
                             <h2 className="text-[16px] font-semibold tracking-tight">Monthly Statements</h2>
                             <p className="text-[12px] text-ink-500 mt-0.5">Opening balance, rent charged, payments and closing balance for each month</p>
                         </div>
-                        <a href="/tenant/payments/statement.pdf" target="_blank" rel="noopener" className="text-[12px] font-semibold text-brand-700 hover:underline">
-                            View full statement →
+                        <a href={`/tenant/payments/statement.pdf?${statementQuery(filters)}`} target="_blank" rel="noopener" className="text-[12px] font-semibold text-brand-700 hover:underline">
+                            View statement · {periodShort} →
                         </a>
                     </div>
                     {statements.length === 0 ? (
@@ -318,12 +382,13 @@ export default function TenantPayments({ lease, kpis, rows, upcoming, statements
                                             {st.closing > 0.004 ? `${fmtMoney(st.closing)} owing` : 'Settled'}
                                         </p>
                                     </div>
-                                    <a href={`/tenant/payments/statement.pdf?month=${st.period}`} target="_blank" rel="noopener" className="text-[11.5px] font-semibold text-ink-600 hover:text-ink-900">View</a>
-                                    <a href={`/tenant/payments/statement.pdf?month=${st.period}&download=1`} className="text-[11.5px] font-semibold text-brand-700 hover:underline">PDF ↓</a>
+                                    <a href={`/tenant/payments/statement.pdf?${statementQuery(filters, { month: st.period })}`} target="_blank" rel="noopener" className="text-[11.5px] font-semibold text-ink-600 hover:text-ink-900">View</a>
+                                    <a href={`/tenant/payments/statement.pdf?${statementQuery(filters, { month: st.period, download: '1' })}`} className="text-[11.5px] font-semibold text-brand-700 hover:underline">PDF ↓</a>
                                 </div>
                             ))}
                         </div>
                     )}
+                </div>
                 </div>
             </section>
         </TenantLayout>

@@ -12,7 +12,7 @@
 <x-pdf-layout :title="$title" :docMeta="$docMeta">
 
 <h1>{{ $isMonthly ? 'Monthly Rent Statement' : 'Rent Account Statement' }}</h1>
-<p class="subtitle">{{ $periodLabel }} · generated {{ now()->format('d M Y') }}</p>
+<p class="subtitle">{{ ! empty($rangeLabel) ? $rangeLabel . ' · ' : '' }}{{ $periodLabel }} · generated {{ now()->format('d M Y') }}</p>
 
 <table class="grid-2">
     <tr>

@@ -4,9 +4,12 @@ namespace App\Http\Controllers\Tenant;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Tenant\Concerns\ResolvesTenant;
+use App\Models\Lease;
 use App\Models\RentPayment;
 use App\Services\LeaseBillingService;
 use App\Services\PdfService;
+use App\Services\TenantStatementService;
+use App\Support\StatementRange;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -27,17 +30,31 @@ class PaymentsController extends Controller
         // Raise any missing monthly charges + flip past-due to overdue.
         $this->billing->ensureCharges($lease);
 
+        // Payments due now (hero, "Pay now", outstanding) always follow the
+        // current lease; history, totals and statements follow the filters.
         $payments = RentPayment::where('lease_id', $lease->id)
             ->orderByDesc('due_date')
             ->get();
 
-        // ── KPI strip ────────────────────────────────────────────────────────
-        $paid = $payments->where('status', 'paid');
+        [$selected, $range] = $this->filters($request, $lease);
+        if ($selected->id !== $lease->id) {
+            $this->billing->ensureCharges($selected);
+        }
+        [$from, $to] = app(TenantStatementService::class)->period($selected, $range);
+
+        $history = RentPayment::where('lease_id', $selected->id)
+            ->where('due_date', '>=', $from->toDateString())
+            ->where('due_date', '<=', $to->toDateString())
+            ->orderByDesc('due_date')
+            ->get();
+
+        // ── KPI strip (selected lease + period) ──────────────────────────────
+        $paid = $history->where('status', 'paid');
         $totalPaid = (float) $paid->sum('amount');
         $avgPayment = $paid->count() > 0 ? (float) ($totalPaid / $paid->count()) : 0.0;
 
-        // On-time streak (consecutive most-recent paid-on-time)
-        $sortedPaid = $paid->sortByDesc('due_date')->values();
+        // On-time streak (consecutive most-recent paid-on-time, current lease)
+        $sortedPaid = $payments->where('status', 'paid')->sortByDesc('due_date')->values();
         $streak = 0;
         foreach ($sortedPaid as $p) {
             if ($p->paid_at && $p->due_date && $p->paid_at->lte(CarbonImmutable::parse($p->due_date)->endOfDay()->addDays(5))) {
@@ -52,8 +69,8 @@ class PaymentsController extends Controller
             ->where(fn ($p) => CarbonImmutable::parse($p->due_date)->lessThan($now))
             ->sum('amount');
 
-        // ── Rows for the table ───────────────────────────────────────────────
-        $rows = $payments->map(function (RentPayment $p) {
+        // ── Rows for the table (selected lease + period) ─────────────────────
+        $rows = $history->map(function (RentPayment $p) {
             $period = CarbonImmutable::parse($p->period_month . '-01');
             $due = CarbonImmutable::parse($p->due_date);
 
@@ -138,7 +155,22 @@ class PaymentsController extends Controller
             ],
             'rows'       => $rows,
             'upcoming'   => $upcoming->values(),
-            'statements' => app(\App\Services\TenantStatementService::class)->availableMonths($lease),
+            'statements' => app(TenantStatementService::class)->availableMonths($selected, $from),
+            'filters'    => [
+                'lease'       => $selected->id === $lease->id ? null : $selected->id,
+                'range'       => $range,
+                'range_label' => StatementRange::LABELS[$range],
+                'from'        => $from->format('d M Y'),
+                'to'          => $to->format('d M Y'),
+            ],
+            'ranges'     => StatementRange::options(),
+            'leases'     => $this->tenantLeases($request)->map(fn (Lease $l) => [
+                'id'      => $l->id,
+                'name'    => ($l->listing?->address ?: $l->listing?->title ?: 'Lease ' . $l->id)
+                    . ' · ' . CarbonImmutable::parse($l->start_date)->format('M Y')
+                    . ($l->end_date ? ' – ' . CarbonImmutable::parse($l->end_date)->format('M Y') : ''),
+                'current' => $l->id === $lease->id,
+            ])->values(),
         ]);
     }
 
@@ -148,8 +180,8 @@ class PaymentsController extends Controller
      */
     public function receipt(Request $request, RentPayment $payment, PdfService $pdf)
     {
-        $lease = $this->resolveLease($request);
-        abort_unless($payment->lease_id === $lease->id, 403);
+        $this->resolveLease($request);
+        abort_unless(Lease::whereKey($payment->lease_id)->where('tenant_id', $request->user()->id)->exists(), 403);
         abort_unless($payment->paid_at !== null, 404, 'Receipt is only available for paid payments.');
 
         return $pdf->rentReceipt($payment, download: $request->boolean('download'));
@@ -164,6 +196,9 @@ class PaymentsController extends Controller
         $lease = $this->resolveLease($request);
         $this->billing->ensureCharges($lease);
 
+        [$lease, $range] = $this->filters($request, $lease, default: 'lease');
+        $this->billing->ensureCharges($lease);
+
         $month = $request->query('month');
         if ($month !== null) {
             abort_unless(is_string($month) && preg_match('/^\d{4}-(0[1-9]|1[0-2])$/', $month), 404);
@@ -171,6 +206,34 @@ class PaymentsController extends Controller
             abort_if($month < $start || $month > CarbonImmutable::now()->format('Y-m'), 404);
         }
 
-        return $pdf->tenantStatement($lease, $month, download: $request->boolean('download'));
+        return $pdf->tenantStatement($lease, $month, download: $request->boolean('download'), range: $range);
+    }
+
+    /** Every lease this tenant has had, newest first. */
+    private function tenantLeases(Request $request)
+    {
+        return Lease::where('tenant_id', $request->user()->id)->with('listing:id,title,address')->orderByDesc('start_date')->get();
+    }
+
+    /**
+     * ?lease={id} picks one of the tenant's own leases (else 404; default the
+     * current lease) and ?range=3|6|12|lease the period.
+     *
+     * @return array{0: Lease, 1: string}
+     */
+    private function filters(Request $request, Lease $current, string $default = '12'): array
+    {
+        $lease = $current;
+        if ($request->filled('lease') && (int) $request->query('lease') !== $current->id) {
+            $lease = Lease::where('tenant_id', $request->user()->id)->with('listing')->find((int) $request->query('lease'));
+            abort_if($lease === null, 404);
+        }
+
+        $range = (string) $request->query('range', $default);
+        if (! StatementRange::valid($range)) {
+            $range = $default;
+        }
+
+        return [$lease, $range];
     }
 }

@@ -297,6 +297,14 @@ class HandleInertiaRequests extends Middleware
                 'href'  => '/tenant/maintenance',
                 'tone'  => 'success',
             ],
+            \App\Notifications\DebitOrderChanged::class => [
+                'title' => ($data['event'] ?? '') === 'cancelled' ? 'Debit order cancelled' : 'Debit order ' . ($data['event'] ?? 'activated'),
+                'body'  => ($data['tenant'] ?? 'A tenant') . (($data['event'] ?? '') === 'cancelled'
+                    ? ' cancelled their rent debit order.'
+                    : ' pays rent by debit order on day ' . ($data['debit_day'] ?? '?') . ' each month.'),
+                'href'  => '/landlord/tenants',
+                'tone'  => ($data['event'] ?? '') === 'cancelled' ? 'warning' : 'success',
+            ],
             \App\Notifications\QuoteSubmitted::class => [
                 'title' => 'Quote to approve',
                 'body'  => ($data['contractor'] ?? 'A contractor') . ' sent a quote of R ' . number_format((float) ($data['total'] ?? 0), 2) . '.',

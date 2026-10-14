@@ -42,7 +42,11 @@ class TenantsController extends Controller
             ->orderByDesc('start_date')
             ->get();
 
-        $tenants = $leases->map(function ($lease) use ($period, $now) {
+        $debitDays = \App\Models\DebitOrder::whereIn('lease_id', $leases->pluck('id'))
+            ->where('status', 'active')
+            ->pluck('debit_day', 'lease_id');
+
+        $tenants = $leases->map(function ($lease) use ($period, $now, $debitDays) {
             $currentPayment = $lease->rentPayments
                 ->where('period_month', $period)
                 ->first();
@@ -74,6 +78,7 @@ class TenantsController extends Controller
                 'days_to_expiry'  => $daysLeft,
                 'lease_status'    => $lease->status,
                 'has_agreement'   => (bool) $lease->document_path,
+                'debit_order_day' => $debitDays[$lease->id] ?? null,
             ];
         })->values()->all();
 

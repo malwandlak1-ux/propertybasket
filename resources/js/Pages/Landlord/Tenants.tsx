@@ -21,6 +21,7 @@ type Tenant = {
     days_to_expiry: number | null;
     lease_status: string;
     has_agreement: boolean;
+    debit_order_day: number | null;
 };
 
 type Props = {
@@ -251,6 +252,9 @@ export default function LandlordTenants({ landlord, tenants, invitable_listings,
                                         </td>
                                         <td className="py-4">
                                             <PayBadge status={t.pay_status} />
+                                            {t.debit_order_day && (
+                                                <p className="text-[10.5px] text-ink-500 mt-1 whitespace-nowrap">Debit order · day {t.debit_order_day}</p>
+                                            )}
                                         </td>
                                         <td className="py-4 pr-4">
                                             <AgreementCell leaseId={t.lease_id} hasAgreement={t.has_agreement} />

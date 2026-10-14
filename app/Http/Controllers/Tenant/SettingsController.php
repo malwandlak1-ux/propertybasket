@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Tenant;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Tenant\Concerns\ResolvesTenant;
+use App\Models\DebitOrder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -34,6 +35,17 @@ class SettingsController extends Controller
                 'email' => $user->email,
                 'phone' => $user->phone,
             ],
+            'banking' => [
+                'bank_name'           => $user->bank_name,
+                'bank_account_holder' => $user->bank_account_holder,
+                'bank_account_number' => $user->bank_account_number,
+                'bank_branch_code'    => $user->bank_code,
+                'bank_account_type'   => $user->bank_account_type,
+                'complete'            => DebitOrderController::hasSavedBanking($user),
+            ],
+            'debit_order' => $this->debitOrder($lease->id),
+            'managed_by'  => $lease->agency?->name ?? $lease->landlord?->name,
+            'banks'       => self::BANKS,
         ]);
     }
 
@@ -52,6 +64,55 @@ class SettingsController extends Controller
         return back()->with('success', 'Your contact details have been updated.');
     }
 
+    /**
+     * PATCH /tenant/settings/banking — the tenant's own account (debit-order
+     * source, deposit refunds). An active debit order follows the new
+     * account, and the landlord is told.
+     */
+    public function updateBanking(Request $request): RedirectResponse
+    {
+        $lease = $this->resolveLease($request);
+        $user  = $request->user();
+
+        $data = $request->validate([
+            'bank_name'           => ['required', 'string', 'max:120'],
+            'bank_account_holder' => ['required', 'string', 'max:160'],
+            'bank_account_number' => ['required', 'regex:/^[0-9 ]{6,20}$/'],
+            'bank_branch_code'    => ['required', 'regex:/^[0-9]{4,8}$/'],
+            'bank_account_type'   => ['required', 'in:cheque,current,savings'],
+        ], [
+            'bank_account_number.regex' => 'Account numbers are digits only (6 to 20).',
+            'bank_branch_code.regex'    => 'Branch codes are 4 to 8 digits.',
+        ]);
+
+        $user->forceFill([
+            'bank_name'           => $data['bank_name'],
+            'bank_account_holder' => $data['bank_account_holder'],
+            'bank_account_number' => str_replace(' ', '', $data['bank_account_number']),
+            'bank_code'           => $data['bank_branch_code'],
+            'bank_account_type'   => $data['bank_account_type'],
+        ])->save();
+
+        $active = DebitOrder::where('lease_id', $lease->id)->where('status', 'active')->latest('id')->first();
+        if ($active && ($active->account_number !== $user->bank_account_number || $active->branch_code !== $user->bank_code
+            || $active->bank_name !== $user->bank_name || $active->account_type !== $user->bank_account_type
+            || $active->account_holder !== $user->bank_account_holder)) {
+            $active->update([
+                'bank_name'      => $user->bank_name,
+                'account_holder' => $user->bank_account_holder,
+                'account_number' => $user->bank_account_number,
+                'branch_code'    => $user->bank_code,
+                'account_type'   => $user->bank_account_type,
+                'signed_at'      => now(),
+            ]);
+            DebitOrderController::notifyManager($lease, $active->fresh(), 'updated');
+
+            return back()->with('success', 'Banking details saved. Your debit order now uses this account.');
+        }
+
+        return back()->with('success', 'Banking details saved.');
+    }
+
     public function updatePassword(Request $request): RedirectResponse
     {
         $user = $request->user();
@@ -64,5 +125,27 @@ class SettingsController extends Controller
         $user->update(['password' => bcrypt($data['password'])]);
 
         return back()->with('success', 'Password updated.');
+    }
+
+    public const BANKS = [
+        'ABSA Bank', 'African Bank', 'Bidvest Bank', 'Capitec Bank', 'Discovery Bank',
+        'First National Bank (FNB)', 'Investec', 'Nedbank', 'Standard Bank', 'TymeBank',
+    ];
+
+    private function debitOrder(int $leaseId): ?array
+    {
+        $do = DebitOrder::where('lease_id', $leaseId)->where('status', 'active')->latest('id')->first();
+        if (! $do) {
+            return null;
+        }
+
+        return [
+            'bank_name'      => $do->bank_name,
+            'account_holder' => $do->account_holder,
+            'account_masked' => str_repeat('•', max(strlen((string) $do->account_number) - 4, 0)) . substr((string) $do->account_number, -4),
+            'account_type'   => $do->account_type,
+            'debit_day'      => $do->debit_day,
+            'signed_at'      => $do->signed_at?->format('d M Y'),
+        ];
     }
 }

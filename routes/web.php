@@ -341,6 +341,7 @@ Route::middleware('auth')->group(function () {
         Route::get('settings',           [Tenant\SettingsController::class, 'show'])->name('settings.show');
         Route::patch('settings/profile', [Tenant\SettingsController::class, 'updateProfile'])->name('settings.profile');
         Route::patch('settings/password',[Tenant\SettingsController::class, 'updatePassword'])->name('settings.password');
+        Route::patch('settings/banking', [Tenant\SettingsController::class, 'updateBanking'])->name('settings.banking');
     });
 });
 

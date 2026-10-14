@@ -212,7 +212,7 @@ export default function DebitOrderModal({ existing, tenantName, onClose }: Props
                     </div>
 
                     <div className="bg-ink-50/60 border border-ink-200 rounded-lg p-3 text-[11px] text-ink-600 leading-relaxed">
-                        By submitting you authorise Property Basket to debit your account on the chosen day each month for the
+                        By submitting you authorise your landlord (or managing agent) to debit your account on the chosen day each month for the
                         rent amount on your active lease. You may cancel this mandate at any time.
                     </div>
 

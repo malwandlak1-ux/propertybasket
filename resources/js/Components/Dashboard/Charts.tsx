@@ -49,10 +49,12 @@ export function PageHeader({ title, subtitle, actions }: { title: string; subtit
 type StripTone = 'default' | 'muted' | 'success' | 'danger' | 'warning';
 
 /**
- * The Financial Reports "Income Statement Summary" strip: a white card with a
- * header and a row of divided figure cells (uppercase label, big value, sub).
+ * Row of summary tiles in the dashboard Overview / Careline style: the first
+ * tile is the accent swirl (hero), the rest are white cards with a big figure.
+ * `tone` colours the sub line (e.g. red "2 overdue"), never the figure.
+ * `title` / `subtitle` label the row for screen readers only.
  */
-export function SummaryStrip({ title, subtitle, action, cells }: {
+export function SummaryStrip({ title, subtitle, cells }: {
     title: ReactNode;
     subtitle?: ReactNode;
     action?: ReactNode;
@@ -60,29 +62,32 @@ export function SummaryStrip({ title, subtitle, action, cells }: {
 }) {
     const cols = { 2: 'lg:grid-cols-2', 3: 'lg:grid-cols-3', 4: 'lg:grid-cols-4', 5: 'lg:grid-cols-5' }[Math.min(5, Math.max(2, cells.length)) as 2 | 3 | 4 | 5];
     return (
-        <section className="bg-white rounded-2xl border border-ink-200/60 shadow-soft overflow-hidden mb-4 pb-rise">
-            <div className="p-5 border-b border-ink-200 flex flex-wrap items-start justify-between gap-3">
-                <div className="min-w-0">
-                    <h2 className="text-base font-semibold">{title}</h2>
-                    {subtitle && <p className="text-[12px] text-ink-500 mt-0.5">{subtitle}</p>}
-                </div>
-                {action}
-            </div>
-            <div className={`grid grid-cols-2 ${cols} divide-x divide-y lg:divide-y-0 divide-ink-200`}>
-                {cells.map((c, i) => {
-                    const tone = c.tone ?? 'default';
-                    const bg = { success: 'bg-success/5', danger: 'bg-danger/5', warning: 'bg-warning/5', default: '', muted: '' }[tone];
-                    const strong = { success: 'text-success', danger: 'text-danger', warning: 'text-amber-700', muted: 'text-ink-700', default: '' }[tone];
-                    const label = { success: 'text-success', danger: 'text-danger', warning: 'text-amber-700', muted: 'text-ink-500', default: 'text-ink-500' }[tone];
-                    return (
-                        <div key={i} className={`p-5 min-w-0 ${bg}`}>
-                            <p className={`text-[11px] uppercase tracking-wider font-semibold ${label}`}>{c.label}</p>
-                            <p className={`text-2xl font-semibold mt-2 tabular-nums truncate ${strong}`}>{c.value}</p>
-                            {c.sub && <p className={`text-[12px] mt-1 ${tone === 'default' || tone === 'muted' ? 'text-ink-500' : label}`}>{c.sub}</p>}
-                        </div>
-                    );
-                })}
-            </div>
+        <section className={`grid grid-cols-1 sm:grid-cols-2 ${cols} gap-4 mb-4`}>
+            <h2 className="sr-only">{title}{subtitle ? ' · ' : ''}{subtitle}</h2>
+            {cells.map((c, i) => {
+                const hero = i === 0;
+                const sub = hero
+                    ? 'text-white/80'
+                    : { success: 'text-success', danger: 'text-danger', warning: 'text-amber-700', muted: 'text-ink-500', default: 'text-ink-500' }[c.tone ?? 'default'];
+                return (
+                    <div
+                        key={i}
+                        className={
+                            'rounded-2xl p-5 pb-rise min-w-0 ' +
+                            (hero ? 'pb-swirl text-white shadow-lift' : 'bg-white border border-ink-200/60 shadow-soft')
+                        }
+                    >
+                        <p className={`text-[13px] font-medium ${hero ? 'text-white' : 'text-ink-700'}`}>{c.label}</p>
+                        <p
+                            className={`${typeof c.value === 'string' && c.value.length > 12 ? 'text-[22px] py-1.5' : 'text-[34px]'} font-semibold tracking-tight mt-3 leading-none tabular-nums truncate`}
+                            title={typeof c.value === 'string' ? c.value : undefined}
+                        >
+                            {c.value}
+                        </p>
+                        {c.sub && <p className={`text-[12px] mt-2 truncate ${sub}`}>{c.sub}</p>}
+                    </div>
+                );
+            })}
         </section>
     );
 }
@@ -118,7 +123,7 @@ export function SectionCard({ title, subtitle, action, children, flush = false, 
         <section className={`bg-white rounded-2xl border border-ink-200/60 shadow-soft overflow-hidden mb-4 pb-rise ${className}`}>
             <div className="p-5 border-b border-ink-200 flex flex-wrap items-start justify-between gap-3">
                 <div className="min-w-0">
-                    <h2 className="text-base font-semibold">{title}</h2>
+                    <h2 className="text-[16px] font-semibold tracking-tight">{title}</h2>
                     {subtitle && <p className="text-[12px] text-ink-500 mt-0.5">{subtitle}</p>}
                 </div>
                 {action}

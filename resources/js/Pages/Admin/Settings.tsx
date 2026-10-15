@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Head, router, usePage } from '@inertiajs/react';
 import AdminLayout from '@/Layouts/AdminLayout';
 import AppearanceSettings from '@/Components/Dashboard/AppearanceSettings';
-import { PageHeader, SummaryStrip, btnOutline, btnPrimary } from '@/Components/Dashboard/Charts';
+import { PageHeader, btnOutline, btnPrimary } from '@/Components/Dashboard/Charts';
 import Icon, { IconName } from '@/Components/Dashboard/Icon';
 
 const TAB_META: Record<string, { hint: string; icon: IconName }> = {
@@ -79,11 +79,9 @@ function Toggle({ on, onClick }: { on: boolean; onClick: () => void }) {
 
 function FieldGroup({ title, children }: { title: string; children: React.ReactNode }) {
     return (
-        <section className="bg-white rounded-2xl border border-ink-200/60 shadow-soft overflow-hidden pb-rise">
-            <div className="p-5 border-b border-ink-200">
-                <h2 className="text-base font-semibold">{title}</h2>
-            </div>
-            <div className="p-5">{children}</div>
+        <section className="bg-white rounded-2xl border border-ink-200/60 shadow-soft p-5 sm:p-6 pb-rise">
+            <h2 className="text-[18px] font-semibold tracking-tight mb-5">{title}</h2>
+            {children}
         </section>
     );
 }
@@ -298,20 +296,8 @@ export default function AdminSettings({ tabs, settings: initial, currencies, has
                 </div>
             )}
 
-            <div className="px-4 sm:px-7 py-6">
+            <div className="px-4 sm:px-7 py-6 max-w-6xl">
                 <PageHeader title="Platform Settings" subtitle="Global configuration for the application" />
-
-                <SummaryStrip
-                    title="Platform Setup"
-                    subtitle={data.general.platform_name}
-                    action={has_overrides ? <span className="text-[11px] px-2 py-1 rounded-full bg-warning/15 text-amber-700 font-bold">CUSTOMISED</span> : undefined}
-                    cells={[
-                        { label: 'Paystack', value: data.paystack.live_mode ? 'Live' : 'Test', sub: data.paystack.secret_key_set ? 'Keys configured' : 'No secret key', tone: data.paystack.live_mode ? 'success' : 'warning' },
-                        { label: 'Signups', value: data.advanced.allow_signups ? 'Open' : 'Closed', sub: data.advanced.tenant_invites_only ? 'Tenants by invite only' : 'All roles can register', tone: data.advanced.allow_signups ? 'success' : 'muted' },
-                        { label: 'Contractor Fee', value: `${data.fees.contractor_platform_fee}%`, sub: `${data.fees.free_trial_days}-day free trial`, tone: 'muted' },
-                        { label: 'Maintenance', value: data.advanced.maintenance_mode ? 'On' : 'Off', sub: data.advanced.maintenance_mode ? 'Site is offline to users' : 'Site is live', tone: data.advanced.maintenance_mode ? 'danger' : 'muted' },
-                    ]}
-                />
 
                 {/* Honest caveat — same as the Roles matrix */}
                 <div className="mb-4 px-5 py-3 rounded-2xl bg-warning/10 border border-warning/30 text-[12.5px] text-ink-700">
@@ -320,7 +306,29 @@ export default function AdminSettings({ tabs, settings: initial, currencies, has
 
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
                     {/* Tab nav */}
-                    <aside className="lg:col-span-4">
+                    <aside className="lg:col-span-4 space-y-4">
+                        <div className="pb-swirl rounded-2xl p-5 text-white shadow-lift pb-rise">
+                            <div className="flex items-center gap-3">
+                                <span className="w-12 h-12 rounded-full bg-white/15 ring-1 ring-white/25 flex items-center justify-center text-[15px] font-bold">
+                                    {data.general.platform_name.split(' ').map((w) => w[0]).slice(0, 2).join('').toUpperCase()}
+                                </span>
+                                <div className="min-w-0">
+                                    <p className="text-[15px] font-semibold truncate">{data.general.platform_name}</p>
+                                    <p className="text-[12px] text-white/75 truncate">{data.general.support_email || 'No support email'}</p>
+                                </div>
+                            </div>
+                            <div className="mt-4 pt-3 border-t border-white/15 flex flex-wrap items-center gap-2 text-[11px]">
+                                <span className={`px-2.5 py-1 rounded-full font-semibold ${data.paystack.live_mode ? 'bg-success/20' : 'bg-warning/30'}`}>
+                                    Paystack {data.paystack.live_mode ? 'live' : 'test'}
+                                </span>
+                                <span className={`px-2.5 py-1 rounded-full font-semibold ${data.advanced.allow_signups ? 'bg-white/15' : 'bg-warning/30'}`}>
+                                    Signups {data.advanced.allow_signups ? 'open' : 'closed'}
+                                </span>
+                                {data.advanced.maintenance_mode && <span className="px-2.5 py-1 rounded-full font-semibold bg-danger/40">Maintenance on</span>}
+                                {has_overrides && <span className="px-2.5 py-1 rounded-full font-semibold bg-white/15">Customised</span>}
+                            </div>
+                        </div>
+
                         <nav className="bg-white rounded-2xl border border-ink-200/60 shadow-soft p-2">
                             {tabs.map((t) => {
                                 const on = activeTab === t.key;

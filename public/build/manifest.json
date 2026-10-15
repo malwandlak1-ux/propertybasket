@@ -1,4 +1,5 @@
 {
+<<<<<<< HEAD
   "_AdminLayout-B2oCXheF.js": {
     "file": "assets/AdminLayout-B2oCXheF.js",
     "name": "AdminLayout",
@@ -27,11 +28,42 @@
   },
   "_AppLogo-BYfe6pUy.js": {
     "file": "assets/AppLogo-BYfe6pUy.js",
+=======
+  "_AdminLayout-DsRHE9a6.js": {
+    "file": "assets/AdminLayout-DsRHE9a6.js",
+    "name": "AdminLayout",
+    "imports": [
+      "resources/js/app.tsx",
+      "_Shell-oxyqnES4.js",
+      "_AppLogo-BLcQhBg-.js"
+    ]
+  },
+  "_AgencyLayout-B5fOzxFq.js": {
+    "file": "assets/AgencyLayout-B5fOzxFq.js",
+    "name": "AgencyLayout",
+    "imports": [
+      "resources/js/app.tsx",
+      "_Shell-oxyqnES4.js",
+      "_SubscriptionBanner-BNx8XP_5.js"
+    ]
+  },
+  "_AgentLayout-B_A3XUjQ.js": {
+    "file": "assets/AgentLayout-B_A3XUjQ.js",
+    "name": "AgentLayout",
+    "imports": [
+      "resources/js/app.tsx",
+      "_Shell-oxyqnES4.js"
+    ]
+  },
+  "_AppLogo-BLcQhBg-.js": {
+    "file": "assets/AppLogo-BLcQhBg-.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "AppLogo",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
   "_AppearanceSettings-CHQ1UVyH.js": {
     "file": "assets/AppearanceSettings-CHQ1UVyH.js",
     "name": "AppearanceSettings",
@@ -53,11 +85,35 @@
   },
   "_Charts-D2QvU_RP.js": {
     "file": "assets/Charts-D2QvU_RP.js",
+=======
+  "_AppearanceSettings-C7yzxvVG.js": {
+    "file": "assets/AppearanceSettings-C7yzxvVG.js",
+    "name": "AppearanceSettings",
+    "imports": [
+      "resources/js/app.tsx",
+      "_AppLogo-BLcQhBg-.js",
+      "_Skeleton-DxMh3G4Z.js",
+      "_Shell-oxyqnES4.js",
+      "_Charts-De92soSD.js"
+    ]
+  },
+  "_AuthKit-CH1BKcIX.js": {
+    "file": "assets/AuthKit-CH1BKcIX.js",
+    "name": "AuthKit",
+    "imports": [
+      "resources/js/app.tsx",
+      "_AppLogo-BLcQhBg-.js"
+    ]
+  },
+  "_Charts-De92soSD.js": {
+    "file": "assets/Charts-De92soSD.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "Charts",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
   "_ContractorLayout-2wawK-_c.js": {
     "file": "assets/ContractorLayout-2wawK-_c.js",
     "name": "ContractorLayout",
@@ -68,11 +124,24 @@
   },
   "_FormField-BO-7T-zg.js": {
     "file": "assets/FormField-BO-7T-zg.js",
+=======
+  "_ContractorLayout-BiRRDvPc.js": {
+    "file": "assets/ContractorLayout-BiRRDvPc.js",
+    "name": "ContractorLayout",
+    "imports": [
+      "resources/js/app.tsx",
+      "_Shell-oxyqnES4.js"
+    ]
+  },
+  "_FormField-B6X3aIQJ.js": {
+    "file": "assets/FormField-B6X3aIQJ.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "FormField",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
   "_HelpCentre-GhciU1yZ.js": {
     "file": "assets/HelpCentre-GhciU1yZ.js",
     "name": "HelpCentre",
@@ -85,11 +154,26 @@
   },
   "_Icon-NU758mL4.js": {
     "file": "assets/Icon-NU758mL4.js",
+=======
+  "_HelpCentre-AskI_JSV.js": {
+    "file": "assets/HelpCentre-AskI_JSV.js",
+    "name": "HelpCentre",
+    "imports": [
+      "resources/js/app.tsx",
+      "_Charts-De92soSD.js",
+      "_Icon-Bupzo4lG.js",
+      "_AppLogo-BLcQhBg-.js"
+    ]
+  },
+  "_Icon-Bupzo4lG.js": {
+    "file": "assets/Icon-Bupzo4lG.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "Icon",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
   "_InviteAgentModal-Du0b8cXx.js": {
     "file": "assets/InviteAgentModal-Du0b8cXx.js",
     "name": "InviteAgentModal",
@@ -135,11 +219,59 @@
   },
   "_ListingCard-CJZ6Uks0.js": {
     "file": "assets/ListingCard-CJZ6Uks0.js",
+=======
+  "_InviteAgentModal-B5cPNRmG.js": {
+    "file": "assets/InviteAgentModal-B5cPNRmG.js",
+    "name": "InviteAgentModal",
+    "imports": [
+      "resources/js/app.tsx",
+      "_Skeleton-DxMh3G4Z.js"
+    ]
+  },
+  "_InviteContractorModal-BuLHEAkc.js": {
+    "file": "assets/InviteContractorModal-BuLHEAkc.js",
+    "name": "InviteContractorModal",
+    "imports": [
+      "resources/js/app.tsx",
+      "_Charts-De92soSD.js",
+      "_Skeleton-DxMh3G4Z.js"
+    ]
+  },
+  "_InviteTenantModal-CNCL6Vzo.js": {
+    "file": "assets/InviteTenantModal-CNCL6Vzo.js",
+    "name": "InviteTenantModal",
+    "imports": [
+      "resources/js/app.tsx",
+      "_Skeleton-DxMh3G4Z.js"
+    ]
+  },
+  "_LandlordInviteTenantModal-DHY4fZ2m.js": {
+    "file": "assets/LandlordInviteTenantModal-DHY4fZ2m.js",
+    "name": "LandlordInviteTenantModal",
+    "imports": [
+      "resources/js/app.tsx",
+      "_InviteTenantModal-CNCL6Vzo.js",
+      "_Skeleton-DxMh3G4Z.js"
+    ]
+  },
+  "_LandlordLayout-DrPdDd5b.js": {
+    "file": "assets/LandlordLayout-DrPdDd5b.js",
+    "name": "LandlordLayout",
+    "imports": [
+      "resources/js/app.tsx",
+      "_Shell-oxyqnES4.js",
+      "_SubscriptionBanner-BNx8XP_5.js"
+    ]
+  },
+  "_ListingCard-B8Og_nTD.js": {
+    "file": "assets/ListingCard-B8Og_nTD.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "ListingCard",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
   "_ListingForm-1E3pwgML.js": {
     "file": "assets/ListingForm-1E3pwgML.js",
     "name": "ListingForm",
@@ -167,11 +299,42 @@
   },
   "_RateContractorModal-CUZLE0r0.js": {
     "file": "assets/RateContractorModal-CUZLE0r0.js",
+=======
+  "_ListingForm-BIedhypl.js": {
+    "file": "assets/ListingForm-BIedhypl.js",
+    "name": "ListingForm",
+    "imports": [
+      "resources/js/app.tsx",
+      "_Skeleton-DxMh3G4Z.js"
+    ]
+  },
+  "_MaintenanceBoard-CvzOeSUJ.js": {
+    "file": "assets/MaintenanceBoard-CvzOeSUJ.js",
+    "name": "MaintenanceBoard",
+    "imports": [
+      "resources/js/app.tsx",
+      "_RateContractorModal-M9YjfQon.js",
+      "_Icon-Bupzo4lG.js",
+      "_Charts-De92soSD.js"
+    ]
+  },
+  "_PublicLayout-B1kNvGbH.js": {
+    "file": "assets/PublicLayout-B1kNvGbH.js",
+    "name": "PublicLayout",
+    "imports": [
+      "resources/js/app.tsx",
+      "_AppLogo-BLcQhBg-.js"
+    ]
+  },
+  "_RateContractorModal-M9YjfQon.js": {
+    "file": "assets/RateContractorModal-M9YjfQon.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "RateContractorModal",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
   "_Shell-CxAvCjzz.js": {
     "file": "assets/Shell-CxAvCjzz.js",
     "name": "Shell",
@@ -182,18 +345,36 @@
   },
   "_Skeleton-WrGJfRRY.js": {
     "file": "assets/Skeleton-WrGJfRRY.js",
+=======
+  "_Shell-oxyqnES4.js": {
+    "file": "assets/Shell-oxyqnES4.js",
+    "name": "Shell",
+    "imports": [
+      "resources/js/app.tsx",
+      "_AppLogo-BLcQhBg-.js"
+    ]
+  },
+  "_Skeleton-DxMh3G4Z.js": {
+    "file": "assets/Skeleton-DxMh3G4Z.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "Skeleton",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
   "_SubscriptionBanner-DwWk5nPR.js": {
     "file": "assets/SubscriptionBanner-DwWk5nPR.js",
+=======
+  "_SubscriptionBanner-BNx8XP_5.js": {
+    "file": "assets/SubscriptionBanner-BNx8XP_5.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "SubscriptionBanner",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
   "_TenantLayout-B4ZQSWlr.js": {
     "file": "assets/TenantLayout-B4ZQSWlr.js",
     "name": "TenantLayout",
@@ -204,13 +385,29 @@
   },
   "_useInertiaLoading-BeRpDZtM.js": {
     "file": "assets/useInertiaLoading-BeRpDZtM.js",
+=======
+  "_TenantLayout-CaLFF03n.js": {
+    "file": "assets/TenantLayout-CaLFF03n.js",
+    "name": "TenantLayout",
+    "imports": [
+      "resources/js/app.tsx",
+      "_Shell-oxyqnES4.js"
+    ]
+  },
+  "_useInertiaLoading-ugvYuVT0.js": {
+    "file": "assets/useInertiaLoading-ugvYuVT0.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "useInertiaLoading",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
   "resources/css/app.css": {
+<<<<<<< HEAD
     "file": "assets/app-CrPaFxYD.css",
+=======
+    "file": "assets/app-C4ZZbhbm.css",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "src": "resources/css/app.css",
     "isEntry": true,
     "name": "app",
@@ -219,12 +416,17 @@
     ]
   },
   "resources/js/Pages/Admin/Agencies.tsx": {
+<<<<<<< HEAD
     "file": "assets/Agencies-BpJuqjnG.js",
+=======
+    "file": "assets/Agencies-BScfqmXm.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "Agencies",
     "src": "resources/js/Pages/Admin/Agencies.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_AdminLayout-B2oCXheF.js",
       "_Shell-CxAvCjzz.js",
       "_AppLogo-BYfe6pUy.js"
@@ -235,11 +437,24 @@
   },
   "resources/js/Pages/Admin/Announcements.tsx": {
     "file": "assets/Announcements-CoiPXEEU.js",
+=======
+      "_AdminLayout-DsRHE9a6.js",
+      "_Shell-oxyqnES4.js",
+      "_AppLogo-BLcQhBg-.js"
+    ],
+    "css": [
+      "assets/app-C4ZZbhbm.css"
+    ]
+  },
+  "resources/js/Pages/Admin/Announcements.tsx": {
+    "file": "assets/Announcements-D3WfMzDc.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "Announcements",
     "src": "resources/js/Pages/Admin/Announcements.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_AdminLayout-B2oCXheF.js",
       "_Shell-CxAvCjzz.js",
       "_AppLogo-BYfe6pUy.js"
@@ -250,11 +465,24 @@
   },
   "resources/js/Pages/Admin/Blog/Form.tsx": {
     "file": "assets/Form-D9MkVxqJ.js",
+=======
+      "_AdminLayout-DsRHE9a6.js",
+      "_Shell-oxyqnES4.js",
+      "_AppLogo-BLcQhBg-.js"
+    ],
+    "css": [
+      "assets/app-C4ZZbhbm.css"
+    ]
+  },
+  "resources/js/Pages/Admin/Blog/Form.tsx": {
+    "file": "assets/Form-BpW3XC1Z.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "Form",
     "src": "resources/js/Pages/Admin/Blog/Form.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_AdminLayout-B2oCXheF.js",
       "_Skeleton-WrGJfRRY.js",
       "_Shell-CxAvCjzz.js",
@@ -266,11 +494,25 @@
   },
   "resources/js/Pages/Admin/Blog/Index.tsx": {
     "file": "assets/Index-DY-KTk3w.js",
+=======
+      "_AdminLayout-DsRHE9a6.js",
+      "_Skeleton-DxMh3G4Z.js",
+      "_Shell-oxyqnES4.js",
+      "_AppLogo-BLcQhBg-.js"
+    ],
+    "css": [
+      "assets/app-C4ZZbhbm.css"
+    ]
+  },
+  "resources/js/Pages/Admin/Blog/Index.tsx": {
+    "file": "assets/Index-CUq-rJ7R.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "Index",
     "src": "resources/js/Pages/Admin/Blog/Index.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_AdminLayout-B2oCXheF.js",
       "_useInertiaLoading-BeRpDZtM.js",
       "_Shell-CxAvCjzz.js",
@@ -282,11 +524,25 @@
   },
   "resources/js/Pages/Admin/Contractors.tsx": {
     "file": "assets/Contractors-DFd-927-.js",
+=======
+      "_AdminLayout-DsRHE9a6.js",
+      "_useInertiaLoading-ugvYuVT0.js",
+      "_Shell-oxyqnES4.js",
+      "_AppLogo-BLcQhBg-.js"
+    ],
+    "css": [
+      "assets/app-C4ZZbhbm.css"
+    ]
+  },
+  "resources/js/Pages/Admin/Contractors.tsx": {
+    "file": "assets/Contractors-LKOf6wOk.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "Contractors",
     "src": "resources/js/Pages/Admin/Contractors.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_AdminLayout-B2oCXheF.js",
       "_Shell-CxAvCjzz.js",
       "_AppLogo-BYfe6pUy.js"
@@ -315,11 +571,24 @@
   },
   "resources/js/Pages/Admin/Landlords.tsx": {
     "file": "assets/Landlords-Bh51LZb8.js",
+=======
+      "_AdminLayout-DsRHE9a6.js",
+      "_Shell-oxyqnES4.js",
+      "_AppLogo-BLcQhBg-.js"
+    ],
+    "css": [
+      "assets/app-C4ZZbhbm.css"
+    ]
+  },
+  "resources/js/Pages/Admin/Landlords.tsx": {
+    "file": "assets/Landlords-D0DAQw9k.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "Landlords",
     "src": "resources/js/Pages/Admin/Landlords.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_AdminLayout-B2oCXheF.js",
       "_Shell-CxAvCjzz.js",
       "_AppLogo-BYfe6pUy.js"
@@ -330,11 +599,24 @@
   },
   "resources/js/Pages/Admin/Overview.tsx": {
     "file": "assets/Overview-B-dDAPpv.js",
+=======
+      "_AdminLayout-DsRHE9a6.js",
+      "_Shell-oxyqnES4.js",
+      "_AppLogo-BLcQhBg-.js"
+    ],
+    "css": [
+      "assets/app-C4ZZbhbm.css"
+    ]
+  },
+  "resources/js/Pages/Admin/Overview.tsx": {
+    "file": "assets/Overview-CiHL-1Cz.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "Overview",
     "src": "resources/js/Pages/Admin/Overview.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_AdminLayout-B2oCXheF.js",
       "_Charts-D2QvU_RP.js",
       "_Shell-CxAvCjzz.js",
@@ -346,11 +628,25 @@
   },
   "resources/js/Pages/Admin/PromoCodes.tsx": {
     "file": "assets/PromoCodes-C2Cl53s2.js",
+=======
+      "_AdminLayout-DsRHE9a6.js",
+      "_Charts-De92soSD.js",
+      "_Shell-oxyqnES4.js",
+      "_AppLogo-BLcQhBg-.js"
+    ],
+    "css": [
+      "assets/app-C4ZZbhbm.css"
+    ]
+  },
+  "resources/js/Pages/Admin/PromoCodes.tsx": {
+    "file": "assets/PromoCodes-B88LjvXj.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "PromoCodes",
     "src": "resources/js/Pages/Admin/PromoCodes.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_AdminLayout-B2oCXheF.js",
       "_Skeleton-WrGJfRRY.js",
       "_Shell-CxAvCjzz.js",
@@ -362,11 +658,25 @@
   },
   "resources/js/Pages/Admin/Roles.tsx": {
     "file": "assets/Roles-g0z_ltas.js",
+=======
+      "_AdminLayout-DsRHE9a6.js",
+      "_Skeleton-DxMh3G4Z.js",
+      "_Shell-oxyqnES4.js",
+      "_AppLogo-BLcQhBg-.js"
+    ],
+    "css": [
+      "assets/app-C4ZZbhbm.css"
+    ]
+  },
+  "resources/js/Pages/Admin/Roles.tsx": {
+    "file": "assets/Roles-zkNc93CX.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "Roles",
     "src": "resources/js/Pages/Admin/Roles.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_AdminLayout-B2oCXheF.js",
       "_Shell-CxAvCjzz.js",
       "_AppLogo-BYfe6pUy.js"
@@ -377,11 +687,24 @@
   },
   "resources/js/Pages/Admin/Settings.tsx": {
     "file": "assets/Settings-B-NADoY3.js",
+=======
+      "_AdminLayout-DsRHE9a6.js",
+      "_Shell-oxyqnES4.js",
+      "_AppLogo-BLcQhBg-.js"
+    ],
+    "css": [
+      "assets/app-C4ZZbhbm.css"
+    ]
+  },
+  "resources/js/Pages/Admin/Settings.tsx": {
+    "file": "assets/Settings-DfMbj-IN.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "Settings",
     "src": "resources/js/Pages/Admin/Settings.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_AdminLayout-B2oCXheF.js",
       "_AppearanceSettings-CHQ1UVyH.js",
       "_Shell-CxAvCjzz.js",
@@ -395,11 +718,27 @@
   },
   "resources/js/Pages/Admin/Subscriptions.tsx": {
     "file": "assets/Subscriptions-B8XBLH1o.js",
+=======
+      "_AdminLayout-DsRHE9a6.js",
+      "_AppearanceSettings-C7yzxvVG.js",
+      "_Shell-oxyqnES4.js",
+      "_AppLogo-BLcQhBg-.js",
+      "_Skeleton-DxMh3G4Z.js",
+      "_Charts-De92soSD.js"
+    ],
+    "css": [
+      "assets/app-C4ZZbhbm.css"
+    ]
+  },
+  "resources/js/Pages/Admin/Subscriptions.tsx": {
+    "file": "assets/Subscriptions-C4auQm69.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "Subscriptions",
     "src": "resources/js/Pages/Admin/Subscriptions.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_AdminLayout-B2oCXheF.js",
       "_Skeleton-WrGJfRRY.js",
       "_Shell-CxAvCjzz.js",
@@ -411,11 +750,25 @@
   },
   "resources/js/Pages/Admin/System.tsx": {
     "file": "assets/System-BhTBIDJl.js",
+=======
+      "_AdminLayout-DsRHE9a6.js",
+      "_Skeleton-DxMh3G4Z.js",
+      "_Shell-oxyqnES4.js",
+      "_AppLogo-BLcQhBg-.js"
+    ],
+    "css": [
+      "assets/app-C4ZZbhbm.css"
+    ]
+  },
+  "resources/js/Pages/Admin/System.tsx": {
+    "file": "assets/System-Td7ko5Fw.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "System",
     "src": "resources/js/Pages/Admin/System.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_AdminLayout-B2oCXheF.js",
       "_Shell-CxAvCjzz.js",
       "_AppLogo-BYfe6pUy.js"
@@ -426,11 +779,24 @@
   },
   "resources/js/Pages/Admin/Transactions.tsx": {
     "file": "assets/Transactions-BdD7MczM.js",
+=======
+      "_AdminLayout-DsRHE9a6.js",
+      "_Shell-oxyqnES4.js",
+      "_AppLogo-BLcQhBg-.js"
+    ],
+    "css": [
+      "assets/app-C4ZZbhbm.css"
+    ]
+  },
+  "resources/js/Pages/Admin/Transactions.tsx": {
+    "file": "assets/Transactions-BrNp4wYr.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "Transactions",
     "src": "resources/js/Pages/Admin/Transactions.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_AdminLayout-B2oCXheF.js",
       "_useInertiaLoading-BeRpDZtM.js",
       "_Shell-CxAvCjzz.js",
@@ -442,11 +808,25 @@
   },
   "resources/js/Pages/Admin/Users.tsx": {
     "file": "assets/Users-DpNI8ud6.js",
+=======
+      "_AdminLayout-DsRHE9a6.js",
+      "_useInertiaLoading-ugvYuVT0.js",
+      "_Shell-oxyqnES4.js",
+      "_AppLogo-BLcQhBg-.js"
+    ],
+    "css": [
+      "assets/app-C4ZZbhbm.css"
+    ]
+  },
+  "resources/js/Pages/Admin/Users.tsx": {
+    "file": "assets/Users-BoHs4jtw.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "Users",
     "src": "resources/js/Pages/Admin/Users.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_AdminLayout-B2oCXheF.js",
       "_useInertiaLoading-BeRpDZtM.js",
       "_Shell-CxAvCjzz.js",
@@ -458,11 +838,25 @@
   },
   "resources/js/Pages/Agency/Agents.tsx": {
     "file": "assets/Agents-B1fBxx8u.js",
+=======
+      "_AdminLayout-DsRHE9a6.js",
+      "_useInertiaLoading-ugvYuVT0.js",
+      "_Shell-oxyqnES4.js",
+      "_AppLogo-BLcQhBg-.js"
+    ],
+    "css": [
+      "assets/app-C4ZZbhbm.css"
+    ]
+  },
+  "resources/js/Pages/Agency/Agents.tsx": {
+    "file": "assets/Agents-BY_hyB3y.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "Agents",
     "src": "resources/js/Pages/Agency/Agents.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_AgencyLayout-D1qlpGit.js",
       "_InviteAgentModal-Du0b8cXx.js",
       "_Charts-D2QvU_RP.js",
@@ -477,11 +871,28 @@
   },
   "resources/js/Pages/Agency/Billing.tsx": {
     "file": "assets/Billing-CGQFmJ2M.js",
+=======
+      "_AgencyLayout-B5fOzxFq.js",
+      "_InviteAgentModal-B5cPNRmG.js",
+      "_Charts-De92soSD.js",
+      "_Shell-oxyqnES4.js",
+      "_AppLogo-BLcQhBg-.js",
+      "_SubscriptionBanner-BNx8XP_5.js",
+      "_Skeleton-DxMh3G4Z.js"
+    ],
+    "css": [
+      "assets/app-C4ZZbhbm.css"
+    ]
+  },
+  "resources/js/Pages/Agency/Billing.tsx": {
+    "file": "assets/Billing-GFNSulVj.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "Billing",
     "src": "resources/js/Pages/Agency/Billing.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_AgencyLayout-D1qlpGit.js",
       "_Skeleton-WrGJfRRY.js",
       "_Shell-CxAvCjzz.js",
@@ -494,11 +905,27 @@
   },
   "resources/js/Pages/Agency/Commission.tsx": {
     "file": "assets/Commission-DKAcF_Nn.js",
+=======
+      "_AgencyLayout-B5fOzxFq.js",
+      "_Skeleton-DxMh3G4Z.js",
+      "_Charts-De92soSD.js",
+      "_Shell-oxyqnES4.js",
+      "_AppLogo-BLcQhBg-.js",
+      "_SubscriptionBanner-BNx8XP_5.js"
+    ],
+    "css": [
+      "assets/app-C4ZZbhbm.css"
+    ]
+  },
+  "resources/js/Pages/Agency/Commission.tsx": {
+    "file": "assets/Commission-oYbQ9tnV.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "Commission",
     "src": "resources/js/Pages/Agency/Commission.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_AgencyLayout-D1qlpGit.js",
       "_Skeleton-WrGJfRRY.js",
       "_Icon-NU758mL4.js",
@@ -512,11 +939,27 @@
   },
   "resources/js/Pages/Agency/Compliance.tsx": {
     "file": "assets/Compliance-yofqjI4X.js",
+=======
+      "_AgencyLayout-B5fOzxFq.js",
+      "_Skeleton-DxMh3G4Z.js",
+      "_Icon-Bupzo4lG.js",
+      "_Shell-oxyqnES4.js",
+      "_AppLogo-BLcQhBg-.js",
+      "_SubscriptionBanner-BNx8XP_5.js"
+    ],
+    "css": [
+      "assets/app-C4ZZbhbm.css"
+    ]
+  },
+  "resources/js/Pages/Agency/Compliance.tsx": {
+    "file": "assets/Compliance-Bew04RuP.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "Compliance",
     "src": "resources/js/Pages/Agency/Compliance.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_AgencyLayout-D1qlpGit.js",
       "_Skeleton-WrGJfRRY.js",
       "_Shell-CxAvCjzz.js",
@@ -529,11 +972,27 @@
   },
   "resources/js/Pages/Agency/Contractors.tsx": {
     "file": "assets/Contractors-7VQpIOv8.js",
+=======
+      "_AgencyLayout-B5fOzxFq.js",
+      "_Skeleton-DxMh3G4Z.js",
+      "_Charts-De92soSD.js",
+      "_Shell-oxyqnES4.js",
+      "_AppLogo-BLcQhBg-.js",
+      "_SubscriptionBanner-BNx8XP_5.js"
+    ],
+    "css": [
+      "assets/app-C4ZZbhbm.css"
+    ]
+  },
+  "resources/js/Pages/Agency/Contractors.tsx": {
+    "file": "assets/Contractors-C8UMS1tA.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "Contractors",
     "src": "resources/js/Pages/Agency/Contractors.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_AgencyLayout-D1qlpGit.js",
       "_Skeleton-WrGJfRRY.js",
       "_Shell-CxAvCjzz.js",
@@ -546,11 +1005,27 @@
   },
   "resources/js/Pages/Agency/CreateListing.tsx": {
     "file": "assets/CreateListing-C5ohgZYW.js",
+=======
+      "_AgencyLayout-B5fOzxFq.js",
+      "_Skeleton-DxMh3G4Z.js",
+      "_Charts-De92soSD.js",
+      "_Shell-oxyqnES4.js",
+      "_AppLogo-BLcQhBg-.js",
+      "_SubscriptionBanner-BNx8XP_5.js"
+    ],
+    "css": [
+      "assets/app-C4ZZbhbm.css"
+    ]
+  },
+  "resources/js/Pages/Agency/CreateListing.tsx": {
+    "file": "assets/CreateListing-IHDcyH77.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "CreateListing",
     "src": "resources/js/Pages/Agency/CreateListing.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_AgencyLayout-D1qlpGit.js",
       "_ListingForm-1E3pwgML.js",
       "_Shell-CxAvCjzz.js",
@@ -583,11 +1058,27 @@
   },
   "resources/js/Pages/Agency/Landlords.tsx": {
     "file": "assets/Landlords-BYj7KEHF.js",
+=======
+      "_AgencyLayout-B5fOzxFq.js",
+      "_ListingForm-BIedhypl.js",
+      "_Shell-oxyqnES4.js",
+      "_AppLogo-BLcQhBg-.js",
+      "_SubscriptionBanner-BNx8XP_5.js",
+      "_Skeleton-DxMh3G4Z.js"
+    ],
+    "css": [
+      "assets/app-C4ZZbhbm.css"
+    ]
+  },
+  "resources/js/Pages/Agency/Landlords.tsx": {
+    "file": "assets/Landlords-D5GSDHlm.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "Landlords",
     "src": "resources/js/Pages/Agency/Landlords.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_AgencyLayout-D1qlpGit.js",
       "_Shell-CxAvCjzz.js",
       "_AppLogo-BYfe6pUy.js",
@@ -599,11 +1090,26 @@
   },
   "resources/js/Pages/Agency/ListingsAllocation.tsx": {
     "file": "assets/ListingsAllocation-BSPZi_6e.js",
+=======
+      "_AgencyLayout-B5fOzxFq.js",
+      "_Charts-De92soSD.js",
+      "_Shell-oxyqnES4.js",
+      "_AppLogo-BLcQhBg-.js",
+      "_SubscriptionBanner-BNx8XP_5.js"
+    ],
+    "css": [
+      "assets/app-C4ZZbhbm.css"
+    ]
+  },
+  "resources/js/Pages/Agency/ListingsAllocation.tsx": {
+    "file": "assets/ListingsAllocation-D3BcbXyA.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "ListingsAllocation",
     "src": "resources/js/Pages/Agency/ListingsAllocation.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_AgencyLayout-D1qlpGit.js",
       "_Shell-CxAvCjzz.js",
       "_AppLogo-BYfe6pUy.js",
@@ -615,11 +1121,25 @@
   },
   "resources/js/Pages/Agency/Maintenance.tsx": {
     "file": "assets/Maintenance-Cri3UcuN.js",
+=======
+      "_AgencyLayout-B5fOzxFq.js",
+      "_Shell-oxyqnES4.js",
+      "_AppLogo-BLcQhBg-.js",
+      "_SubscriptionBanner-BNx8XP_5.js"
+    ],
+    "css": [
+      "assets/app-C4ZZbhbm.css"
+    ]
+  },
+  "resources/js/Pages/Agency/Maintenance.tsx": {
+    "file": "assets/Maintenance-_9YtOY5V.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "Maintenance",
     "src": "resources/js/Pages/Agency/Maintenance.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_AgencyLayout-D1qlpGit.js",
       "_MaintenanceBoard-D70vm52L.js",
       "_Shell-CxAvCjzz.js",
@@ -634,11 +1154,29 @@
   },
   "resources/js/Pages/Agency/MaintenanceQuotes.tsx": {
     "file": "assets/MaintenanceQuotes-BuPBPKOf.js",
+=======
+      "_AgencyLayout-B5fOzxFq.js",
+      "_MaintenanceBoard-CvzOeSUJ.js",
+      "_Shell-oxyqnES4.js",
+      "_AppLogo-BLcQhBg-.js",
+      "_SubscriptionBanner-BNx8XP_5.js",
+      "_RateContractorModal-M9YjfQon.js",
+      "_Icon-Bupzo4lG.js",
+      "_Charts-De92soSD.js"
+    ],
+    "css": [
+      "assets/app-C4ZZbhbm.css"
+    ]
+  },
+  "resources/js/Pages/Agency/MaintenanceQuotes.tsx": {
+    "file": "assets/MaintenanceQuotes-yJ01CMZD.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "MaintenanceQuotes",
     "src": "resources/js/Pages/Agency/MaintenanceQuotes.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_AgencyLayout-D1qlpGit.js",
       "_Shell-CxAvCjzz.js",
       "_AppLogo-BYfe6pUy.js",
@@ -650,11 +1188,25 @@
   },
   "resources/js/Pages/Agency/Messages.tsx": {
     "file": "assets/Messages-DC7LNMsm.js",
+=======
+      "_AgencyLayout-B5fOzxFq.js",
+      "_Shell-oxyqnES4.js",
+      "_AppLogo-BLcQhBg-.js",
+      "_SubscriptionBanner-BNx8XP_5.js"
+    ],
+    "css": [
+      "assets/app-C4ZZbhbm.css"
+    ]
+  },
+  "resources/js/Pages/Agency/Messages.tsx": {
+    "file": "assets/Messages-qkWmeyNI.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "Messages",
     "src": "resources/js/Pages/Agency/Messages.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_AgencyLayout-D1qlpGit.js",
       "_Icon-NU758mL4.js",
       "_Shell-CxAvCjzz.js",
@@ -667,11 +1219,27 @@
   },
   "resources/js/Pages/Agency/Overview.tsx": {
     "file": "assets/Overview-DFhb1uCM.js",
+=======
+      "_AgencyLayout-B5fOzxFq.js",
+      "_Icon-Bupzo4lG.js",
+      "_Charts-De92soSD.js",
+      "_Shell-oxyqnES4.js",
+      "_AppLogo-BLcQhBg-.js",
+      "_SubscriptionBanner-BNx8XP_5.js"
+    ],
+    "css": [
+      "assets/app-C4ZZbhbm.css"
+    ]
+  },
+  "resources/js/Pages/Agency/Overview.tsx": {
+    "file": "assets/Overview-KADzFvRJ.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "Overview",
     "src": "resources/js/Pages/Agency/Overview.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_AgencyLayout-D1qlpGit.js",
       "_InviteAgentModal-Du0b8cXx.js",
       "_Charts-D2QvU_RP.js",
@@ -686,11 +1254,28 @@
   },
   "resources/js/Pages/Agency/Pipeline.tsx": {
     "file": "assets/Pipeline-D_7fk_jm.js",
+=======
+      "_AgencyLayout-B5fOzxFq.js",
+      "_InviteAgentModal-B5cPNRmG.js",
+      "_Charts-De92soSD.js",
+      "_Shell-oxyqnES4.js",
+      "_AppLogo-BLcQhBg-.js",
+      "_SubscriptionBanner-BNx8XP_5.js",
+      "_Skeleton-DxMh3G4Z.js"
+    ],
+    "css": [
+      "assets/app-C4ZZbhbm.css"
+    ]
+  },
+  "resources/js/Pages/Agency/Pipeline.tsx": {
+    "file": "assets/Pipeline-Cvr-BOu5.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "Pipeline",
     "src": "resources/js/Pages/Agency/Pipeline.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_AgencyLayout-D1qlpGit.js",
       "_Shell-CxAvCjzz.js",
       "_AppLogo-BYfe6pUy.js",
@@ -702,11 +1287,26 @@
   },
   "resources/js/Pages/Agency/Reports.tsx": {
     "file": "assets/Reports-CiKOVPo-.js",
+=======
+      "_AgencyLayout-B5fOzxFq.js",
+      "_Charts-De92soSD.js",
+      "_Shell-oxyqnES4.js",
+      "_AppLogo-BLcQhBg-.js",
+      "_SubscriptionBanner-BNx8XP_5.js"
+    ],
+    "css": [
+      "assets/app-C4ZZbhbm.css"
+    ]
+  },
+  "resources/js/Pages/Agency/Reports.tsx": {
+    "file": "assets/Reports-DN2l_4RD.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "Reports",
     "src": "resources/js/Pages/Agency/Reports.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_AgencyLayout-D1qlpGit.js",
       "_Charts-D2QvU_RP.js",
       "_Shell-CxAvCjzz.js",
@@ -719,11 +1319,26 @@
   },
   "resources/js/Pages/Agency/Settings.tsx": {
     "file": "assets/Settings-bajJ8oAo.js",
+=======
+      "_AgencyLayout-B5fOzxFq.js",
+      "_Charts-De92soSD.js",
+      "_Shell-oxyqnES4.js",
+      "_AppLogo-BLcQhBg-.js",
+      "_SubscriptionBanner-BNx8XP_5.js"
+    ],
+    "css": [
+      "assets/app-C4ZZbhbm.css"
+    ]
+  },
+  "resources/js/Pages/Agency/Settings.tsx": {
+    "file": "assets/Settings-LLl-4Tg9.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "Settings",
     "src": "resources/js/Pages/Agency/Settings.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_AgencyLayout-D1qlpGit.js",
       "_AppearanceSettings-CHQ1UVyH.js",
       "_Shell-CxAvCjzz.js",
@@ -738,11 +1353,29 @@
   },
   "resources/js/Pages/Agency/Tenants.tsx": {
     "file": "assets/Tenants-CMDwjBmE.js",
+=======
+      "_AgencyLayout-B5fOzxFq.js",
+      "_AppearanceSettings-C7yzxvVG.js",
+      "_Charts-De92soSD.js",
+      "_Icon-Bupzo4lG.js",
+      "_Shell-oxyqnES4.js",
+      "_AppLogo-BLcQhBg-.js",
+      "_SubscriptionBanner-BNx8XP_5.js",
+      "_Skeleton-DxMh3G4Z.js"
+    ],
+    "css": [
+      "assets/app-C4ZZbhbm.css"
+    ]
+  },
+  "resources/js/Pages/Agency/Tenants.tsx": {
+    "file": "assets/Tenants-BQWkqcwV.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "Tenants",
     "src": "resources/js/Pages/Agency/Tenants.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_AgencyLayout-D1qlpGit.js",
       "_Shell-CxAvCjzz.js",
       "_AppLogo-BYfe6pUy.js",
@@ -754,11 +1387,26 @@
   },
   "resources/js/Pages/Agency/TrustAccount.tsx": {
     "file": "assets/TrustAccount-Ckchtz65.js",
+=======
+      "_AgencyLayout-B5fOzxFq.js",
+      "_Charts-De92soSD.js",
+      "_Shell-oxyqnES4.js",
+      "_AppLogo-BLcQhBg-.js",
+      "_SubscriptionBanner-BNx8XP_5.js"
+    ],
+    "css": [
+      "assets/app-C4ZZbhbm.css"
+    ]
+  },
+  "resources/js/Pages/Agency/TrustAccount.tsx": {
+    "file": "assets/TrustAccount-CAf7pEHh.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "TrustAccount",
     "src": "resources/js/Pages/Agency/TrustAccount.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_AgencyLayout-D1qlpGit.js",
       "_Skeleton-WrGJfRRY.js",
       "_Shell-CxAvCjzz.js",
@@ -771,11 +1419,27 @@
   },
   "resources/js/Pages/Agent/Analytics.tsx": {
     "file": "assets/Analytics-Co-AEGSv.js",
+=======
+      "_AgencyLayout-B5fOzxFq.js",
+      "_Skeleton-DxMh3G4Z.js",
+      "_Charts-De92soSD.js",
+      "_Shell-oxyqnES4.js",
+      "_AppLogo-BLcQhBg-.js",
+      "_SubscriptionBanner-BNx8XP_5.js"
+    ],
+    "css": [
+      "assets/app-C4ZZbhbm.css"
+    ]
+  },
+  "resources/js/Pages/Agent/Analytics.tsx": {
+    "file": "assets/Analytics-DGnMl8xt.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "Analytics",
     "src": "resources/js/Pages/Agent/Analytics.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_AgentLayout-DY2hzqg3.js",
       "_useInertiaLoading-BeRpDZtM.js",
       "_Charts-D2QvU_RP.js",
@@ -788,11 +1452,26 @@
   },
   "resources/js/Pages/Agent/Commission.tsx": {
     "file": "assets/Commission-BERzycZN.js",
+=======
+      "_AgentLayout-B_A3XUjQ.js",
+      "_useInertiaLoading-ugvYuVT0.js",
+      "_Charts-De92soSD.js",
+      "_Shell-oxyqnES4.js",
+      "_AppLogo-BLcQhBg-.js"
+    ],
+    "css": [
+      "assets/app-C4ZZbhbm.css"
+    ]
+  },
+  "resources/js/Pages/Agent/Commission.tsx": {
+    "file": "assets/Commission-DLV5Xx92.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "Commission",
     "src": "resources/js/Pages/Agent/Commission.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_AgentLayout-DY2hzqg3.js",
       "_Shell-CxAvCjzz.js",
       "_AppLogo-BYfe6pUy.js"
@@ -803,11 +1482,24 @@
   },
   "resources/js/Pages/Agent/CreateInspection.tsx": {
     "file": "assets/CreateInspection-B8c6saTE.js",
+=======
+      "_AgentLayout-B_A3XUjQ.js",
+      "_Shell-oxyqnES4.js",
+      "_AppLogo-BLcQhBg-.js"
+    ],
+    "css": [
+      "assets/app-C4ZZbhbm.css"
+    ]
+  },
+  "resources/js/Pages/Agent/CreateInspection.tsx": {
+    "file": "assets/CreateInspection-Dy5OBh4i.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "CreateInspection",
     "src": "resources/js/Pages/Agent/CreateInspection.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_AgentLayout-DY2hzqg3.js",
       "_Skeleton-WrGJfRRY.js",
       "_Icon-NU758mL4.js",
@@ -820,11 +1512,26 @@
   },
   "resources/js/Pages/Agent/CreateListing.tsx": {
     "file": "assets/CreateListing-DEzpfOm1.js",
+=======
+      "_AgentLayout-B_A3XUjQ.js",
+      "_Skeleton-DxMh3G4Z.js",
+      "_Icon-Bupzo4lG.js",
+      "_Shell-oxyqnES4.js",
+      "_AppLogo-BLcQhBg-.js"
+    ],
+    "css": [
+      "assets/app-C4ZZbhbm.css"
+    ]
+  },
+  "resources/js/Pages/Agent/CreateListing.tsx": {
+    "file": "assets/CreateListing-YqXqcJER.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "CreateListing",
     "src": "resources/js/Pages/Agent/CreateListing.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_AgentLayout-DY2hzqg3.js",
       "_ListingForm-1E3pwgML.js",
       "_Shell-CxAvCjzz.js",
@@ -837,11 +1544,26 @@
   },
   "resources/js/Pages/Agent/EditListing.tsx": {
     "file": "assets/EditListing-Cpm2J_Rd.js",
+=======
+      "_AgentLayout-B_A3XUjQ.js",
+      "_ListingForm-BIedhypl.js",
+      "_Shell-oxyqnES4.js",
+      "_AppLogo-BLcQhBg-.js",
+      "_Skeleton-DxMh3G4Z.js"
+    ],
+    "css": [
+      "assets/app-C4ZZbhbm.css"
+    ]
+  },
+  "resources/js/Pages/Agent/EditListing.tsx": {
+    "file": "assets/EditListing-BxHGKqOa.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "EditListing",
     "src": "resources/js/Pages/Agent/EditListing.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_AgentLayout-DY2hzqg3.js",
       "_ListingForm-1E3pwgML.js",
       "_Shell-CxAvCjzz.js",
@@ -854,11 +1576,26 @@
   },
   "resources/js/Pages/Agent/FfcCompliance.tsx": {
     "file": "assets/FfcCompliance-BynCay-B.js",
+=======
+      "_AgentLayout-B_A3XUjQ.js",
+      "_ListingForm-BIedhypl.js",
+      "_Shell-oxyqnES4.js",
+      "_AppLogo-BLcQhBg-.js",
+      "_Skeleton-DxMh3G4Z.js"
+    ],
+    "css": [
+      "assets/app-C4ZZbhbm.css"
+    ]
+  },
+  "resources/js/Pages/Agent/FfcCompliance.tsx": {
+    "file": "assets/FfcCompliance-BEb09dw9.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "FfcCompliance",
     "src": "resources/js/Pages/Agent/FfcCompliance.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_AgentLayout-DY2hzqg3.js",
       "_Skeleton-WrGJfRRY.js",
       "_Shell-CxAvCjzz.js",
@@ -888,11 +1625,25 @@
   },
   "resources/js/Pages/Agent/Inspections.tsx": {
     "file": "assets/Inspections-CLlG8api.js",
+=======
+      "_AgentLayout-B_A3XUjQ.js",
+      "_Skeleton-DxMh3G4Z.js",
+      "_Shell-oxyqnES4.js",
+      "_AppLogo-BLcQhBg-.js"
+    ],
+    "css": [
+      "assets/app-C4ZZbhbm.css"
+    ]
+  },
+  "resources/js/Pages/Agent/Inspections.tsx": {
+    "file": "assets/Inspections-DavBZAUu.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "Inspections",
     "src": "resources/js/Pages/Agent/Inspections.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_AgentLayout-DY2hzqg3.js",
       "_Icon-NU758mL4.js",
       "_Shell-CxAvCjzz.js",
@@ -904,11 +1655,25 @@
   },
   "resources/js/Pages/Agent/Listings.tsx": {
     "file": "assets/Listings-CTV9s2Rf.js",
+=======
+      "_AgentLayout-B_A3XUjQ.js",
+      "_Icon-Bupzo4lG.js",
+      "_Shell-oxyqnES4.js",
+      "_AppLogo-BLcQhBg-.js"
+    ],
+    "css": [
+      "assets/app-C4ZZbhbm.css"
+    ]
+  },
+  "resources/js/Pages/Agent/Listings.tsx": {
+    "file": "assets/Listings-nZuwghAL.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "Listings",
     "src": "resources/js/Pages/Agent/Listings.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_AgentLayout-DY2hzqg3.js",
       "_InviteTenantModal-DyEUmQJc.js",
       "_Icon-NU758mL4.js",
@@ -922,11 +1687,27 @@
   },
   "resources/js/Pages/Agent/Maintenance.tsx": {
     "file": "assets/Maintenance-DNyJ36gl.js",
+=======
+      "_AgentLayout-B_A3XUjQ.js",
+      "_InviteTenantModal-CNCL6Vzo.js",
+      "_Icon-Bupzo4lG.js",
+      "_Shell-oxyqnES4.js",
+      "_AppLogo-BLcQhBg-.js",
+      "_Skeleton-DxMh3G4Z.js"
+    ],
+    "css": [
+      "assets/app-C4ZZbhbm.css"
+    ]
+  },
+  "resources/js/Pages/Agent/Maintenance.tsx": {
+    "file": "assets/Maintenance-ii1zhkva.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "Maintenance",
     "src": "resources/js/Pages/Agent/Maintenance.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_AgentLayout-DY2hzqg3.js",
       "_MaintenanceBoard-D70vm52L.js",
       "_Shell-CxAvCjzz.js",
@@ -940,11 +1721,28 @@
   },
   "resources/js/Pages/Agent/Messages.tsx": {
     "file": "assets/Messages-1ULz8ZKX.js",
+=======
+      "_AgentLayout-B_A3XUjQ.js",
+      "_MaintenanceBoard-CvzOeSUJ.js",
+      "_Shell-oxyqnES4.js",
+      "_AppLogo-BLcQhBg-.js",
+      "_RateContractorModal-M9YjfQon.js",
+      "_Icon-Bupzo4lG.js",
+      "_Charts-De92soSD.js"
+    ],
+    "css": [
+      "assets/app-C4ZZbhbm.css"
+    ]
+  },
+  "resources/js/Pages/Agent/Messages.tsx": {
+    "file": "assets/Messages-C3HFySc_.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "Messages",
     "src": "resources/js/Pages/Agent/Messages.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_AgentLayout-DY2hzqg3.js",
       "_Skeleton-WrGJfRRY.js",
       "_Shell-CxAvCjzz.js",
@@ -956,11 +1754,25 @@
   },
   "resources/js/Pages/Agent/Overview.tsx": {
     "file": "assets/Overview-1GThnJr0.js",
+=======
+      "_AgentLayout-B_A3XUjQ.js",
+      "_Skeleton-DxMh3G4Z.js",
+      "_Shell-oxyqnES4.js",
+      "_AppLogo-BLcQhBg-.js"
+    ],
+    "css": [
+      "assets/app-C4ZZbhbm.css"
+    ]
+  },
+  "resources/js/Pages/Agent/Overview.tsx": {
+    "file": "assets/Overview-umAeyOCu.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "Overview",
     "src": "resources/js/Pages/Agent/Overview.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_AgentLayout-DY2hzqg3.js",
       "_Charts-D2QvU_RP.js",
       "_Shell-CxAvCjzz.js",
@@ -972,11 +1784,25 @@
   },
   "resources/js/Pages/Agent/Pipeline.tsx": {
     "file": "assets/Pipeline-BmDPu1Au.js",
+=======
+      "_AgentLayout-B_A3XUjQ.js",
+      "_Charts-De92soSD.js",
+      "_Shell-oxyqnES4.js",
+      "_AppLogo-BLcQhBg-.js"
+    ],
+    "css": [
+      "assets/app-C4ZZbhbm.css"
+    ]
+  },
+  "resources/js/Pages/Agent/Pipeline.tsx": {
+    "file": "assets/Pipeline-DF0T8ffU.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "Pipeline",
     "src": "resources/js/Pages/Agent/Pipeline.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_AgentLayout-DY2hzqg3.js",
       "_Skeleton-WrGJfRRY.js",
       "_Shell-CxAvCjzz.js",
@@ -988,11 +1814,25 @@
   },
   "resources/js/Pages/Agent/Settings.tsx": {
     "file": "assets/Settings-CZ2M6d9Q.js",
+=======
+      "_AgentLayout-B_A3XUjQ.js",
+      "_Skeleton-DxMh3G4Z.js",
+      "_Shell-oxyqnES4.js",
+      "_AppLogo-BLcQhBg-.js"
+    ],
+    "css": [
+      "assets/app-C4ZZbhbm.css"
+    ]
+  },
+  "resources/js/Pages/Agent/Settings.tsx": {
+    "file": "assets/Settings-Do9ivOT6.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "Settings",
     "src": "resources/js/Pages/Agent/Settings.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_AgentLayout-DY2hzqg3.js",
       "_Skeleton-WrGJfRRY.js",
       "_AppearanceSettings-CHQ1UVyH.js",
@@ -1006,11 +1846,27 @@
   },
   "resources/js/Pages/Agent/ShowInspection.tsx": {
     "file": "assets/ShowInspection-CIsShtNx.js",
+=======
+      "_AgentLayout-B_A3XUjQ.js",
+      "_Skeleton-DxMh3G4Z.js",
+      "_AppearanceSettings-C7yzxvVG.js",
+      "_Shell-oxyqnES4.js",
+      "_AppLogo-BLcQhBg-.js",
+      "_Charts-De92soSD.js"
+    ],
+    "css": [
+      "assets/app-C4ZZbhbm.css"
+    ]
+  },
+  "resources/js/Pages/Agent/ShowInspection.tsx": {
+    "file": "assets/ShowInspection-C0gJfPhm.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "ShowInspection",
     "src": "resources/js/Pages/Agent/ShowInspection.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_AgentLayout-DY2hzqg3.js",
       "_Shell-CxAvCjzz.js",
       "_AppLogo-BYfe6pUy.js"
@@ -1021,11 +1877,24 @@
   },
   "resources/js/Pages/Agent/Tenants.tsx": {
     "file": "assets/Tenants-CRuhdCPB.js",
+=======
+      "_AgentLayout-B_A3XUjQ.js",
+      "_Shell-oxyqnES4.js",
+      "_AppLogo-BLcQhBg-.js"
+    ],
+    "css": [
+      "assets/app-C4ZZbhbm.css"
+    ]
+  },
+  "resources/js/Pages/Agent/Tenants.tsx": {
+    "file": "assets/Tenants-V6hfB24v.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "Tenants",
     "src": "resources/js/Pages/Agent/Tenants.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_AgentLayout-DY2hzqg3.js",
       "_Shell-CxAvCjzz.js",
       "_AppLogo-BYfe6pUy.js"
@@ -1036,11 +1905,24 @@
   },
   "resources/js/Pages/Agent/Viewings.tsx": {
     "file": "assets/Viewings-Bb65tITA.js",
+=======
+      "_AgentLayout-B_A3XUjQ.js",
+      "_Shell-oxyqnES4.js",
+      "_AppLogo-BLcQhBg-.js"
+    ],
+    "css": [
+      "assets/app-C4ZZbhbm.css"
+    ]
+  },
+  "resources/js/Pages/Agent/Viewings.tsx": {
+    "file": "assets/Viewings-CJO-T3ni.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "Viewings",
     "src": "resources/js/Pages/Agent/Viewings.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_AgentLayout-DY2hzqg3.js",
       "_Skeleton-WrGJfRRY.js",
       "_Shell-CxAvCjzz.js",
@@ -1052,11 +1934,25 @@
   },
   "resources/js/Pages/Auth/AcceptInvite.tsx": {
     "file": "assets/AcceptInvite-B_7udayz.js",
+=======
+      "_AgentLayout-B_A3XUjQ.js",
+      "_Skeleton-DxMh3G4Z.js",
+      "_Shell-oxyqnES4.js",
+      "_AppLogo-BLcQhBg-.js"
+    ],
+    "css": [
+      "assets/app-C4ZZbhbm.css"
+    ]
+  },
+  "resources/js/Pages/Auth/AcceptInvite.tsx": {
+    "file": "assets/AcceptInvite-BjjgmjGW.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "AcceptInvite",
     "src": "resources/js/Pages/Auth/AcceptInvite.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_AuthLayout-Di7hA2fB.js",
       "_FormField-BO-7T-zg.js",
       "_AppLogo-BYfe6pUy.js"
@@ -1067,11 +1963,37 @@
   },
   "resources/js/Pages/Auth/ForgotPassword.tsx": {
     "file": "assets/ForgotPassword-BaYCmSU9.js",
+=======
+      "_AppLogo-BLcQhBg-.js",
+      "_FormField-B6X3aIQJ.js"
+    ],
+    "css": [
+      "assets/app-C4ZZbhbm.css"
+    ]
+  },
+  "resources/js/Pages/Auth/Access.tsx": {
+    "file": "assets/Access-BlU_ASgo.js",
+    "name": "Access",
+    "src": "resources/js/Pages/Auth/Access.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/app.tsx",
+      "_AppLogo-BLcQhBg-.js",
+      "_AuthKit-CH1BKcIX.js"
+    ],
+    "css": [
+      "assets/app-C4ZZbhbm.css"
+    ]
+  },
+  "resources/js/Pages/Auth/ForgotPassword.tsx": {
+    "file": "assets/ForgotPassword-XWfF_khT.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "ForgotPassword",
     "src": "resources/js/Pages/Auth/ForgotPassword.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_AuthLayout-Di7hA2fB.js",
       "_FormField-BO-7T-zg.js",
       "_AppLogo-BYfe6pUy.js"
@@ -1112,11 +2034,23 @@
   },
   "resources/js/Pages/Auth/ResetPassword.tsx": {
     "file": "assets/ResetPassword-676f3y-w.js",
+=======
+      "_AuthKit-CH1BKcIX.js",
+      "_AppLogo-BLcQhBg-.js"
+    ],
+    "css": [
+      "assets/app-C4ZZbhbm.css"
+    ]
+  },
+  "resources/js/Pages/Auth/ResetPassword.tsx": {
+    "file": "assets/ResetPassword-D9f3_Sb_.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "ResetPassword",
     "src": "resources/js/Pages/Auth/ResetPassword.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_AuthLayout-Di7hA2fB.js",
       "_FormField-BO-7T-zg.js",
       "_AppLogo-BYfe6pUy.js"
@@ -1127,11 +2061,23 @@
   },
   "resources/js/Pages/Billing/SelectPlan.tsx": {
     "file": "assets/SelectPlan-Cg12H5KB.js",
+=======
+      "_AuthKit-CH1BKcIX.js",
+      "_AppLogo-BLcQhBg-.js"
+    ],
+    "css": [
+      "assets/app-C4ZZbhbm.css"
+    ]
+  },
+  "resources/js/Pages/Billing/SelectPlan.tsx": {
+    "file": "assets/SelectPlan-Bb7FB0u7.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "SelectPlan",
     "src": "resources/js/Pages/Billing/SelectPlan.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_AppLogo-BYfe6pUy.js",
       "_Skeleton-WrGJfRRY.js"
     ],
@@ -1141,11 +2087,23 @@
   },
   "resources/js/Pages/Contractor/Finance.tsx": {
     "file": "assets/Finance-CrcMbu8L.js",
+=======
+      "_AppLogo-BLcQhBg-.js",
+      "_Skeleton-DxMh3G4Z.js"
+    ],
+    "css": [
+      "assets/app-C4ZZbhbm.css"
+    ]
+  },
+  "resources/js/Pages/Contractor/Finance.tsx": {
+    "file": "assets/Finance-D1hCoPTc.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "Finance",
     "src": "resources/js/Pages/Contractor/Finance.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_ContractorLayout-2wawK-_c.js",
       "_Charts-D2QvU_RP.js",
       "_Shell-CxAvCjzz.js",
@@ -1157,11 +2115,25 @@
   },
   "resources/js/Pages/Contractor/Help.tsx": {
     "file": "assets/Help-DUxexIMd.js",
+=======
+      "_ContractorLayout-BiRRDvPc.js",
+      "_Charts-De92soSD.js",
+      "_Shell-oxyqnES4.js",
+      "_AppLogo-BLcQhBg-.js"
+    ],
+    "css": [
+      "assets/app-C4ZZbhbm.css"
+    ]
+  },
+  "resources/js/Pages/Contractor/Help.tsx": {
+    "file": "assets/Help-Al0XIq9H.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "Help",
     "src": "resources/js/Pages/Contractor/Help.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_ContractorLayout-2wawK-_c.js",
       "_HelpCentre-GhciU1yZ.js",
       "_Shell-CxAvCjzz.js",
@@ -1175,11 +2147,27 @@
   },
   "resources/js/Pages/Contractor/Invoices.tsx": {
     "file": "assets/Invoices-4k40uZpz.js",
+=======
+      "_ContractorLayout-BiRRDvPc.js",
+      "_HelpCentre-AskI_JSV.js",
+      "_Shell-oxyqnES4.js",
+      "_AppLogo-BLcQhBg-.js",
+      "_Charts-De92soSD.js",
+      "_Icon-Bupzo4lG.js"
+    ],
+    "css": [
+      "assets/app-C4ZZbhbm.css"
+    ]
+  },
+  "resources/js/Pages/Contractor/Invoices.tsx": {
+    "file": "assets/Invoices-hwj2o9XO.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "Invoices",
     "src": "resources/js/Pages/Contractor/Invoices.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_ContractorLayout-2wawK-_c.js",
       "_Skeleton-WrGJfRRY.js",
       "_useInertiaLoading-BeRpDZtM.js",
@@ -1192,11 +2180,26 @@
   },
   "resources/js/Pages/Contractor/Jobs.tsx": {
     "file": "assets/Jobs-DXeI44fw.js",
+=======
+      "_ContractorLayout-BiRRDvPc.js",
+      "_Skeleton-DxMh3G4Z.js",
+      "_useInertiaLoading-ugvYuVT0.js",
+      "_Shell-oxyqnES4.js",
+      "_AppLogo-BLcQhBg-.js"
+    ],
+    "css": [
+      "assets/app-C4ZZbhbm.css"
+    ]
+  },
+  "resources/js/Pages/Contractor/Jobs.tsx": {
+    "file": "assets/Jobs-Db2YvQhi.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "Jobs",
     "src": "resources/js/Pages/Contractor/Jobs.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_ContractorLayout-2wawK-_c.js",
       "_Shell-CxAvCjzz.js",
       "_AppLogo-BYfe6pUy.js"
@@ -1207,11 +2210,24 @@
   },
   "resources/js/Pages/Contractor/Messages.tsx": {
     "file": "assets/Messages-7_soTBB9.js",
+=======
+      "_ContractorLayout-BiRRDvPc.js",
+      "_Shell-oxyqnES4.js",
+      "_AppLogo-BLcQhBg-.js"
+    ],
+    "css": [
+      "assets/app-C4ZZbhbm.css"
+    ]
+  },
+  "resources/js/Pages/Contractor/Messages.tsx": {
+    "file": "assets/Messages-DM-LrgwL.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "Messages",
     "src": "resources/js/Pages/Contractor/Messages.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_ContractorLayout-2wawK-_c.js",
       "_Skeleton-WrGJfRRY.js",
       "_Shell-CxAvCjzz.js",
@@ -1223,11 +2239,25 @@
   },
   "resources/js/Pages/Contractor/Overview.tsx": {
     "file": "assets/Overview-BHsKocZ6.js",
+=======
+      "_ContractorLayout-BiRRDvPc.js",
+      "_Skeleton-DxMh3G4Z.js",
+      "_Shell-oxyqnES4.js",
+      "_AppLogo-BLcQhBg-.js"
+    ],
+    "css": [
+      "assets/app-C4ZZbhbm.css"
+    ]
+  },
+  "resources/js/Pages/Contractor/Overview.tsx": {
+    "file": "assets/Overview-Cw3X6Si2.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "Overview",
     "src": "resources/js/Pages/Contractor/Overview.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_ContractorLayout-2wawK-_c.js",
       "_Charts-D2QvU_RP.js",
       "_Icon-NU758mL4.js",
@@ -1240,11 +2270,26 @@
   },
   "resources/js/Pages/Contractor/Quotes.tsx": {
     "file": "assets/Quotes-oS-Bw5Qw.js",
+=======
+      "_ContractorLayout-BiRRDvPc.js",
+      "_Charts-De92soSD.js",
+      "_Icon-Bupzo4lG.js",
+      "_Shell-oxyqnES4.js",
+      "_AppLogo-BLcQhBg-.js"
+    ],
+    "css": [
+      "assets/app-C4ZZbhbm.css"
+    ]
+  },
+  "resources/js/Pages/Contractor/Quotes.tsx": {
+    "file": "assets/Quotes-CX6K6t-t.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "Quotes",
     "src": "resources/js/Pages/Contractor/Quotes.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_ContractorLayout-2wawK-_c.js",
       "_Skeleton-WrGJfRRY.js",
       "_useInertiaLoading-BeRpDZtM.js",
@@ -1257,11 +2302,26 @@
   },
   "resources/js/Pages/Contractor/Requests.tsx": {
     "file": "assets/Requests-Cnclecpd.js",
+=======
+      "_ContractorLayout-BiRRDvPc.js",
+      "_Skeleton-DxMh3G4Z.js",
+      "_useInertiaLoading-ugvYuVT0.js",
+      "_Shell-oxyqnES4.js",
+      "_AppLogo-BLcQhBg-.js"
+    ],
+    "css": [
+      "assets/app-C4ZZbhbm.css"
+    ]
+  },
+  "resources/js/Pages/Contractor/Requests.tsx": {
+    "file": "assets/Requests-C_wbTcwv.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "Requests",
     "src": "resources/js/Pages/Contractor/Requests.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_ContractorLayout-2wawK-_c.js",
       "_Skeleton-WrGJfRRY.js",
       "_Icon-NU758mL4.js",
@@ -1274,11 +2334,26 @@
   },
   "resources/js/Pages/Contractor/Settings.tsx": {
     "file": "assets/Settings-B3skrFO8.js",
+=======
+      "_ContractorLayout-BiRRDvPc.js",
+      "_Skeleton-DxMh3G4Z.js",
+      "_Icon-Bupzo4lG.js",
+      "_Shell-oxyqnES4.js",
+      "_AppLogo-BLcQhBg-.js"
+    ],
+    "css": [
+      "assets/app-C4ZZbhbm.css"
+    ]
+  },
+  "resources/js/Pages/Contractor/Settings.tsx": {
+    "file": "assets/Settings-Cm6kEblU.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "Settings",
     "src": "resources/js/Pages/Contractor/Settings.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_ContractorLayout-2wawK-_c.js",
       "_Skeleton-WrGJfRRY.js",
       "_AppearanceSettings-CHQ1UVyH.js",
@@ -1292,11 +2367,27 @@
   },
   "resources/js/Pages/Contractors/Index.tsx": {
     "file": "assets/Index-C3OwwVtZ.js",
+=======
+      "_ContractorLayout-BiRRDvPc.js",
+      "_Skeleton-DxMh3G4Z.js",
+      "_AppearanceSettings-C7yzxvVG.js",
+      "_Shell-oxyqnES4.js",
+      "_AppLogo-BLcQhBg-.js",
+      "_Charts-De92soSD.js"
+    ],
+    "css": [
+      "assets/app-C4ZZbhbm.css"
+    ]
+  },
+  "resources/js/Pages/Contractors/Index.tsx": {
+    "file": "assets/Index-Cw5Gxkff.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "Index",
     "src": "resources/js/Pages/Contractors/Index.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_PublicLayout-D26X6lb6.js",
       "_AppLogo-BYfe6pUy.js"
     ],
@@ -1306,6 +2397,17 @@
   },
   "resources/js/Pages/Dashboard/Placeholder.tsx": {
     "file": "assets/Placeholder-CAFdGcoM.js",
+=======
+      "_PublicLayout-B1kNvGbH.js",
+      "_AppLogo-BLcQhBg-.js"
+    ],
+    "css": [
+      "assets/app-C4ZZbhbm.css"
+    ]
+  },
+  "resources/js/Pages/Dashboard/Placeholder.tsx": {
+    "file": "assets/Placeholder-BH8Oxubc.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "Placeholder",
     "src": "resources/js/Pages/Dashboard/Placeholder.tsx",
     "isDynamicEntry": true,
@@ -1313,16 +2415,25 @@
       "resources/js/app.tsx"
     ],
     "css": [
+<<<<<<< HEAD
       "assets/app-CrPaFxYD.css"
     ]
   },
   "resources/js/Pages/Landlord/Contractors.tsx": {
     "file": "assets/Contractors-DuFvST3v.js",
+=======
+      "assets/app-C4ZZbhbm.css"
+    ]
+  },
+  "resources/js/Pages/Landlord/Contractors.tsx": {
+    "file": "assets/Contractors-CVXf6w8a.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "Contractors",
     "src": "resources/js/Pages/Landlord/Contractors.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_LandlordLayout-pV6ofdyk.js",
       "_Charts-D2QvU_RP.js",
       "_Icon-NU758mL4.js",
@@ -1338,11 +2449,29 @@
   },
   "resources/js/Pages/Landlord/CreateListing.tsx": {
     "file": "assets/CreateListing-6skCjZOY.js",
+=======
+      "_LandlordLayout-DrPdDd5b.js",
+      "_Charts-De92soSD.js",
+      "_Icon-Bupzo4lG.js",
+      "_InviteContractorModal-BuLHEAkc.js",
+      "_Shell-oxyqnES4.js",
+      "_AppLogo-BLcQhBg-.js",
+      "_SubscriptionBanner-BNx8XP_5.js",
+      "_Skeleton-DxMh3G4Z.js"
+    ],
+    "css": [
+      "assets/app-C4ZZbhbm.css"
+    ]
+  },
+  "resources/js/Pages/Landlord/CreateListing.tsx": {
+    "file": "assets/CreateListing-HIRz8uJ_.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "CreateListing",
     "src": "resources/js/Pages/Landlord/CreateListing.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_LandlordLayout-pV6ofdyk.js",
       "_ListingForm-1E3pwgML.js",
       "_Shell-CxAvCjzz.js",
@@ -1356,11 +2485,27 @@
   },
   "resources/js/Pages/Landlord/Finance.tsx": {
     "file": "assets/Finance-C2hcJ5Lp.js",
+=======
+      "_LandlordLayout-DrPdDd5b.js",
+      "_ListingForm-BIedhypl.js",
+      "_Shell-oxyqnES4.js",
+      "_AppLogo-BLcQhBg-.js",
+      "_SubscriptionBanner-BNx8XP_5.js",
+      "_Skeleton-DxMh3G4Z.js"
+    ],
+    "css": [
+      "assets/app-C4ZZbhbm.css"
+    ]
+  },
+  "resources/js/Pages/Landlord/Finance.tsx": {
+    "file": "assets/Finance-DoKHBGss.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "Finance",
     "src": "resources/js/Pages/Landlord/Finance.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_LandlordLayout-pV6ofdyk.js",
       "_Charts-D2QvU_RP.js",
       "_useInertiaLoading-BeRpDZtM.js",
@@ -1375,11 +2520,28 @@
   },
   "resources/js/Pages/Landlord/Help.tsx": {
     "file": "assets/Help-BwJ-qr5h.js",
+=======
+      "_LandlordLayout-DrPdDd5b.js",
+      "_Charts-De92soSD.js",
+      "_useInertiaLoading-ugvYuVT0.js",
+      "_Icon-Bupzo4lG.js",
+      "_Shell-oxyqnES4.js",
+      "_AppLogo-BLcQhBg-.js",
+      "_SubscriptionBanner-BNx8XP_5.js"
+    ],
+    "css": [
+      "assets/app-C4ZZbhbm.css"
+    ]
+  },
+  "resources/js/Pages/Landlord/Help.tsx": {
+    "file": "assets/Help-DW3uMGTa.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "Help",
     "src": "resources/js/Pages/Landlord/Help.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_LandlordLayout-pV6ofdyk.js",
       "_HelpCentre-GhciU1yZ.js",
       "_Shell-CxAvCjzz.js",
@@ -1394,11 +2556,28 @@
   },
   "resources/js/Pages/Landlord/Maintenance.tsx": {
     "file": "assets/Maintenance-YerDuqAK.js",
+=======
+      "_LandlordLayout-DrPdDd5b.js",
+      "_HelpCentre-AskI_JSV.js",
+      "_Shell-oxyqnES4.js",
+      "_AppLogo-BLcQhBg-.js",
+      "_SubscriptionBanner-BNx8XP_5.js",
+      "_Charts-De92soSD.js",
+      "_Icon-Bupzo4lG.js"
+    ],
+    "css": [
+      "assets/app-C4ZZbhbm.css"
+    ]
+  },
+  "resources/js/Pages/Landlord/Maintenance.tsx": {
+    "file": "assets/Maintenance-4WJsTB5F.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "Maintenance",
     "src": "resources/js/Pages/Landlord/Maintenance.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_LandlordLayout-pV6ofdyk.js",
       "_Charts-D2QvU_RP.js",
       "_Icon-NU758mL4.js",
@@ -1415,11 +2594,30 @@
   },
   "resources/js/Pages/Landlord/Messages.tsx": {
     "file": "assets/Messages-C6mkKhNa.js",
+=======
+      "_LandlordLayout-DrPdDd5b.js",
+      "_Charts-De92soSD.js",
+      "_Icon-Bupzo4lG.js",
+      "_Skeleton-DxMh3G4Z.js",
+      "_RateContractorModal-M9YjfQon.js",
+      "_InviteContractorModal-BuLHEAkc.js",
+      "_Shell-oxyqnES4.js",
+      "_AppLogo-BLcQhBg-.js",
+      "_SubscriptionBanner-BNx8XP_5.js"
+    ],
+    "css": [
+      "assets/app-C4ZZbhbm.css"
+    ]
+  },
+  "resources/js/Pages/Landlord/Messages.tsx": {
+    "file": "assets/Messages-C2jkzYwF.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "Messages",
     "src": "resources/js/Pages/Landlord/Messages.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_LandlordLayout-pV6ofdyk.js",
       "_Skeleton-WrGJfRRY.js",
       "_Icon-NU758mL4.js",
@@ -1433,11 +2631,27 @@
   },
   "resources/js/Pages/Landlord/Overview.tsx": {
     "file": "assets/Overview-D0DaPKTp.js",
+=======
+      "_LandlordLayout-DrPdDd5b.js",
+      "_Skeleton-DxMh3G4Z.js",
+      "_Icon-Bupzo4lG.js",
+      "_Shell-oxyqnES4.js",
+      "_AppLogo-BLcQhBg-.js",
+      "_SubscriptionBanner-BNx8XP_5.js"
+    ],
+    "css": [
+      "assets/app-C4ZZbhbm.css"
+    ]
+  },
+  "resources/js/Pages/Landlord/Overview.tsx": {
+    "file": "assets/Overview-ByVLTwzN.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "Overview",
     "src": "resources/js/Pages/Landlord/Overview.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_LandlordLayout-pV6ofdyk.js",
       "_LandlordInviteTenantModal-OV_MwfQP.js",
       "_Charts-D2QvU_RP.js",
@@ -1454,11 +2668,30 @@
   },
   "resources/js/Pages/Landlord/Properties.tsx": {
     "file": "assets/Properties-CLprEOnv.js",
+=======
+      "_LandlordLayout-DrPdDd5b.js",
+      "_LandlordInviteTenantModal-DHY4fZ2m.js",
+      "_Charts-De92soSD.js",
+      "_Icon-Bupzo4lG.js",
+      "_Shell-oxyqnES4.js",
+      "_AppLogo-BLcQhBg-.js",
+      "_SubscriptionBanner-BNx8XP_5.js",
+      "_InviteTenantModal-CNCL6Vzo.js",
+      "_Skeleton-DxMh3G4Z.js"
+    ],
+    "css": [
+      "assets/app-C4ZZbhbm.css"
+    ]
+  },
+  "resources/js/Pages/Landlord/Properties.tsx": {
+    "file": "assets/Properties-BzBoCG6v.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "Properties",
     "src": "resources/js/Pages/Landlord/Properties.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_LandlordLayout-pV6ofdyk.js",
       "_Charts-D2QvU_RP.js",
       "_Icon-NU758mL4.js",
@@ -1472,11 +2705,27 @@
   },
   "resources/js/Pages/Landlord/Settings.tsx": {
     "file": "assets/Settings-DAdTexNW.js",
+=======
+      "_LandlordLayout-DrPdDd5b.js",
+      "_Charts-De92soSD.js",
+      "_Icon-Bupzo4lG.js",
+      "_AppLogo-BLcQhBg-.js",
+      "_Shell-oxyqnES4.js",
+      "_SubscriptionBanner-BNx8XP_5.js"
+    ],
+    "css": [
+      "assets/app-C4ZZbhbm.css"
+    ]
+  },
+  "resources/js/Pages/Landlord/Settings.tsx": {
+    "file": "assets/Settings-BSwNxw7K.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "Settings",
     "src": "resources/js/Pages/Landlord/Settings.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_LandlordLayout-pV6ofdyk.js",
       "_Skeleton-WrGJfRRY.js",
       "_AppearanceSettings-CHQ1UVyH.js",
@@ -1492,11 +2741,29 @@
   },
   "resources/js/Pages/Landlord/Tenants.tsx": {
     "file": "assets/Tenants-BOfjf1qB.js",
+=======
+      "_LandlordLayout-DrPdDd5b.js",
+      "_Skeleton-DxMh3G4Z.js",
+      "_AppearanceSettings-C7yzxvVG.js",
+      "_Charts-De92soSD.js",
+      "_Icon-Bupzo4lG.js",
+      "_Shell-oxyqnES4.js",
+      "_AppLogo-BLcQhBg-.js",
+      "_SubscriptionBanner-BNx8XP_5.js"
+    ],
+    "css": [
+      "assets/app-C4ZZbhbm.css"
+    ]
+  },
+  "resources/js/Pages/Landlord/Tenants.tsx": {
+    "file": "assets/Tenants-qIeFfGV8.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "Tenants",
     "src": "resources/js/Pages/Landlord/Tenants.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_Skeleton-WrGJfRRY.js",
       "_Charts-D2QvU_RP.js",
       "_LandlordLayout-pV6ofdyk.js",
@@ -1512,11 +2779,29 @@
   },
   "resources/js/Pages/Public/Advice/Index.tsx": {
     "file": "assets/Index-BB3vrUCj.js",
+=======
+      "_Skeleton-DxMh3G4Z.js",
+      "_Charts-De92soSD.js",
+      "_LandlordLayout-DrPdDd5b.js",
+      "_LandlordInviteTenantModal-DHY4fZ2m.js",
+      "_Shell-oxyqnES4.js",
+      "_AppLogo-BLcQhBg-.js",
+      "_SubscriptionBanner-BNx8XP_5.js",
+      "_InviteTenantModal-CNCL6Vzo.js"
+    ],
+    "css": [
+      "assets/app-C4ZZbhbm.css"
+    ]
+  },
+  "resources/js/Pages/Public/Advice/Index.tsx": {
+    "file": "assets/Index-CVC0movS.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "Index",
     "src": "resources/js/Pages/Public/Advice/Index.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_PublicLayout-D26X6lb6.js",
       "_AppLogo-BYfe6pUy.js"
     ],
@@ -1526,11 +2811,23 @@
   },
   "resources/js/Pages/Public/Advice/Show.tsx": {
     "file": "assets/Show-pF1xCzn9.js",
+=======
+      "_PublicLayout-B1kNvGbH.js",
+      "_AppLogo-BLcQhBg-.js"
+    ],
+    "css": [
+      "assets/app-C4ZZbhbm.css"
+    ]
+  },
+  "resources/js/Pages/Public/Advice/Show.tsx": {
+    "file": "assets/Show-CmtWYyYC.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "Show",
     "src": "resources/js/Pages/Public/Advice/Show.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_PublicLayout-D26X6lb6.js",
       "_AppLogo-BYfe6pUy.js"
     ],
@@ -1540,11 +2837,23 @@
   },
   "resources/js/Pages/Public/Agencies/Index.tsx": {
     "file": "assets/Index-Y_h6oITn.js",
+=======
+      "_PublicLayout-B1kNvGbH.js",
+      "_AppLogo-BLcQhBg-.js"
+    ],
+    "css": [
+      "assets/app-C4ZZbhbm.css"
+    ]
+  },
+  "resources/js/Pages/Public/Agencies/Index.tsx": {
+    "file": "assets/Index-BZtNN9E6.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "Index",
     "src": "resources/js/Pages/Public/Agencies/Index.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_PublicLayout-D26X6lb6.js",
       "_AppLogo-BYfe6pUy.js"
     ],
@@ -1554,11 +2863,23 @@
   },
   "resources/js/Pages/Public/Agencies/Show.tsx": {
     "file": "assets/Show-ChM2wonU.js",
+=======
+      "_PublicLayout-B1kNvGbH.js",
+      "_AppLogo-BLcQhBg-.js"
+    ],
+    "css": [
+      "assets/app-C4ZZbhbm.css"
+    ]
+  },
+  "resources/js/Pages/Public/Agencies/Show.tsx": {
+    "file": "assets/Show-DCXwz1QY.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "Show",
     "src": "resources/js/Pages/Public/Agencies/Show.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_PublicLayout-D26X6lb6.js",
       "_ListingCard-CJZ6Uks0.js",
       "_AppLogo-BYfe6pUy.js"
@@ -1569,11 +2890,24 @@
   },
   "resources/js/Pages/Public/Calculator.tsx": {
     "file": "assets/Calculator-Dh5s0mo2.js",
+=======
+      "_PublicLayout-B1kNvGbH.js",
+      "_ListingCard-B8Og_nTD.js",
+      "_AppLogo-BLcQhBg-.js"
+    ],
+    "css": [
+      "assets/app-C4ZZbhbm.css"
+    ]
+  },
+  "resources/js/Pages/Public/Calculator.tsx": {
+    "file": "assets/Calculator-BxffgJby.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "Calculator",
     "src": "resources/js/Pages/Public/Calculator.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_PublicLayout-D26X6lb6.js",
       "_AppLogo-BYfe6pUy.js"
     ],
@@ -1583,11 +2917,23 @@
   },
   "resources/js/Pages/Public/Home.tsx": {
     "file": "assets/Home-DwLgEpVt.js",
+=======
+      "_PublicLayout-B1kNvGbH.js",
+      "_AppLogo-BLcQhBg-.js"
+    ],
+    "css": [
+      "assets/app-C4ZZbhbm.css"
+    ]
+  },
+  "resources/js/Pages/Public/Home.tsx": {
+    "file": "assets/Home-B0xpRzp_.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "Home",
     "src": "resources/js/Pages/Public/Home.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_PublicLayout-D26X6lb6.js",
       "_ListingCard-CJZ6Uks0.js",
       "_AppLogo-BYfe6pUy.js"
@@ -1598,12 +2944,25 @@
   },
   "resources/js/Pages/Public/Legal/PrivacyPolicy.tsx": {
     "file": "assets/PrivacyPolicy-BLxtE4_8.js",
+=======
+      "_PublicLayout-B1kNvGbH.js",
+      "_ListingCard-B8Og_nTD.js",
+      "_AppLogo-BLcQhBg-.js"
+    ],
+    "css": [
+      "assets/app-C4ZZbhbm.css"
+    ]
+  },
+  "resources/js/Pages/Public/Legal/PrivacyPolicy.tsx": {
+    "file": "assets/PrivacyPolicy-CzpUlB4e.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "PrivacyPolicy",
     "src": "resources/js/Pages/Public/Legal/PrivacyPolicy.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
       "resources/js/Pages/Public/Legal/_Shell.tsx",
+<<<<<<< HEAD
       "_PublicLayout-D26X6lb6.js",
       "_AppLogo-BYfe6pUy.js"
     ],
@@ -1613,12 +2972,24 @@
   },
   "resources/js/Pages/Public/Legal/PrivacyPortal.tsx": {
     "file": "assets/PrivacyPortal-APPYNF18.js",
+=======
+      "_PublicLayout-B1kNvGbH.js",
+      "_AppLogo-BLcQhBg-.js"
+    ],
+    "css": [
+      "assets/app-C4ZZbhbm.css"
+    ]
+  },
+  "resources/js/Pages/Public/Legal/PrivacyPortal.tsx": {
+    "file": "assets/PrivacyPortal-B15e916m.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "PrivacyPortal",
     "src": "resources/js/Pages/Public/Legal/PrivacyPortal.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
       "resources/js/Pages/Public/Legal/_Shell.tsx",
+<<<<<<< HEAD
       "_PublicLayout-D26X6lb6.js",
       "_AppLogo-BYfe6pUy.js"
     ],
@@ -1628,12 +2999,24 @@
   },
   "resources/js/Pages/Public/Legal/TermsAndConditions.tsx": {
     "file": "assets/TermsAndConditions-DaBsgTkC.js",
+=======
+      "_PublicLayout-B1kNvGbH.js",
+      "_AppLogo-BLcQhBg-.js"
+    ],
+    "css": [
+      "assets/app-C4ZZbhbm.css"
+    ]
+  },
+  "resources/js/Pages/Public/Legal/TermsAndConditions.tsx": {
+    "file": "assets/TermsAndConditions-DlM3N-W6.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "TermsAndConditions",
     "src": "resources/js/Pages/Public/Legal/TermsAndConditions.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
       "resources/js/Pages/Public/Legal/_Shell.tsx",
+<<<<<<< HEAD
       "_PublicLayout-D26X6lb6.js",
       "_AppLogo-BYfe6pUy.js"
     ],
@@ -1643,11 +3026,23 @@
   },
   "resources/js/Pages/Public/Legal/_Shell.tsx": {
     "file": "assets/_Shell-CTM3BiPi.js",
+=======
+      "_PublicLayout-B1kNvGbH.js",
+      "_AppLogo-BLcQhBg-.js"
+    ],
+    "css": [
+      "assets/app-C4ZZbhbm.css"
+    ]
+  },
+  "resources/js/Pages/Public/Legal/_Shell.tsx": {
+    "file": "assets/_Shell-DDhVeG8K.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "_Shell",
     "src": "resources/js/Pages/Public/Legal/_Shell.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_PublicLayout-D26X6lb6.js",
       "_AppLogo-BYfe6pUy.js"
     ],
@@ -1657,11 +3052,23 @@
   },
   "resources/js/Pages/Public/Listings/Index.tsx": {
     "file": "assets/Index-DqXhPKip.js",
+=======
+      "_PublicLayout-B1kNvGbH.js",
+      "_AppLogo-BLcQhBg-.js"
+    ],
+    "css": [
+      "assets/app-C4ZZbhbm.css"
+    ]
+  },
+  "resources/js/Pages/Public/Listings/Index.tsx": {
+    "file": "assets/Index-CyZKZDJC.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "Index",
     "src": "resources/js/Pages/Public/Listings/Index.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_PublicLayout-D26X6lb6.js",
       "_ListingCard-CJZ6Uks0.js",
       "_AppLogo-BYfe6pUy.js"
@@ -1672,11 +3079,24 @@
   },
   "resources/js/Pages/Public/Listings/Show.tsx": {
     "file": "assets/Show-D3-3IaTI.js",
+=======
+      "_PublicLayout-B1kNvGbH.js",
+      "_ListingCard-B8Og_nTD.js",
+      "_AppLogo-BLcQhBg-.js"
+    ],
+    "css": [
+      "assets/app-C4ZZbhbm.css"
+    ]
+  },
+  "resources/js/Pages/Public/Listings/Show.tsx": {
+    "file": "assets/Show-DDX_77xz.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "Show",
     "src": "resources/js/Pages/Public/Listings/Show.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_PublicLayout-D26X6lb6.js",
       "_FormField-BO-7T-zg.js",
       "_AppLogo-BYfe6pUy.js"
@@ -1687,11 +3107,24 @@
   },
   "resources/js/Pages/Tenant/Documents.tsx": {
     "file": "assets/Documents-DqXsZde4.js",
+=======
+      "_PublicLayout-B1kNvGbH.js",
+      "_FormField-B6X3aIQJ.js",
+      "_AppLogo-BLcQhBg-.js"
+    ],
+    "css": [
+      "assets/app-C4ZZbhbm.css"
+    ]
+  },
+  "resources/js/Pages/Tenant/Documents.tsx": {
+    "file": "assets/Documents-Bi35gNj8.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "Documents",
     "src": "resources/js/Pages/Tenant/Documents.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_TenantLayout-B4ZQSWlr.js",
       "_Charts-D2QvU_RP.js",
       "_Icon-NU758mL4.js",
@@ -1704,11 +3137,26 @@
   },
   "resources/js/Pages/Tenant/Help.tsx": {
     "file": "assets/Help-CuyFBZoG.js",
+=======
+      "_TenantLayout-CaLFF03n.js",
+      "_Charts-De92soSD.js",
+      "_Icon-Bupzo4lG.js",
+      "_Shell-oxyqnES4.js",
+      "_AppLogo-BLcQhBg-.js"
+    ],
+    "css": [
+      "assets/app-C4ZZbhbm.css"
+    ]
+  },
+  "resources/js/Pages/Tenant/Help.tsx": {
+    "file": "assets/Help-CxHDLemN.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "Help",
     "src": "resources/js/Pages/Tenant/Help.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_TenantLayout-B4ZQSWlr.js",
       "_HelpCentre-GhciU1yZ.js",
       "_Shell-CxAvCjzz.js",
@@ -1722,11 +3170,27 @@
   },
   "resources/js/Pages/Tenant/Lease.tsx": {
     "file": "assets/Lease-BaHtsMIw.js",
+=======
+      "_TenantLayout-CaLFF03n.js",
+      "_HelpCentre-AskI_JSV.js",
+      "_Shell-oxyqnES4.js",
+      "_AppLogo-BLcQhBg-.js",
+      "_Charts-De92soSD.js",
+      "_Icon-Bupzo4lG.js"
+    ],
+    "css": [
+      "assets/app-C4ZZbhbm.css"
+    ]
+  },
+  "resources/js/Pages/Tenant/Lease.tsx": {
+    "file": "assets/Lease-CkPdpfP2.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "Lease",
     "src": "resources/js/Pages/Tenant/Lease.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_TenantLayout-B4ZQSWlr.js",
       "_Charts-D2QvU_RP.js",
       "_Icon-NU758mL4.js",
@@ -1739,11 +3203,26 @@
   },
   "resources/js/Pages/Tenant/Maintenance.tsx": {
     "file": "assets/Maintenance-yYbGOFBn.js",
+=======
+      "_TenantLayout-CaLFF03n.js",
+      "_Charts-De92soSD.js",
+      "_Icon-Bupzo4lG.js",
+      "_Shell-oxyqnES4.js",
+      "_AppLogo-BLcQhBg-.js"
+    ],
+    "css": [
+      "assets/app-C4ZZbhbm.css"
+    ]
+  },
+  "resources/js/Pages/Tenant/Maintenance.tsx": {
+    "file": "assets/Maintenance-B7TCX9g6.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "Maintenance",
     "src": "resources/js/Pages/Tenant/Maintenance.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_TenantLayout-B4ZQSWlr.js",
       "_RateContractorModal-CUZLE0r0.js",
       "_Charts-D2QvU_RP.js",
@@ -1757,11 +3236,27 @@
   },
   "resources/js/Pages/Tenant/Messages.tsx": {
     "file": "assets/Messages-Cq8XsAHQ.js",
+=======
+      "_TenantLayout-CaLFF03n.js",
+      "_RateContractorModal-M9YjfQon.js",
+      "_Charts-De92soSD.js",
+      "_Icon-Bupzo4lG.js",
+      "_Shell-oxyqnES4.js",
+      "_AppLogo-BLcQhBg-.js"
+    ],
+    "css": [
+      "assets/app-C4ZZbhbm.css"
+    ]
+  },
+  "resources/js/Pages/Tenant/Messages.tsx": {
+    "file": "assets/Messages-xPhcpDqH.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "Messages",
     "src": "resources/js/Pages/Tenant/Messages.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_TenantLayout-B4ZQSWlr.js",
       "_Skeleton-WrGJfRRY.js",
       "_Icon-NU758mL4.js",
@@ -1774,11 +3269,26 @@
   },
   "resources/js/Pages/Tenant/Overview.tsx": {
     "file": "assets/Overview-DNkKkTuk.js",
+=======
+      "_TenantLayout-CaLFF03n.js",
+      "_Skeleton-DxMh3G4Z.js",
+      "_Icon-Bupzo4lG.js",
+      "_Shell-oxyqnES4.js",
+      "_AppLogo-BLcQhBg-.js"
+    ],
+    "css": [
+      "assets/app-C4ZZbhbm.css"
+    ]
+  },
+  "resources/js/Pages/Tenant/Overview.tsx": {
+    "file": "assets/Overview-BuR6IQa1.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "Overview",
     "src": "resources/js/Pages/Tenant/Overview.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_TenantLayout-B4ZQSWlr.js",
       "_Skeleton-WrGJfRRY.js",
       "_Shell-CxAvCjzz.js",
@@ -1790,11 +3300,25 @@
   },
   "resources/js/Pages/Tenant/Payments.tsx": {
     "file": "assets/Payments-C402VDdY.js",
+=======
+      "_TenantLayout-CaLFF03n.js",
+      "_Skeleton-DxMh3G4Z.js",
+      "_Shell-oxyqnES4.js",
+      "_AppLogo-BLcQhBg-.js"
+    ],
+    "css": [
+      "assets/app-C4ZZbhbm.css"
+    ]
+  },
+  "resources/js/Pages/Tenant/Payments.tsx": {
+    "file": "assets/Payments-B5dEXCEH.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "Payments",
     "src": "resources/js/Pages/Tenant/Payments.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_TenantLayout-B4ZQSWlr.js",
       "_useInertiaLoading-BeRpDZtM.js",
       "_Skeleton-WrGJfRRY.js",
@@ -1809,11 +3333,28 @@
   },
   "resources/js/Pages/Tenant/Settings.tsx": {
     "file": "assets/Settings-R-od15yN.js",
+=======
+      "_TenantLayout-CaLFF03n.js",
+      "_useInertiaLoading-ugvYuVT0.js",
+      "_Skeleton-DxMh3G4Z.js",
+      "_Charts-De92soSD.js",
+      "_Icon-Bupzo4lG.js",
+      "_Shell-oxyqnES4.js",
+      "_AppLogo-BLcQhBg-.js"
+    ],
+    "css": [
+      "assets/app-C4ZZbhbm.css"
+    ]
+  },
+  "resources/js/Pages/Tenant/Settings.tsx": {
+    "file": "assets/Settings-DcaxmG8R.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "Settings",
     "src": "resources/js/Pages/Tenant/Settings.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_TenantLayout-B4ZQSWlr.js",
       "_Skeleton-WrGJfRRY.js",
       "_AppearanceSettings-CHQ1UVyH.js",
@@ -1828,11 +3369,28 @@
   },
   "resources/js/Pages/Welcome.tsx": {
     "file": "assets/Welcome-CFr9BMy_.js",
+=======
+      "_TenantLayout-CaLFF03n.js",
+      "_Skeleton-DxMh3G4Z.js",
+      "_AppearanceSettings-C7yzxvVG.js",
+      "_Charts-De92soSD.js",
+      "_Icon-Bupzo4lG.js",
+      "_Shell-oxyqnES4.js",
+      "_AppLogo-BLcQhBg-.js"
+    ],
+    "css": [
+      "assets/app-C4ZZbhbm.css"
+    ]
+  },
+  "resources/js/Pages/Welcome.tsx": {
+    "file": "assets/Welcome-fw9QjD5-.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "Welcome",
     "src": "resources/js/Pages/Welcome.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_AppLogo-BYfe6pUy.js"
     ],
     "css": [
@@ -1841,6 +3399,16 @@
   },
   "resources/js/app.tsx": {
     "file": "assets/app-C6wkksXw.js",
+=======
+      "_AppLogo-BLcQhBg-.js"
+    ],
+    "css": [
+      "assets/app-C4ZZbhbm.css"
+    ]
+  },
+  "resources/js/app.tsx": {
+    "file": "assets/app-Camsoq0g.js",
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     "name": "app",
     "src": "resources/js/app.tsx",
     "isEntry": true,
@@ -1945,7 +3513,11 @@
       "resources/js/Pages/Welcome.tsx"
     ],
     "css": [
+<<<<<<< HEAD
       "assets/app-CrPaFxYD.css"
+=======
+      "assets/app-C4ZZbhbm.css"
+>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
     ]
   }
 }

@@ -2,6 +2,7 @@ import { FormEvent } from 'react';
 import { Head, useForm } from '@inertiajs/react';
 import AgencyLayout from '@/Layouts/AgencyLayout';
 import { Spinner } from '@/Components/Skeleton';
+import { PageHeader, SectionCard, SummaryStrip, btnPrimary } from '@/Components/Dashboard/Charts';
 
 type Props = {
     agency: { id: number; name: string };
@@ -40,7 +41,10 @@ const STATE_BANNER: Record<Props['ffc']['state'], { cls: string; title: string; 
     },
 };
 
-const inputCls = 'w-full bg-ink-50 border border-ink-200 rounded-lg px-3.5 py-2.5 text-[14px] outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand';
+const inputCls = 'w-full bg-white border border-ink-200 rounded-xl px-3.5 py-2.5 text-[14px] focus:outline-none focus:border-brand-300 focus:ring-4 focus:ring-brand-100 transition';
+
+const STATE_LABEL: Record<Props['ffc']['state'], string> = { missing: 'Missing', expired: 'Expired', expiring: 'Expiring soon', valid: 'Valid' };
+const STATE_TONE: Record<Props['ffc']['state'], 'success' | 'warning' | 'danger'> = { missing: 'danger', expired: 'danger', expiring: 'warning', valid: 'success' };
 
 export default function AgencyCompliance({ agency, ffc }: Props) {
     const { data, setData, post, processing, errors, progress } = useForm<{
@@ -64,24 +68,27 @@ export default function AgencyCompliance({ agency, ffc }: Props) {
         <AgencyLayout crumb="Compliance" agencyName={agency.name}>
             <Head title="EAAB & Compliance" />
 
-            <div className="px-4 sm:px-8 py-6 sm:py-7 max-w-3xl">
-                <div className="mb-6">
-                    <h1 className="text-[28px] sm:text-[32px] leading-tight tracking-tight">EAAB &amp; Compliance</h1>
-                    <p className="text-[14px] text-ink-500 mt-1">
-                        Upload the agency's Fidelity Fund Certificate from the PPRA. Required by law before any listing can be marketed.
-                    </p>
-                </div>
+            <div className="px-4 sm:px-7 py-6 max-w-6xl">
+                <PageHeader
+                    title="EAAB & Compliance"
+                    subtitle="The agency's Fidelity Fund Certificate from the PPRA, required by law before any listing can be marketed"
+                />
 
-                <div className={`border rounded-xl p-4 mb-6 ${banner.cls}`}>
-                    <p className="font-bold text-[14px]">{banner.title}</p>
-                    <p className="text-[13px] mt-1">{banner.body(ffc.days_left)}</p>
-                    {ffc.state === 'valid' && ffc.ffc_expires_at && (
-                        <p className="text-[12px] mt-2 text-ink-600">Expires {ffc.ffc_expires_at}</p>
-                    )}
-                </div>
+                <SummaryStrip
+                    title="Fidelity Fund Certificate"
+                    subtitle={banner.title}
+                    cells={[
+                        { label: 'Status', value: STATE_LABEL[ffc.state], sub: banner.title, tone: STATE_TONE[ffc.state] },
+                        { label: 'FFC Number', value: ffc.ffc_number ?? '—', sub: ffc.verified_at ? `Verified ${ffc.verified_at}` : 'Agency certificate', tone: 'muted' },
+                        { label: 'Expires', value: ffc.ffc_expires_at ?? '—', sub: ffc.days_left === null ? 'No date on file' : ffc.days_left < 0 ? `${Math.abs(ffc.days_left)} days ago` : `${ffc.days_left} days left`, tone: ffc.state === 'valid' ? 'muted' : STATE_TONE[ffc.state] },
+                        { label: 'Certificate File', value: ffc.has_certificate ? 'On file' : 'Missing', sub: ffc.last_reminder_sent_at ? `Reminder sent ${ffc.last_reminder_sent_at}` : 'Reminders 30 days before expiry', tone: ffc.has_certificate ? 'success' : 'danger' },
+                    ]}
+                />
 
-                <form onSubmit={submit} className="space-y-5">
-                    <div className="bg-white rounded-2xl border border-ink-200/60 shadow-soft p-5 space-y-4">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+                <form onSubmit={submit} className="lg:col-span-8">
+                    <SectionCard title="Update Certificate" subtitle="Capture the current FFC number, expiry date and a copy of the certificate">
+                    <div className="space-y-4">
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
                                 <label className="text-[12px] font-semibold text-ink-700 mb-1.5 block">EAAB FFC number *</label>
@@ -115,7 +122,7 @@ export default function AgencyCompliance({ agency, ffc }: Props) {
                                 type="file"
                                 accept="application/pdf,image/png,image/jpeg"
                                 onChange={(e) => setData('eaab_ffc_certificate', e.target.files?.[0] ?? null)}
-                                className="block w-full text-[13px] file:mr-3 file:py-2 file:px-3 file:rounded-md file:border-0 file:text-[12px] file:font-semibold file:bg-ink-100 file:text-ink-700 hover:file:bg-ink-200"
+                                className="block w-full text-[13px] file:mr-3 file:py-2 file:px-3.5 file:rounded-full file:border-0 file:text-[12px] file:font-semibold file:bg-brand-50 file:text-brand-700 hover:file:bg-brand-100"
                             />
                             <p className="text-[11px] text-ink-500 mt-1">PDF, JPG or PNG · up to 10 MB</p>
                             {errors.eaab_ffc_certificate && <p className="text-[11px] text-danger mt-1">{errors.eaab_ffc_certificate}</p>}
@@ -142,8 +149,9 @@ export default function AgencyCompliance({ agency, ffc }: Props) {
                             </div>
                         )}
                     </div>
+                    </SectionCard>
 
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-wrap items-center justify-between gap-3">
                         <p className="text-[12px] text-ink-500">
                             {ffc.last_reminder_sent_at
                                 ? `Last reminder email sent ${ffc.last_reminder_sent_at}`
@@ -152,7 +160,7 @@ export default function AgencyCompliance({ agency, ffc }: Props) {
                         <button
                             type="submit"
                             disabled={processing || ! data.eaab_ffc_number || ! data.eaab_ffc_expires_at}
-                            className="px-5 py-2 text-[13px] bg-brand-700 text-white rounded-full hover:bg-brand-800 disabled:opacity-60 disabled:cursor-not-allowed inline-flex items-center gap-2 font-semibold transition"
+                            className={btnPrimary}
                         >
                             {processing && <Spinner size={13} />}
                             {processing ? 'Saving…' : 'Save certificate'}
@@ -160,12 +168,19 @@ export default function AgencyCompliance({ agency, ffc }: Props) {
                     </div>
                 </form>
 
-                <div className="mt-8 bg-ink-50/60 border border-ink-200 rounded-xl p-5 text-[12.5px] text-ink-600 leading-relaxed">
-                    <p className="font-semibold text-ink-700 mb-1">Why this matters</p>
+                <aside className="lg:col-span-4 space-y-4">
+                <div className="pb-swirl rounded-2xl p-5 text-white shadow-lift pb-rise">
+                    <p className="text-[13px] font-medium">{banner.title}</p>
+                    <p className="text-[12.5px] text-white/85 mt-2 leading-relaxed">{banner.body(ffc.days_left)}</p>
+                </div>
+                <div className="bg-white rounded-2xl border border-ink-200/60 shadow-soft p-5 text-[12.5px] text-ink-600 leading-relaxed pb-rise">
+                    <p className="text-base font-semibold text-ink-900 mb-2">Why this matters</p>
                     Section 47 of the Property Practitioners Act requires every property practitioner — including the firm
                     itself — to hold a current FFC before transacting in property. Property Basket blocks listing creation,
                     re-allocation, tenant invites and reactivation across your entire agency when the agency-level FFC is
                     missing or expired.
+                </div>
+                </aside>
                 </div>
             </div>
         </AgencyLayout>

@@ -2,6 +2,7 @@ import { Head, router } from '@inertiajs/react';
 import { useState } from 'react';
 import AgencyLayout from '@/Layouts/AgencyLayout';
 import { Spinner } from '@/Components/Skeleton';
+import { PageHeader, SectionCard, SummaryStrip } from '@/Components/Dashboard/Charts';
 
 type Plan = {
     key: string;
@@ -49,52 +50,43 @@ export default function AgencyBilling({ agency, current, plans }: Props) {
         <AgencyLayout crumb="Billing & Plan" agencyName={agency.name}>
             <Head title="Billing & Plan" />
 
-            <div className="px-4 sm:px-8 py-6 sm:py-7">
-                <div className="mb-6">
-                    <h1 className="text-[28px] sm:text-[32px] leading-tight tracking-tight">Billing &amp; Plan</h1>
-                    <p className="text-[14px] text-ink-500 mt-1">
-                        Choose the subscription that fits your agency. Pricing is set by the platform admin and updates here automatically.
-                    </p>
-                </div>
+            <div className="px-4 sm:px-7 py-6">
+                <PageHeader
+                    title="Billing & Plan"
+                    subtitle="Choose the subscription that fits your agency. Prices are set by the platform and update here automatically."
+                />
 
-                {/* Current plan summary */}
-                {current ? (
-                    <div className="bg-white rounded-2xl border border-ink-200/60 shadow-soft p-5 mb-6 flex items-center gap-5 flex-wrap">
-                        <div className="flex-1 min-w-[200px]">
-                            <p className="text-[10px] uppercase tracking-wider text-ink-500 font-semibold">Current plan</p>
-                            <p className="text-lg font-bold mt-0.5">{current.name}</p>
-                            <p className="text-[12px] text-ink-500">{current.headline}</p>
-                        </div>
-                        <div>
-                            <p className="text-[10px] uppercase tracking-wider text-ink-500 font-semibold">Monthly cost</p>
-                            <p className="text-2xl font-bold mt-0.5 font-mono">R{fmtPrice(current.price)}</p>
-                        </div>
-                        <div>
-                            <p className="text-[10px] uppercase tracking-wider text-ink-500 font-semibold">Renews</p>
-                            <p className="text-[13px] font-semibold mt-0.5">{current.expires_at ?? '—'}</p>
-                        </div>
-                    </div>
-                ) : (
-                    <div className="bg-warning/10 border border-warning/30 text-warning rounded-xl p-4 mb-6">
-                        <p className="font-bold text-[14px]">No active subscription</p>
-                        <p className="text-[13px] mt-1">Pick a plan below to activate billing on your agency.</p>
-                    </div>
-                )}
+                <SummaryStrip
+                    title="Subscription Summary"
+                    subtitle={current ? current.headline : 'Pick a plan below to activate billing on your agency'}
+                    cells={current ? [
+                        { label: 'Current Plan', value: current.name.replace(/^Agency · /, ''), sub: current.headline },
+                        { label: 'Monthly Cost', value: `R ${fmtPrice(current.price)}`, sub: 'Billed monthly', tone: 'muted' },
+                        { label: 'Renews', value: current.expires_at ?? '—', sub: 'Next billing date', tone: 'muted' },
+                        { label: 'Status', value: 'Active', sub: `${current.features.length} features included`, tone: 'success' },
+                    ] : [
+                        { label: 'Current Plan', value: 'None', sub: 'No active subscription', tone: 'danger' },
+                        { label: 'Plans Available', value: String(plans.length), sub: 'Choose one below', tone: 'muted' },
+                        { label: 'From', value: plans.length ? `R ${fmtPrice(Math.min(...plans.map((pl) => pl.price)))}` : '—', sub: 'Per month', tone: 'muted' },
+                        { label: 'Status', value: 'Inactive', sub: 'Billing not activated', tone: 'warning' },
+                    ]}
+                />
 
                 {/* Plan grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                <SectionCard title="Available Plans" subtitle="Switch at any time; the new price applies from your next billing date">
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 pt-2">
                     {plans.map((p) => {
                         const isCurrent = current?.key === p.key;
                         return (
                             <div
                                 key={p.key}
                                 className={
-                                    'relative bg-white rounded-xl p-5 shadow-soft transition ' +
+                                    'relative bg-white rounded-2xl p-5 shadow-soft transition ' +
                                     (isCurrent
-                                        ? 'border-2 border-success shadow-card'
+                                        ? 'border-2 border-success shadow-lift'
                                         : p.popular
-                                            ? 'border-2 border-brand-500 shadow-card'
-                                            : 'border border-ink-200 hover:shadow-card')
+                                            ? 'border-2 border-brand-500 shadow-lift'
+                                            : 'border border-ink-200/70 hover:shadow-lift')
                                 }
                             >
                                 {isCurrent && (
@@ -108,11 +100,11 @@ export default function AgencyBilling({ agency, current, plans }: Props) {
                                     </span>
                                 )}
 
-                                <p className="text-[14px] font-bold mb-3">{p.name}</p>
+                                <p className="text-[15px] font-semibold tracking-tight mb-3">{p.name}</p>
 
                                 <div className="flex items-baseline gap-1 mb-1">
                                     <span className="text-lg font-bold text-ink-500">R</span>
-                                    <span className="text-3xl font-bold">{fmtPrice(p.price)}</span>
+                                    <span className="text-[34px] font-semibold tracking-tight leading-none tabular-nums">{fmtPrice(p.price)}</span>
                                     <span className="text-[12px] text-ink-500">/mo</span>
                                 </div>
                                 <p className="text-[12px] text-ink-500 mb-4">{p.headline}</p>
@@ -130,12 +122,12 @@ export default function AgencyBilling({ agency, current, plans }: Props) {
                                     onClick={() => switchPlan(p.key)}
                                     disabled={isCurrent || switching === p.key}
                                     className={
-                                        'w-full py-2.5 text-[12.5px] rounded-lg font-semibold transition inline-flex items-center justify-center gap-2 ' +
+                                        'w-full py-2.5 text-[12.5px] rounded-full font-semibold transition inline-flex items-center justify-center gap-2 ' +
                                         (isCurrent
-                                            ? 'bg-ink-100 text-ink-500 cursor-default'
+                                            ? 'bg-success/10 text-success cursor-default'
                                             : p.popular
-                                                ? 'bg-brand-500 text-white hover:bg-brand-600 disabled:opacity-60'
-                                                : 'border border-ink-200 hover:bg-ink-50 disabled:opacity-60')
+                                                ? 'bg-brand-700 text-white hover:bg-brand-800 disabled:opacity-60'
+                                                : 'border border-ink-300 hover:bg-ink-50 disabled:opacity-60')
                                     }
                                 >
                                     {switching === p.key && <Spinner size={12} />}
@@ -151,8 +143,9 @@ export default function AgencyBilling({ agency, current, plans }: Props) {
                         );
                     })}
                 </div>
+                </SectionCard>
 
-                <p className="text-[12px] text-ink-500 mt-6">
+                <p className="text-[12px] text-ink-500 mt-2">
                     Pricing is set by the Property Basket platform team. You'll always see the current published prices here.
                 </p>
             </div>

@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Head, router } from '@inertiajs/react';
 import AgencyLayout from '@/Layouts/AgencyLayout';
+import { PageHeader, Segmented, SummaryStrip } from '@/Components/Dashboard/Charts';
 
 type TenantRow = {
     lease_id: number;
@@ -41,8 +42,8 @@ function fmtMoney(n: number): string {
 const STATUS_BADGE: Record<string, string> = {
     active:     'bg-success text-white',
     pending:    'bg-warning text-white',
-    expired:    'bg-ink-400 text-white',
-    terminated: 'bg-ink-700 text-white',
+    expired:    'bg-white/90 text-ink-700',
+    terminated: 'bg-ink-800 text-white',
 };
 
 function expiryHint(row: TenantRow): { label: string; tone: 'success' | 'warn' | 'danger' | 'muted' } | null {
@@ -70,24 +71,24 @@ function TenantCard({ row, archived }: { row: TenantRow; archived: boolean }) {
 
     return (
         <div className="bg-white rounded-2xl border border-ink-200/60 shadow-soft overflow-hidden hover:shadow-lift transition">
-            <div className="aspect-[16/9] bg-ink-100 relative">
+            <div className={`aspect-[16/9] relative ${row.primary_image ? 'bg-ink-100' : 'bg-gradient-to-br from-brand-100 via-brand-50 to-white'}`}>
                 {row.primary_image ? (
                     <img src={row.primary_image} alt={row.listing_title} className="absolute inset-0 w-full h-full object-cover" loading="lazy" />
                 ) : (
-                    <div className="absolute inset-0 flex items-center justify-center text-ink-400">
+                    <div className="absolute inset-0 flex items-center justify-center text-brand-300">
                         <svg className="w-10 h-10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}>
                             <path d="M3 21V10l9-7 9 7v11H3z M9 21v-7h6v7" />
                         </svg>
                     </div>
                 )}
                 <div className="absolute top-3 left-3">
-                    <span className={`text-[10px] px-2 py-1 rounded-md font-bold uppercase ${STATUS_BADGE[row.lease_status] ?? 'bg-ink-300 text-ink-700'}`}>
+                    <span className={`text-[10.5px] px-2.5 py-1 rounded-full font-semibold capitalize shadow-soft ${STATUS_BADGE[row.lease_status] ?? 'bg-white/90 text-ink-700'}`}>
                         {row.lease_status}
                     </span>
                 </div>
                 {archived && (
                     <div className="absolute top-3 right-3">
-                        <span className="text-[10px] bg-ink-900/80 text-white px-2 py-1 rounded-md font-bold uppercase backdrop-blur">
+                        <span className="text-[10.5px] bg-ink-900/80 text-white px-2.5 py-1 rounded-full font-semibold backdrop-blur">
                             Remarket
                         </span>
                     </div>
@@ -100,7 +101,7 @@ function TenantCard({ row, archived }: { row: TenantRow; archived: boolean }) {
                         {row.initials}
                     </div>
                     <div className="flex-1 min-w-0">
-                        <p className="text-[14px] font-bold truncate">{row.name}</p>
+                        <p className="text-[15px] font-semibold tracking-tight truncate">{row.name}</p>
                         <p className="text-[11px] text-ink-500 truncate">{row.listing_title}</p>
                     </div>
                 </div>
@@ -160,7 +161,7 @@ function TenantCard({ row, archived }: { row: TenantRow; archived: boolean }) {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-3 border-t border-ink-100 text-[11px]">
                     <div>
                         <p className="text-ink-400 uppercase tracking-wider font-semibold">Rent</p>
-                        <p className="font-bold text-[13px] mt-0.5">{fmtMoney(row.monthly_rent)}/mo</p>
+                        <p className="font-semibold text-[13px] mt-0.5 tabular-nums">{fmtMoney(row.monthly_rent)}/mo</p>
                     </div>
                     <div>
                         <p className="text-ink-400 uppercase tracking-wider font-semibold">Lease ends</p>
@@ -200,7 +201,7 @@ function TenantCard({ row, archived }: { row: TenantRow; archived: boolean }) {
                                 type="button"
                                 onClick={markReceived}
                                 disabled={marking}
-                                className="shrink-0 text-[11px] font-semibold px-3 py-1.5 rounded-lg bg-ink-900 text-white hover:bg-brand-500 transition disabled:opacity-50"
+                                className="shrink-0 text-[11.5px] font-semibold px-3.5 py-1.5 rounded-full bg-brand-700 text-white hover:bg-brand-800 transition disabled:opacity-50"
                             >
                                 {marking ? 'Saving…' : 'Mark received'}
                             </button>
@@ -229,60 +230,59 @@ export default function AgencyTenants({ agency, active, archived, counts }: Prop
         );
     }, [tab, query, active, archived]);
 
+    const rentRoll = active.reduce((sum, r) => sum + (r.lease_status === 'active' ? r.monthly_rent : 0), 0);
+    const depositsDue = active.filter((r) => r.deposit_status === 'due' && r.deposit_amount > 0).length;
+    const expiringSoon = active.filter((r) => r.days_to_expiry !== null && r.days_to_expiry >= 0 && r.days_to_expiry <= 30).length;
+
     return (
         <AgencyLayout crumb="Tenants" agencyName={agency.name}>
             <Head title="Tenants" />
 
-            <div className="px-4 sm:px-8 py-6 sm:py-7">
-                <div className="flex flex-wrap items-end justify-between gap-3 mb-6 flex-wrap gap-3">
-                    <div>
-                        <h1 className="text-[28px] sm:text-[32px] leading-tight tracking-tight">Tenants</h1>
-                        <p className="text-[14px] text-ink-500 mt-1">
-                            Every tenant across {agency.name}'s portfolio with the listing agent who placed them.
-                            Archived tenants can be re-engaged for new listings.
-                        </p>
-                    </div>
-                    <div className="relative">
-                        <input
-                            value={query}
-                            onChange={(e) => setQuery(e.target.value)}
-                            placeholder="Search tenant, agent, property…"
-                            className="bg-white border border-ink-200 rounded-lg pl-9 pr-3.5 py-2 text-[13px] w-72 outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand"
-                        />
-                        <svg className="w-4 h-4 absolute left-3 top-2.5 text-ink-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
-                            <circle cx="11" cy="11" r="8" />
-                            <path d="M21 21l-4.35-4.35" />
-                        </svg>
-                    </div>
-                </div>
+            <div className="px-4 sm:px-7 py-6">
+                <PageHeader
+                    title="Tenants"
+                    subtitle={<>Every tenant across {agency.name}'s portfolio with the listing agent who placed them</>}
+                    actions={
+                        <label className="relative">
+                            <span className="sr-only">Search tenants</span>
+                            <input
+                                value={query}
+                                onChange={(e) => setQuery(e.target.value)}
+                                placeholder="Search tenant, agent, property…"
+                                className="bg-white border border-ink-200 rounded-full pl-9 pr-4 py-2 text-[13px] w-72 max-w-full focus:outline-none focus:border-brand-300 focus:ring-4 focus:ring-brand-100"
+                            />
+                            <svg className="w-4 h-4 absolute left-3 top-2.5 text-ink-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+                                <circle cx="11" cy="11" r="8" />
+                                <path d="M21 21l-4.35-4.35" />
+                            </svg>
+                        </label>
+                    }
+                />
 
-                <div className="flex items-center gap-1 mb-6 bg-white border border-ink-200 rounded-lg p-1 w-fit">
-                    <button
-                        onClick={() => setTab('active')}
-                        className={`text-[13px] px-4 py-2 rounded-md font-semibold flex items-center gap-2 transition ${
-                            tab === 'active' ? 'bg-ink-900 text-white' : 'text-ink-500 hover:bg-ink-100'
-                        }`}
-                    >
-                        Active
-                        <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold ${tab === 'active' ? 'bg-white/20' : 'bg-ink-100 text-ink-700'}`}>
-                            {counts.active}
-                        </span>
-                    </button>
-                    <button
-                        onClick={() => setTab('archived')}
-                        className={`text-[13px] px-4 py-2 rounded-md font-semibold flex items-center gap-2 transition ${
-                            tab === 'archived' ? 'bg-ink-900 text-white' : 'text-ink-500 hover:bg-ink-100'
-                        }`}
-                    >
-                        Archived
-                        <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold ${tab === 'archived' ? 'bg-white/20' : 'bg-ink-100 text-ink-700'}`}>
-                            {counts.archived}
-                        </span>
-                    </button>
+                <SummaryStrip
+                    title="Tenancy Summary"
+                    subtitle="Active leases across the agency"
+                    cells={[
+                        { label: 'Active Tenants', value: String(counts.active), sub: `${counts.archived} archived` },
+                        { label: 'Monthly Rent Roll', value: fmtMoney(rentRoll), sub: 'From active leases', tone: 'success' },
+                        { label: 'Deposits Due', value: String(depositsDue), sub: depositsDue > 0 ? 'Mark received once in trust' : 'All deposits held', tone: depositsDue > 0 ? 'warning' : 'muted' },
+                        { label: 'Expiring in 30 Days', value: String(expiringSoon), sub: expiringSoon > 0 ? 'Renew or remarket' : 'None due', tone: expiringSoon > 0 ? 'danger' : 'muted' },
+                    ]}
+                />
+
+                <div className="mb-4">
+                    <Segmented<'active' | 'archived'>
+                        options={[
+                            { value: 'active', label: `Active (${counts.active})` },
+                            { value: 'archived', label: `Archived (${counts.archived})` },
+                        ]}
+                        value={tab}
+                        onChange={setTab}
+                    />
                 </div>
 
                 {tab === 'archived' && counts.archived > 0 && (
-                    <div className="bg-gradient-to-r from-brand-50 to-brand-100 border border-brand-100 rounded-xl p-4 mb-5 flex items-center gap-3">
+                    <div className="bg-brand-50/70 border border-brand-100 rounded-2xl p-4 mb-4 flex items-center gap-3">
                         <svg className="w-5 h-5 text-brand-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
                             <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
                             <polyline points="22 4 12 14.01 9 11.01" />

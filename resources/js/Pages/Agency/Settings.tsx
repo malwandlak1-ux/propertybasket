@@ -2,6 +2,8 @@ import { FormEvent, useState } from 'react';
 import { Head, useForm, usePage } from '@inertiajs/react';
 import AgencyLayout from '@/Layouts/AgencyLayout';
 import AppearanceSettings from '@/Components/Dashboard/AppearanceSettings';
+import { FlashBanners, PageHeader, SummaryStrip, btnPrimary } from '@/Components/Dashboard/Charts';
+import Icon, { IconName } from '@/Components/Dashboard/Icon';
 
 type AgencyProps = {
     id: number;
@@ -28,13 +30,13 @@ type Props = { agency: AgencyProps };
 
 type SharedProps = { flash?: { success?: string | null; error?: string | null } };
 
-const TABS = [
-    { key: 'general', label: 'General Profile' },
-    { key: 'vat', label: 'VAT & Tax' },
-    { key: 'trust', label: 'Trust Account' },
-    { key: 'payouts', label: 'Payouts & Paystack' },
-    { key: 'compliance', label: 'EAAB & Compliance' },
-    { key: 'appearance', label: 'Appearance' },
+const TABS: readonly { key: 'general' | 'vat' | 'trust' | 'payouts' | 'compliance' | 'appearance'; label: string; hint: string; icon: IconName }[] = [
+    { key: 'general', label: 'General Profile', hint: 'Name, contact details, logo', icon: 'user' },
+    { key: 'vat', label: 'VAT & Tax', hint: 'VAT registration and rate', icon: 'file' },
+    { key: 'trust', label: 'Trust Account', hint: 'Section 32 account', icon: 'wallet' },
+    { key: 'payouts', label: 'Payouts & Paystack', hint: 'When agents get paid', icon: 'calendar' },
+    { key: 'compliance', label: 'EAAB & Compliance', hint: 'FFC number', icon: 'alert' },
+    { key: 'appearance', label: 'Appearance', hint: 'Dashboard colour and logo', icon: 'eye' },
 ] as const;
 
 type TabKey = (typeof TABS)[number]['key'];
@@ -90,36 +92,48 @@ export default function Settings({ agency }: Props) {
     return (
         <AgencyLayout agencyName={agency.name} crumb="Settings">
             <Head title="Settings" />
-            <section className="px-4 sm:px-8 py-6 sm:py-7">
-                <div className="mb-6">
-                    <h1 className="text-[28px] sm:text-[32px] leading-tight tracking-tight">Settings</h1>
-                    <p className="text-[14px] text-ink-500 mt-1">Configure VAT, trust account, payouts, and integrations</p>
-                </div>
+            <section className="px-4 sm:px-7 py-6">
+                <PageHeader title="Settings" subtitle="Configure VAT, trust account, payouts and integrations" />
 
-                {flash?.success && (
-                    <div className="mb-4 rounded-lg bg-success/10 border border-success/30 text-success px-4 py-3 text-[13px]">
-                        {flash.success}
-                    </div>
-                )}
+                <FlashBanners flash={flash} />
 
-                <form onSubmit={submit} className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-                    <aside className="space-y-1">
-                        {TABS.map((t) => (
-                            <button
-                                type="button"
-                                key={t.key}
-                                onClick={() => setTab(t.key)}
-                                className={
-                                    'w-full text-left px-3 py-2 rounded-lg text-[13px] font-semibold transition ' +
-                                    (tab === t.key ? 'bg-ink-900 text-white' : 'hover:bg-ink-100 text-ink-700')
-                                }
-                            >
-                                {t.label}
-                            </button>
-                        ))}
+                <SummaryStrip
+                    title="Agency Setup"
+                    subtitle={agency.name}
+                    cells={[
+                        { label: 'VAT', value: agency.vat_registered ? 'Registered' : 'Not registered', sub: agency.vat_registered ? `${agency.vat_rate}% · ${agency.vat_number ?? 'no number'}` : 'No VAT on commission', tone: agency.vat_registered ? 'success' : 'muted' },
+                        { label: 'Trust Account', value: agency.trust_account_number ? 'Configured' : 'Not set', sub: agency.trust_bank ?? 'No bank captured', tone: agency.trust_account_number ? 'success' : 'warning' },
+                        { label: 'Payout Day', value: `Day ${agency.payout_day}`, sub: 'Monthly agent payouts', tone: 'muted' },
+                        { label: 'EAAB FFC', value: agency.eaab_verified_at ? 'Verified' : 'Pending', sub: agency.eaab_ffc_number ?? 'No FFC number', tone: agency.eaab_verified_at ? 'success' : 'warning' },
+                    ]}
+                />
+
+                <form onSubmit={submit} className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+                    <aside className="lg:col-span-4 space-y-4">
+                        <nav className="bg-white rounded-2xl border border-ink-200/60 shadow-soft p-2">
+                            {TABS.map((t) => {
+                                const on = tab === t.key;
+                                return (
+                                    <button
+                                        type="button"
+                                        key={t.key}
+                                        onClick={() => setTab(t.key)}
+                                        className={'w-full flex items-center gap-3 text-left px-3 py-2.5 rounded-xl transition ' + (on ? 'bg-brand-50' : 'hover:bg-ink-50')}
+                                    >
+                                        <span className={`w-9 h-9 rounded-xl flex items-center justify-center ${on ? 'bg-brand-700 text-white' : 'bg-ink-100 text-ink-500'}`}>
+                                            <Icon name={t.icon} className="w-4 h-4" />
+                                        </span>
+                                        <span className="min-w-0">
+                                            <span className={`block text-[13.5px] font-semibold ${on ? 'text-brand-800' : 'text-ink-800'}`}>{t.label}</span>
+                                            <span className="block text-[11.5px] text-ink-500 truncate">{t.hint}</span>
+                                        </span>
+                                    </button>
+                                );
+                            })}
+                        </nav>
                     </aside>
 
-                    <div className="col-span-3 space-y-6">
+                    <div className="lg:col-span-8 space-y-4">
                         {tab === 'appearance' && <AppearanceSettings />}
                         {tab === 'general' && (
                             <Panel title="General Profile" subtitle="Public details for your agency">
@@ -140,7 +154,7 @@ export default function Settings({ agency }: Props) {
                                             type="file"
                                             accept="image/png,image/jpeg,image/webp,image/svg+xml"
                                             onChange={(e) => setData('logo', e.target.files?.[0] ?? null)}
-                                            className="block w-full text-[13px] file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-[12px] file:font-semibold file:bg-ink-100 file:text-ink-700 hover:file:bg-ink-200"
+                                            className="block w-full text-[13px] file:mr-3 file:py-1.5 file:px-3.5 file:rounded-full file:border-0 file:text-[12px] file:font-semibold file:bg-brand-50 file:text-brand-700 hover:file:bg-brand-100"
                                         />
                                         <p className="text-[11px] text-ink-500 mt-1">
                                             PNG, JPG, WebP, or SVG · up to 2 MB · square works best
@@ -320,14 +334,14 @@ export default function Settings({ agency }: Props) {
                                 type="button"
                                 disabled={!isDirty || processing}
                                 onClick={() => window.location.reload()}
-                                className="px-4 py-2 text-[13px] border border-ink-200 rounded-lg hover:bg-ink-100 disabled:opacity-40"
+                                className="px-4 py-2.5 text-[13px] border border-ink-200 rounded-full font-semibold hover:bg-ink-50 disabled:opacity-40"
                             >
                                 Cancel
                             </button>
                             <button
                                 type="submit"
                                 disabled={!isDirty || processing}
-                                className="px-4 py-2 text-[13px] bg-brand-700 text-white rounded-full hover:bg-brand-800 disabled:opacity-40"
+                                className={btnPrimary}
                             >
                                 {processing ? 'Saving…' : 'Save Changes'}
                             </button>
@@ -357,17 +371,17 @@ function Panel({
             ? 'bg-warning/15 text-warning'
             : 'bg-ink-100 text-ink-500';
     return (
-        <div className="bg-white rounded-2xl border border-ink-200/60 p-6 shadow-soft">
-            <div className="flex items-center justify-between mb-4">
+        <div className="bg-white rounded-2xl border border-ink-200/60 shadow-soft overflow-hidden pb-rise">
+            <div className="p-5 border-b border-ink-200 flex items-center justify-between gap-3">
                 <div>
-                    <h2 className="text-base font-bold">{title}</h2>
+                    <h2 className="text-base font-semibold">{title}</h2>
                     <p className="text-[12px] text-ink-500 mt-0.5">{subtitle}</p>
                 </div>
                 {statusBadge && (
                     <span className={'text-[10px] px-2 py-1 rounded-full font-bold ' + badgeCls}>{statusBadge.label}</span>
                 )}
             </div>
-            <div className="space-y-4">{children}</div>
+            <div className="p-5 space-y-4">{children}</div>
         </div>
     );
 }
@@ -379,7 +393,7 @@ function Row({ children }: { children: React.ReactNode }) {
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
     return (
         <div>
-            <label className="text-[12px] text-ink-500 mb-1 block">{label}</label>
+            <label className="text-[12px] font-semibold text-ink-700 mb-1.5 block">{label}</label>
             {children}
         </div>
     );
@@ -420,7 +434,7 @@ function Input({
                 onChange={(e) => onChange(e.target.value)}
                 disabled={disabled}
                 className={
-                    'w-full bg-ink-50 border border-ink-200 rounded-md px-3 py-2 text-[13px] outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition ' +
+                    'w-full bg-white border border-ink-200 rounded-xl px-3.5 py-2.5 text-[13.5px] focus:outline-none focus:border-brand-300 focus:ring-4 focus:ring-brand-100 transition ' +
                     (error ? 'border-danger focus:ring-danger/20 focus:border-danger ' : '') +
                     (disabled ? 'opacity-60 cursor-not-allowed ' : '') +
                     className
@@ -450,7 +464,7 @@ function Select({
             onChange={(e) => onChange(e.target.value)}
             disabled={disabled}
             className={
-                'w-full bg-ink-50 border border-ink-200 rounded-md px-3 py-2 text-[13px] outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition ' +
+                'w-full bg-white border border-ink-200 rounded-xl px-3.5 py-2.5 text-[13.5px] focus:outline-none focus:border-brand-300 focus:ring-4 focus:ring-brand-100 transition ' +
                 (disabled ? 'opacity-60 cursor-not-allowed ' : '')
             }
         >
@@ -486,7 +500,7 @@ function ToggleRow({
                 aria-pressed={on}
                 className={
                     'relative w-10 h-[22px] rounded-full transition ' +
-                    (on ? 'bg-brand-500' : 'bg-ink-200')
+                    (on ? 'bg-brand-600' : 'bg-ink-200')
                 }
             >
                 <span

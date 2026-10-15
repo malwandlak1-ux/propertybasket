@@ -321,6 +321,8 @@ Route::middleware('auth')->group(function () {
             Route::patch('settings/profile',[Landlord\SettingsController::class, 'updateProfile'])->name('settings.profile');
             Route::patch('settings/banking',[Landlord\SettingsController::class, 'updateBanking'])->name('settings.banking');
             Route::patch('settings/penalties/{lease}', [Landlord\SettingsController::class, 'updatePenalty'])->name('settings.penalties.update');
+            Route::post('settings/api-keys',            [Landlord\SettingsController::class, 'storeApiKey'])->name('settings.api-keys.store');
+            Route::delete('settings/api-keys/{apiKey}', [Landlord\SettingsController::class, 'revokeApiKey'])->name('settings.api-keys.revoke');
             Route::post('settings/penalties/charges/{payment}/waive', [Landlord\SettingsController::class, 'waivePenalty'])->name('settings.penalties.waive');
         });
 

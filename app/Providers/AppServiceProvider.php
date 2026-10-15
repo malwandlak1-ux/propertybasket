@@ -6,6 +6,7 @@ use App\Models\Listing;
 use App\Policies\ListingPolicy;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -19,6 +20,17 @@ class AppServiceProvider extends ServiceProvider
     {
         Gate::policy(Listing::class, ListingPolicy::class);
         Gate::define('create_sale_listing', [ListingPolicy::class, 'createSale']);
+
+        // Integration API (another system pulls a landlord's statements with
+        // an API key). Stateless: no session, cookies or CSRF.
+        Route::prefix('api/integration/v1')
+            ->name('integration.')
+            ->middleware([
+                \Illuminate\Routing\Middleware\SubstituteBindings::class,
+                \App\Http\Middleware\AuthenticateApiKey::class,
+                'throttle:120,1',
+            ])
+            ->group(base_path('routes/integration.php'));
 
         // Debit orders shouldn't depend on the host running the scheduler cron:
         // after a web response has been sent, check for due collections at

@@ -1,5 +1,0 @@
-<<<<<<<< HEAD:public/build/assets/Skeleton-WrGJfRRY.js
-import{j as r}from"./app-C6wkksXw.js";function s({size:t=14,className:e=""}){return r.jsxs("svg",{className:`animate-spin ${e}`,width:t,height:t,viewBox:"0 0 24 24",fill:"none",xmlns:"http://www.w3.org/2000/svg","aria-hidden":"true",children:[r.jsx("circle",{cx:"12",cy:"12",r:"10",stroke:"currentColor",strokeOpacity:"0.25",strokeWidth:"4"}),r.jsx("path",{d:"M22 12a10 10 0 0 1-10 10",stroke:"currentColor",strokeWidth:"4",strokeLinecap:"round"})]})}export{s as S};
-========
-import{j as r}from"./app-Camsoq0g.js";function s({size:t=14,className:e=""}){return r.jsxs("svg",{className:`animate-spin ${e}`,width:t,height:t,viewBox:"0 0 24 24",fill:"none",xmlns:"http://www.w3.org/2000/svg","aria-hidden":"true",children:[r.jsx("circle",{cx:"12",cy:"12",r:"10",stroke:"currentColor",strokeOpacity:"0.25",strokeWidth:"4"}),r.jsx("path",{d:"M22 12a10 10 0 0 1-10 10",stroke:"currentColor",strokeWidth:"4",strokeLinecap:"round"})]})}export{s as S};
->>>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs):public/build/assets/Skeleton-DxMh3G4Z.js

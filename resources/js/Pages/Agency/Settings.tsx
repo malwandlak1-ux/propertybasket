@@ -2,7 +2,7 @@ import { FormEvent, useState } from 'react';
 import { Head, useForm, usePage } from '@inertiajs/react';
 import AgencyLayout from '@/Layouts/AgencyLayout';
 import AppearanceSettings from '@/Components/Dashboard/AppearanceSettings';
-import { FlashBanners, PageHeader, SummaryStrip, btnPrimary } from '@/Components/Dashboard/Charts';
+import { FlashBanners, PageHeader, btnOutline, btnPrimary } from '@/Components/Dashboard/Charts';
 import Icon, { IconName } from '@/Components/Dashboard/Icon';
 
 type AgencyProps = {
@@ -84,6 +84,8 @@ export default function Settings({ agency }: Props) {
         _method: 'patch',
     });
 
+    const initials = agency.name.split(' ').map((w) => w[0]).slice(0, 2).join('').toUpperCase();
+
     function submit(e: FormEvent) {
         e.preventDefault();
         post('/agency/settings', { preserveScroll: true, forceFormData: true });
@@ -92,24 +94,36 @@ export default function Settings({ agency }: Props) {
     return (
         <AgencyLayout agencyName={agency.name} crumb="Settings">
             <Head title="Settings" />
-            <section className="px-4 sm:px-7 py-6">
+            <section className="px-4 sm:px-7 py-6 max-w-6xl">
                 <PageHeader title="Settings" subtitle="Configure VAT, trust account, payouts and integrations" />
 
                 <FlashBanners flash={flash} />
 
-                <SummaryStrip
-                    title="Agency Setup"
-                    subtitle={agency.name}
-                    cells={[
-                        { label: 'VAT', value: agency.vat_registered ? 'Registered' : 'Not registered', sub: agency.vat_registered ? `${agency.vat_rate}% · ${agency.vat_number ?? 'no number'}` : 'No VAT on commission', tone: agency.vat_registered ? 'success' : 'muted' },
-                        { label: 'Trust Account', value: agency.trust_account_number ? 'Configured' : 'Not set', sub: agency.trust_bank ?? 'No bank captured', tone: agency.trust_account_number ? 'success' : 'warning' },
-                        { label: 'Payout Day', value: `Day ${agency.payout_day}`, sub: 'Monthly agent payouts', tone: 'muted' },
-                        { label: 'EAAB FFC', value: agency.eaab_verified_at ? 'Verified' : 'Pending', sub: agency.eaab_ffc_number ?? 'No FFC number', tone: agency.eaab_verified_at ? 'success' : 'warning' },
-                    ]}
-                />
-
                 <form onSubmit={submit} className="grid grid-cols-1 lg:grid-cols-12 gap-4">
                     <aside className="lg:col-span-4 space-y-4">
+                        <div className="pb-swirl rounded-2xl p-5 text-white shadow-lift pb-rise">
+                            <div className="flex items-center gap-3">
+                                {agency.logo ? (
+                                    <img src={agency.logo} alt="" className="w-12 h-12 rounded-full bg-white object-contain ring-1 ring-white/25" />
+                                ) : (
+                                    <span className="w-12 h-12 rounded-full bg-white/15 ring-1 ring-white/25 flex items-center justify-center text-[15px] font-bold">{initials}</span>
+                                )}
+                                <div className="min-w-0">
+                                    <p className="text-[15px] font-semibold truncate">{agency.name}</p>
+                                    <p className="text-[12px] text-white/75 truncate">{agency.email ?? 'No email on file'}</p>
+                                </div>
+                            </div>
+                            <div className="mt-4 pt-3 border-t border-white/15 flex flex-wrap items-center gap-2 text-[11px]">
+                                <span className={`px-2.5 py-1 rounded-full font-semibold ${agency.eaab_verified_at ? 'bg-success/20' : 'bg-warning/30'}`}>
+                                    {agency.eaab_verified_at ? 'EAAB verified' : 'EAAB pending'}
+                                </span>
+                                <span className={`px-2.5 py-1 rounded-full font-semibold ${agency.trust_account_number ? 'bg-white/15' : 'bg-danger/40'}`}>
+                                    {agency.trust_account_number ? 'Trust account set' : 'No trust account'}
+                                </span>
+                                {agency.vat_registered && <span className="px-2.5 py-1 rounded-full font-semibold bg-white/15">VAT {agency.vat_rate}%</span>}
+                            </div>
+                        </div>
+
                         <nav className="bg-white rounded-2xl border border-ink-200/60 shadow-soft p-2">
                             {TABS.map((t) => {
                                 const on = tab === t.key;
@@ -334,7 +348,7 @@ export default function Settings({ agency }: Props) {
                                 type="button"
                                 disabled={!isDirty || processing}
                                 onClick={() => window.location.reload()}
-                                className="px-4 py-2.5 text-[13px] border border-ink-200 rounded-full font-semibold hover:bg-ink-50 disabled:opacity-40"
+                                className={`${btnOutline} disabled:opacity-40`}
                             >
                                 Cancel
                             </button>
@@ -371,17 +385,17 @@ function Panel({
             ? 'bg-warning/15 text-warning'
             : 'bg-ink-100 text-ink-500';
     return (
-        <div className="bg-white rounded-2xl border border-ink-200/60 shadow-soft overflow-hidden pb-rise">
-            <div className="p-5 border-b border-ink-200 flex items-center justify-between gap-3">
+        <div className="bg-white rounded-2xl border border-ink-200/60 shadow-soft p-5 sm:p-6 pb-rise space-y-4">
+            <div className="flex items-start justify-between gap-3">
                 <div>
-                    <h2 className="text-base font-semibold">{title}</h2>
+                    <h2 className="text-[18px] font-semibold tracking-tight">{title}</h2>
                     <p className="text-[12px] text-ink-500 mt-0.5">{subtitle}</p>
                 </div>
                 {statusBadge && (
                     <span className={'text-[10px] px-2 py-1 rounded-full font-bold ' + badgeCls}>{statusBadge.label}</span>
                 )}
             </div>
-            <div className="p-5 space-y-4">{children}</div>
+            {children}
         </div>
     );
 }

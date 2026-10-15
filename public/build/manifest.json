@@ -1,6 +1,7 @@
 {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   "_AdminLayout-B2oCXheF.js": {
     "file": "assets/AdminLayout-B2oCXheF.js",
     "name": "AdminLayout",
@@ -62,38 +63,48 @@
 =======
   "_AdminLayout-5AUn7w-p.js": {
     "file": "assets/AdminLayout-5AUn7w-p.js",
+=======
+  "_AdminLayout-DSgn7BdY.js": {
+    "file": "assets/AdminLayout-DSgn7BdY.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "AdminLayout",
     "imports": [
       "resources/js/app.tsx",
-      "_Shell-BqrlY9wR.js",
-      "_AppLogo-Hgv-mTH0.js"
+      "_Shell-BmyDoJe7.js",
+      "_AppLogo-Dwo5xUq9.js"
     ]
   },
-  "_AgencyLayout-B1i95MF0.js": {
-    "file": "assets/AgencyLayout-B1i95MF0.js",
+  "_AgencyLayout-CJf2QkNU.js": {
+    "file": "assets/AgencyLayout-CJf2QkNU.js",
     "name": "AgencyLayout",
     "imports": [
       "resources/js/app.tsx",
-      "_Shell-BqrlY9wR.js",
-      "_SubscriptionBanner-CKcJ9EXz.js"
+      "_Shell-BmyDoJe7.js",
+      "_SubscriptionBanner-fU-HYxxu.js"
     ]
   },
-  "_AgentLayout-DvnHfJzN.js": {
-    "file": "assets/AgentLayout-DvnHfJzN.js",
+  "_AgentLayout-Dt0o4Jhj.js": {
+    "file": "assets/AgentLayout-Dt0o4Jhj.js",
     "name": "AgentLayout",
     "imports": [
       "resources/js/app.tsx",
-      "_Shell-BqrlY9wR.js"
+      "_Shell-BmyDoJe7.js"
     ]
   },
+<<<<<<< HEAD
   "_AppLogo-Hgv-mTH0.js": {
     "file": "assets/AppLogo-Hgv-mTH0.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+  "_AppLogo-Dwo5xUq9.js": {
+    "file": "assets/AppLogo-Dwo5xUq9.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "AppLogo",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
   "_AppearanceSettings-CHQ1UVyH.js": {
@@ -143,31 +154,41 @@
 =======
   "_AppearanceSettings-CZousfCD.js": {
     "file": "assets/AppearanceSettings-CZousfCD.js",
+=======
+  "_AppearanceSettings-CIhzTSbb.js": {
+    "file": "assets/AppearanceSettings-CIhzTSbb.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "AppearanceSettings",
     "imports": [
       "resources/js/app.tsx",
-      "_AppLogo-Hgv-mTH0.js",
-      "_Skeleton-Ct2EvzWi.js",
-      "_Shell-BqrlY9wR.js",
-      "_Charts-CszXgLwC.js"
+      "_AppLogo-Dwo5xUq9.js",
+      "_Skeleton-DSuKv_k9.js",
+      "_Shell-BmyDoJe7.js",
+      "_Charts-BvHV4fwo.js"
     ]
   },
-  "_AuthKit-CqHGXNBA.js": {
-    "file": "assets/AuthKit-CqHGXNBA.js",
+  "_AuthKit-DpbtKzzr.js": {
+    "file": "assets/AuthKit-DpbtKzzr.js",
     "name": "AuthKit",
     "imports": [
       "resources/js/app.tsx",
-      "_AppLogo-Hgv-mTH0.js"
+      "_AppLogo-Dwo5xUq9.js"
     ]
   },
+<<<<<<< HEAD
   "_Charts-CszXgLwC.js": {
     "file": "assets/Charts-CszXgLwC.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+  "_Charts-BvHV4fwo.js": {
+    "file": "assets/Charts-BvHV4fwo.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "Charts",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
   "_ContractorLayout-2wawK-_c.js": {
@@ -195,20 +216,30 @@
 =======
   "_ContractorLayout-CU-ofnJ3.js": {
     "file": "assets/ContractorLayout-CU-ofnJ3.js",
+=======
+  "_ContractorLayout-aB3dqt-s.js": {
+    "file": "assets/ContractorLayout-aB3dqt-s.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "ContractorLayout",
     "imports": [
       "resources/js/app.tsx",
-      "_Shell-BqrlY9wR.js"
+      "_Shell-BmyDoJe7.js"
     ]
   },
+<<<<<<< HEAD
   "_FormField-CsZfy70B.js": {
     "file": "assets/FormField-CsZfy70B.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+  "_FormField-0mXdbzcT.js": {
+    "file": "assets/FormField-0mXdbzcT.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "FormField",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
   "_HelpCentre-GhciU1yZ.js": {
@@ -240,22 +271,32 @@
 =======
   "_HelpCentre-DrVGU8jD.js": {
     "file": "assets/HelpCentre-DrVGU8jD.js",
+=======
+  "_HelpCentre-PDZPo-kZ.js": {
+    "file": "assets/HelpCentre-PDZPo-kZ.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "HelpCentre",
     "imports": [
       "resources/js/app.tsx",
-      "_Charts-CszXgLwC.js",
-      "_Icon-CkFVTE9T.js",
-      "_AppLogo-Hgv-mTH0.js"
+      "_Charts-BvHV4fwo.js",
+      "_Icon-CqEAZ-6C.js",
+      "_AppLogo-Dwo5xUq9.js"
     ]
   },
+<<<<<<< HEAD
   "_Icon-CkFVTE9T.js": {
     "file": "assets/Icon-CkFVTE9T.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+  "_Icon-CqEAZ-6C.js": {
+    "file": "assets/Icon-CqEAZ-6C.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "Icon",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
   "_InviteAgentModal-Du0b8cXx.js": {
@@ -353,55 +394,65 @@
 =======
   "_InviteAgentModal-C-sZNHgW.js": {
     "file": "assets/InviteAgentModal-C-sZNHgW.js",
+=======
+  "_InviteAgentModal-nl5JE3cG.js": {
+    "file": "assets/InviteAgentModal-nl5JE3cG.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "InviteAgentModal",
     "imports": [
       "resources/js/app.tsx",
-      "_Skeleton-Ct2EvzWi.js"
+      "_Skeleton-DSuKv_k9.js"
     ]
   },
-  "_InviteContractorModal-BZRjaT_s.js": {
-    "file": "assets/InviteContractorModal-BZRjaT_s.js",
+  "_InviteContractorModal-BddaYUcX.js": {
+    "file": "assets/InviteContractorModal-BddaYUcX.js",
     "name": "InviteContractorModal",
     "imports": [
       "resources/js/app.tsx",
-      "_Charts-CszXgLwC.js",
-      "_Skeleton-Ct2EvzWi.js"
+      "_Charts-BvHV4fwo.js",
+      "_Skeleton-DSuKv_k9.js"
     ]
   },
-  "_InviteTenantModal-u99hHgZE.js": {
-    "file": "assets/InviteTenantModal-u99hHgZE.js",
+  "_InviteTenantModal-DMwHL3RA.js": {
+    "file": "assets/InviteTenantModal-DMwHL3RA.js",
     "name": "InviteTenantModal",
     "imports": [
       "resources/js/app.tsx",
-      "_Skeleton-Ct2EvzWi.js"
+      "_Skeleton-DSuKv_k9.js"
     ]
   },
-  "_LandlordInviteTenantModal-D8bv7F0H.js": {
-    "file": "assets/LandlordInviteTenantModal-D8bv7F0H.js",
+  "_LandlordInviteTenantModal-CNSxPtBE.js": {
+    "file": "assets/LandlordInviteTenantModal-CNSxPtBE.js",
     "name": "LandlordInviteTenantModal",
     "imports": [
       "resources/js/app.tsx",
-      "_InviteTenantModal-u99hHgZE.js",
-      "_Skeleton-Ct2EvzWi.js"
+      "_InviteTenantModal-DMwHL3RA.js",
+      "_Skeleton-DSuKv_k9.js"
     ]
   },
-  "_LandlordLayout-eQgzoArm.js": {
-    "file": "assets/LandlordLayout-eQgzoArm.js",
+  "_LandlordLayout-CbdXvq7z.js": {
+    "file": "assets/LandlordLayout-CbdXvq7z.js",
     "name": "LandlordLayout",
     "imports": [
       "resources/js/app.tsx",
-      "_Shell-BqrlY9wR.js",
-      "_SubscriptionBanner-CKcJ9EXz.js"
+      "_Shell-BmyDoJe7.js",
+      "_SubscriptionBanner-fU-HYxxu.js"
     ]
   },
+<<<<<<< HEAD
   "_ListingCard-DM27J63t.js": {
     "file": "assets/ListingCard-DM27J63t.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+  "_ListingCard-BrrvqxQb.js": {
+    "file": "assets/ListingCard-BrrvqxQb.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "ListingCard",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
   "_ListingForm-1E3pwgML.js": {
@@ -464,38 +515,48 @@
 =======
   "_ListingForm-CRf-7Ysw.js": {
     "file": "assets/ListingForm-CRf-7Ysw.js",
+=======
+  "_ListingForm-CgpP6oso.js": {
+    "file": "assets/ListingForm-CgpP6oso.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "ListingForm",
     "imports": [
       "resources/js/app.tsx",
-      "_Skeleton-Ct2EvzWi.js"
+      "_Skeleton-DSuKv_k9.js"
     ]
   },
-  "_MaintenanceBoard-9nLmhJg4.js": {
-    "file": "assets/MaintenanceBoard-9nLmhJg4.js",
+  "_MaintenanceBoard-CGmGQDS9.js": {
+    "file": "assets/MaintenanceBoard-CGmGQDS9.js",
     "name": "MaintenanceBoard",
     "imports": [
       "resources/js/app.tsx",
-      "_RateContractorModal-B_-w4GHz.js",
-      "_Icon-CkFVTE9T.js",
-      "_Charts-CszXgLwC.js"
+      "_RateContractorModal-Xy2Fj6MB.js",
+      "_Icon-CqEAZ-6C.js",
+      "_Charts-BvHV4fwo.js"
     ]
   },
-  "_PublicLayout-C9oj_wXQ.js": {
-    "file": "assets/PublicLayout-C9oj_wXQ.js",
+  "_PublicLayout-DJepDsy9.js": {
+    "file": "assets/PublicLayout-DJepDsy9.js",
     "name": "PublicLayout",
     "imports": [
       "resources/js/app.tsx",
-      "_AppLogo-Hgv-mTH0.js"
+      "_AppLogo-Dwo5xUq9.js"
     ]
   },
+<<<<<<< HEAD
   "_RateContractorModal-B_-w4GHz.js": {
     "file": "assets/RateContractorModal-B_-w4GHz.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+  "_RateContractorModal-Xy2Fj6MB.js": {
+    "file": "assets/RateContractorModal-Xy2Fj6MB.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "RateContractorModal",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
   "_Shell-CxAvCjzz.js": {
@@ -523,20 +584,30 @@
 =======
   "_Shell-BqrlY9wR.js": {
     "file": "assets/Shell-BqrlY9wR.js",
+=======
+  "_Shell-BmyDoJe7.js": {
+    "file": "assets/Shell-BmyDoJe7.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "Shell",
     "imports": [
       "resources/js/app.tsx",
-      "_AppLogo-Hgv-mTH0.js"
+      "_AppLogo-Dwo5xUq9.js"
     ]
   },
+<<<<<<< HEAD
   "_Skeleton-Ct2EvzWi.js": {
     "file": "assets/Skeleton-Ct2EvzWi.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+  "_Skeleton-DSuKv_k9.js": {
+    "file": "assets/Skeleton-DSuKv_k9.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "Skeleton",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
   "_SubscriptionBanner-DwWk5nPR.js": {
@@ -549,11 +620,16 @@
   "_SubscriptionBanner-CKcJ9EXz.js": {
     "file": "assets/SubscriptionBanner-CKcJ9EXz.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+  "_SubscriptionBanner-fU-HYxxu.js": {
+    "file": "assets/SubscriptionBanner-fU-HYxxu.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "SubscriptionBanner",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
   "_TenantLayout-B4ZQSWlr.js": {
@@ -581,21 +657,31 @@
 =======
   "_TenantLayout-DncXkXpH.js": {
     "file": "assets/TenantLayout-DncXkXpH.js",
+=======
+  "_TenantLayout-DpBCr1aF.js": {
+    "file": "assets/TenantLayout-DpBCr1aF.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "TenantLayout",
     "imports": [
       "resources/js/app.tsx",
-      "_Shell-BqrlY9wR.js"
+      "_Shell-BmyDoJe7.js"
     ]
   },
+<<<<<<< HEAD
   "_useInertiaLoading-CMSApytV.js": {
     "file": "assets/useInertiaLoading-CMSApytV.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+  "_useInertiaLoading-B2EEH3G5.js": {
+    "file": "assets/useInertiaLoading-B2EEH3G5.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "useInertiaLoading",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
   "resources/css/app.css": {
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
     "file": "assets/app-CrPaFxYD.css",
@@ -605,6 +691,9 @@
 =======
     "file": "assets/app-C7sUYvIk.css",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/app-BmMYEyOt.css",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "src": "resources/css/app.css",
     "isEntry": true,
     "name": "app",
@@ -615,6 +704,7 @@
   "resources/js/Pages/Admin/Agencies.tsx": {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     "file": "assets/Agencies-BpJuqjnG.js",
 =======
     "file": "assets/Agencies-BScfqmXm.js",
@@ -622,11 +712,15 @@
 =======
     "file": "assets/Agencies-BGzJz0xp.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/Agencies-DZSTV49X.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "Agencies",
     "src": "resources/js/Pages/Admin/Agencies.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "_AdminLayout-B2oCXheF.js",
@@ -649,23 +743,34 @@
       "_Shell-BqrlY9wR.js",
       "_AppLogo-Hgv-mTH0.js"
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+      "_AdminLayout-DSgn7BdY.js",
+      "_Charts-BvHV4fwo.js",
+      "_Shell-BmyDoJe7.js",
+      "_AppLogo-Dwo5xUq9.js"
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     ],
     "css": [
-      "assets/app-C7sUYvIk.css"
+      "assets/app-BmMYEyOt.css"
     ]
   },
   "resources/js/Pages/Admin/Announcements.tsx": {
+<<<<<<< HEAD
 <<<<<<< HEAD
     "file": "assets/Announcements-D3WfMzDc.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
 =======
     "file": "assets/Announcements-BNrMkS50.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/Announcements-BcDliNsx.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "Announcements",
     "src": "resources/js/Pages/Admin/Announcements.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "_AdminLayout-B2oCXheF.js",
@@ -688,23 +793,34 @@
       "_Shell-BqrlY9wR.js",
       "_AppLogo-Hgv-mTH0.js"
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+      "_AdminLayout-DSgn7BdY.js",
+      "_Charts-BvHV4fwo.js",
+      "_Shell-BmyDoJe7.js",
+      "_AppLogo-Dwo5xUq9.js"
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     ],
     "css": [
-      "assets/app-C7sUYvIk.css"
+      "assets/app-BmMYEyOt.css"
     ]
   },
   "resources/js/Pages/Admin/Blog/Form.tsx": {
+<<<<<<< HEAD
 <<<<<<< HEAD
     "file": "assets/Form-BpW3XC1Z.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
 =======
     "file": "assets/Form-qaQ0eI0B.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/Form-C2b18NZp.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "Form",
     "src": "resources/js/Pages/Admin/Blog/Form.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "_AdminLayout-B2oCXheF.js",
@@ -730,23 +846,35 @@
       "_Shell-BqrlY9wR.js",
       "_AppLogo-Hgv-mTH0.js"
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+      "_AdminLayout-DSgn7BdY.js",
+      "_Charts-BvHV4fwo.js",
+      "_Skeleton-DSuKv_k9.js",
+      "_Shell-BmyDoJe7.js",
+      "_AppLogo-Dwo5xUq9.js"
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     ],
     "css": [
-      "assets/app-C7sUYvIk.css"
+      "assets/app-BmMYEyOt.css"
     ]
   },
   "resources/js/Pages/Admin/Blog/Index.tsx": {
+<<<<<<< HEAD
 <<<<<<< HEAD
     "file": "assets/Index-CUq-rJ7R.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
 =======
     "file": "assets/Index-D4avNCzd.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/Index-Cihpg2er.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "Index",
     "src": "resources/js/Pages/Admin/Blog/Index.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "_AdminLayout-B2oCXheF.js",
@@ -772,23 +900,35 @@
       "_Shell-BqrlY9wR.js",
       "_AppLogo-Hgv-mTH0.js"
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+      "_AdminLayout-DSgn7BdY.js",
+      "_useInertiaLoading-B2EEH3G5.js",
+      "_Charts-BvHV4fwo.js",
+      "_Shell-BmyDoJe7.js",
+      "_AppLogo-Dwo5xUq9.js"
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     ],
     "css": [
-      "assets/app-C7sUYvIk.css"
+      "assets/app-BmMYEyOt.css"
     ]
   },
   "resources/js/Pages/Admin/Contractors.tsx": {
+<<<<<<< HEAD
 <<<<<<< HEAD
     "file": "assets/Contractors-LKOf6wOk.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
 =======
     "file": "assets/Contractors-ZLwDpvx7.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/Contractors-CjnQAKyI.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "Contractors",
     "src": "resources/js/Pages/Admin/Contractors.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "_AdminLayout-B2oCXheF.js",
@@ -806,19 +946,30 @@
       "_Charts-CszXgLwC.js",
       "_Shell-BqrlY9wR.js",
       "_AppLogo-Hgv-mTH0.js"
+=======
+      "_AdminLayout-DSgn7BdY.js",
+      "_Charts-BvHV4fwo.js",
+      "_Shell-BmyDoJe7.js",
+      "_AppLogo-Dwo5xUq9.js"
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     ],
     "css": [
-      "assets/app-C7sUYvIk.css"
+      "assets/app-BmMYEyOt.css"
     ]
   },
   "resources/js/Pages/Admin/Help.tsx": {
+<<<<<<< HEAD
     "file": "assets/Help-H5CeUrBZ.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/Help-C7AWTQgw.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "Help",
     "src": "resources/js/Pages/Admin/Help.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
       "_AdminLayout-B2oCXheF.js",
       "_HelpCentre-GhciU1yZ.js",
@@ -845,23 +996,36 @@
       "_Charts-CszXgLwC.js",
       "_Icon-CkFVTE9T.js"
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+      "_AdminLayout-DSgn7BdY.js",
+      "_HelpCentre-PDZPo-kZ.js",
+      "_Shell-BmyDoJe7.js",
+      "_AppLogo-Dwo5xUq9.js",
+      "_Charts-BvHV4fwo.js",
+      "_Icon-CqEAZ-6C.js"
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     ],
     "css": [
-      "assets/app-C7sUYvIk.css"
+      "assets/app-BmMYEyOt.css"
     ]
   },
   "resources/js/Pages/Admin/Landlords.tsx": {
+<<<<<<< HEAD
 <<<<<<< HEAD
     "file": "assets/Landlords-D0DAQw9k.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
 =======
     "file": "assets/Landlords-Cm99kgFy.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/Landlords-DbXFtFBS.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "Landlords",
     "src": "resources/js/Pages/Admin/Landlords.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "_AdminLayout-B2oCXheF.js",
@@ -884,23 +1048,34 @@
       "_Shell-BqrlY9wR.js",
       "_AppLogo-Hgv-mTH0.js"
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+      "_AdminLayout-DSgn7BdY.js",
+      "_Charts-BvHV4fwo.js",
+      "_Shell-BmyDoJe7.js",
+      "_AppLogo-Dwo5xUq9.js"
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     ],
     "css": [
-      "assets/app-C7sUYvIk.css"
+      "assets/app-BmMYEyOt.css"
     ]
   },
   "resources/js/Pages/Admin/Overview.tsx": {
+<<<<<<< HEAD
 <<<<<<< HEAD
     "file": "assets/Overview-CiHL-1Cz.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
 =======
     "file": "assets/Overview-DRwWnJ2E.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/Overview-lvU9KGSP.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "Overview",
     "src": "resources/js/Pages/Admin/Overview.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "_AdminLayout-B2oCXheF.js",
@@ -925,23 +1100,34 @@
       "_Shell-BqrlY9wR.js",
       "_AppLogo-Hgv-mTH0.js"
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+      "_AdminLayout-DSgn7BdY.js",
+      "_Charts-BvHV4fwo.js",
+      "_Shell-BmyDoJe7.js",
+      "_AppLogo-Dwo5xUq9.js"
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     ],
     "css": [
-      "assets/app-C7sUYvIk.css"
+      "assets/app-BmMYEyOt.css"
     ]
   },
   "resources/js/Pages/Admin/PromoCodes.tsx": {
+<<<<<<< HEAD
 <<<<<<< HEAD
     "file": "assets/PromoCodes-B88LjvXj.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
 =======
     "file": "assets/PromoCodes-DpCZ54ac.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/PromoCodes-ATjaB8fP.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "PromoCodes",
     "src": "resources/js/Pages/Admin/PromoCodes.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "_AdminLayout-B2oCXheF.js",
@@ -967,23 +1153,35 @@
       "_Shell-BqrlY9wR.js",
       "_AppLogo-Hgv-mTH0.js"
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+      "_AdminLayout-DSgn7BdY.js",
+      "_Skeleton-DSuKv_k9.js",
+      "_Charts-BvHV4fwo.js",
+      "_Shell-BmyDoJe7.js",
+      "_AppLogo-Dwo5xUq9.js"
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     ],
     "css": [
-      "assets/app-C7sUYvIk.css"
+      "assets/app-BmMYEyOt.css"
     ]
   },
   "resources/js/Pages/Admin/Roles.tsx": {
+<<<<<<< HEAD
 <<<<<<< HEAD
     "file": "assets/Roles-zkNc93CX.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
 =======
     "file": "assets/Roles-gSaG9mhw.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/Roles-DMpyxsAO.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "Roles",
     "src": "resources/js/Pages/Admin/Roles.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "_AdminLayout-B2oCXheF.js",
@@ -1006,23 +1204,34 @@
       "_Shell-BqrlY9wR.js",
       "_AppLogo-Hgv-mTH0.js"
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+      "_AdminLayout-DSgn7BdY.js",
+      "_Charts-BvHV4fwo.js",
+      "_Shell-BmyDoJe7.js",
+      "_AppLogo-Dwo5xUq9.js"
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     ],
     "css": [
-      "assets/app-C7sUYvIk.css"
+      "assets/app-BmMYEyOt.css"
     ]
   },
   "resources/js/Pages/Admin/Settings.tsx": {
+<<<<<<< HEAD
 <<<<<<< HEAD
     "file": "assets/Settings-DfMbj-IN.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
 =======
     "file": "assets/Settings-DRuHc7Ph.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/Settings-BGkg2f1R.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "Settings",
     "src": "resources/js/Pages/Admin/Settings.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "_AdminLayout-B2oCXheF.js",
@@ -1054,23 +1263,37 @@
       "_AppLogo-Hgv-mTH0.js",
       "_Skeleton-Ct2EvzWi.js"
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+      "_AdminLayout-DSgn7BdY.js",
+      "_AppearanceSettings-CIhzTSbb.js",
+      "_Charts-BvHV4fwo.js",
+      "_Icon-CqEAZ-6C.js",
+      "_Shell-BmyDoJe7.js",
+      "_AppLogo-Dwo5xUq9.js",
+      "_Skeleton-DSuKv_k9.js"
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     ],
     "css": [
-      "assets/app-C7sUYvIk.css"
+      "assets/app-BmMYEyOt.css"
     ]
   },
   "resources/js/Pages/Admin/Subscriptions.tsx": {
+<<<<<<< HEAD
 <<<<<<< HEAD
     "file": "assets/Subscriptions-C4auQm69.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
 =======
     "file": "assets/Subscriptions-DzBvKte3.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/Subscriptions-DtH8U02G.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "Subscriptions",
     "src": "resources/js/Pages/Admin/Subscriptions.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "_AdminLayout-B2oCXheF.js",
@@ -1096,23 +1319,35 @@
       "_Shell-BqrlY9wR.js",
       "_AppLogo-Hgv-mTH0.js"
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+      "_AdminLayout-DSgn7BdY.js",
+      "_Skeleton-DSuKv_k9.js",
+      "_Charts-BvHV4fwo.js",
+      "_Shell-BmyDoJe7.js",
+      "_AppLogo-Dwo5xUq9.js"
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     ],
     "css": [
-      "assets/app-C7sUYvIk.css"
+      "assets/app-BmMYEyOt.css"
     ]
   },
   "resources/js/Pages/Admin/System.tsx": {
+<<<<<<< HEAD
 <<<<<<< HEAD
     "file": "assets/System-Td7ko5Fw.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
 =======
     "file": "assets/System-bnzxlAO5.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/System-DJQ_vaAv.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "System",
     "src": "resources/js/Pages/Admin/System.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "_AdminLayout-B2oCXheF.js",
@@ -1135,23 +1370,34 @@
       "_Shell-BqrlY9wR.js",
       "_AppLogo-Hgv-mTH0.js"
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+      "_AdminLayout-DSgn7BdY.js",
+      "_Charts-BvHV4fwo.js",
+      "_Shell-BmyDoJe7.js",
+      "_AppLogo-Dwo5xUq9.js"
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     ],
     "css": [
-      "assets/app-C7sUYvIk.css"
+      "assets/app-BmMYEyOt.css"
     ]
   },
   "resources/js/Pages/Admin/Transactions.tsx": {
+<<<<<<< HEAD
 <<<<<<< HEAD
     "file": "assets/Transactions-BrNp4wYr.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
 =======
     "file": "assets/Transactions-rdNqdecy.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/Transactions-GWZJgpkn.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "Transactions",
     "src": "resources/js/Pages/Admin/Transactions.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "_AdminLayout-B2oCXheF.js",
@@ -1177,23 +1423,35 @@
       "_Shell-BqrlY9wR.js",
       "_AppLogo-Hgv-mTH0.js"
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+      "_AdminLayout-DSgn7BdY.js",
+      "_Charts-BvHV4fwo.js",
+      "_useInertiaLoading-B2EEH3G5.js",
+      "_Shell-BmyDoJe7.js",
+      "_AppLogo-Dwo5xUq9.js"
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     ],
     "css": [
-      "assets/app-C7sUYvIk.css"
+      "assets/app-BmMYEyOt.css"
     ]
   },
   "resources/js/Pages/Admin/Users.tsx": {
+<<<<<<< HEAD
 <<<<<<< HEAD
     "file": "assets/Users-BoHs4jtw.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
 =======
     "file": "assets/Users-DzE65BxK.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/Users-CwWhFKfE.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "Users",
     "src": "resources/js/Pages/Admin/Users.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "_AdminLayout-B2oCXheF.js",
@@ -1219,23 +1477,35 @@
       "_Shell-BqrlY9wR.js",
       "_AppLogo-Hgv-mTH0.js"
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+      "_AdminLayout-DSgn7BdY.js",
+      "_Charts-BvHV4fwo.js",
+      "_useInertiaLoading-B2EEH3G5.js",
+      "_Shell-BmyDoJe7.js",
+      "_AppLogo-Dwo5xUq9.js"
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     ],
     "css": [
-      "assets/app-C7sUYvIk.css"
+      "assets/app-BmMYEyOt.css"
     ]
   },
   "resources/js/Pages/Agency/Agents.tsx": {
+<<<<<<< HEAD
 <<<<<<< HEAD
     "file": "assets/Agents-BY_hyB3y.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
 =======
     "file": "assets/Agents-DF27itxI.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/Agents-CaMyqu7T.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "Agents",
     "src": "resources/js/Pages/Agency/Agents.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "_AgencyLayout-D1qlpGit.js",
@@ -1269,23 +1539,37 @@
       "_SubscriptionBanner-CKcJ9EXz.js",
       "_Skeleton-Ct2EvzWi.js"
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+      "_AgencyLayout-CJf2QkNU.js",
+      "_InviteAgentModal-nl5JE3cG.js",
+      "_Charts-BvHV4fwo.js",
+      "_Shell-BmyDoJe7.js",
+      "_AppLogo-Dwo5xUq9.js",
+      "_SubscriptionBanner-fU-HYxxu.js",
+      "_Skeleton-DSuKv_k9.js"
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     ],
     "css": [
-      "assets/app-C7sUYvIk.css"
+      "assets/app-BmMYEyOt.css"
     ]
   },
   "resources/js/Pages/Agency/Billing.tsx": {
+<<<<<<< HEAD
 <<<<<<< HEAD
     "file": "assets/Billing-GFNSulVj.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
 =======
     "file": "assets/Billing-DVor_1ge.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/Billing-CxdfvheI.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "Billing",
     "src": "resources/js/Pages/Agency/Billing.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "_AgencyLayout-D1qlpGit.js",
@@ -1315,23 +1599,36 @@
       "_AppLogo-Hgv-mTH0.js",
       "_SubscriptionBanner-CKcJ9EXz.js"
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+      "_AgencyLayout-CJf2QkNU.js",
+      "_Skeleton-DSuKv_k9.js",
+      "_Charts-BvHV4fwo.js",
+      "_Shell-BmyDoJe7.js",
+      "_AppLogo-Dwo5xUq9.js",
+      "_SubscriptionBanner-fU-HYxxu.js"
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     ],
     "css": [
-      "assets/app-C7sUYvIk.css"
+      "assets/app-BmMYEyOt.css"
     ]
   },
   "resources/js/Pages/Agency/Commission.tsx": {
+<<<<<<< HEAD
 <<<<<<< HEAD
     "file": "assets/Commission-oYbQ9tnV.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
 =======
     "file": "assets/Commission-BDoSvOAg.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/Commission-D6FF2NWM.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "Commission",
     "src": "resources/js/Pages/Agency/Commission.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "_AgencyLayout-D1qlpGit.js",
@@ -1362,23 +1659,36 @@
       "_AppLogo-Hgv-mTH0.js",
       "_SubscriptionBanner-CKcJ9EXz.js"
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+      "_AgencyLayout-CJf2QkNU.js",
+      "_Skeleton-DSuKv_k9.js",
+      "_Icon-CqEAZ-6C.js",
+      "_Shell-BmyDoJe7.js",
+      "_AppLogo-Dwo5xUq9.js",
+      "_SubscriptionBanner-fU-HYxxu.js"
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     ],
     "css": [
-      "assets/app-C7sUYvIk.css"
+      "assets/app-BmMYEyOt.css"
     ]
   },
   "resources/js/Pages/Agency/Compliance.tsx": {
+<<<<<<< HEAD
 <<<<<<< HEAD
     "file": "assets/Compliance-Bew04RuP.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
 =======
     "file": "assets/Compliance-CJDabVcl.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/Compliance-CpVjLaKP.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "Compliance",
     "src": "resources/js/Pages/Agency/Compliance.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "_AgencyLayout-D1qlpGit.js",
@@ -1408,23 +1718,36 @@
       "_AppLogo-Hgv-mTH0.js",
       "_SubscriptionBanner-CKcJ9EXz.js"
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+      "_AgencyLayout-CJf2QkNU.js",
+      "_Skeleton-DSuKv_k9.js",
+      "_Charts-BvHV4fwo.js",
+      "_Shell-BmyDoJe7.js",
+      "_AppLogo-Dwo5xUq9.js",
+      "_SubscriptionBanner-fU-HYxxu.js"
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     ],
     "css": [
-      "assets/app-C7sUYvIk.css"
+      "assets/app-BmMYEyOt.css"
     ]
   },
   "resources/js/Pages/Agency/Contractors.tsx": {
+<<<<<<< HEAD
 <<<<<<< HEAD
     "file": "assets/Contractors-C8UMS1tA.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
 =======
     "file": "assets/Contractors-BX0WnCKO.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/Contractors-CSYQV7d7.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "Contractors",
     "src": "resources/js/Pages/Agency/Contractors.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "_AgencyLayout-D1qlpGit.js",
@@ -1454,23 +1777,36 @@
       "_AppLogo-Hgv-mTH0.js",
       "_SubscriptionBanner-CKcJ9EXz.js"
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+      "_AgencyLayout-CJf2QkNU.js",
+      "_Skeleton-DSuKv_k9.js",
+      "_Charts-BvHV4fwo.js",
+      "_Shell-BmyDoJe7.js",
+      "_AppLogo-Dwo5xUq9.js",
+      "_SubscriptionBanner-fU-HYxxu.js"
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     ],
     "css": [
-      "assets/app-C7sUYvIk.css"
+      "assets/app-BmMYEyOt.css"
     ]
   },
   "resources/js/Pages/Agency/CreateListing.tsx": {
+<<<<<<< HEAD
 <<<<<<< HEAD
     "file": "assets/CreateListing-IHDcyH77.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
 =======
     "file": "assets/CreateListing-D9BAoxCp.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/CreateListing-I66pEBbi.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "CreateListing",
     "src": "resources/js/Pages/Agency/CreateListing.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "_AgencyLayout-D1qlpGit.js",
@@ -1493,19 +1829,32 @@
       "_AppLogo-Hgv-mTH0.js",
       "_SubscriptionBanner-CKcJ9EXz.js",
       "_Skeleton-Ct2EvzWi.js"
+=======
+      "_AgencyLayout-CJf2QkNU.js",
+      "_ListingForm-CgpP6oso.js",
+      "_Shell-BmyDoJe7.js",
+      "_AppLogo-Dwo5xUq9.js",
+      "_SubscriptionBanner-fU-HYxxu.js",
+      "_Skeleton-DSuKv_k9.js"
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     ],
     "css": [
-      "assets/app-C7sUYvIk.css"
+      "assets/app-BmMYEyOt.css"
     ]
   },
   "resources/js/Pages/Agency/Help.tsx": {
+<<<<<<< HEAD
     "file": "assets/Help-BWrB136r.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/Help-DY3JfYAQ.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "Help",
     "src": "resources/js/Pages/Agency/Help.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
       "_AgencyLayout-D1qlpGit.js",
       "_HelpCentre-GhciU1yZ.js",
@@ -1537,23 +1886,37 @@
       "_Charts-CszXgLwC.js",
       "_Icon-CkFVTE9T.js"
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+      "_AgencyLayout-CJf2QkNU.js",
+      "_HelpCentre-PDZPo-kZ.js",
+      "_Shell-BmyDoJe7.js",
+      "_AppLogo-Dwo5xUq9.js",
+      "_SubscriptionBanner-fU-HYxxu.js",
+      "_Charts-BvHV4fwo.js",
+      "_Icon-CqEAZ-6C.js"
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     ],
     "css": [
-      "assets/app-C7sUYvIk.css"
+      "assets/app-BmMYEyOt.css"
     ]
   },
   "resources/js/Pages/Agency/Landlords.tsx": {
+<<<<<<< HEAD
 <<<<<<< HEAD
     "file": "assets/Landlords-D5GSDHlm.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
 =======
     "file": "assets/Landlords-C1DUFehp.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/Landlords-DousQOgz.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "Landlords",
     "src": "resources/js/Pages/Agency/Landlords.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "_AgencyLayout-D1qlpGit.js",
@@ -1580,23 +1943,35 @@
       "_AppLogo-Hgv-mTH0.js",
       "_SubscriptionBanner-CKcJ9EXz.js"
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+      "_AgencyLayout-CJf2QkNU.js",
+      "_Charts-BvHV4fwo.js",
+      "_Shell-BmyDoJe7.js",
+      "_AppLogo-Dwo5xUq9.js",
+      "_SubscriptionBanner-fU-HYxxu.js"
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     ],
     "css": [
-      "assets/app-C7sUYvIk.css"
+      "assets/app-BmMYEyOt.css"
     ]
   },
   "resources/js/Pages/Agency/ListingsAllocation.tsx": {
+<<<<<<< HEAD
 <<<<<<< HEAD
     "file": "assets/ListingsAllocation-D3BcbXyA.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
 =======
     "file": "assets/ListingsAllocation-DUcgaPpX.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/ListingsAllocation-HIcCytqV.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "ListingsAllocation",
     "src": "resources/js/Pages/Agency/ListingsAllocation.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "_AgencyLayout-D1qlpGit.js",
@@ -1621,23 +1996,34 @@
       "_AppLogo-Hgv-mTH0.js",
       "_SubscriptionBanner-CKcJ9EXz.js"
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+      "_AgencyLayout-CJf2QkNU.js",
+      "_Shell-BmyDoJe7.js",
+      "_AppLogo-Dwo5xUq9.js",
+      "_SubscriptionBanner-fU-HYxxu.js"
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     ],
     "css": [
-      "assets/app-C7sUYvIk.css"
+      "assets/app-BmMYEyOt.css"
     ]
   },
   "resources/js/Pages/Agency/Maintenance.tsx": {
+<<<<<<< HEAD
 <<<<<<< HEAD
     "file": "assets/Maintenance-_9YtOY5V.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
 =======
     "file": "assets/Maintenance-Bds3gfYo.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/Maintenance-Dfubkq6c.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "Maintenance",
     "src": "resources/js/Pages/Agency/Maintenance.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "_AgencyLayout-D1qlpGit.js",
@@ -1673,23 +2059,38 @@
       "_Icon-CkFVTE9T.js",
       "_Charts-CszXgLwC.js"
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+      "_AgencyLayout-CJf2QkNU.js",
+      "_MaintenanceBoard-CGmGQDS9.js",
+      "_Shell-BmyDoJe7.js",
+      "_AppLogo-Dwo5xUq9.js",
+      "_SubscriptionBanner-fU-HYxxu.js",
+      "_RateContractorModal-Xy2Fj6MB.js",
+      "_Icon-CqEAZ-6C.js",
+      "_Charts-BvHV4fwo.js"
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     ],
     "css": [
-      "assets/app-C7sUYvIk.css"
+      "assets/app-BmMYEyOt.css"
     ]
   },
   "resources/js/Pages/Agency/MaintenanceQuotes.tsx": {
+<<<<<<< HEAD
 <<<<<<< HEAD
     "file": "assets/MaintenanceQuotes-yJ01CMZD.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
 =======
     "file": "assets/MaintenanceQuotes-C-6HnrXP.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/MaintenanceQuotes-DjmQ2bqg.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "MaintenanceQuotes",
     "src": "resources/js/Pages/Agency/MaintenanceQuotes.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "_AgencyLayout-D1qlpGit.js",
@@ -1714,23 +2115,34 @@
       "_AppLogo-Hgv-mTH0.js",
       "_SubscriptionBanner-CKcJ9EXz.js"
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+      "_AgencyLayout-CJf2QkNU.js",
+      "_Shell-BmyDoJe7.js",
+      "_AppLogo-Dwo5xUq9.js",
+      "_SubscriptionBanner-fU-HYxxu.js"
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     ],
     "css": [
-      "assets/app-C7sUYvIk.css"
+      "assets/app-BmMYEyOt.css"
     ]
   },
   "resources/js/Pages/Agency/Messages.tsx": {
+<<<<<<< HEAD
 <<<<<<< HEAD
     "file": "assets/Messages-qkWmeyNI.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
 =======
     "file": "assets/Messages-0PZFD8IM.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/Messages-z1fCdxDG.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "Messages",
     "src": "resources/js/Pages/Agency/Messages.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "_AgencyLayout-D1qlpGit.js",
@@ -1760,23 +2172,36 @@
       "_AppLogo-Hgv-mTH0.js",
       "_SubscriptionBanner-CKcJ9EXz.js"
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+      "_AgencyLayout-CJf2QkNU.js",
+      "_Icon-CqEAZ-6C.js",
+      "_Charts-BvHV4fwo.js",
+      "_Shell-BmyDoJe7.js",
+      "_AppLogo-Dwo5xUq9.js",
+      "_SubscriptionBanner-fU-HYxxu.js"
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     ],
     "css": [
-      "assets/app-C7sUYvIk.css"
+      "assets/app-BmMYEyOt.css"
     ]
   },
   "resources/js/Pages/Agency/Overview.tsx": {
+<<<<<<< HEAD
 <<<<<<< HEAD
     "file": "assets/Overview-KADzFvRJ.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
 =======
     "file": "assets/Overview-4Hn7qNDa.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/Overview-CMB0gf-1.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "Overview",
     "src": "resources/js/Pages/Agency/Overview.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "_AgencyLayout-D1qlpGit.js",
@@ -1810,23 +2235,37 @@
       "_SubscriptionBanner-CKcJ9EXz.js",
       "_Skeleton-Ct2EvzWi.js"
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+      "_AgencyLayout-CJf2QkNU.js",
+      "_InviteAgentModal-nl5JE3cG.js",
+      "_Charts-BvHV4fwo.js",
+      "_Shell-BmyDoJe7.js",
+      "_AppLogo-Dwo5xUq9.js",
+      "_SubscriptionBanner-fU-HYxxu.js",
+      "_Skeleton-DSuKv_k9.js"
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     ],
     "css": [
-      "assets/app-C7sUYvIk.css"
+      "assets/app-BmMYEyOt.css"
     ]
   },
   "resources/js/Pages/Agency/Pipeline.tsx": {
+<<<<<<< HEAD
 <<<<<<< HEAD
     "file": "assets/Pipeline-Cvr-BOu5.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
 =======
     "file": "assets/Pipeline-De98CdBf.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/Pipeline-BBAl1Q79.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "Pipeline",
     "src": "resources/js/Pages/Agency/Pipeline.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "_AgencyLayout-D1qlpGit.js",
@@ -1853,23 +2292,35 @@
       "_AppLogo-Hgv-mTH0.js",
       "_SubscriptionBanner-CKcJ9EXz.js"
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+      "_AgencyLayout-CJf2QkNU.js",
+      "_Charts-BvHV4fwo.js",
+      "_Shell-BmyDoJe7.js",
+      "_AppLogo-Dwo5xUq9.js",
+      "_SubscriptionBanner-fU-HYxxu.js"
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     ],
     "css": [
-      "assets/app-C7sUYvIk.css"
+      "assets/app-BmMYEyOt.css"
     ]
   },
   "resources/js/Pages/Agency/Reports.tsx": {
+<<<<<<< HEAD
 <<<<<<< HEAD
     "file": "assets/Reports-DN2l_4RD.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
 =======
     "file": "assets/Reports-DV9amsxE.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/Reports-CmMqF7GQ.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "Reports",
     "src": "resources/js/Pages/Agency/Reports.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "_AgencyLayout-D1qlpGit.js",
@@ -1897,23 +2348,35 @@
       "_AppLogo-Hgv-mTH0.js",
       "_SubscriptionBanner-CKcJ9EXz.js"
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+      "_AgencyLayout-CJf2QkNU.js",
+      "_Charts-BvHV4fwo.js",
+      "_Shell-BmyDoJe7.js",
+      "_AppLogo-Dwo5xUq9.js",
+      "_SubscriptionBanner-fU-HYxxu.js"
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     ],
     "css": [
-      "assets/app-C7sUYvIk.css"
+      "assets/app-BmMYEyOt.css"
     ]
   },
   "resources/js/Pages/Agency/Settings.tsx": {
+<<<<<<< HEAD
 <<<<<<< HEAD
     "file": "assets/Settings-LLl-4Tg9.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
 =======
     "file": "assets/Settings-Bt11FDz4.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/Settings-Y803UN29.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "Settings",
     "src": "resources/js/Pages/Agency/Settings.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "_AgencyLayout-D1qlpGit.js",
@@ -1949,23 +2412,38 @@
       "_SubscriptionBanner-CKcJ9EXz.js",
       "_Skeleton-Ct2EvzWi.js"
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+      "_AgencyLayout-CJf2QkNU.js",
+      "_AppearanceSettings-CIhzTSbb.js",
+      "_Charts-BvHV4fwo.js",
+      "_Icon-CqEAZ-6C.js",
+      "_Shell-BmyDoJe7.js",
+      "_AppLogo-Dwo5xUq9.js",
+      "_SubscriptionBanner-fU-HYxxu.js",
+      "_Skeleton-DSuKv_k9.js"
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     ],
     "css": [
-      "assets/app-C7sUYvIk.css"
+      "assets/app-BmMYEyOt.css"
     ]
   },
   "resources/js/Pages/Agency/Tenants.tsx": {
+<<<<<<< HEAD
 <<<<<<< HEAD
     "file": "assets/Tenants-BQWkqcwV.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
 =======
     "file": "assets/Tenants-B2qulCKt.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/Tenants-DHMCkZTc.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "Tenants",
     "src": "resources/js/Pages/Agency/Tenants.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "_AgencyLayout-D1qlpGit.js",
@@ -1992,23 +2470,35 @@
       "_AppLogo-Hgv-mTH0.js",
       "_SubscriptionBanner-CKcJ9EXz.js"
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+      "_AgencyLayout-CJf2QkNU.js",
+      "_Charts-BvHV4fwo.js",
+      "_Shell-BmyDoJe7.js",
+      "_AppLogo-Dwo5xUq9.js",
+      "_SubscriptionBanner-fU-HYxxu.js"
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     ],
     "css": [
-      "assets/app-C7sUYvIk.css"
+      "assets/app-BmMYEyOt.css"
     ]
   },
   "resources/js/Pages/Agency/TrustAccount.tsx": {
+<<<<<<< HEAD
 <<<<<<< HEAD
     "file": "assets/TrustAccount-CAf7pEHh.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
 =======
     "file": "assets/TrustAccount-C_Dgn9_J.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/TrustAccount-D4sv9HZj.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "TrustAccount",
     "src": "resources/js/Pages/Agency/TrustAccount.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "_AgencyLayout-D1qlpGit.js",
@@ -2038,23 +2528,36 @@
       "_AppLogo-Hgv-mTH0.js",
       "_SubscriptionBanner-CKcJ9EXz.js"
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+      "_AgencyLayout-CJf2QkNU.js",
+      "_Skeleton-DSuKv_k9.js",
+      "_Charts-BvHV4fwo.js",
+      "_Shell-BmyDoJe7.js",
+      "_AppLogo-Dwo5xUq9.js",
+      "_SubscriptionBanner-fU-HYxxu.js"
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     ],
     "css": [
-      "assets/app-C7sUYvIk.css"
+      "assets/app-BmMYEyOt.css"
     ]
   },
   "resources/js/Pages/Agent/Analytics.tsx": {
+<<<<<<< HEAD
 <<<<<<< HEAD
     "file": "assets/Analytics-DGnMl8xt.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
 =======
     "file": "assets/Analytics-JremHDyT.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/Analytics-u435wBeM.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "Analytics",
     "src": "resources/js/Pages/Agent/Analytics.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "_AgentLayout-DY2hzqg3.js",
@@ -2082,23 +2585,35 @@
       "_Shell-BqrlY9wR.js",
       "_AppLogo-Hgv-mTH0.js"
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+      "_AgentLayout-Dt0o4Jhj.js",
+      "_useInertiaLoading-B2EEH3G5.js",
+      "_Charts-BvHV4fwo.js",
+      "_Shell-BmyDoJe7.js",
+      "_AppLogo-Dwo5xUq9.js"
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     ],
     "css": [
-      "assets/app-C7sUYvIk.css"
+      "assets/app-BmMYEyOt.css"
     ]
   },
   "resources/js/Pages/Agent/Commission.tsx": {
+<<<<<<< HEAD
 <<<<<<< HEAD
     "file": "assets/Commission-DLV5Xx92.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
 =======
     "file": "assets/Commission-pbHW-dxA.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/Commission-pmXCAeTg.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "Commission",
     "src": "resources/js/Pages/Agent/Commission.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "_AgentLayout-DY2hzqg3.js",
@@ -2120,23 +2635,33 @@
       "_Shell-BqrlY9wR.js",
       "_AppLogo-Hgv-mTH0.js"
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+      "_AgentLayout-Dt0o4Jhj.js",
+      "_Shell-BmyDoJe7.js",
+      "_AppLogo-Dwo5xUq9.js"
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     ],
     "css": [
-      "assets/app-C7sUYvIk.css"
+      "assets/app-BmMYEyOt.css"
     ]
   },
   "resources/js/Pages/Agent/CreateInspection.tsx": {
+<<<<<<< HEAD
 <<<<<<< HEAD
     "file": "assets/CreateInspection-Dy5OBh4i.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
 =======
     "file": "assets/CreateInspection-CosVOgit.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/CreateInspection-D0P2kWNI.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "CreateInspection",
     "src": "resources/js/Pages/Agent/CreateInspection.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "_AgentLayout-DY2hzqg3.js",
@@ -2164,23 +2689,35 @@
       "_Shell-BqrlY9wR.js",
       "_AppLogo-Hgv-mTH0.js"
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+      "_AgentLayout-Dt0o4Jhj.js",
+      "_Skeleton-DSuKv_k9.js",
+      "_Icon-CqEAZ-6C.js",
+      "_Shell-BmyDoJe7.js",
+      "_AppLogo-Dwo5xUq9.js"
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     ],
     "css": [
-      "assets/app-C7sUYvIk.css"
+      "assets/app-BmMYEyOt.css"
     ]
   },
   "resources/js/Pages/Agent/CreateListing.tsx": {
+<<<<<<< HEAD
 <<<<<<< HEAD
     "file": "assets/CreateListing-YqXqcJER.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
 =======
     "file": "assets/CreateListing-idBhpeC5.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/CreateListing-CvvJUuz-.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "CreateListing",
     "src": "resources/js/Pages/Agent/CreateListing.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "_AgentLayout-DY2hzqg3.js",
@@ -2208,23 +2745,35 @@
       "_AppLogo-Hgv-mTH0.js",
       "_Skeleton-Ct2EvzWi.js"
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+      "_AgentLayout-Dt0o4Jhj.js",
+      "_ListingForm-CgpP6oso.js",
+      "_Shell-BmyDoJe7.js",
+      "_AppLogo-Dwo5xUq9.js",
+      "_Skeleton-DSuKv_k9.js"
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     ],
     "css": [
-      "assets/app-C7sUYvIk.css"
+      "assets/app-BmMYEyOt.css"
     ]
   },
   "resources/js/Pages/Agent/EditListing.tsx": {
+<<<<<<< HEAD
 <<<<<<< HEAD
     "file": "assets/EditListing-BxHGKqOa.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
 =======
     "file": "assets/EditListing-DYYmeI04.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/EditListing-eKMq8kXT.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "EditListing",
     "src": "resources/js/Pages/Agent/EditListing.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "_AgentLayout-DY2hzqg3.js",
@@ -2252,23 +2801,35 @@
       "_AppLogo-Hgv-mTH0.js",
       "_Skeleton-Ct2EvzWi.js"
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+      "_AgentLayout-Dt0o4Jhj.js",
+      "_ListingForm-CgpP6oso.js",
+      "_Shell-BmyDoJe7.js",
+      "_AppLogo-Dwo5xUq9.js",
+      "_Skeleton-DSuKv_k9.js"
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     ],
     "css": [
-      "assets/app-C7sUYvIk.css"
+      "assets/app-BmMYEyOt.css"
     ]
   },
   "resources/js/Pages/Agent/FfcCompliance.tsx": {
+<<<<<<< HEAD
 <<<<<<< HEAD
     "file": "assets/FfcCompliance-BEb09dw9.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
 =======
     "file": "assets/FfcCompliance-CUWJVZDW.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/FfcCompliance-B5YkDfdT.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "FfcCompliance",
     "src": "resources/js/Pages/Agent/FfcCompliance.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "_AgentLayout-DY2hzqg3.js",
@@ -2287,19 +2848,30 @@
       "_Skeleton-Ct2EvzWi.js",
       "_Shell-BqrlY9wR.js",
       "_AppLogo-Hgv-mTH0.js"
+=======
+      "_AgentLayout-Dt0o4Jhj.js",
+      "_Skeleton-DSuKv_k9.js",
+      "_Shell-BmyDoJe7.js",
+      "_AppLogo-Dwo5xUq9.js"
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     ],
     "css": [
-      "assets/app-C7sUYvIk.css"
+      "assets/app-BmMYEyOt.css"
     ]
   },
   "resources/js/Pages/Agent/Help.tsx": {
+<<<<<<< HEAD
     "file": "assets/Help-BVmKCARv.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/Help-2KfzTUGb.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "Help",
     "src": "resources/js/Pages/Agent/Help.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
       "_AgentLayout-DY2hzqg3.js",
       "_HelpCentre-GhciU1yZ.js",
@@ -2327,23 +2899,36 @@
       "_Charts-CszXgLwC.js",
       "_Icon-CkFVTE9T.js"
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+      "_AgentLayout-Dt0o4Jhj.js",
+      "_HelpCentre-PDZPo-kZ.js",
+      "_Shell-BmyDoJe7.js",
+      "_AppLogo-Dwo5xUq9.js",
+      "_Charts-BvHV4fwo.js",
+      "_Icon-CqEAZ-6C.js"
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     ],
     "css": [
-      "assets/app-C7sUYvIk.css"
+      "assets/app-BmMYEyOt.css"
     ]
   },
   "resources/js/Pages/Agent/Inspections.tsx": {
+<<<<<<< HEAD
 <<<<<<< HEAD
     "file": "assets/Inspections-DavBZAUu.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
 =======
     "file": "assets/Inspections-KLGePGnv.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/Inspections-CqsO0cvE.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "Inspections",
     "src": "resources/js/Pages/Agent/Inspections.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "_AgentLayout-DY2hzqg3.js",
@@ -2368,23 +2953,34 @@
       "_Shell-BqrlY9wR.js",
       "_AppLogo-Hgv-mTH0.js"
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+      "_AgentLayout-Dt0o4Jhj.js",
+      "_Icon-CqEAZ-6C.js",
+      "_Shell-BmyDoJe7.js",
+      "_AppLogo-Dwo5xUq9.js"
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     ],
     "css": [
-      "assets/app-C7sUYvIk.css"
+      "assets/app-BmMYEyOt.css"
     ]
   },
   "resources/js/Pages/Agent/Listings.tsx": {
+<<<<<<< HEAD
 <<<<<<< HEAD
     "file": "assets/Listings-nZuwghAL.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
 =======
     "file": "assets/Listings-D1qdOs1u.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/Listings-CTjEAJfo.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "Listings",
     "src": "resources/js/Pages/Agent/Listings.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "_AgentLayout-DY2hzqg3.js",
@@ -2415,23 +3011,36 @@
       "_AppLogo-Hgv-mTH0.js",
       "_Skeleton-Ct2EvzWi.js"
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+      "_AgentLayout-Dt0o4Jhj.js",
+      "_InviteTenantModal-DMwHL3RA.js",
+      "_Icon-CqEAZ-6C.js",
+      "_Shell-BmyDoJe7.js",
+      "_AppLogo-Dwo5xUq9.js",
+      "_Skeleton-DSuKv_k9.js"
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     ],
     "css": [
-      "assets/app-C7sUYvIk.css"
+      "assets/app-BmMYEyOt.css"
     ]
   },
   "resources/js/Pages/Agent/Maintenance.tsx": {
+<<<<<<< HEAD
 <<<<<<< HEAD
     "file": "assets/Maintenance-ii1zhkva.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
 =======
     "file": "assets/Maintenance-vj7J70Hw.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/Maintenance-SA8lIsTG.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "Maintenance",
     "src": "resources/js/Pages/Agent/Maintenance.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "_AgentLayout-DY2hzqg3.js",
@@ -2464,23 +3073,37 @@
       "_Icon-CkFVTE9T.js",
       "_Charts-CszXgLwC.js"
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+      "_AgentLayout-Dt0o4Jhj.js",
+      "_MaintenanceBoard-CGmGQDS9.js",
+      "_Shell-BmyDoJe7.js",
+      "_AppLogo-Dwo5xUq9.js",
+      "_RateContractorModal-Xy2Fj6MB.js",
+      "_Icon-CqEAZ-6C.js",
+      "_Charts-BvHV4fwo.js"
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     ],
     "css": [
-      "assets/app-C7sUYvIk.css"
+      "assets/app-BmMYEyOt.css"
     ]
   },
   "resources/js/Pages/Agent/Messages.tsx": {
+<<<<<<< HEAD
 <<<<<<< HEAD
     "file": "assets/Messages-C3HFySc_.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
 =======
     "file": "assets/Messages-DbsiYSNA.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/Messages-B2KIUNAT.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "Messages",
     "src": "resources/js/Pages/Agent/Messages.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "_AgentLayout-DY2hzqg3.js",
@@ -2505,23 +3128,34 @@
       "_Shell-BqrlY9wR.js",
       "_AppLogo-Hgv-mTH0.js"
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+      "_AgentLayout-Dt0o4Jhj.js",
+      "_Skeleton-DSuKv_k9.js",
+      "_Shell-BmyDoJe7.js",
+      "_AppLogo-Dwo5xUq9.js"
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     ],
     "css": [
-      "assets/app-C7sUYvIk.css"
+      "assets/app-BmMYEyOt.css"
     ]
   },
   "resources/js/Pages/Agent/Overview.tsx": {
+<<<<<<< HEAD
 <<<<<<< HEAD
     "file": "assets/Overview-umAeyOCu.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
 =======
     "file": "assets/Overview-C4U0n_Mr.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/Overview-Cq_8v3Fy.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "Overview",
     "src": "resources/js/Pages/Agent/Overview.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "_AgentLayout-DY2hzqg3.js",
@@ -2546,23 +3180,34 @@
       "_Shell-BqrlY9wR.js",
       "_AppLogo-Hgv-mTH0.js"
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+      "_AgentLayout-Dt0o4Jhj.js",
+      "_Charts-BvHV4fwo.js",
+      "_Shell-BmyDoJe7.js",
+      "_AppLogo-Dwo5xUq9.js"
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     ],
     "css": [
-      "assets/app-C7sUYvIk.css"
+      "assets/app-BmMYEyOt.css"
     ]
   },
   "resources/js/Pages/Agent/Pipeline.tsx": {
+<<<<<<< HEAD
 <<<<<<< HEAD
     "file": "assets/Pipeline-DF0T8ffU.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
 =======
     "file": "assets/Pipeline-1S9Wn1co.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/Pipeline-D7IXbh6F.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "Pipeline",
     "src": "resources/js/Pages/Agent/Pipeline.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "_AgentLayout-DY2hzqg3.js",
@@ -2587,23 +3232,34 @@
       "_Shell-BqrlY9wR.js",
       "_AppLogo-Hgv-mTH0.js"
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+      "_AgentLayout-Dt0o4Jhj.js",
+      "_Skeleton-DSuKv_k9.js",
+      "_Shell-BmyDoJe7.js",
+      "_AppLogo-Dwo5xUq9.js"
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     ],
     "css": [
-      "assets/app-C7sUYvIk.css"
+      "assets/app-BmMYEyOt.css"
     ]
   },
   "resources/js/Pages/Agent/Settings.tsx": {
+<<<<<<< HEAD
 <<<<<<< HEAD
     "file": "assets/Settings-Do9ivOT6.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
 =======
     "file": "assets/Settings-BKnNEHLq.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/Settings-C9TUcoz8.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "Settings",
     "src": "resources/js/Pages/Agent/Settings.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "_AgentLayout-DY2hzqg3.js",
@@ -2634,23 +3290,36 @@
       "_AppLogo-Hgv-mTH0.js",
       "_Charts-CszXgLwC.js"
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+      "_AgentLayout-Dt0o4Jhj.js",
+      "_Skeleton-DSuKv_k9.js",
+      "_AppearanceSettings-CIhzTSbb.js",
+      "_Shell-BmyDoJe7.js",
+      "_AppLogo-Dwo5xUq9.js",
+      "_Charts-BvHV4fwo.js"
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     ],
     "css": [
-      "assets/app-C7sUYvIk.css"
+      "assets/app-BmMYEyOt.css"
     ]
   },
   "resources/js/Pages/Agent/ShowInspection.tsx": {
+<<<<<<< HEAD
 <<<<<<< HEAD
     "file": "assets/ShowInspection-C0gJfPhm.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
 =======
     "file": "assets/ShowInspection-BEOLw94d.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/ShowInspection-VeFjFhGD.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "ShowInspection",
     "src": "resources/js/Pages/Agent/ShowInspection.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "_AgentLayout-DY2hzqg3.js",
@@ -2672,23 +3341,33 @@
       "_Shell-BqrlY9wR.js",
       "_AppLogo-Hgv-mTH0.js"
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+      "_AgentLayout-Dt0o4Jhj.js",
+      "_Shell-BmyDoJe7.js",
+      "_AppLogo-Dwo5xUq9.js"
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     ],
     "css": [
-      "assets/app-C7sUYvIk.css"
+      "assets/app-BmMYEyOt.css"
     ]
   },
   "resources/js/Pages/Agent/Tenants.tsx": {
+<<<<<<< HEAD
 <<<<<<< HEAD
     "file": "assets/Tenants-V6hfB24v.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
 =======
     "file": "assets/Tenants-Bo3dxO1t.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/Tenants-5cKEeqwy.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "Tenants",
     "src": "resources/js/Pages/Agent/Tenants.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "_AgentLayout-DY2hzqg3.js",
@@ -2710,23 +3389,33 @@
       "_Shell-BqrlY9wR.js",
       "_AppLogo-Hgv-mTH0.js"
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+      "_AgentLayout-Dt0o4Jhj.js",
+      "_Shell-BmyDoJe7.js",
+      "_AppLogo-Dwo5xUq9.js"
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     ],
     "css": [
-      "assets/app-C7sUYvIk.css"
+      "assets/app-BmMYEyOt.css"
     ]
   },
   "resources/js/Pages/Agent/Viewings.tsx": {
+<<<<<<< HEAD
 <<<<<<< HEAD
     "file": "assets/Viewings-CJO-T3ni.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
 =======
     "file": "assets/Viewings-CnKkBtyM.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/Viewings-YGzPWDGc.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "Viewings",
     "src": "resources/js/Pages/Agent/Viewings.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "_AgentLayout-DY2hzqg3.js",
@@ -2751,23 +3440,34 @@
       "_Shell-BqrlY9wR.js",
       "_AppLogo-Hgv-mTH0.js"
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+      "_AgentLayout-Dt0o4Jhj.js",
+      "_Skeleton-DSuKv_k9.js",
+      "_Shell-BmyDoJe7.js",
+      "_AppLogo-Dwo5xUq9.js"
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     ],
     "css": [
-      "assets/app-C7sUYvIk.css"
+      "assets/app-BmMYEyOt.css"
     ]
   },
   "resources/js/Pages/Auth/AcceptInvite.tsx": {
+<<<<<<< HEAD
 <<<<<<< HEAD
     "file": "assets/AcceptInvite-BjjgmjGW.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
 =======
     "file": "assets/AcceptInvite-BF7ae3M8.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/AcceptInvite-pQ1yjMny.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "AcceptInvite",
     "src": "resources/js/Pages/Auth/AcceptInvite.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "_AuthLayout-Di7hA2fB.js",
@@ -2787,22 +3487,31 @@
       "_AppLogo-Hgv-mTH0.js",
       "_FormField-CsZfy70B.js"
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+      "_AppLogo-Dwo5xUq9.js",
+      "_FormField-0mXdbzcT.js"
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     ],
     "css": [
-      "assets/app-C7sUYvIk.css"
+      "assets/app-BmMYEyOt.css"
     ]
   },
   "resources/js/Pages/Auth/Access.tsx": {
+<<<<<<< HEAD
 <<<<<<< HEAD
     "file": "assets/Access-BlU_ASgo.js",
 =======
     "file": "assets/Access-RqSrg1fE.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/Access-DnUzfPqZ.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "Access",
     "src": "resources/js/Pages/Auth/Access.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
       "_AppLogo-BLcQhBg-.js",
       "_AuthKit-CH1BKcIX.js"
@@ -2810,23 +3519,32 @@
       "_AppLogo-Hgv-mTH0.js",
       "_AuthKit-CqHGXNBA.js"
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+      "_AppLogo-Dwo5xUq9.js",
+      "_AuthKit-DpbtKzzr.js"
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     ],
     "css": [
-      "assets/app-C7sUYvIk.css"
+      "assets/app-BmMYEyOt.css"
     ]
   },
   "resources/js/Pages/Auth/ForgotPassword.tsx": {
+<<<<<<< HEAD
 <<<<<<< HEAD
     "file": "assets/ForgotPassword-XWfF_khT.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
 =======
     "file": "assets/ForgotPassword-ovSdjuuV.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/ForgotPassword-Bk9XeVpM.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "ForgotPassword",
     "src": "resources/js/Pages/Auth/ForgotPassword.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "_AuthLayout-Di7hA2fB.js",
@@ -2876,23 +3594,32 @@
       "_AuthKit-CqHGXNBA.js",
       "_AppLogo-Hgv-mTH0.js"
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+      "_AuthKit-DpbtKzzr.js",
+      "_AppLogo-Dwo5xUq9.js"
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     ],
     "css": [
-      "assets/app-C7sUYvIk.css"
+      "assets/app-BmMYEyOt.css"
     ]
   },
   "resources/js/Pages/Auth/ResetPassword.tsx": {
+<<<<<<< HEAD
 <<<<<<< HEAD
     "file": "assets/ResetPassword-D9f3_Sb_.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
 =======
     "file": "assets/ResetPassword-9GRgUYkV.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/ResetPassword-BThDRpNU.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "ResetPassword",
     "src": "resources/js/Pages/Auth/ResetPassword.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "_AuthLayout-Di7hA2fB.js",
@@ -2912,23 +3639,32 @@
       "_AuthKit-CqHGXNBA.js",
       "_AppLogo-Hgv-mTH0.js"
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+      "_AuthKit-DpbtKzzr.js",
+      "_AppLogo-Dwo5xUq9.js"
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     ],
     "css": [
-      "assets/app-C7sUYvIk.css"
+      "assets/app-BmMYEyOt.css"
     ]
   },
   "resources/js/Pages/Billing/SelectPlan.tsx": {
+<<<<<<< HEAD
 <<<<<<< HEAD
     "file": "assets/SelectPlan-Bb7FB0u7.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
 =======
     "file": "assets/SelectPlan-DdF0F0zs.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/SelectPlan-CxrqcqbB.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "SelectPlan",
     "src": "resources/js/Pages/Billing/SelectPlan.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "_AppLogo-BYfe6pUy.js",
@@ -2947,23 +3683,32 @@
       "_AppLogo-Hgv-mTH0.js",
       "_Skeleton-Ct2EvzWi.js"
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+      "_AppLogo-Dwo5xUq9.js",
+      "_Skeleton-DSuKv_k9.js"
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     ],
     "css": [
-      "assets/app-C7sUYvIk.css"
+      "assets/app-BmMYEyOt.css"
     ]
   },
   "resources/js/Pages/Contractor/Finance.tsx": {
+<<<<<<< HEAD
 <<<<<<< HEAD
     "file": "assets/Finance-D1hCoPTc.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
 =======
     "file": "assets/Finance-DFzW3a6W.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/Finance-BiVnA2Wt.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "Finance",
     "src": "resources/js/Pages/Contractor/Finance.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "_ContractorLayout-2wawK-_c.js",
@@ -2988,23 +3733,34 @@
       "_Shell-BqrlY9wR.js",
       "_AppLogo-Hgv-mTH0.js"
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+      "_ContractorLayout-aB3dqt-s.js",
+      "_Charts-BvHV4fwo.js",
+      "_Shell-BmyDoJe7.js",
+      "_AppLogo-Dwo5xUq9.js"
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     ],
     "css": [
-      "assets/app-C7sUYvIk.css"
+      "assets/app-BmMYEyOt.css"
     ]
   },
   "resources/js/Pages/Contractor/Help.tsx": {
+<<<<<<< HEAD
 <<<<<<< HEAD
     "file": "assets/Help-Al0XIq9H.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
 =======
     "file": "assets/Help-CSKlrLeC.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/Help-DL5_JXt6.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "Help",
     "src": "resources/js/Pages/Contractor/Help.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "_ContractorLayout-2wawK-_c.js",
@@ -3035,23 +3791,36 @@
       "_Charts-CszXgLwC.js",
       "_Icon-CkFVTE9T.js"
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+      "_ContractorLayout-aB3dqt-s.js",
+      "_HelpCentre-PDZPo-kZ.js",
+      "_Shell-BmyDoJe7.js",
+      "_AppLogo-Dwo5xUq9.js",
+      "_Charts-BvHV4fwo.js",
+      "_Icon-CqEAZ-6C.js"
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     ],
     "css": [
-      "assets/app-C7sUYvIk.css"
+      "assets/app-BmMYEyOt.css"
     ]
   },
   "resources/js/Pages/Contractor/Invoices.tsx": {
+<<<<<<< HEAD
 <<<<<<< HEAD
     "file": "assets/Invoices-hwj2o9XO.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
 =======
     "file": "assets/Invoices-DWOgBQ33.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/Invoices-TxixoRdT.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "Invoices",
     "src": "resources/js/Pages/Contractor/Invoices.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "_ContractorLayout-2wawK-_c.js",
@@ -3079,23 +3848,35 @@
       "_Shell-BqrlY9wR.js",
       "_AppLogo-Hgv-mTH0.js"
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+      "_ContractorLayout-aB3dqt-s.js",
+      "_Skeleton-DSuKv_k9.js",
+      "_useInertiaLoading-B2EEH3G5.js",
+      "_Shell-BmyDoJe7.js",
+      "_AppLogo-Dwo5xUq9.js"
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     ],
     "css": [
-      "assets/app-C7sUYvIk.css"
+      "assets/app-BmMYEyOt.css"
     ]
   },
   "resources/js/Pages/Contractor/Jobs.tsx": {
+<<<<<<< HEAD
 <<<<<<< HEAD
     "file": "assets/Jobs-Db2YvQhi.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
 =======
     "file": "assets/Jobs-1Bu49ynL.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/Jobs-CfML0oKn.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "Jobs",
     "src": "resources/js/Pages/Contractor/Jobs.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "_ContractorLayout-2wawK-_c.js",
@@ -3117,23 +3898,33 @@
       "_Shell-BqrlY9wR.js",
       "_AppLogo-Hgv-mTH0.js"
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+      "_ContractorLayout-aB3dqt-s.js",
+      "_Shell-BmyDoJe7.js",
+      "_AppLogo-Dwo5xUq9.js"
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     ],
     "css": [
-      "assets/app-C7sUYvIk.css"
+      "assets/app-BmMYEyOt.css"
     ]
   },
   "resources/js/Pages/Contractor/Messages.tsx": {
+<<<<<<< HEAD
 <<<<<<< HEAD
     "file": "assets/Messages-DM-LrgwL.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
 =======
     "file": "assets/Messages-B38f-W28.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/Messages-D9soTp_J.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "Messages",
     "src": "resources/js/Pages/Contractor/Messages.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "_ContractorLayout-2wawK-_c.js",
@@ -3158,23 +3949,34 @@
       "_Shell-BqrlY9wR.js",
       "_AppLogo-Hgv-mTH0.js"
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+      "_ContractorLayout-aB3dqt-s.js",
+      "_Skeleton-DSuKv_k9.js",
+      "_Shell-BmyDoJe7.js",
+      "_AppLogo-Dwo5xUq9.js"
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     ],
     "css": [
-      "assets/app-C7sUYvIk.css"
+      "assets/app-BmMYEyOt.css"
     ]
   },
   "resources/js/Pages/Contractor/Overview.tsx": {
+<<<<<<< HEAD
 <<<<<<< HEAD
     "file": "assets/Overview-Cw3X6Si2.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
 =======
     "file": "assets/Overview-Cfnzcg9k.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/Overview-o6Dw8tCF.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "Overview",
     "src": "resources/js/Pages/Contractor/Overview.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "_ContractorLayout-2wawK-_c.js",
@@ -3202,23 +4004,35 @@
       "_Shell-BqrlY9wR.js",
       "_AppLogo-Hgv-mTH0.js"
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+      "_ContractorLayout-aB3dqt-s.js",
+      "_Charts-BvHV4fwo.js",
+      "_Icon-CqEAZ-6C.js",
+      "_Shell-BmyDoJe7.js",
+      "_AppLogo-Dwo5xUq9.js"
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     ],
     "css": [
-      "assets/app-C7sUYvIk.css"
+      "assets/app-BmMYEyOt.css"
     ]
   },
   "resources/js/Pages/Contractor/Quotes.tsx": {
+<<<<<<< HEAD
 <<<<<<< HEAD
     "file": "assets/Quotes-CX6K6t-t.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
 =======
     "file": "assets/Quotes-33E-1Icv.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/Quotes-ClshpBVe.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "Quotes",
     "src": "resources/js/Pages/Contractor/Quotes.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "_ContractorLayout-2wawK-_c.js",
@@ -3246,23 +4060,35 @@
       "_Shell-BqrlY9wR.js",
       "_AppLogo-Hgv-mTH0.js"
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+      "_ContractorLayout-aB3dqt-s.js",
+      "_Skeleton-DSuKv_k9.js",
+      "_useInertiaLoading-B2EEH3G5.js",
+      "_Shell-BmyDoJe7.js",
+      "_AppLogo-Dwo5xUq9.js"
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     ],
     "css": [
-      "assets/app-C7sUYvIk.css"
+      "assets/app-BmMYEyOt.css"
     ]
   },
   "resources/js/Pages/Contractor/Requests.tsx": {
+<<<<<<< HEAD
 <<<<<<< HEAD
     "file": "assets/Requests-C_wbTcwv.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
 =======
     "file": "assets/Requests-STCHwab6.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/Requests-DSLdfFqm.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "Requests",
     "src": "resources/js/Pages/Contractor/Requests.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "_ContractorLayout-2wawK-_c.js",
@@ -3290,23 +4116,35 @@
       "_Shell-BqrlY9wR.js",
       "_AppLogo-Hgv-mTH0.js"
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+      "_ContractorLayout-aB3dqt-s.js",
+      "_Skeleton-DSuKv_k9.js",
+      "_Icon-CqEAZ-6C.js",
+      "_Shell-BmyDoJe7.js",
+      "_AppLogo-Dwo5xUq9.js"
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     ],
     "css": [
-      "assets/app-C7sUYvIk.css"
+      "assets/app-BmMYEyOt.css"
     ]
   },
   "resources/js/Pages/Contractor/Settings.tsx": {
+<<<<<<< HEAD
 <<<<<<< HEAD
     "file": "assets/Settings-Cm6kEblU.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
 =======
     "file": "assets/Settings-Z0twYi8X.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/Settings-Be7WkWUd.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "Settings",
     "src": "resources/js/Pages/Contractor/Settings.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "_ContractorLayout-2wawK-_c.js",
@@ -3337,23 +4175,36 @@
       "_AppLogo-Hgv-mTH0.js",
       "_Charts-CszXgLwC.js"
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+      "_ContractorLayout-aB3dqt-s.js",
+      "_Skeleton-DSuKv_k9.js",
+      "_AppearanceSettings-CIhzTSbb.js",
+      "_Shell-BmyDoJe7.js",
+      "_AppLogo-Dwo5xUq9.js",
+      "_Charts-BvHV4fwo.js"
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     ],
     "css": [
-      "assets/app-C7sUYvIk.css"
+      "assets/app-BmMYEyOt.css"
     ]
   },
   "resources/js/Pages/Contractors/Index.tsx": {
+<<<<<<< HEAD
 <<<<<<< HEAD
     "file": "assets/Index-Cw5Gxkff.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
 =======
     "file": "assets/Index-BiZtmqo2.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/Index-DrIF_W8F.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "Index",
     "src": "resources/js/Pages/Contractors/Index.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "_PublicLayout-D26X6lb6.js",
@@ -3372,18 +4223,26 @@
       "_PublicLayout-C9oj_wXQ.js",
       "_AppLogo-Hgv-mTH0.js"
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+      "_PublicLayout-DJepDsy9.js",
+      "_AppLogo-Dwo5xUq9.js"
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     ],
     "css": [
-      "assets/app-C7sUYvIk.css"
+      "assets/app-BmMYEyOt.css"
     ]
   },
   "resources/js/Pages/Dashboard/Placeholder.tsx": {
+<<<<<<< HEAD
 <<<<<<< HEAD
     "file": "assets/Placeholder-BH8Oxubc.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
 =======
     "file": "assets/Placeholder-Dkeu-pLs.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/Placeholder-CW9230YB.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "Placeholder",
     "src": "resources/js/Pages/Dashboard/Placeholder.tsx",
     "isDynamicEntry": true,
@@ -3391,6 +4250,7 @@
       "resources/js/app.tsx"
     ],
     "css": [
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "assets/app-CrPaFxYD.css"
@@ -3412,11 +4272,19 @@
   "resources/js/Pages/Landlord/Contractors.tsx": {
     "file": "assets/Contractors-DRUMjUYq.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+      "assets/app-BmMYEyOt.css"
+    ]
+  },
+  "resources/js/Pages/Landlord/Contractors.tsx": {
+    "file": "assets/Contractors-CqjdCoTm.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "Contractors",
     "src": "resources/js/Pages/Landlord/Contractors.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "_LandlordLayout-pV6ofdyk.js",
@@ -3453,23 +4321,38 @@
       "_SubscriptionBanner-CKcJ9EXz.js",
       "_Skeleton-Ct2EvzWi.js"
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+      "_LandlordLayout-CbdXvq7z.js",
+      "_Charts-BvHV4fwo.js",
+      "_Icon-CqEAZ-6C.js",
+      "_InviteContractorModal-BddaYUcX.js",
+      "_Shell-BmyDoJe7.js",
+      "_AppLogo-Dwo5xUq9.js",
+      "_SubscriptionBanner-fU-HYxxu.js",
+      "_Skeleton-DSuKv_k9.js"
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     ],
     "css": [
-      "assets/app-C7sUYvIk.css"
+      "assets/app-BmMYEyOt.css"
     ]
   },
   "resources/js/Pages/Landlord/CreateListing.tsx": {
+<<<<<<< HEAD
 <<<<<<< HEAD
     "file": "assets/CreateListing-HIRz8uJ_.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
 =======
     "file": "assets/CreateListing-kD1yBd4o.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/CreateListing-FPFwOYBC.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "CreateListing",
     "src": "resources/js/Pages/Landlord/CreateListing.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "_LandlordLayout-pV6ofdyk.js",
@@ -3500,23 +4383,36 @@
       "_SubscriptionBanner-CKcJ9EXz.js",
       "_Skeleton-Ct2EvzWi.js"
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+      "_LandlordLayout-CbdXvq7z.js",
+      "_ListingForm-CgpP6oso.js",
+      "_Shell-BmyDoJe7.js",
+      "_AppLogo-Dwo5xUq9.js",
+      "_SubscriptionBanner-fU-HYxxu.js",
+      "_Skeleton-DSuKv_k9.js"
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     ],
     "css": [
-      "assets/app-C7sUYvIk.css"
+      "assets/app-BmMYEyOt.css"
     ]
   },
   "resources/js/Pages/Landlord/Finance.tsx": {
+<<<<<<< HEAD
 <<<<<<< HEAD
     "file": "assets/Finance-DoKHBGss.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
 =======
     "file": "assets/Finance-DmOsBDgG.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/Finance-hWfCtEoJ.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "Finance",
     "src": "resources/js/Pages/Landlord/Finance.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "_LandlordLayout-pV6ofdyk.js",
@@ -3550,23 +4446,37 @@
       "_AppLogo-Hgv-mTH0.js",
       "_SubscriptionBanner-CKcJ9EXz.js"
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+      "_LandlordLayout-CbdXvq7z.js",
+      "_Charts-BvHV4fwo.js",
+      "_useInertiaLoading-B2EEH3G5.js",
+      "_Icon-CqEAZ-6C.js",
+      "_Shell-BmyDoJe7.js",
+      "_AppLogo-Dwo5xUq9.js",
+      "_SubscriptionBanner-fU-HYxxu.js"
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     ],
     "css": [
-      "assets/app-C7sUYvIk.css"
+      "assets/app-BmMYEyOt.css"
     ]
   },
   "resources/js/Pages/Landlord/Help.tsx": {
+<<<<<<< HEAD
 <<<<<<< HEAD
     "file": "assets/Help-DW3uMGTa.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
 =======
     "file": "assets/Help-C5OBr5Zz.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/Help-Cn4h2Qqr.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "Help",
     "src": "resources/js/Pages/Landlord/Help.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "_LandlordLayout-pV6ofdyk.js",
@@ -3600,23 +4510,37 @@
       "_Charts-CszXgLwC.js",
       "_Icon-CkFVTE9T.js"
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+      "_LandlordLayout-CbdXvq7z.js",
+      "_HelpCentre-PDZPo-kZ.js",
+      "_Shell-BmyDoJe7.js",
+      "_AppLogo-Dwo5xUq9.js",
+      "_SubscriptionBanner-fU-HYxxu.js",
+      "_Charts-BvHV4fwo.js",
+      "_Icon-CqEAZ-6C.js"
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     ],
     "css": [
-      "assets/app-C7sUYvIk.css"
+      "assets/app-BmMYEyOt.css"
     ]
   },
   "resources/js/Pages/Landlord/Maintenance.tsx": {
+<<<<<<< HEAD
 <<<<<<< HEAD
     "file": "assets/Maintenance-4WJsTB5F.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
 =======
     "file": "assets/Maintenance-DdrrPucD.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/Maintenance-Ek_5HAl7.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "Maintenance",
     "src": "resources/js/Pages/Landlord/Maintenance.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "_LandlordLayout-pV6ofdyk.js",
@@ -3656,23 +4580,39 @@
       "_AppLogo-Hgv-mTH0.js",
       "_SubscriptionBanner-CKcJ9EXz.js"
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+      "_LandlordLayout-CbdXvq7z.js",
+      "_Charts-BvHV4fwo.js",
+      "_Icon-CqEAZ-6C.js",
+      "_Skeleton-DSuKv_k9.js",
+      "_RateContractorModal-Xy2Fj6MB.js",
+      "_InviteContractorModal-BddaYUcX.js",
+      "_Shell-BmyDoJe7.js",
+      "_AppLogo-Dwo5xUq9.js",
+      "_SubscriptionBanner-fU-HYxxu.js"
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     ],
     "css": [
-      "assets/app-C7sUYvIk.css"
+      "assets/app-BmMYEyOt.css"
     ]
   },
   "resources/js/Pages/Landlord/Messages.tsx": {
+<<<<<<< HEAD
 <<<<<<< HEAD
     "file": "assets/Messages-C2jkzYwF.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
 =======
     "file": "assets/Messages-BZOxAT3j.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/Messages-C6tScXZk.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "Messages",
     "src": "resources/js/Pages/Landlord/Messages.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "_LandlordLayout-pV6ofdyk.js",
@@ -3703,23 +4643,36 @@
       "_AppLogo-Hgv-mTH0.js",
       "_SubscriptionBanner-CKcJ9EXz.js"
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+      "_LandlordLayout-CbdXvq7z.js",
+      "_Skeleton-DSuKv_k9.js",
+      "_Icon-CqEAZ-6C.js",
+      "_Shell-BmyDoJe7.js",
+      "_AppLogo-Dwo5xUq9.js",
+      "_SubscriptionBanner-fU-HYxxu.js"
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     ],
     "css": [
-      "assets/app-C7sUYvIk.css"
+      "assets/app-BmMYEyOt.css"
     ]
   },
   "resources/js/Pages/Landlord/Overview.tsx": {
+<<<<<<< HEAD
 <<<<<<< HEAD
     "file": "assets/Overview-ByVLTwzN.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
 =======
     "file": "assets/Overview-BYRZuIzm.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/Overview-BUrV0zd0.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "Overview",
     "src": "resources/js/Pages/Landlord/Overview.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "_LandlordLayout-pV6ofdyk.js",
@@ -3759,23 +4712,39 @@
       "_InviteTenantModal-u99hHgZE.js",
       "_Skeleton-Ct2EvzWi.js"
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+      "_LandlordLayout-CbdXvq7z.js",
+      "_LandlordInviteTenantModal-CNSxPtBE.js",
+      "_Charts-BvHV4fwo.js",
+      "_Icon-CqEAZ-6C.js",
+      "_Shell-BmyDoJe7.js",
+      "_AppLogo-Dwo5xUq9.js",
+      "_SubscriptionBanner-fU-HYxxu.js",
+      "_InviteTenantModal-DMwHL3RA.js",
+      "_Skeleton-DSuKv_k9.js"
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     ],
     "css": [
-      "assets/app-C7sUYvIk.css"
+      "assets/app-BmMYEyOt.css"
     ]
   },
   "resources/js/Pages/Landlord/Properties.tsx": {
+<<<<<<< HEAD
 <<<<<<< HEAD
     "file": "assets/Properties-BzBoCG6v.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
 =======
     "file": "assets/Properties-CxXzr2wF.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/Properties-Cunx2r13.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "Properties",
     "src": "resources/js/Pages/Landlord/Properties.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "_LandlordLayout-pV6ofdyk.js",
@@ -3806,23 +4775,36 @@
       "_Shell-BqrlY9wR.js",
       "_SubscriptionBanner-CKcJ9EXz.js"
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+      "_LandlordLayout-CbdXvq7z.js",
+      "_Charts-BvHV4fwo.js",
+      "_Icon-CqEAZ-6C.js",
+      "_AppLogo-Dwo5xUq9.js",
+      "_Shell-BmyDoJe7.js",
+      "_SubscriptionBanner-fU-HYxxu.js"
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     ],
     "css": [
-      "assets/app-C7sUYvIk.css"
+      "assets/app-BmMYEyOt.css"
     ]
   },
   "resources/js/Pages/Landlord/Settings.tsx": {
+<<<<<<< HEAD
 <<<<<<< HEAD
     "file": "assets/Settings-BSwNxw7K.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
 =======
     "file": "assets/Settings-9Oogo_Bf.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/Settings-Dr8_aIqP.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "Settings",
     "src": "resources/js/Pages/Landlord/Settings.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "_LandlordLayout-pV6ofdyk.js",
@@ -3859,23 +4841,38 @@
       "_AppLogo-Hgv-mTH0.js",
       "_SubscriptionBanner-CKcJ9EXz.js"
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+      "_LandlordLayout-CbdXvq7z.js",
+      "_Skeleton-DSuKv_k9.js",
+      "_AppearanceSettings-CIhzTSbb.js",
+      "_Charts-BvHV4fwo.js",
+      "_Icon-CqEAZ-6C.js",
+      "_Shell-BmyDoJe7.js",
+      "_AppLogo-Dwo5xUq9.js",
+      "_SubscriptionBanner-fU-HYxxu.js"
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     ],
     "css": [
-      "assets/app-C7sUYvIk.css"
+      "assets/app-BmMYEyOt.css"
     ]
   },
   "resources/js/Pages/Landlord/Tenants.tsx": {
+<<<<<<< HEAD
 <<<<<<< HEAD
     "file": "assets/Tenants-qIeFfGV8.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
 =======
     "file": "assets/Tenants-B_VYkeNn.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/Tenants-_zzmVZ_c.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "Tenants",
     "src": "resources/js/Pages/Landlord/Tenants.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "_Skeleton-WrGJfRRY.js",
@@ -3912,23 +4909,38 @@
       "_SubscriptionBanner-CKcJ9EXz.js",
       "_InviteTenantModal-u99hHgZE.js"
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+      "_Skeleton-DSuKv_k9.js",
+      "_Charts-BvHV4fwo.js",
+      "_LandlordLayout-CbdXvq7z.js",
+      "_LandlordInviteTenantModal-CNSxPtBE.js",
+      "_Shell-BmyDoJe7.js",
+      "_AppLogo-Dwo5xUq9.js",
+      "_SubscriptionBanner-fU-HYxxu.js",
+      "_InviteTenantModal-DMwHL3RA.js"
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     ],
     "css": [
-      "assets/app-C7sUYvIk.css"
+      "assets/app-BmMYEyOt.css"
     ]
   },
   "resources/js/Pages/Public/Advice/Index.tsx": {
+<<<<<<< HEAD
 <<<<<<< HEAD
     "file": "assets/Index-CVC0movS.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
 =======
     "file": "assets/Index-Cfb3U5l-.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/Index-CI8FHHVV.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "Index",
     "src": "resources/js/Pages/Public/Advice/Index.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "_PublicLayout-D26X6lb6.js",
@@ -3947,23 +4959,32 @@
       "_PublicLayout-C9oj_wXQ.js",
       "_AppLogo-Hgv-mTH0.js"
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+      "_PublicLayout-DJepDsy9.js",
+      "_AppLogo-Dwo5xUq9.js"
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     ],
     "css": [
-      "assets/app-C7sUYvIk.css"
+      "assets/app-BmMYEyOt.css"
     ]
   },
   "resources/js/Pages/Public/Advice/Show.tsx": {
+<<<<<<< HEAD
 <<<<<<< HEAD
     "file": "assets/Show-CmtWYyYC.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
 =======
     "file": "assets/Show-DQebi_zk.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/Show-BdUfyy7l.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "Show",
     "src": "resources/js/Pages/Public/Advice/Show.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "_PublicLayout-D26X6lb6.js",
@@ -3982,23 +5003,32 @@
       "_PublicLayout-C9oj_wXQ.js",
       "_AppLogo-Hgv-mTH0.js"
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+      "_PublicLayout-DJepDsy9.js",
+      "_AppLogo-Dwo5xUq9.js"
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     ],
     "css": [
-      "assets/app-C7sUYvIk.css"
+      "assets/app-BmMYEyOt.css"
     ]
   },
   "resources/js/Pages/Public/Agencies/Index.tsx": {
+<<<<<<< HEAD
 <<<<<<< HEAD
     "file": "assets/Index-BZtNN9E6.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
 =======
     "file": "assets/Index-1KVO7ARx.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/Index-oQ-bH0Qb.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "Index",
     "src": "resources/js/Pages/Public/Agencies/Index.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "_PublicLayout-D26X6lb6.js",
@@ -4017,23 +5047,32 @@
       "_PublicLayout-C9oj_wXQ.js",
       "_AppLogo-Hgv-mTH0.js"
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+      "_PublicLayout-DJepDsy9.js",
+      "_AppLogo-Dwo5xUq9.js"
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     ],
     "css": [
-      "assets/app-C7sUYvIk.css"
+      "assets/app-BmMYEyOt.css"
     ]
   },
   "resources/js/Pages/Public/Agencies/Show.tsx": {
+<<<<<<< HEAD
 <<<<<<< HEAD
     "file": "assets/Show-DCXwz1QY.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
 =======
     "file": "assets/Show-Cznxlnnd.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/Show-xxwO3Ooq.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "Show",
     "src": "resources/js/Pages/Public/Agencies/Show.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "_PublicLayout-D26X6lb6.js",
@@ -4055,23 +5094,33 @@
       "_ListingCard-DM27J63t.js",
       "_AppLogo-Hgv-mTH0.js"
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+      "_PublicLayout-DJepDsy9.js",
+      "_ListingCard-BrrvqxQb.js",
+      "_AppLogo-Dwo5xUq9.js"
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     ],
     "css": [
-      "assets/app-C7sUYvIk.css"
+      "assets/app-BmMYEyOt.css"
     ]
   },
   "resources/js/Pages/Public/Calculator.tsx": {
+<<<<<<< HEAD
 <<<<<<< HEAD
     "file": "assets/Calculator-BxffgJby.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
 =======
     "file": "assets/Calculator-CyxNS8Zl.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/Calculator-CWjdgisb.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "Calculator",
     "src": "resources/js/Pages/Public/Calculator.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "_PublicLayout-D26X6lb6.js",
@@ -4090,23 +5139,32 @@
       "_PublicLayout-C9oj_wXQ.js",
       "_AppLogo-Hgv-mTH0.js"
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+      "_PublicLayout-DJepDsy9.js",
+      "_AppLogo-Dwo5xUq9.js"
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     ],
     "css": [
-      "assets/app-C7sUYvIk.css"
+      "assets/app-BmMYEyOt.css"
     ]
   },
   "resources/js/Pages/Public/Home.tsx": {
+<<<<<<< HEAD
 <<<<<<< HEAD
     "file": "assets/Home-B0xpRzp_.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
 =======
     "file": "assets/Home-B2or65Cy.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/Home-DBsFRjd_.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "Home",
     "src": "resources/js/Pages/Public/Home.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "_PublicLayout-D26X6lb6.js",
@@ -4128,24 +5186,34 @@
       "_ListingCard-DM27J63t.js",
       "_AppLogo-Hgv-mTH0.js"
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+      "_PublicLayout-DJepDsy9.js",
+      "_ListingCard-BrrvqxQb.js",
+      "_AppLogo-Dwo5xUq9.js"
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     ],
     "css": [
-      "assets/app-C7sUYvIk.css"
+      "assets/app-BmMYEyOt.css"
     ]
   },
   "resources/js/Pages/Public/Legal/PrivacyPolicy.tsx": {
+<<<<<<< HEAD
 <<<<<<< HEAD
     "file": "assets/PrivacyPolicy-CzpUlB4e.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
 =======
     "file": "assets/PrivacyPolicy-DjerhrGb.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/PrivacyPolicy-Cw-aL0rr.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "PrivacyPolicy",
     "src": "resources/js/Pages/Public/Legal/PrivacyPolicy.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
       "resources/js/Pages/Public/Legal/_Shell.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "_PublicLayout-D26X6lb6.js",
@@ -4164,24 +5232,33 @@
       "_PublicLayout-C9oj_wXQ.js",
       "_AppLogo-Hgv-mTH0.js"
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+      "_PublicLayout-DJepDsy9.js",
+      "_AppLogo-Dwo5xUq9.js"
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     ],
     "css": [
-      "assets/app-C7sUYvIk.css"
+      "assets/app-BmMYEyOt.css"
     ]
   },
   "resources/js/Pages/Public/Legal/PrivacyPortal.tsx": {
+<<<<<<< HEAD
 <<<<<<< HEAD
     "file": "assets/PrivacyPortal-B15e916m.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
 =======
     "file": "assets/PrivacyPortal-PIQBx7Tw.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/PrivacyPortal-CL2VRjy1.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "PrivacyPortal",
     "src": "resources/js/Pages/Public/Legal/PrivacyPortal.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
       "resources/js/Pages/Public/Legal/_Shell.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "_PublicLayout-D26X6lb6.js",
@@ -4200,24 +5277,33 @@
       "_PublicLayout-C9oj_wXQ.js",
       "_AppLogo-Hgv-mTH0.js"
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+      "_PublicLayout-DJepDsy9.js",
+      "_AppLogo-Dwo5xUq9.js"
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     ],
     "css": [
-      "assets/app-C7sUYvIk.css"
+      "assets/app-BmMYEyOt.css"
     ]
   },
   "resources/js/Pages/Public/Legal/TermsAndConditions.tsx": {
+<<<<<<< HEAD
 <<<<<<< HEAD
     "file": "assets/TermsAndConditions-DlM3N-W6.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
 =======
     "file": "assets/TermsAndConditions-CYrtA-Rr.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/TermsAndConditions-Cf31CkDa.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "TermsAndConditions",
     "src": "resources/js/Pages/Public/Legal/TermsAndConditions.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
       "resources/js/Pages/Public/Legal/_Shell.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "_PublicLayout-D26X6lb6.js",
@@ -4236,23 +5322,32 @@
       "_PublicLayout-C9oj_wXQ.js",
       "_AppLogo-Hgv-mTH0.js"
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+      "_PublicLayout-DJepDsy9.js",
+      "_AppLogo-Dwo5xUq9.js"
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     ],
     "css": [
-      "assets/app-C7sUYvIk.css"
+      "assets/app-BmMYEyOt.css"
     ]
   },
   "resources/js/Pages/Public/Legal/_Shell.tsx": {
+<<<<<<< HEAD
 <<<<<<< HEAD
     "file": "assets/_Shell-DDhVeG8K.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
 =======
     "file": "assets/_Shell-CCvN4zNa.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/_Shell-Cn_luZdO.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "_Shell",
     "src": "resources/js/Pages/Public/Legal/_Shell.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "_PublicLayout-D26X6lb6.js",
@@ -4271,23 +5366,32 @@
       "_PublicLayout-C9oj_wXQ.js",
       "_AppLogo-Hgv-mTH0.js"
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+      "_PublicLayout-DJepDsy9.js",
+      "_AppLogo-Dwo5xUq9.js"
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     ],
     "css": [
-      "assets/app-C7sUYvIk.css"
+      "assets/app-BmMYEyOt.css"
     ]
   },
   "resources/js/Pages/Public/Listings/Index.tsx": {
+<<<<<<< HEAD
 <<<<<<< HEAD
     "file": "assets/Index-CyZKZDJC.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
 =======
     "file": "assets/Index-BHzjmT1r.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/Index-DknOv-9O.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "Index",
     "src": "resources/js/Pages/Public/Listings/Index.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "_PublicLayout-D26X6lb6.js",
@@ -4309,23 +5413,33 @@
       "_ListingCard-DM27J63t.js",
       "_AppLogo-Hgv-mTH0.js"
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+      "_PublicLayout-DJepDsy9.js",
+      "_ListingCard-BrrvqxQb.js",
+      "_AppLogo-Dwo5xUq9.js"
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     ],
     "css": [
-      "assets/app-C7sUYvIk.css"
+      "assets/app-BmMYEyOt.css"
     ]
   },
   "resources/js/Pages/Public/Listings/Show.tsx": {
+<<<<<<< HEAD
 <<<<<<< HEAD
     "file": "assets/Show-DDX_77xz.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
 =======
     "file": "assets/Show-226DkrtC.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/Show-j0ddBt3d.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "Show",
     "src": "resources/js/Pages/Public/Listings/Show.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "_PublicLayout-D26X6lb6.js",
@@ -4347,23 +5461,33 @@
       "_FormField-CsZfy70B.js",
       "_AppLogo-Hgv-mTH0.js"
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+      "_PublicLayout-DJepDsy9.js",
+      "_FormField-0mXdbzcT.js",
+      "_AppLogo-Dwo5xUq9.js"
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     ],
     "css": [
-      "assets/app-C7sUYvIk.css"
+      "assets/app-BmMYEyOt.css"
     ]
   },
   "resources/js/Pages/Tenant/Documents.tsx": {
+<<<<<<< HEAD
 <<<<<<< HEAD
     "file": "assets/Documents-Bi35gNj8.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
 =======
     "file": "assets/Documents-CcHIyzZK.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/Documents-1ZTTa4ob.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "Documents",
     "src": "resources/js/Pages/Tenant/Documents.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "_TenantLayout-B4ZQSWlr.js",
@@ -4391,23 +5515,35 @@
       "_Shell-BqrlY9wR.js",
       "_AppLogo-Hgv-mTH0.js"
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+      "_TenantLayout-DpBCr1aF.js",
+      "_Charts-BvHV4fwo.js",
+      "_Icon-CqEAZ-6C.js",
+      "_Shell-BmyDoJe7.js",
+      "_AppLogo-Dwo5xUq9.js"
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     ],
     "css": [
-      "assets/app-C7sUYvIk.css"
+      "assets/app-BmMYEyOt.css"
     ]
   },
   "resources/js/Pages/Tenant/Help.tsx": {
+<<<<<<< HEAD
 <<<<<<< HEAD
     "file": "assets/Help-CxHDLemN.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
 =======
     "file": "assets/Help-CVaLTDUo.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/Help-CM0HI2XI.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "Help",
     "src": "resources/js/Pages/Tenant/Help.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "_TenantLayout-B4ZQSWlr.js",
@@ -4438,23 +5574,36 @@
       "_Charts-CszXgLwC.js",
       "_Icon-CkFVTE9T.js"
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+      "_TenantLayout-DpBCr1aF.js",
+      "_HelpCentre-PDZPo-kZ.js",
+      "_Shell-BmyDoJe7.js",
+      "_AppLogo-Dwo5xUq9.js",
+      "_Charts-BvHV4fwo.js",
+      "_Icon-CqEAZ-6C.js"
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     ],
     "css": [
-      "assets/app-C7sUYvIk.css"
+      "assets/app-BmMYEyOt.css"
     ]
   },
   "resources/js/Pages/Tenant/Lease.tsx": {
+<<<<<<< HEAD
 <<<<<<< HEAD
     "file": "assets/Lease-CkPdpfP2.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
 =======
     "file": "assets/Lease-D_M2VXKm.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/Lease-DbayTSKC.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "Lease",
     "src": "resources/js/Pages/Tenant/Lease.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "_TenantLayout-B4ZQSWlr.js",
@@ -4482,23 +5631,35 @@
       "_Shell-BqrlY9wR.js",
       "_AppLogo-Hgv-mTH0.js"
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+      "_TenantLayout-DpBCr1aF.js",
+      "_Charts-BvHV4fwo.js",
+      "_Icon-CqEAZ-6C.js",
+      "_Shell-BmyDoJe7.js",
+      "_AppLogo-Dwo5xUq9.js"
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     ],
     "css": [
-      "assets/app-C7sUYvIk.css"
+      "assets/app-BmMYEyOt.css"
     ]
   },
   "resources/js/Pages/Tenant/Maintenance.tsx": {
+<<<<<<< HEAD
 <<<<<<< HEAD
     "file": "assets/Maintenance-B7TCX9g6.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
 =======
     "file": "assets/Maintenance-DUrep1kV.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/Maintenance-CDTTgW64.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "Maintenance",
     "src": "resources/js/Pages/Tenant/Maintenance.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "_TenantLayout-B4ZQSWlr.js",
@@ -4529,23 +5690,36 @@
       "_Shell-BqrlY9wR.js",
       "_AppLogo-Hgv-mTH0.js"
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+      "_TenantLayout-DpBCr1aF.js",
+      "_RateContractorModal-Xy2Fj6MB.js",
+      "_Charts-BvHV4fwo.js",
+      "_Icon-CqEAZ-6C.js",
+      "_Shell-BmyDoJe7.js",
+      "_AppLogo-Dwo5xUq9.js"
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     ],
     "css": [
-      "assets/app-C7sUYvIk.css"
+      "assets/app-BmMYEyOt.css"
     ]
   },
   "resources/js/Pages/Tenant/Messages.tsx": {
+<<<<<<< HEAD
 <<<<<<< HEAD
     "file": "assets/Messages-xPhcpDqH.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
 =======
     "file": "assets/Messages-KPqgbPIK.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/Messages-CRBzbFfi.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "Messages",
     "src": "resources/js/Pages/Tenant/Messages.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "_TenantLayout-B4ZQSWlr.js",
@@ -4573,23 +5747,35 @@
       "_Shell-BqrlY9wR.js",
       "_AppLogo-Hgv-mTH0.js"
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+      "_TenantLayout-DpBCr1aF.js",
+      "_Skeleton-DSuKv_k9.js",
+      "_Icon-CqEAZ-6C.js",
+      "_Shell-BmyDoJe7.js",
+      "_AppLogo-Dwo5xUq9.js"
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     ],
     "css": [
-      "assets/app-C7sUYvIk.css"
+      "assets/app-BmMYEyOt.css"
     ]
   },
   "resources/js/Pages/Tenant/Overview.tsx": {
+<<<<<<< HEAD
 <<<<<<< HEAD
     "file": "assets/Overview-BuR6IQa1.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
 =======
     "file": "assets/Overview-DcF41Lkv.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/Overview-Ds5n-OCx.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "Overview",
     "src": "resources/js/Pages/Tenant/Overview.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "_TenantLayout-B4ZQSWlr.js",
@@ -4614,23 +5800,34 @@
       "_Shell-BqrlY9wR.js",
       "_AppLogo-Hgv-mTH0.js"
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+      "_TenantLayout-DpBCr1aF.js",
+      "_Skeleton-DSuKv_k9.js",
+      "_Shell-BmyDoJe7.js",
+      "_AppLogo-Dwo5xUq9.js"
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     ],
     "css": [
-      "assets/app-C7sUYvIk.css"
+      "assets/app-BmMYEyOt.css"
     ]
   },
   "resources/js/Pages/Tenant/Payments.tsx": {
+<<<<<<< HEAD
 <<<<<<< HEAD
     "file": "assets/Payments-B5dEXCEH.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
 =======
     "file": "assets/Payments-BkzPIefH.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/Payments-CupSamtX.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "Payments",
     "src": "resources/js/Pages/Tenant/Payments.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "_TenantLayout-B4ZQSWlr.js",
@@ -4664,23 +5861,37 @@
       "_Shell-BqrlY9wR.js",
       "_AppLogo-Hgv-mTH0.js"
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+      "_TenantLayout-DpBCr1aF.js",
+      "_useInertiaLoading-B2EEH3G5.js",
+      "_Skeleton-DSuKv_k9.js",
+      "_Charts-BvHV4fwo.js",
+      "_Icon-CqEAZ-6C.js",
+      "_Shell-BmyDoJe7.js",
+      "_AppLogo-Dwo5xUq9.js"
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     ],
     "css": [
-      "assets/app-C7sUYvIk.css"
+      "assets/app-BmMYEyOt.css"
     ]
   },
   "resources/js/Pages/Tenant/Settings.tsx": {
+<<<<<<< HEAD
 <<<<<<< HEAD
     "file": "assets/Settings-DcaxmG8R.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
 =======
     "file": "assets/Settings-B4Dj6MgG.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/Settings-CY-Ec6TW.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "Settings",
     "src": "resources/js/Pages/Tenant/Settings.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "_TenantLayout-B4ZQSWlr.js",
@@ -4714,23 +5925,37 @@
       "_Shell-BqrlY9wR.js",
       "_AppLogo-Hgv-mTH0.js"
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+      "_TenantLayout-DpBCr1aF.js",
+      "_Skeleton-DSuKv_k9.js",
+      "_AppearanceSettings-CIhzTSbb.js",
+      "_Charts-BvHV4fwo.js",
+      "_Icon-CqEAZ-6C.js",
+      "_Shell-BmyDoJe7.js",
+      "_AppLogo-Dwo5xUq9.js"
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     ],
     "css": [
-      "assets/app-C7sUYvIk.css"
+      "assets/app-BmMYEyOt.css"
     ]
   },
   "resources/js/Pages/Welcome.tsx": {
+<<<<<<< HEAD
 <<<<<<< HEAD
     "file": "assets/Welcome-fw9QjD5-.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
 =======
     "file": "assets/Welcome-CDLEf4Q9.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/Welcome-BBlghmWF.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "Welcome",
     "src": "resources/js/Pages/Welcome.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       "_AppLogo-BYfe6pUy.js"
@@ -4746,18 +5971,25 @@
 =======
       "_AppLogo-Hgv-mTH0.js"
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+      "_AppLogo-Dwo5xUq9.js"
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     ],
     "css": [
-      "assets/app-C7sUYvIk.css"
+      "assets/app-BmMYEyOt.css"
     ]
   },
   "resources/js/app.tsx": {
+<<<<<<< HEAD
 <<<<<<< HEAD
     "file": "assets/app-Camsoq0g.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
 =======
     "file": "assets/app-DsM0pbhc.js",
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+    "file": "assets/app-CYc-3RJe.js",
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     "name": "app",
     "src": "resources/js/app.tsx",
     "isEntry": true,
@@ -4864,6 +6096,7 @@
     "css": [
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       "assets/app-CrPaFxYD.css"
 =======
       "assets/app-C4ZZbhbm.css"
@@ -4871,6 +6104,9 @@
 =======
       "assets/app-C7sUYvIk.css"
 >>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
+=======
+      "assets/app-BmMYEyOt.css"
+>>>>>>> fc1104e (Agency + admin tabs: Overview / Careline tile style; Careline settings layout)
     ]
   }
 }

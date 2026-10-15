@@ -1,7 +1,7 @@
 import { Head, Link } from '@inertiajs/react';
 import AdminLayout from '@/Layouts/AdminLayout';
 import ErrorBoundary from '@/Components/ErrorBoundary';
-import { KpiCard as FernKpi } from '@/Components/Dashboard/Charts';
+import { btnOutline, btnPrimary, KpiCard as FernKpi, PageHeader, SectionCard } from '@/Components/Dashboard/Charts';
 
 type Signup = {
     id: number;
@@ -78,21 +78,25 @@ export default function AdminOverview({ kpis, recent_signups, growth, health }: 
         <AdminLayout crumb="Overview">
             <Head title="Platform Overview" />
 
-            <div className="px-4 sm:px-8 py-6 sm:py-7">
-                <div className="flex flex-wrap items-end justify-between gap-3 mb-7">
-                    <div>
-                        <p className="text-[13px] text-ink-500">{new Date().toLocaleDateString('en-ZA', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
-                        <h1 className="text-[28px] sm:text-[32px] leading-tight tracking-tight mt-1">Platform Overview</h1>
-                        <p className="text-[14px] text-ink-500 mt-1">
+            <div className="px-4 sm:px-7 py-6">
+                <PageHeader
+                    title="Platform Overview"
+                    subtitle={
+                        <>
+                            {new Date().toLocaleDateString('en-ZA', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })} ·{' '}
                             {fmtNum(kpis.agency_accounts)} business accounts · {fmtNum(kpis.end_users)} end users ·{' '}
-                            <span className="font-semibold text-success">all systems operational</span>
-                        </p>
-                    </div>
-                    <div className="flex flex-wrap items-center gap-2">
-                        <Link
-                            href="/admin/announcements"
-                            className="px-4 py-2 text-[13px] font-semibold border border-ink-900/70 bg-white/60 rounded-full hover:bg-white transition flex items-center gap-2"
-                        >
+                            {health.some((h) => h.status === 'down') ? (
+                                <span className="font-semibold text-danger">service outage</span>
+                            ) : health.some((h) => h.status === 'warning') ? (
+                                <span className="font-semibold text-amber-700">partial degradation</span>
+                            ) : (
+                                <span className="font-semibold text-success">all systems operational</span>
+                            )}
+                        </>
+                    }
+                    actions={
+                        <>
+                        <Link href="/admin/announcements" className={btnOutline}>
                             <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M3 11l18-5v12L3 14v-3z"/></svg>
                             New Announcement
                         </Link>
@@ -100,16 +104,17 @@ export default function AdminOverview({ kpis, recent_signups, growth, health }: 
                             href="/admin/overview.pdf"
                             download
                             title="Download a PDF snapshot of this overview"
-                            className="px-3.5 py-2 text-[13px] bg-brand-700 text-white rounded-full hover:bg-brand-800 transition flex items-center gap-2"
+                            className={btnPrimary}
                         >
                             <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
                             Export Report
                         </a>
-                    </div>
-                </div>
+                        </>
+                    }
+                />
 
                 {/* ── KPI Grid ─────────────────────────────────────────── */}
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
                     <KpiCard hero
                         label="MRR"
                         value={fmtMoney(kpis.mrr)}
@@ -149,28 +154,27 @@ export default function AdminOverview({ kpis, recent_signups, growth, health }: 
                 </div>
 
                 {/* ── 2-col: growth chart + recent signups ─────────────── */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-                    <div className="col-span-2 bg-white rounded-2xl border border-ink-200/60 p-5 shadow-soft">
-                        <div className="flex items-center justify-between mb-4">
-                            <div>
-                                <h2 className="text-base font-semibold">Platform Growth</h2>
-                                <p className="text-xs text-ink-500 mt-0.5">New account signups · Last 6 months</p>
-                            </div>
-                            <div className="flex items-center gap-3 text-[11px]">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-x-4 items-start">
+                    <SectionCard
+                        className="lg:col-span-2"
+                        title="Platform Growth"
+                        subtitle="New account signups · Last 6 months"
+                        action={
+                            <div className="flex flex-wrap items-center gap-3 text-[11px]">
                                 <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-brand-800"></span>Agencies</span>
                                 <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-brand-500"></span>Landlords</span>
                                 <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-brand-200"></span>Contractors</span>
                             </div>
-                        </div>
+                        }
+                    >
                         <ErrorBoundary variant="section" label="growth chart">
                             <div className="flex items-end gap-4 h-52 px-2 overflow-x-auto">
                                 {growth.map((p) => <ChartBar key={p.label} point={p} max={maxGrowth} />)}
                             </div>
                         </ErrorBoundary>
-                    </div>
+                    </SectionCard>
 
-                    <div className="bg-white rounded-2xl border border-ink-200/60 p-5 shadow-soft">
-                        <h2 className="text-base font-semibold mb-4">Recent Signups</h2>
+                    <SectionCard title="Recent Signups" subtitle="Newest accounts first">
                         <div className="space-y-3">
                             {recent_signups.length === 0 ? (
                                 <p className="text-[12px] text-ink-400 text-center py-4">No signups yet</p>
@@ -186,13 +190,18 @@ export default function AdminOverview({ kpis, recent_signups, growth, health }: 
                                 </div>
                             ))}
                         </div>
-                    </div>
+                    </SectionCard>
                 </div>
 
                 {/* ── System status strip ──────────────────────────────── */}
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                <SectionCard
+                    title="System Status"
+                    subtitle="Live health of platform services"
+                    action={<Link href="/admin/system" className="text-[12px] text-brand-700 font-semibold hover:underline">System Health →</Link>}
+                >
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                     {health.map((h) => (
-                        <div key={h.name} className="bg-white rounded-2xl border border-ink-200/60 p-4 shadow-soft flex items-center gap-3">
+                        <div key={h.name} className="rounded-xl border border-ink-200/70 p-3.5 flex items-center gap-3">
                             <div className={
                                 'w-9 h-9 rounded-lg flex items-center justify-center ' +
                                 (h.status === 'healthy' ? 'bg-success/15' :
@@ -213,6 +222,7 @@ export default function AdminOverview({ kpis, recent_signups, growth, health }: 
                         </div>
                     ))}
                 </div>
+                </SectionCard>
             </div>
         </AdminLayout>
     );

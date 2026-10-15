@@ -175,7 +175,7 @@ export function Segmented<T extends string>({
                     aria-selected={o.value === value}
                     onClick={() => onChange(o.value)}
                     className={
-                        'px-3.5 py-1.5 rounded-full text-[12.5px] font-semibold transition ' +
+                        'px-3.5 py-1.5 rounded-full text-[12.5px] font-semibold whitespace-nowrap transition ' +
                         (o.value === value ? 'bg-brand-700 text-white shadow-soft' : 'text-ink-500 hover:text-ink-900')
                     }
                 >

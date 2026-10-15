@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { Head, router } from '@inertiajs/react';
 import AdminLayout from '@/Layouts/AdminLayout';
+import { PageHeader, SectionCard, SummaryStrip, btnOutline, btnPrimary } from '@/Components/Dashboard/Charts';
 
 type Audience = {
     key: string;
@@ -56,37 +57,38 @@ export default function AdminAnnouncements({ recent, audiences }: Props) {
         <AdminLayout crumb="Announcements" section="System">
             <Head title="Announcements" />
 
-            <div className="px-4 sm:px-8 py-6 sm:py-7">
-                <div className="mb-6">
-                    <h1 className="text-[28px] sm:text-[32px] leading-tight tracking-tight">Announcements</h1>
-                    <p className="text-[14px] text-ink-500 mt-1">
-                        Broadcast messages to any group across the platform
-                    </p>
-                </div>
+            <div className="px-4 sm:px-7 py-6">
+                <PageHeader title="Announcements" subtitle="Broadcast messages to any group across the platform" />
 
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <SummaryStrip
+                    title="Broadcast Summary"
+                    subtitle="Recent announcements and who they reached"
+                    cells={[
+                        { label: 'Recent', value: recent.length, sub: 'Announcements sent' },
+                        { label: 'People Reached', value: recent.reduce((n, r) => n + r.reached, 0).toLocaleString('en-ZA'), sub: 'Across recent sends', tone: 'muted' },
+                        { label: 'Whole Platform', value: (audiences.find((a) => a.key === 'all')?.estimated_reach ?? 0).toLocaleString('en-ZA'), sub: 'Users you can reach', tone: 'muted' },
+                        { label: 'Last Sent', value: recent[0]?.sent_at_ago ?? '—', sub: recent[0]?.title ?? 'Nothing sent yet', tone: 'muted' },
+                    ]}
+                />
+
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 items-start">
                     {/* ── New announcement form ───────────────────────── */}
-                    <div className="col-span-2 bg-white rounded-2xl border border-ink-200/60 shadow-soft overflow-hidden">
-                        <div className="bg-gradient-to-r from-brand-50 to-brand-100 border-b border-brand-100 px-5 py-4">
-                            <h2 className="text-[14px] font-bold">New Announcement</h2>
-                            <p className="text-[11px] text-ink-500 mt-0.5">Appears in-app and (optionally) by email</p>
-                        </div>
-
+                    <SectionCard title="New Announcement" subtitle="Appears in-app and (optionally) by email" flush className="lg:col-span-2">
                         <div className="p-5 space-y-4">
                             {/* Title */}
                             <div>
-                                <label className="block text-[12px] font-semibold mb-1.5">Title</label>
+                                <label className="block text-[12px] font-semibold text-ink-700 mb-1.5">Title</label>
                                 <input
                                     value={title}
                                     onChange={(e) => setTitle(e.target.value)}
                                     placeholder="e.g. Scheduled maintenance this Sunday"
-                                    className="w-full bg-ink-50 border border-ink-200 rounded-lg px-3 py-2 text-[13px] focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand"
+                                    className="w-full bg-white border border-ink-200 rounded-xl px-3.5 py-2.5 text-[13.5px] focus:outline-none focus:border-brand-300 focus:ring-4 focus:ring-brand-100"
                                 />
                             </div>
 
                             {/* Audience */}
                             <div>
-                                <label className="block text-[12px] font-semibold mb-1.5">Audience</label>
+                                <label className="block text-[12px] font-semibold text-ink-700 mb-1.5">Audience</label>
                                 <div className="flex flex-wrap gap-2">
                                     {audiences.map((a) => (
                                         <button
@@ -94,10 +96,10 @@ export default function AdminAnnouncements({ recent, audiences }: Props) {
                                             type="button"
                                             onClick={() => setAudience(a.key)}
                                             className={
-                                                'text-[12px] px-3 py-1.5 rounded-full font-medium transition ' +
+                                                'text-[12.5px] px-3.5 py-1.5 rounded-full font-semibold transition ' +
                                                 (audience === a.key
-                                                    ? 'bg-ink-900 text-white'
-                                                    : 'bg-white border border-ink-200 text-ink-600 hover:bg-ink-100')
+                                                    ? 'bg-brand-700 text-white shadow-soft'
+                                                    : 'bg-white border border-ink-200 text-ink-600 hover:bg-ink-50')
                                             }
                                         >
                                             {a.label}
@@ -108,35 +110,35 @@ export default function AdminAnnouncements({ recent, audiences }: Props) {
 
                             {/* Message */}
                             <div>
-                                <label className="block text-[12px] font-semibold mb-1.5">Message</label>
+                                <label className="block text-[12px] font-semibold text-ink-700 mb-1.5">Message</label>
                                 <textarea
                                     rows={5}
                                     value={message}
                                     onChange={(e) => setMessage(e.target.value)}
                                     placeholder="Write your announcement..."
-                                    className="w-full bg-ink-50 border border-ink-200 rounded-lg px-3 py-2 text-[13px] focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand resize-none"
+                                    className="w-full bg-white border border-ink-200 rounded-xl px-3.5 py-2.5 text-[13.5px] focus:outline-none focus:border-brand-300 focus:ring-4 focus:ring-brand-100 resize-none"
                                 />
                             </div>
 
                             {/* Delivery toggles */}
-                            <div className="flex items-center gap-6">
+                            <div className="flex flex-wrap items-center gap-6">
                                 <ToggleRow on={inApp} onClick={() => setInApp(!inApp)} label="Show in-app banner" />
                                 <ToggleRow on={byEmail} onClick={() => setByEmail(!byEmail)} label="Also send by email" />
                             </div>
                         </div>
 
-                        <div className="px-5 py-4 bg-ink-50/50 border-t border-ink-200 flex items-center justify-between">
+                        <div className="px-5 py-4 bg-ink-50/50 border-t border-ink-200 flex flex-wrap items-center justify-between gap-3">
                             <p className="text-[12px] text-ink-500">
                                 Will reach approximately <strong className="text-ink-900">{reach.toLocaleString('en-ZA')} users</strong>
                             </p>
                             <div className="flex items-center gap-2">
-                                <button className="px-3 py-1.5 text-[12px] border border-ink-200 rounded-lg bg-white hover:bg-ink-50 transition font-semibold">
+                                <button className={btnOutline}>
                                     Save draft
                                 </button>
                                 <button
                                     onClick={publish}
                                     disabled={!title.trim() || !message.trim() || submitting}
-                                    className="px-3.5 py-1.5 text-[12px] bg-brand-700 text-white rounded-full hover:bg-brand-800 disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center gap-2 font-semibold"
+                                    className={`${btnPrimary} disabled:cursor-not-allowed`}
                                 >
                                     <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
                                         <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
@@ -145,11 +147,11 @@ export default function AdminAnnouncements({ recent, audiences }: Props) {
                                 </button>
                             </div>
                         </div>
-                    </div>
+                    </SectionCard>
 
                     {/* ── Recent panel ────────────────────────────────── */}
-                    <div className="bg-white rounded-2xl border border-ink-200/60 p-5 shadow-soft self-start">
-                        <h2 className="text-[14px] font-bold mb-4">Recent</h2>
+                    <SectionCard title="Recent" subtitle="Latest broadcasts">
+                        {recent.length === 0 && <p className="text-[12.5px] text-ink-400">Nothing sent yet.</p>}
                         <div className="space-y-3">
                             {recent.map((r) => (
                                 <div
@@ -167,7 +169,7 @@ export default function AdminAnnouncements({ recent, audiences }: Props) {
                                 </div>
                             ))}
                         </div>
-                    </div>
+                    </SectionCard>
                 </div>
             </div>
         </AdminLayout>
@@ -180,7 +182,7 @@ function ToggleRow({ on, onClick, label }: { on: boolean; onClick: () => void; l
             <span
                 className={
                     'relative rounded-full transition-colors ' +
-                    (on ? 'bg-brand-500' : 'bg-ink-300')
+                    (on ? 'bg-brand-600' : 'bg-ink-200')
                 }
                 style={{ width: 40, height: 22 }}
             >

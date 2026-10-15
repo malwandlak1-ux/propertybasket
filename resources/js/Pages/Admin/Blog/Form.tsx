@@ -1,6 +1,7 @@
 import { FormEvent, useRef, useState } from 'react';
 import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
 import AdminLayout from '@/Layouts/AdminLayout';
+import { FlashBanners, PageHeader, btnOutline, btnPrimary } from '@/Components/Dashboard/Charts';
 import { Spinner } from '@/Components/Skeleton';
 
 type Tag = { id: number; name: string; slug: string; color: string };
@@ -26,7 +27,7 @@ type Props = {
 type SharedProps = { flash?: { success?: string | null; error?: string | null } };
 
 const labelCls = 'text-[12px] font-semibold text-ink-700 mb-1.5 block';
-const inputCls = 'w-full bg-white border border-ink-200 rounded-lg px-3.5 py-2.5 text-[14px] outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand';
+const inputCls = 'w-full bg-white border border-ink-200 rounded-xl px-3.5 py-2.5 text-[14px] outline-none focus:border-brand-300 focus:ring-4 focus:ring-brand-100';
 
 /** ISO timestamp → value for a <input type="datetime-local"> (local wall-clock). */
 function toLocalInput(iso: string | null): string {
@@ -122,25 +123,20 @@ export default function AdminBlogForm({ post, allTags }: Props) {
     }
 
     return (
-        <AdminLayout crumb={isEdit ? `Edit · ${post!.title}` : 'New post'} section="Blog">
+        <AdminLayout crumb={isEdit ? `Edit · ${post!.title}` : 'New post'} section="System">
             <Head title={isEdit ? `Edit · ${post!.title}` : 'New post'} />
 
-            <form onSubmit={save} className="px-4 sm:px-4 sm:px-8 py-6 sm:py-7 max-w-5xl">
-                <div className="flex flex-wrap items-center justify-between gap-3 mb-6 flex-wrap gap-3">
-                    <div className="flex items-center gap-3">
-                        <Link href="/admin/blog" className="text-[12px] font-semibold text-brand-700 hover:underline">
-                            ← All posts
-                        </Link>
-                        <span className="text-ink-300">/</span>
-                        <h1 className="text-xl font-bold tracking-tight">{isEdit ? 'Edit post' : 'New post'}</h1>
-                    </div>
-
-                    <div className="flex items-center gap-2">
+            <form onSubmit={save} className="px-4 sm:px-7 py-6 max-w-6xl">
+                <PageHeader
+                    title={isEdit ? 'Edit post' : 'New post'}
+                    subtitle={<Link href="/admin/blog" className="font-semibold text-brand-700 hover:underline">← All posts</Link>}
+                    actions={
+                    <div className="flex flex-wrap items-center gap-2">
                         {isEdit && post!.status === 'published' && (
                             <Link
                                 href={`/advice/${post!.slug}`}
                                 target="_blank"
-                                className="px-3 py-2 text-[12px] font-semibold border border-ink-200 rounded-lg hover:border-ink-400 text-ink-700"
+                                className={btnOutline}
                             >
                                 View on site
                             </Link>
@@ -149,7 +145,7 @@ export default function AdminBlogForm({ post, allTags }: Props) {
                             <button
                                 type="button"
                                 onClick={deletePost}
-                                className="px-3 py-2 text-[12px] font-semibold text-danger hover:bg-danger/10 rounded-lg"
+                                className="inline-flex items-center rounded-full px-4 py-2.5 text-[13px] font-semibold text-danger hover:bg-danger/10 transition"
                             >
                                 Delete
                             </button>
@@ -158,7 +154,7 @@ export default function AdminBlogForm({ post, allTags }: Props) {
                             type="button"
                             onClick={() => publishToggle('draft')}
                             disabled={processing}
-                            className="px-4 py-2 text-[13px] font-semibold border border-ink-200 rounded-lg hover:border-ink-400 text-ink-700"
+                            className={btnOutline}
                         >
                             Save draft
                         </button>
@@ -166,7 +162,7 @@ export default function AdminBlogForm({ post, allTags }: Props) {
                             type="button"
                             onClick={() => publishToggle('published')}
                             disabled={processing}
-                            className="px-4 py-2 text-[13px] bg-brand-600 hover:bg-brand-700 text-white rounded-lg font-semibold inline-flex items-center gap-2"
+                            className={btnPrimary}
                         >
                             {processing && <Spinner size={13} />}
                             {scheduling
@@ -174,23 +170,16 @@ export default function AdminBlogForm({ post, allTags }: Props) {
                                 : (data.status === 'published' && isEdit ? 'Save & republish' : 'Publish')}
                         </button>
                     </div>
-                </div>
+                    }
+                />
 
-                {flash?.success && (
-                    <div className="mb-4 rounded-lg bg-success/10 border border-success/30 text-success px-4 py-3 text-[13px]">
-                        {flash.success}
-                    </div>
-                )}
-                {flash?.error && (
-                    <div className="mb-4 rounded-lg bg-danger/10 border border-danger/30 text-danger px-4 py-3 text-[13px]">
-                        {flash.error}
-                    </div>
-                )}
+                <FlashBanners flash={flash} />
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
                     {/* Main column */}
-                    <div className="lg:col-span-2 space-y-5">
-                        <div className="bg-white rounded-2xl border border-ink-200/60 shadow-soft p-6 space-y-4">
+                    <div className="lg:col-span-2 space-y-4">
+                        <div className="bg-white rounded-2xl border border-ink-200/60 shadow-soft overflow-hidden p-5 space-y-4">
+                            <h2 className="-mx-5 -mt-5 mb-4 px-5 py-4 border-b border-ink-200 text-base font-semibold !mb-0">Post</h2>
                             <div>
                                 <label className={labelCls}>Title *</label>
                                 <input
@@ -217,10 +206,10 @@ export default function AdminBlogForm({ post, allTags }: Props) {
                             </div>
                         </div>
 
-                        <div className="bg-white rounded-2xl border border-ink-200/60 shadow-soft p-6 space-y-3">
-                            <div className="flex items-end justify-between">
-                                <label className={labelCls + ' mb-0'}>Body *</label>
-                                <p className="text-[11px] text-ink-400">HTML allowed — &lt;h2&gt;, &lt;h3&gt;, &lt;p&gt;, &lt;ul&gt;, &lt;a&gt;, &lt;blockquote&gt;, &lt;img&gt;, &lt;code&gt;</p>
+                        <div className="bg-white rounded-2xl border border-ink-200/60 shadow-soft overflow-hidden p-5 space-y-3">
+                            <div className="-mx-5 -mt-5 mb-4 px-5 py-4 border-b border-ink-200 text-base font-semibold !mb-0 flex flex-wrap items-end justify-between gap-2">
+                                <span>Body *</span>
+                                <p className="text-[11px] font-normal text-ink-400">HTML allowed — &lt;h2&gt;, &lt;h3&gt;, &lt;p&gt;, &lt;ul&gt;, &lt;a&gt;, &lt;blockquote&gt;, &lt;img&gt;, &lt;code&gt;</p>
                             </div>
                             <textarea
                                 value={data.body}
@@ -235,10 +224,10 @@ export default function AdminBlogForm({ post, allTags }: Props) {
                     </div>
 
                     {/* Sidebar */}
-                    <div className="lg:col-span-1 space-y-5">
+                    <div className="lg:col-span-1 space-y-4">
                         {/* Status */}
-                        <div className="bg-white rounded-2xl border border-ink-200/60 shadow-soft p-5">
-                            <h2 className="text-[13px] font-bold mb-3">Status</h2>
+                        <div className="bg-white rounded-2xl border border-ink-200/60 shadow-soft overflow-hidden p-5">
+                            <h2 className="-mx-5 -mt-5 mb-4 px-5 py-4 border-b border-ink-200 text-base font-semibold">Status</h2>
                             <div className="flex items-center gap-2 flex-wrap">
                                 <span className={
                                     'text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full ' +
@@ -287,8 +276,8 @@ export default function AdminBlogForm({ post, allTags }: Props) {
                         </div>
 
                         {/* Tags */}
-                        <div className="bg-white rounded-2xl border border-ink-200/60 shadow-soft p-5">
-                            <h2 className="text-[13px] font-bold mb-3">Tags</h2>
+                        <div className="bg-white rounded-2xl border border-ink-200/60 shadow-soft overflow-hidden p-5">
+                            <h2 className="-mx-5 -mt-5 mb-4 px-5 py-4 border-b border-ink-200 text-base font-semibold">Tags</h2>
                             <div className="flex flex-wrap gap-1.5 mb-3">
                                 {data.tags.map((t) => (
                                     <span
@@ -326,7 +315,7 @@ export default function AdminBlogForm({ post, allTags }: Props) {
                                 <button
                                     type="button"
                                     onClick={() => addTag(tagInput)}
-                                    className="px-3 py-2 text-[13px] bg-ink-100 text-ink-700 rounded-lg hover:bg-ink-200 font-semibold shrink-0"
+                                    className="px-4 py-2 text-[13px] bg-brand-50 text-brand-700 rounded-full hover:bg-brand-100 font-semibold shrink-0"
                                 >
                                     Add
                                 </button>
@@ -354,10 +343,10 @@ export default function AdminBlogForm({ post, allTags }: Props) {
                         </div>
 
                         {/* Cover image */}
-                        <div className="bg-white rounded-2xl border border-ink-200/60 shadow-soft p-5">
-                            <h2 className="text-[13px] font-bold mb-3">Cover image</h2>
+                        <div className="bg-white rounded-2xl border border-ink-200/60 shadow-soft overflow-hidden p-5">
+                            <h2 className="-mx-5 -mt-5 mb-4 px-5 py-4 border-b border-ink-200 text-base font-semibold">Cover image</h2>
                             {coverPreview ? (
-                                <div className="relative rounded-lg overflow-hidden border border-ink-200 mb-3">
+                                <div className="relative rounded-xl overflow-hidden border border-ink-200 mb-3">
                                     <img src={coverPreview} alt="cover preview" className="w-full h-32 object-cover" />
                                     <button
                                         type="button"
@@ -369,13 +358,13 @@ export default function AdminBlogForm({ post, allTags }: Props) {
                                     </button>
                                 </div>
                             ) : (
-                                <div className="border-2 border-dashed border-ink-200 rounded-lg p-6 text-center text-[12px] text-ink-500 mb-3">
+                                <div className="border-2 border-dashed border-ink-200 rounded-xl p-6 text-center text-[12px] text-ink-500 mb-3">
                                     No cover image. The post will fall back to a placeholder.
                                 </div>
                             )}
                             <label
                                 htmlFor="blog-cover-input"
-                                className="inline-flex items-center gap-2 px-3 py-2 text-[12px] rounded-lg bg-ink-900 text-white hover:bg-brand-500 font-semibold cursor-pointer"
+                                className={`${btnPrimary} cursor-pointer`}
                             >
                                 {coverPreview ? 'Replace…' : 'Upload image'}
                             </label>

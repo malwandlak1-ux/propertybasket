@@ -1,6 +1,7 @@
 import { Head, router, usePage } from '@inertiajs/react';
 import { useEffect, useRef, useState } from 'react';
 import AdminLayout from '@/Layouts/AdminLayout';
+import { PageHeader, SectionCard, SummaryStrip, selectCls, thRowCls } from '@/Components/Dashboard/Charts';
 
 type Agency = {
     id: number;
@@ -72,6 +73,13 @@ export default function AdminAgencies({ agencies, stats }: Props) {
     }, [toast]);
 
     const [openMenuId, setOpenMenuId] = useState<number | null>(null);
+    const [query, setQuery] = useState('');
+    const [status, setStatus] = useState('all');
+
+    const q = query.trim().toLowerCase();
+    const shown = agencies.filter((a) =>
+        (!q || [a.name, a.city ?? '', a.eaab_ffc_number ?? ''].some((v) => v.toLowerCase().includes(q)))
+        && (status === 'all' || a.status === status));
 
     return (
         <AdminLayout crumb="Agencies" section="Accounts">
@@ -85,38 +93,43 @@ export default function AdminAgencies({ agencies, stats }: Props) {
                 </div>
             )}
 
-            <div className="px-4 sm:px-8 py-6 sm:py-7">
-                <div className="flex flex-wrap items-end justify-between gap-3 mb-6">
-                    <div>
-                        <h1 className="text-[28px] sm:text-[32px] leading-tight tracking-tight">Agencies</h1>
-                        <p className="text-[14px] text-ink-500 mt-1">
-                            {agencies.length} registered · {stats.pending} pending approval
-                        </p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <input className="text-[12px] bg-white border border-ink-200 rounded-md px-3 py-2 w-56 focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand" placeholder="Search agencies..." />
-                        <select className="text-[12px] bg-white border border-ink-200 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand/20">
-                            <option>All statuses</option>
-                            <option>Active</option>
-                            <option>Pending</option>
-                            <option>Suspended</option>
-                        </select>
-                    </div>
-                </div>
+            <div className="px-4 sm:px-7 py-6">
+                <PageHeader
+                    title="Agencies"
+                    subtitle={`${agencies.length} registered · ${stats.pending} pending approval`}
+                />
 
-                {/* Stats strip */}
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                    <StatCard label="Active" value={stats.active} tone="ink-900" />
-                    <StatCard label="Pending" value={stats.pending} tone="warning" />
-                    <StatCard label="Suspended" value={stats.suspended} tone="danger" />
-                    <StatCard label="Total Agents" value={stats.total_agents} tone="ink-900" />
-                </div>
+                <SummaryStrip
+                    title="Agency Summary"
+                    subtitle="Estate agencies on the platform"
+                    cells={[
+                        { label: 'Active', value: stats.active, sub: 'Trading on the platform', tone: 'success' },
+                        { label: 'Pending', value: stats.pending, sub: 'Awaiting approval', tone: stats.pending > 0 ? 'warning' : 'muted' },
+                        { label: 'Suspended', value: stats.suspended, sub: 'Access blocked', tone: stats.suspended > 0 ? 'danger' : 'muted' },
+                        { label: 'Total Agents', value: stats.total_agents, sub: 'Across all agencies' },
+                    ]}
+                />
 
-                {/* Table */}
-                <div className="bg-white rounded-2xl border border-ink-200/60 shadow-soft overflow-visible">
-                    <div className="overflow-x-auto"><table className="w-full min-w-[700px]">
+                <SectionCard
+                    title="All Agencies"
+                    subtitle={`${shown.length} of ${agencies.length} shown`}
+                    flush
+                    className="overflow-visible!"
+                    action={
+                        <div className="flex flex-wrap items-center gap-2">
+                            <input value={query} onChange={(e) => setQuery(e.target.value)} className={`${selectCls} w-56`} placeholder="Search agencies…" />
+                            <select value={status} onChange={(e) => setStatus(e.target.value)} className={selectCls}>
+                                <option value="all">All statuses</option>
+                                <option value="active">Active</option>
+                                <option value="pending">Pending</option>
+                                <option value="suspended">Suspended</option>
+                            </select>
+                        </div>
+                    }
+                >
+                    <div className="overflow-x-auto lg:overflow-visible"><table className="w-full min-w-[700px]">
                         <thead>
-                            <tr className="text-left text-[11px] uppercase text-ink-500 tracking-wider border-b border-ink-200 bg-ink-50">
+                            <tr className={thRowCls}>
                                 <th className="font-semibold px-5 py-3">Agency</th>
                                 <th className="font-semibold py-3">Plan</th>
                                 <th className="font-semibold py-3 text-right">Agents</th>
@@ -127,9 +140,9 @@ export default function AdminAgencies({ agencies, stats }: Props) {
                             </tr>
                         </thead>
                         <tbody className="text-[13px]">
-                            {agencies.length === 0 ? (
-                                <tr><td colSpan={7} className="text-center text-[12px] text-ink-400 py-10">No agencies registered yet</td></tr>
-                            ) : agencies.map((a) => (
+                            {shown.length === 0 ? (
+                                <tr><td colSpan={7} className="text-center text-[12px] text-ink-400 py-10">{agencies.length === 0 ? 'No agencies registered yet' : 'No agencies match your search'}</td></tr>
+                            ) : shown.map((a) => (
                                 <tr key={a.id} className={`border-b border-ink-100 hover:bg-ink-50 transition ${a.status === 'suspended' ? 'opacity-70' : ''}`}>
                                     <td className="px-5 py-4">
                                         <div className="flex items-center gap-3">
@@ -173,7 +186,7 @@ export default function AdminAgencies({ agencies, stats }: Props) {
                             ))}
                         </tbody>
                     </table></div>
-                </div>
+                </SectionCard>
             </div>
         </AdminLayout>
     );
@@ -293,15 +306,3 @@ function ActionMenu({
     );
 }
 
-function StatCard({ label, value, tone }: { label: string; value: number; tone: 'ink-900' | 'warning' | 'danger' | 'success' }) {
-    const colorClass = tone === 'warning' ? 'text-warning' :
-                       tone === 'danger'  ? 'text-danger' :
-                       tone === 'success' ? 'text-success' :
-                                            'text-ink-900';
-    return (
-        <div className="bg-white rounded-2xl border border-ink-200/60 p-4 shadow-soft">
-            <p className="text-[11px] text-ink-500 uppercase tracking-wider font-semibold">{label}</p>
-            <p className={`text-2xl font-bold mt-1 ${colorClass}`}>{value}</p>
-        </div>
-    );
-}

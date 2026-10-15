@@ -1,5 +1,6 @@
 import { Head, router } from '@inertiajs/react';
 import AdminLayout from '@/Layouts/AdminLayout';
+import { PageHeader, SectionCard, SummaryStrip, btnOutline, selectCls, thRowCls } from '@/Components/Dashboard/Charts';
 import { useInertiaLoading } from '@/Hooks/useInertiaLoading';
 
 type Tx = {
@@ -57,57 +58,55 @@ export default function AdminTransactions({ range, kpis, transactions }: Props) 
         <AdminLayout crumb="Transactions" section="Financials">
             <Head title="Transactions" />
 
-            <div className="px-4 sm:px-8 py-6 sm:py-7">
-                <div className="flex flex-wrap items-end justify-between gap-3 mb-6">
-                    <div>
-                        <h1 className="text-[28px] sm:text-[32px] leading-tight tracking-tight">Transactions</h1>
-                        <p className="text-[14px] text-ink-500 mt-1">
-                            All subscription charges and platform fees · via Paystack
-                        </p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <select
-                            value={range}
-                            onChange={(e) => changeRange(e.target.value)}
-                            className="text-[12px] bg-white border border-ink-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand/20"
-                        >
-                            {Object.entries(RANGE_LABEL).map(([k, v]) => (
-                                <option key={k} value={k}>{v}</option>
-                            ))}
-                        </select>
-                        <a
-                            href={`/admin/transactions/export?range=${encodeURIComponent(range)}`}
-                            download
-                            title={`Download a CSV of the ${RANGE_LABEL[range]?.toLowerCase() ?? 'current'} transactions`}
-                            className="px-3.5 py-2 text-[13px] border border-ink-200 rounded-lg bg-white hover:bg-ink-50 transition flex items-center gap-2"
-                        >
-                            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
-                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>
-                            </svg>
-                            Export CSV
-                        </a>
-                    </div>
-                </div>
+            <div className="px-4 sm:px-7 py-6">
+                <PageHeader
+                    title="Transactions"
+                    subtitle="All subscription charges and platform fees · via Paystack"
+                    actions={
+                        <>
+                            <select value={range} onChange={(e) => changeRange(e.target.value)} className={selectCls}>
+                                {Object.entries(RANGE_LABEL).map(([k, v]) => (
+                                    <option key={k} value={k}>{v}</option>
+                                ))}
+                            </select>
+                            <a
+                                href={`/admin/transactions/export?range=${encodeURIComponent(range)}`}
+                                download
+                                title={`Download a CSV of the ${RANGE_LABEL[range]?.toLowerCase() ?? 'current'} transactions`}
+                                className={btnOutline}
+                            >
+                                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+                                </svg>
+                                Export CSV
+                            </a>
+                        </>
+                    }
+                />
 
-                {/* KPI strip */}
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                    <Kpi label="Collected" value={fmtMoney(kpis.collected)} tone="success" />
-                    <Kpi label="Platform Fees" value={fmtMoney(kpis.platform_fees)} tone="ink" />
-                    <Kpi label="Failed Charges" value={String(kpis.failed_count)} tone={kpis.failed_count > 0 ? 'danger' : 'ink'} />
-                    <Kpi label="Churn" value={`${kpis.churn_pct}%`} tone={kpis.churn_pct > 5 ? 'danger' : 'warning'} />
-                </div>
+                <SummaryStrip
+                    title="Collections Summary"
+                    subtitle={RANGE_LABEL[range] ?? 'Selected period'}
+                    cells={[
+                        { label: 'Collected', value: fmtMoney(kpis.collected), sub: 'Successful charges', tone: 'success' },
+                        { label: 'Platform Fees', value: fmtMoney(kpis.platform_fees), sub: 'Fee income', tone: 'muted' },
+                        { label: 'Failed Charges', value: kpis.failed_count, sub: 'Need follow-up', tone: kpis.failed_count > 0 ? 'danger' : 'muted' },
+                        { label: 'Churn', value: `${kpis.churn_pct}%`, sub: 'Cancelled subscriptions', tone: kpis.churn_pct > 5 ? 'danger' : 'warning' },
+                    ]}
+                />
 
-                {/* Table */}
-                <div className={
-                    'bg-white rounded-2xl border border-ink-200/60 shadow-soft overflow-hidden transition-opacity duration-150 ' +
-                    (loading ? 'opacity-50 pointer-events-none' : '')
-                }>
+                <SectionCard
+                    title="Transaction Ledger"
+                    subtitle={`${transactions.length} transaction${transactions.length === 1 ? '' : 's'} · ${RANGE_LABEL[range]?.toLowerCase() ?? 'selected period'}`}
+                    flush
+                    className={'transition-opacity duration-150 ' + (loading ? 'opacity-50 pointer-events-none' : '')}
+                >
                     {transactions.length === 0 ? (
                         <div className="p-10 text-center text-[13px] text-ink-400">No transactions in this period</div>
                     ) : (
                         <div className="overflow-x-auto"><table className="w-full min-w-[700px]">
                             <thead>
-                                <tr className="text-left text-[11px] uppercase text-ink-500 tracking-wider border-b border-ink-200 bg-ink-50">
+                                <tr className={thRowCls}>
                                     <th className="font-semibold px-5 py-3">Date</th>
                                     <th className="font-semibold py-3">Account</th>
                                     <th className="font-semibold py-3">Type</th>
@@ -138,21 +137,9 @@ export default function AdminTransactions({ range, kpis, transactions }: Props) 
                             </tbody>
                         </table></div>
                     )}
-                </div>
+                </SectionCard>
             </div>
         </AdminLayout>
     );
 }
 
-function Kpi({ label, value, tone }: { label: string; value: string; tone: 'success' | 'ink' | 'warning' | 'danger' }) {
-    const cls = tone === 'success' ? 'text-success' :
-                tone === 'warning' ? 'text-warning' :
-                tone === 'danger'  ? 'text-danger' :
-                                     'text-ink-900';
-    return (
-        <div className="bg-white rounded-2xl border border-ink-200/60 p-5 shadow-soft">
-            <p className="text-[11px] text-ink-500 uppercase tracking-wider font-semibold mb-2">{label}</p>
-            <p className={`text-2xl font-bold ${cls}`}>{value}</p>
-        </div>
-    );
-}

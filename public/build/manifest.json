@@ -1,5 +1,6 @@
 {
 <<<<<<< HEAD
+<<<<<<< HEAD
   "_AdminLayout-B2oCXheF.js": {
     "file": "assets/AdminLayout-B2oCXheF.js",
     "name": "AdminLayout",
@@ -58,11 +59,42 @@
   "_AppLogo-BLcQhBg-.js": {
     "file": "assets/AppLogo-BLcQhBg-.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+  "_AdminLayout-5AUn7w-p.js": {
+    "file": "assets/AdminLayout-5AUn7w-p.js",
+    "name": "AdminLayout",
+    "imports": [
+      "resources/js/app.tsx",
+      "_Shell-BqrlY9wR.js",
+      "_AppLogo-Hgv-mTH0.js"
+    ]
+  },
+  "_AgencyLayout-B1i95MF0.js": {
+    "file": "assets/AgencyLayout-B1i95MF0.js",
+    "name": "AgencyLayout",
+    "imports": [
+      "resources/js/app.tsx",
+      "_Shell-BqrlY9wR.js",
+      "_SubscriptionBanner-CKcJ9EXz.js"
+    ]
+  },
+  "_AgentLayout-DvnHfJzN.js": {
+    "file": "assets/AgentLayout-DvnHfJzN.js",
+    "name": "AgentLayout",
+    "imports": [
+      "resources/js/app.tsx",
+      "_Shell-BqrlY9wR.js"
+    ]
+  },
+  "_AppLogo-Hgv-mTH0.js": {
+    "file": "assets/AppLogo-Hgv-mTH0.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "AppLogo",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
 <<<<<<< HEAD
   "_AppearanceSettings-CHQ1UVyH.js": {
     "file": "assets/AppearanceSettings-CHQ1UVyH.js",
@@ -108,11 +140,35 @@
   "_Charts-De92soSD.js": {
     "file": "assets/Charts-De92soSD.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+  "_AppearanceSettings-CZousfCD.js": {
+    "file": "assets/AppearanceSettings-CZousfCD.js",
+    "name": "AppearanceSettings",
+    "imports": [
+      "resources/js/app.tsx",
+      "_AppLogo-Hgv-mTH0.js",
+      "_Skeleton-Ct2EvzWi.js",
+      "_Shell-BqrlY9wR.js",
+      "_Charts-CszXgLwC.js"
+    ]
+  },
+  "_AuthKit-CqHGXNBA.js": {
+    "file": "assets/AuthKit-CqHGXNBA.js",
+    "name": "AuthKit",
+    "imports": [
+      "resources/js/app.tsx",
+      "_AppLogo-Hgv-mTH0.js"
+    ]
+  },
+  "_Charts-CszXgLwC.js": {
+    "file": "assets/Charts-CszXgLwC.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "Charts",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
 <<<<<<< HEAD
   "_ContractorLayout-2wawK-_c.js": {
     "file": "assets/ContractorLayout-2wawK-_c.js",
@@ -136,11 +192,24 @@
   "_FormField-B6X3aIQJ.js": {
     "file": "assets/FormField-B6X3aIQJ.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+  "_ContractorLayout-CU-ofnJ3.js": {
+    "file": "assets/ContractorLayout-CU-ofnJ3.js",
+    "name": "ContractorLayout",
+    "imports": [
+      "resources/js/app.tsx",
+      "_Shell-BqrlY9wR.js"
+    ]
+  },
+  "_FormField-CsZfy70B.js": {
+    "file": "assets/FormField-CsZfy70B.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "FormField",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
 <<<<<<< HEAD
   "_HelpCentre-GhciU1yZ.js": {
     "file": "assets/HelpCentre-GhciU1yZ.js",
@@ -168,11 +237,26 @@
   "_Icon-Bupzo4lG.js": {
     "file": "assets/Icon-Bupzo4lG.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+  "_HelpCentre-DrVGU8jD.js": {
+    "file": "assets/HelpCentre-DrVGU8jD.js",
+    "name": "HelpCentre",
+    "imports": [
+      "resources/js/app.tsx",
+      "_Charts-CszXgLwC.js",
+      "_Icon-CkFVTE9T.js",
+      "_AppLogo-Hgv-mTH0.js"
+    ]
+  },
+  "_Icon-CkFVTE9T.js": {
+    "file": "assets/Icon-CkFVTE9T.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "Icon",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
 <<<<<<< HEAD
   "_InviteAgentModal-Du0b8cXx.js": {
     "file": "assets/InviteAgentModal-Du0b8cXx.js",
@@ -266,11 +350,59 @@
   "_ListingCard-B8Og_nTD.js": {
     "file": "assets/ListingCard-B8Og_nTD.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+  "_InviteAgentModal-C-sZNHgW.js": {
+    "file": "assets/InviteAgentModal-C-sZNHgW.js",
+    "name": "InviteAgentModal",
+    "imports": [
+      "resources/js/app.tsx",
+      "_Skeleton-Ct2EvzWi.js"
+    ]
+  },
+  "_InviteContractorModal-BZRjaT_s.js": {
+    "file": "assets/InviteContractorModal-BZRjaT_s.js",
+    "name": "InviteContractorModal",
+    "imports": [
+      "resources/js/app.tsx",
+      "_Charts-CszXgLwC.js",
+      "_Skeleton-Ct2EvzWi.js"
+    ]
+  },
+  "_InviteTenantModal-u99hHgZE.js": {
+    "file": "assets/InviteTenantModal-u99hHgZE.js",
+    "name": "InviteTenantModal",
+    "imports": [
+      "resources/js/app.tsx",
+      "_Skeleton-Ct2EvzWi.js"
+    ]
+  },
+  "_LandlordInviteTenantModal-D8bv7F0H.js": {
+    "file": "assets/LandlordInviteTenantModal-D8bv7F0H.js",
+    "name": "LandlordInviteTenantModal",
+    "imports": [
+      "resources/js/app.tsx",
+      "_InviteTenantModal-u99hHgZE.js",
+      "_Skeleton-Ct2EvzWi.js"
+    ]
+  },
+  "_LandlordLayout-eQgzoArm.js": {
+    "file": "assets/LandlordLayout-eQgzoArm.js",
+    "name": "LandlordLayout",
+    "imports": [
+      "resources/js/app.tsx",
+      "_Shell-BqrlY9wR.js",
+      "_SubscriptionBanner-CKcJ9EXz.js"
+    ]
+  },
+  "_ListingCard-DM27J63t.js": {
+    "file": "assets/ListingCard-DM27J63t.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "ListingCard",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
 <<<<<<< HEAD
   "_ListingForm-1E3pwgML.js": {
     "file": "assets/ListingForm-1E3pwgML.js",
@@ -329,11 +461,42 @@
   "_RateContractorModal-M9YjfQon.js": {
     "file": "assets/RateContractorModal-M9YjfQon.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+  "_ListingForm-CRf-7Ysw.js": {
+    "file": "assets/ListingForm-CRf-7Ysw.js",
+    "name": "ListingForm",
+    "imports": [
+      "resources/js/app.tsx",
+      "_Skeleton-Ct2EvzWi.js"
+    ]
+  },
+  "_MaintenanceBoard-9nLmhJg4.js": {
+    "file": "assets/MaintenanceBoard-9nLmhJg4.js",
+    "name": "MaintenanceBoard",
+    "imports": [
+      "resources/js/app.tsx",
+      "_RateContractorModal-B_-w4GHz.js",
+      "_Icon-CkFVTE9T.js",
+      "_Charts-CszXgLwC.js"
+    ]
+  },
+  "_PublicLayout-C9oj_wXQ.js": {
+    "file": "assets/PublicLayout-C9oj_wXQ.js",
+    "name": "PublicLayout",
+    "imports": [
+      "resources/js/app.tsx",
+      "_AppLogo-Hgv-mTH0.js"
+    ]
+  },
+  "_RateContractorModal-B_-w4GHz.js": {
+    "file": "assets/RateContractorModal-B_-w4GHz.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "RateContractorModal",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
 <<<<<<< HEAD
   "_Shell-CxAvCjzz.js": {
     "file": "assets/Shell-CxAvCjzz.js",
@@ -357,11 +520,24 @@
   "_Skeleton-DxMh3G4Z.js": {
     "file": "assets/Skeleton-DxMh3G4Z.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+  "_Shell-BqrlY9wR.js": {
+    "file": "assets/Shell-BqrlY9wR.js",
+    "name": "Shell",
+    "imports": [
+      "resources/js/app.tsx",
+      "_AppLogo-Hgv-mTH0.js"
+    ]
+  },
+  "_Skeleton-Ct2EvzWi.js": {
+    "file": "assets/Skeleton-Ct2EvzWi.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "Skeleton",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
 <<<<<<< HEAD
   "_SubscriptionBanner-DwWk5nPR.js": {
     "file": "assets/SubscriptionBanner-DwWk5nPR.js",
@@ -369,11 +545,16 @@
   "_SubscriptionBanner-BNx8XP_5.js": {
     "file": "assets/SubscriptionBanner-BNx8XP_5.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+  "_SubscriptionBanner-CKcJ9EXz.js": {
+    "file": "assets/SubscriptionBanner-CKcJ9EXz.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "SubscriptionBanner",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
 <<<<<<< HEAD
   "_TenantLayout-B4ZQSWlr.js": {
     "file": "assets/TenantLayout-B4ZQSWlr.js",
@@ -397,6 +578,18 @@
   "_useInertiaLoading-ugvYuVT0.js": {
     "file": "assets/useInertiaLoading-ugvYuVT0.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+  "_TenantLayout-DncXkXpH.js": {
+    "file": "assets/TenantLayout-DncXkXpH.js",
+    "name": "TenantLayout",
+    "imports": [
+      "resources/js/app.tsx",
+      "_Shell-BqrlY9wR.js"
+    ]
+  },
+  "_useInertiaLoading-CMSApytV.js": {
+    "file": "assets/useInertiaLoading-CMSApytV.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "useInertiaLoading",
     "imports": [
       "resources/js/app.tsx"
@@ -404,10 +597,14 @@
   },
   "resources/css/app.css": {
 <<<<<<< HEAD
+<<<<<<< HEAD
     "file": "assets/app-CrPaFxYD.css",
 =======
     "file": "assets/app-C4ZZbhbm.css",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+    "file": "assets/app-C7sUYvIk.css",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "src": "resources/css/app.css",
     "isEntry": true,
     "name": "app",
@@ -417,15 +614,20 @@
   },
   "resources/js/Pages/Admin/Agencies.tsx": {
 <<<<<<< HEAD
+<<<<<<< HEAD
     "file": "assets/Agencies-BpJuqjnG.js",
 =======
     "file": "assets/Agencies-BScfqmXm.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+    "file": "assets/Agencies-BGzJz0xp.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "Agencies",
     "src": "resources/js/Pages/Admin/Agencies.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
       "_AdminLayout-B2oCXheF.js",
       "_Shell-CxAvCjzz.js",
@@ -441,19 +643,30 @@
       "_AdminLayout-DsRHE9a6.js",
       "_Shell-oxyqnES4.js",
       "_AppLogo-BLcQhBg-.js"
+=======
+      "_AdminLayout-5AUn7w-p.js",
+      "_Charts-CszXgLwC.js",
+      "_Shell-BqrlY9wR.js",
+      "_AppLogo-Hgv-mTH0.js"
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     ],
     "css": [
-      "assets/app-C4ZZbhbm.css"
+      "assets/app-C7sUYvIk.css"
     ]
   },
   "resources/js/Pages/Admin/Announcements.tsx": {
+<<<<<<< HEAD
     "file": "assets/Announcements-D3WfMzDc.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+    "file": "assets/Announcements-BNrMkS50.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "Announcements",
     "src": "resources/js/Pages/Admin/Announcements.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
       "_AdminLayout-B2oCXheF.js",
       "_Shell-CxAvCjzz.js",
@@ -469,19 +682,30 @@
       "_AdminLayout-DsRHE9a6.js",
       "_Shell-oxyqnES4.js",
       "_AppLogo-BLcQhBg-.js"
+=======
+      "_AdminLayout-5AUn7w-p.js",
+      "_Charts-CszXgLwC.js",
+      "_Shell-BqrlY9wR.js",
+      "_AppLogo-Hgv-mTH0.js"
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     ],
     "css": [
-      "assets/app-C4ZZbhbm.css"
+      "assets/app-C7sUYvIk.css"
     ]
   },
   "resources/js/Pages/Admin/Blog/Form.tsx": {
+<<<<<<< HEAD
     "file": "assets/Form-BpW3XC1Z.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+    "file": "assets/Form-qaQ0eI0B.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "Form",
     "src": "resources/js/Pages/Admin/Blog/Form.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
       "_AdminLayout-B2oCXheF.js",
       "_Skeleton-WrGJfRRY.js",
@@ -499,19 +723,31 @@
       "_Skeleton-DxMh3G4Z.js",
       "_Shell-oxyqnES4.js",
       "_AppLogo-BLcQhBg-.js"
+=======
+      "_AdminLayout-5AUn7w-p.js",
+      "_Charts-CszXgLwC.js",
+      "_Skeleton-Ct2EvzWi.js",
+      "_Shell-BqrlY9wR.js",
+      "_AppLogo-Hgv-mTH0.js"
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     ],
     "css": [
-      "assets/app-C4ZZbhbm.css"
+      "assets/app-C7sUYvIk.css"
     ]
   },
   "resources/js/Pages/Admin/Blog/Index.tsx": {
+<<<<<<< HEAD
     "file": "assets/Index-CUq-rJ7R.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+    "file": "assets/Index-D4avNCzd.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "Index",
     "src": "resources/js/Pages/Admin/Blog/Index.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
       "_AdminLayout-B2oCXheF.js",
       "_useInertiaLoading-BeRpDZtM.js",
@@ -529,19 +765,31 @@
       "_useInertiaLoading-ugvYuVT0.js",
       "_Shell-oxyqnES4.js",
       "_AppLogo-BLcQhBg-.js"
+=======
+      "_AdminLayout-5AUn7w-p.js",
+      "_useInertiaLoading-CMSApytV.js",
+      "_Charts-CszXgLwC.js",
+      "_Shell-BqrlY9wR.js",
+      "_AppLogo-Hgv-mTH0.js"
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     ],
     "css": [
-      "assets/app-C4ZZbhbm.css"
+      "assets/app-C7sUYvIk.css"
     ]
   },
   "resources/js/Pages/Admin/Contractors.tsx": {
+<<<<<<< HEAD
     "file": "assets/Contractors-LKOf6wOk.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+    "file": "assets/Contractors-ZLwDpvx7.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "Contractors",
     "src": "resources/js/Pages/Admin/Contractors.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
       "_AdminLayout-B2oCXheF.js",
       "_Shell-CxAvCjzz.js",
@@ -553,11 +801,25 @@
   },
   "resources/js/Pages/Admin/Help.tsx": {
     "file": "assets/Help-OeDdPg06.js",
+=======
+      "_AdminLayout-5AUn7w-p.js",
+      "_Charts-CszXgLwC.js",
+      "_Shell-BqrlY9wR.js",
+      "_AppLogo-Hgv-mTH0.js"
+    ],
+    "css": [
+      "assets/app-C7sUYvIk.css"
+    ]
+  },
+  "resources/js/Pages/Admin/Help.tsx": {
+    "file": "assets/Help-H5CeUrBZ.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "Help",
     "src": "resources/js/Pages/Admin/Help.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_AdminLayout-B2oCXheF.js",
       "_HelpCentre-GhciU1yZ.js",
       "_Shell-CxAvCjzz.js",
@@ -575,19 +837,32 @@
       "_AdminLayout-DsRHE9a6.js",
       "_Shell-oxyqnES4.js",
       "_AppLogo-BLcQhBg-.js"
+=======
+      "_AdminLayout-5AUn7w-p.js",
+      "_HelpCentre-DrVGU8jD.js",
+      "_Shell-BqrlY9wR.js",
+      "_AppLogo-Hgv-mTH0.js",
+      "_Charts-CszXgLwC.js",
+      "_Icon-CkFVTE9T.js"
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     ],
     "css": [
-      "assets/app-C4ZZbhbm.css"
+      "assets/app-C7sUYvIk.css"
     ]
   },
   "resources/js/Pages/Admin/Landlords.tsx": {
+<<<<<<< HEAD
     "file": "assets/Landlords-D0DAQw9k.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+    "file": "assets/Landlords-Cm99kgFy.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "Landlords",
     "src": "resources/js/Pages/Admin/Landlords.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
       "_AdminLayout-B2oCXheF.js",
       "_Shell-CxAvCjzz.js",
@@ -603,19 +878,30 @@
       "_AdminLayout-DsRHE9a6.js",
       "_Shell-oxyqnES4.js",
       "_AppLogo-BLcQhBg-.js"
+=======
+      "_AdminLayout-5AUn7w-p.js",
+      "_Charts-CszXgLwC.js",
+      "_Shell-BqrlY9wR.js",
+      "_AppLogo-Hgv-mTH0.js"
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     ],
     "css": [
-      "assets/app-C4ZZbhbm.css"
+      "assets/app-C7sUYvIk.css"
     ]
   },
   "resources/js/Pages/Admin/Overview.tsx": {
+<<<<<<< HEAD
     "file": "assets/Overview-CiHL-1Cz.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+    "file": "assets/Overview-DRwWnJ2E.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "Overview",
     "src": "resources/js/Pages/Admin/Overview.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
       "_AdminLayout-B2oCXheF.js",
       "_Charts-D2QvU_RP.js",
@@ -633,19 +919,30 @@
       "_Charts-De92soSD.js",
       "_Shell-oxyqnES4.js",
       "_AppLogo-BLcQhBg-.js"
+=======
+      "_AdminLayout-5AUn7w-p.js",
+      "_Charts-CszXgLwC.js",
+      "_Shell-BqrlY9wR.js",
+      "_AppLogo-Hgv-mTH0.js"
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     ],
     "css": [
-      "assets/app-C4ZZbhbm.css"
+      "assets/app-C7sUYvIk.css"
     ]
   },
   "resources/js/Pages/Admin/PromoCodes.tsx": {
+<<<<<<< HEAD
     "file": "assets/PromoCodes-B88LjvXj.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+    "file": "assets/PromoCodes-DpCZ54ac.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "PromoCodes",
     "src": "resources/js/Pages/Admin/PromoCodes.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
       "_AdminLayout-B2oCXheF.js",
       "_Skeleton-WrGJfRRY.js",
@@ -663,19 +960,31 @@
       "_Skeleton-DxMh3G4Z.js",
       "_Shell-oxyqnES4.js",
       "_AppLogo-BLcQhBg-.js"
+=======
+      "_AdminLayout-5AUn7w-p.js",
+      "_Skeleton-Ct2EvzWi.js",
+      "_Charts-CszXgLwC.js",
+      "_Shell-BqrlY9wR.js",
+      "_AppLogo-Hgv-mTH0.js"
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     ],
     "css": [
-      "assets/app-C4ZZbhbm.css"
+      "assets/app-C7sUYvIk.css"
     ]
   },
   "resources/js/Pages/Admin/Roles.tsx": {
+<<<<<<< HEAD
     "file": "assets/Roles-zkNc93CX.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+    "file": "assets/Roles-gSaG9mhw.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "Roles",
     "src": "resources/js/Pages/Admin/Roles.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
       "_AdminLayout-B2oCXheF.js",
       "_Shell-CxAvCjzz.js",
@@ -691,19 +1000,30 @@
       "_AdminLayout-DsRHE9a6.js",
       "_Shell-oxyqnES4.js",
       "_AppLogo-BLcQhBg-.js"
+=======
+      "_AdminLayout-5AUn7w-p.js",
+      "_Charts-CszXgLwC.js",
+      "_Shell-BqrlY9wR.js",
+      "_AppLogo-Hgv-mTH0.js"
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     ],
     "css": [
-      "assets/app-C4ZZbhbm.css"
+      "assets/app-C7sUYvIk.css"
     ]
   },
   "resources/js/Pages/Admin/Settings.tsx": {
+<<<<<<< HEAD
     "file": "assets/Settings-DfMbj-IN.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+    "file": "assets/Settings-DRuHc7Ph.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "Settings",
     "src": "resources/js/Pages/Admin/Settings.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
       "_AdminLayout-B2oCXheF.js",
       "_AppearanceSettings-CHQ1UVyH.js",
@@ -725,19 +1045,33 @@
       "_AppLogo-BLcQhBg-.js",
       "_Skeleton-DxMh3G4Z.js",
       "_Charts-De92soSD.js"
+=======
+      "_AdminLayout-5AUn7w-p.js",
+      "_AppearanceSettings-CZousfCD.js",
+      "_Charts-CszXgLwC.js",
+      "_Icon-CkFVTE9T.js",
+      "_Shell-BqrlY9wR.js",
+      "_AppLogo-Hgv-mTH0.js",
+      "_Skeleton-Ct2EvzWi.js"
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     ],
     "css": [
-      "assets/app-C4ZZbhbm.css"
+      "assets/app-C7sUYvIk.css"
     ]
   },
   "resources/js/Pages/Admin/Subscriptions.tsx": {
+<<<<<<< HEAD
     "file": "assets/Subscriptions-C4auQm69.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+    "file": "assets/Subscriptions-DzBvKte3.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "Subscriptions",
     "src": "resources/js/Pages/Admin/Subscriptions.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
       "_AdminLayout-B2oCXheF.js",
       "_Skeleton-WrGJfRRY.js",
@@ -755,19 +1089,31 @@
       "_Skeleton-DxMh3G4Z.js",
       "_Shell-oxyqnES4.js",
       "_AppLogo-BLcQhBg-.js"
+=======
+      "_AdminLayout-5AUn7w-p.js",
+      "_Skeleton-Ct2EvzWi.js",
+      "_Charts-CszXgLwC.js",
+      "_Shell-BqrlY9wR.js",
+      "_AppLogo-Hgv-mTH0.js"
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     ],
     "css": [
-      "assets/app-C4ZZbhbm.css"
+      "assets/app-C7sUYvIk.css"
     ]
   },
   "resources/js/Pages/Admin/System.tsx": {
+<<<<<<< HEAD
     "file": "assets/System-Td7ko5Fw.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+    "file": "assets/System-bnzxlAO5.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "System",
     "src": "resources/js/Pages/Admin/System.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
       "_AdminLayout-B2oCXheF.js",
       "_Shell-CxAvCjzz.js",
@@ -783,19 +1129,30 @@
       "_AdminLayout-DsRHE9a6.js",
       "_Shell-oxyqnES4.js",
       "_AppLogo-BLcQhBg-.js"
+=======
+      "_AdminLayout-5AUn7w-p.js",
+      "_Charts-CszXgLwC.js",
+      "_Shell-BqrlY9wR.js",
+      "_AppLogo-Hgv-mTH0.js"
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     ],
     "css": [
-      "assets/app-C4ZZbhbm.css"
+      "assets/app-C7sUYvIk.css"
     ]
   },
   "resources/js/Pages/Admin/Transactions.tsx": {
+<<<<<<< HEAD
     "file": "assets/Transactions-BrNp4wYr.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+    "file": "assets/Transactions-rdNqdecy.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "Transactions",
     "src": "resources/js/Pages/Admin/Transactions.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
       "_AdminLayout-B2oCXheF.js",
       "_useInertiaLoading-BeRpDZtM.js",
@@ -813,19 +1170,31 @@
       "_useInertiaLoading-ugvYuVT0.js",
       "_Shell-oxyqnES4.js",
       "_AppLogo-BLcQhBg-.js"
+=======
+      "_AdminLayout-5AUn7w-p.js",
+      "_Charts-CszXgLwC.js",
+      "_useInertiaLoading-CMSApytV.js",
+      "_Shell-BqrlY9wR.js",
+      "_AppLogo-Hgv-mTH0.js"
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     ],
     "css": [
-      "assets/app-C4ZZbhbm.css"
+      "assets/app-C7sUYvIk.css"
     ]
   },
   "resources/js/Pages/Admin/Users.tsx": {
+<<<<<<< HEAD
     "file": "assets/Users-BoHs4jtw.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+    "file": "assets/Users-DzE65BxK.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "Users",
     "src": "resources/js/Pages/Admin/Users.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
       "_AdminLayout-B2oCXheF.js",
       "_useInertiaLoading-BeRpDZtM.js",
@@ -843,19 +1212,31 @@
       "_useInertiaLoading-ugvYuVT0.js",
       "_Shell-oxyqnES4.js",
       "_AppLogo-BLcQhBg-.js"
+=======
+      "_AdminLayout-5AUn7w-p.js",
+      "_Charts-CszXgLwC.js",
+      "_useInertiaLoading-CMSApytV.js",
+      "_Shell-BqrlY9wR.js",
+      "_AppLogo-Hgv-mTH0.js"
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     ],
     "css": [
-      "assets/app-C4ZZbhbm.css"
+      "assets/app-C7sUYvIk.css"
     ]
   },
   "resources/js/Pages/Agency/Agents.tsx": {
+<<<<<<< HEAD
     "file": "assets/Agents-BY_hyB3y.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+    "file": "assets/Agents-DF27itxI.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "Agents",
     "src": "resources/js/Pages/Agency/Agents.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
       "_AgencyLayout-D1qlpGit.js",
       "_InviteAgentModal-Du0b8cXx.js",
@@ -879,19 +1260,33 @@
       "_AppLogo-BLcQhBg-.js",
       "_SubscriptionBanner-BNx8XP_5.js",
       "_Skeleton-DxMh3G4Z.js"
+=======
+      "_AgencyLayout-B1i95MF0.js",
+      "_InviteAgentModal-C-sZNHgW.js",
+      "_Charts-CszXgLwC.js",
+      "_Shell-BqrlY9wR.js",
+      "_AppLogo-Hgv-mTH0.js",
+      "_SubscriptionBanner-CKcJ9EXz.js",
+      "_Skeleton-Ct2EvzWi.js"
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     ],
     "css": [
-      "assets/app-C4ZZbhbm.css"
+      "assets/app-C7sUYvIk.css"
     ]
   },
   "resources/js/Pages/Agency/Billing.tsx": {
+<<<<<<< HEAD
     "file": "assets/Billing-GFNSulVj.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+    "file": "assets/Billing-DVor_1ge.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "Billing",
     "src": "resources/js/Pages/Agency/Billing.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
       "_AgencyLayout-D1qlpGit.js",
       "_Skeleton-WrGJfRRY.js",
@@ -912,19 +1307,32 @@
       "_Shell-oxyqnES4.js",
       "_AppLogo-BLcQhBg-.js",
       "_SubscriptionBanner-BNx8XP_5.js"
+=======
+      "_AgencyLayout-B1i95MF0.js",
+      "_Skeleton-Ct2EvzWi.js",
+      "_Charts-CszXgLwC.js",
+      "_Shell-BqrlY9wR.js",
+      "_AppLogo-Hgv-mTH0.js",
+      "_SubscriptionBanner-CKcJ9EXz.js"
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     ],
     "css": [
-      "assets/app-C4ZZbhbm.css"
+      "assets/app-C7sUYvIk.css"
     ]
   },
   "resources/js/Pages/Agency/Commission.tsx": {
+<<<<<<< HEAD
     "file": "assets/Commission-oYbQ9tnV.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+    "file": "assets/Commission-BDoSvOAg.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "Commission",
     "src": "resources/js/Pages/Agency/Commission.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
       "_AgencyLayout-D1qlpGit.js",
       "_Skeleton-WrGJfRRY.js",
@@ -946,19 +1354,32 @@
       "_Shell-oxyqnES4.js",
       "_AppLogo-BLcQhBg-.js",
       "_SubscriptionBanner-BNx8XP_5.js"
+=======
+      "_AgencyLayout-B1i95MF0.js",
+      "_Skeleton-Ct2EvzWi.js",
+      "_Icon-CkFVTE9T.js",
+      "_Shell-BqrlY9wR.js",
+      "_AppLogo-Hgv-mTH0.js",
+      "_SubscriptionBanner-CKcJ9EXz.js"
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     ],
     "css": [
-      "assets/app-C4ZZbhbm.css"
+      "assets/app-C7sUYvIk.css"
     ]
   },
   "resources/js/Pages/Agency/Compliance.tsx": {
+<<<<<<< HEAD
     "file": "assets/Compliance-Bew04RuP.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+    "file": "assets/Compliance-CJDabVcl.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "Compliance",
     "src": "resources/js/Pages/Agency/Compliance.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
       "_AgencyLayout-D1qlpGit.js",
       "_Skeleton-WrGJfRRY.js",
@@ -979,19 +1400,32 @@
       "_Shell-oxyqnES4.js",
       "_AppLogo-BLcQhBg-.js",
       "_SubscriptionBanner-BNx8XP_5.js"
+=======
+      "_AgencyLayout-B1i95MF0.js",
+      "_Skeleton-Ct2EvzWi.js",
+      "_Charts-CszXgLwC.js",
+      "_Shell-BqrlY9wR.js",
+      "_AppLogo-Hgv-mTH0.js",
+      "_SubscriptionBanner-CKcJ9EXz.js"
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     ],
     "css": [
-      "assets/app-C4ZZbhbm.css"
+      "assets/app-C7sUYvIk.css"
     ]
   },
   "resources/js/Pages/Agency/Contractors.tsx": {
+<<<<<<< HEAD
     "file": "assets/Contractors-C8UMS1tA.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+    "file": "assets/Contractors-BX0WnCKO.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "Contractors",
     "src": "resources/js/Pages/Agency/Contractors.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
       "_AgencyLayout-D1qlpGit.js",
       "_Skeleton-WrGJfRRY.js",
@@ -1012,19 +1446,32 @@
       "_Shell-oxyqnES4.js",
       "_AppLogo-BLcQhBg-.js",
       "_SubscriptionBanner-BNx8XP_5.js"
+=======
+      "_AgencyLayout-B1i95MF0.js",
+      "_Skeleton-Ct2EvzWi.js",
+      "_Charts-CszXgLwC.js",
+      "_Shell-BqrlY9wR.js",
+      "_AppLogo-Hgv-mTH0.js",
+      "_SubscriptionBanner-CKcJ9EXz.js"
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     ],
     "css": [
-      "assets/app-C4ZZbhbm.css"
+      "assets/app-C7sUYvIk.css"
     ]
   },
   "resources/js/Pages/Agency/CreateListing.tsx": {
+<<<<<<< HEAD
     "file": "assets/CreateListing-IHDcyH77.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+    "file": "assets/CreateListing-D9BAoxCp.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "CreateListing",
     "src": "resources/js/Pages/Agency/CreateListing.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
       "_AgencyLayout-D1qlpGit.js",
       "_ListingForm-1E3pwgML.js",
@@ -1039,11 +1486,27 @@
   },
   "resources/js/Pages/Agency/Help.tsx": {
     "file": "assets/Help-CH2stu4j.js",
+=======
+      "_AgencyLayout-B1i95MF0.js",
+      "_ListingForm-CRf-7Ysw.js",
+      "_Shell-BqrlY9wR.js",
+      "_AppLogo-Hgv-mTH0.js",
+      "_SubscriptionBanner-CKcJ9EXz.js",
+      "_Skeleton-Ct2EvzWi.js"
+    ],
+    "css": [
+      "assets/app-C7sUYvIk.css"
+    ]
+  },
+  "resources/js/Pages/Agency/Help.tsx": {
+    "file": "assets/Help-BWrB136r.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "Help",
     "src": "resources/js/Pages/Agency/Help.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_AgencyLayout-D1qlpGit.js",
       "_HelpCentre-GhciU1yZ.js",
       "_Shell-CxAvCjzz.js",
@@ -1065,19 +1528,33 @@
       "_AppLogo-BLcQhBg-.js",
       "_SubscriptionBanner-BNx8XP_5.js",
       "_Skeleton-DxMh3G4Z.js"
+=======
+      "_AgencyLayout-B1i95MF0.js",
+      "_HelpCentre-DrVGU8jD.js",
+      "_Shell-BqrlY9wR.js",
+      "_AppLogo-Hgv-mTH0.js",
+      "_SubscriptionBanner-CKcJ9EXz.js",
+      "_Charts-CszXgLwC.js",
+      "_Icon-CkFVTE9T.js"
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     ],
     "css": [
-      "assets/app-C4ZZbhbm.css"
+      "assets/app-C7sUYvIk.css"
     ]
   },
   "resources/js/Pages/Agency/Landlords.tsx": {
+<<<<<<< HEAD
     "file": "assets/Landlords-D5GSDHlm.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+    "file": "assets/Landlords-C1DUFehp.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "Landlords",
     "src": "resources/js/Pages/Agency/Landlords.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
       "_AgencyLayout-D1qlpGit.js",
       "_Shell-CxAvCjzz.js",
@@ -1096,19 +1573,31 @@
       "_Shell-oxyqnES4.js",
       "_AppLogo-BLcQhBg-.js",
       "_SubscriptionBanner-BNx8XP_5.js"
+=======
+      "_AgencyLayout-B1i95MF0.js",
+      "_Charts-CszXgLwC.js",
+      "_Shell-BqrlY9wR.js",
+      "_AppLogo-Hgv-mTH0.js",
+      "_SubscriptionBanner-CKcJ9EXz.js"
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     ],
     "css": [
-      "assets/app-C4ZZbhbm.css"
+      "assets/app-C7sUYvIk.css"
     ]
   },
   "resources/js/Pages/Agency/ListingsAllocation.tsx": {
+<<<<<<< HEAD
     "file": "assets/ListingsAllocation-D3BcbXyA.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+    "file": "assets/ListingsAllocation-DUcgaPpX.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "ListingsAllocation",
     "src": "resources/js/Pages/Agency/ListingsAllocation.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
       "_AgencyLayout-D1qlpGit.js",
       "_Shell-CxAvCjzz.js",
@@ -1126,19 +1615,30 @@
       "_Shell-oxyqnES4.js",
       "_AppLogo-BLcQhBg-.js",
       "_SubscriptionBanner-BNx8XP_5.js"
+=======
+      "_AgencyLayout-B1i95MF0.js",
+      "_Shell-BqrlY9wR.js",
+      "_AppLogo-Hgv-mTH0.js",
+      "_SubscriptionBanner-CKcJ9EXz.js"
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     ],
     "css": [
-      "assets/app-C4ZZbhbm.css"
+      "assets/app-C7sUYvIk.css"
     ]
   },
   "resources/js/Pages/Agency/Maintenance.tsx": {
+<<<<<<< HEAD
     "file": "assets/Maintenance-_9YtOY5V.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+    "file": "assets/Maintenance-Bds3gfYo.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "Maintenance",
     "src": "resources/js/Pages/Agency/Maintenance.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
       "_AgencyLayout-D1qlpGit.js",
       "_MaintenanceBoard-D70vm52L.js",
@@ -1163,19 +1663,34 @@
       "_RateContractorModal-M9YjfQon.js",
       "_Icon-Bupzo4lG.js",
       "_Charts-De92soSD.js"
+=======
+      "_AgencyLayout-B1i95MF0.js",
+      "_MaintenanceBoard-9nLmhJg4.js",
+      "_Shell-BqrlY9wR.js",
+      "_AppLogo-Hgv-mTH0.js",
+      "_SubscriptionBanner-CKcJ9EXz.js",
+      "_RateContractorModal-B_-w4GHz.js",
+      "_Icon-CkFVTE9T.js",
+      "_Charts-CszXgLwC.js"
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     ],
     "css": [
-      "assets/app-C4ZZbhbm.css"
+      "assets/app-C7sUYvIk.css"
     ]
   },
   "resources/js/Pages/Agency/MaintenanceQuotes.tsx": {
+<<<<<<< HEAD
     "file": "assets/MaintenanceQuotes-yJ01CMZD.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+    "file": "assets/MaintenanceQuotes-C-6HnrXP.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "MaintenanceQuotes",
     "src": "resources/js/Pages/Agency/MaintenanceQuotes.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
       "_AgencyLayout-D1qlpGit.js",
       "_Shell-CxAvCjzz.js",
@@ -1193,19 +1708,30 @@
       "_Shell-oxyqnES4.js",
       "_AppLogo-BLcQhBg-.js",
       "_SubscriptionBanner-BNx8XP_5.js"
+=======
+      "_AgencyLayout-B1i95MF0.js",
+      "_Shell-BqrlY9wR.js",
+      "_AppLogo-Hgv-mTH0.js",
+      "_SubscriptionBanner-CKcJ9EXz.js"
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     ],
     "css": [
-      "assets/app-C4ZZbhbm.css"
+      "assets/app-C7sUYvIk.css"
     ]
   },
   "resources/js/Pages/Agency/Messages.tsx": {
+<<<<<<< HEAD
     "file": "assets/Messages-qkWmeyNI.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+    "file": "assets/Messages-0PZFD8IM.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "Messages",
     "src": "resources/js/Pages/Agency/Messages.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
       "_AgencyLayout-D1qlpGit.js",
       "_Icon-NU758mL4.js",
@@ -1226,19 +1752,32 @@
       "_Shell-oxyqnES4.js",
       "_AppLogo-BLcQhBg-.js",
       "_SubscriptionBanner-BNx8XP_5.js"
+=======
+      "_AgencyLayout-B1i95MF0.js",
+      "_Icon-CkFVTE9T.js",
+      "_Charts-CszXgLwC.js",
+      "_Shell-BqrlY9wR.js",
+      "_AppLogo-Hgv-mTH0.js",
+      "_SubscriptionBanner-CKcJ9EXz.js"
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     ],
     "css": [
-      "assets/app-C4ZZbhbm.css"
+      "assets/app-C7sUYvIk.css"
     ]
   },
   "resources/js/Pages/Agency/Overview.tsx": {
+<<<<<<< HEAD
     "file": "assets/Overview-KADzFvRJ.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+    "file": "assets/Overview-4Hn7qNDa.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "Overview",
     "src": "resources/js/Pages/Agency/Overview.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
       "_AgencyLayout-D1qlpGit.js",
       "_InviteAgentModal-Du0b8cXx.js",
@@ -1262,19 +1801,33 @@
       "_AppLogo-BLcQhBg-.js",
       "_SubscriptionBanner-BNx8XP_5.js",
       "_Skeleton-DxMh3G4Z.js"
+=======
+      "_AgencyLayout-B1i95MF0.js",
+      "_InviteAgentModal-C-sZNHgW.js",
+      "_Charts-CszXgLwC.js",
+      "_Shell-BqrlY9wR.js",
+      "_AppLogo-Hgv-mTH0.js",
+      "_SubscriptionBanner-CKcJ9EXz.js",
+      "_Skeleton-Ct2EvzWi.js"
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     ],
     "css": [
-      "assets/app-C4ZZbhbm.css"
+      "assets/app-C7sUYvIk.css"
     ]
   },
   "resources/js/Pages/Agency/Pipeline.tsx": {
+<<<<<<< HEAD
     "file": "assets/Pipeline-Cvr-BOu5.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+    "file": "assets/Pipeline-De98CdBf.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "Pipeline",
     "src": "resources/js/Pages/Agency/Pipeline.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
       "_AgencyLayout-D1qlpGit.js",
       "_Shell-CxAvCjzz.js",
@@ -1293,19 +1846,31 @@
       "_Shell-oxyqnES4.js",
       "_AppLogo-BLcQhBg-.js",
       "_SubscriptionBanner-BNx8XP_5.js"
+=======
+      "_AgencyLayout-B1i95MF0.js",
+      "_Charts-CszXgLwC.js",
+      "_Shell-BqrlY9wR.js",
+      "_AppLogo-Hgv-mTH0.js",
+      "_SubscriptionBanner-CKcJ9EXz.js"
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     ],
     "css": [
-      "assets/app-C4ZZbhbm.css"
+      "assets/app-C7sUYvIk.css"
     ]
   },
   "resources/js/Pages/Agency/Reports.tsx": {
+<<<<<<< HEAD
     "file": "assets/Reports-DN2l_4RD.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+    "file": "assets/Reports-DV9amsxE.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "Reports",
     "src": "resources/js/Pages/Agency/Reports.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
       "_AgencyLayout-D1qlpGit.js",
       "_Charts-D2QvU_RP.js",
@@ -1325,19 +1890,31 @@
       "_Shell-oxyqnES4.js",
       "_AppLogo-BLcQhBg-.js",
       "_SubscriptionBanner-BNx8XP_5.js"
+=======
+      "_AgencyLayout-B1i95MF0.js",
+      "_Charts-CszXgLwC.js",
+      "_Shell-BqrlY9wR.js",
+      "_AppLogo-Hgv-mTH0.js",
+      "_SubscriptionBanner-CKcJ9EXz.js"
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     ],
     "css": [
-      "assets/app-C4ZZbhbm.css"
+      "assets/app-C7sUYvIk.css"
     ]
   },
   "resources/js/Pages/Agency/Settings.tsx": {
+<<<<<<< HEAD
     "file": "assets/Settings-LLl-4Tg9.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+    "file": "assets/Settings-Bt11FDz4.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "Settings",
     "src": "resources/js/Pages/Agency/Settings.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
       "_AgencyLayout-D1qlpGit.js",
       "_AppearanceSettings-CHQ1UVyH.js",
@@ -1362,19 +1939,34 @@
       "_AppLogo-BLcQhBg-.js",
       "_SubscriptionBanner-BNx8XP_5.js",
       "_Skeleton-DxMh3G4Z.js"
+=======
+      "_AgencyLayout-B1i95MF0.js",
+      "_AppearanceSettings-CZousfCD.js",
+      "_Charts-CszXgLwC.js",
+      "_Icon-CkFVTE9T.js",
+      "_Shell-BqrlY9wR.js",
+      "_AppLogo-Hgv-mTH0.js",
+      "_SubscriptionBanner-CKcJ9EXz.js",
+      "_Skeleton-Ct2EvzWi.js"
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     ],
     "css": [
-      "assets/app-C4ZZbhbm.css"
+      "assets/app-C7sUYvIk.css"
     ]
   },
   "resources/js/Pages/Agency/Tenants.tsx": {
+<<<<<<< HEAD
     "file": "assets/Tenants-BQWkqcwV.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+    "file": "assets/Tenants-B2qulCKt.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "Tenants",
     "src": "resources/js/Pages/Agency/Tenants.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
       "_AgencyLayout-D1qlpGit.js",
       "_Shell-CxAvCjzz.js",
@@ -1393,19 +1985,31 @@
       "_Shell-oxyqnES4.js",
       "_AppLogo-BLcQhBg-.js",
       "_SubscriptionBanner-BNx8XP_5.js"
+=======
+      "_AgencyLayout-B1i95MF0.js",
+      "_Charts-CszXgLwC.js",
+      "_Shell-BqrlY9wR.js",
+      "_AppLogo-Hgv-mTH0.js",
+      "_SubscriptionBanner-CKcJ9EXz.js"
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     ],
     "css": [
-      "assets/app-C4ZZbhbm.css"
+      "assets/app-C7sUYvIk.css"
     ]
   },
   "resources/js/Pages/Agency/TrustAccount.tsx": {
+<<<<<<< HEAD
     "file": "assets/TrustAccount-CAf7pEHh.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+    "file": "assets/TrustAccount-C_Dgn9_J.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "TrustAccount",
     "src": "resources/js/Pages/Agency/TrustAccount.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
       "_AgencyLayout-D1qlpGit.js",
       "_Skeleton-WrGJfRRY.js",
@@ -1426,19 +2030,32 @@
       "_Shell-oxyqnES4.js",
       "_AppLogo-BLcQhBg-.js",
       "_SubscriptionBanner-BNx8XP_5.js"
+=======
+      "_AgencyLayout-B1i95MF0.js",
+      "_Skeleton-Ct2EvzWi.js",
+      "_Charts-CszXgLwC.js",
+      "_Shell-BqrlY9wR.js",
+      "_AppLogo-Hgv-mTH0.js",
+      "_SubscriptionBanner-CKcJ9EXz.js"
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     ],
     "css": [
-      "assets/app-C4ZZbhbm.css"
+      "assets/app-C7sUYvIk.css"
     ]
   },
   "resources/js/Pages/Agent/Analytics.tsx": {
+<<<<<<< HEAD
     "file": "assets/Analytics-DGnMl8xt.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+    "file": "assets/Analytics-JremHDyT.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "Analytics",
     "src": "resources/js/Pages/Agent/Analytics.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
       "_AgentLayout-DY2hzqg3.js",
       "_useInertiaLoading-BeRpDZtM.js",
@@ -1458,19 +2075,31 @@
       "_Charts-De92soSD.js",
       "_Shell-oxyqnES4.js",
       "_AppLogo-BLcQhBg-.js"
+=======
+      "_AgentLayout-DvnHfJzN.js",
+      "_useInertiaLoading-CMSApytV.js",
+      "_Charts-CszXgLwC.js",
+      "_Shell-BqrlY9wR.js",
+      "_AppLogo-Hgv-mTH0.js"
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     ],
     "css": [
-      "assets/app-C4ZZbhbm.css"
+      "assets/app-C7sUYvIk.css"
     ]
   },
   "resources/js/Pages/Agent/Commission.tsx": {
+<<<<<<< HEAD
     "file": "assets/Commission-DLV5Xx92.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+    "file": "assets/Commission-pbHW-dxA.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "Commission",
     "src": "resources/js/Pages/Agent/Commission.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
       "_AgentLayout-DY2hzqg3.js",
       "_Shell-CxAvCjzz.js",
@@ -1486,19 +2115,29 @@
       "_AgentLayout-B_A3XUjQ.js",
       "_Shell-oxyqnES4.js",
       "_AppLogo-BLcQhBg-.js"
+=======
+      "_AgentLayout-DvnHfJzN.js",
+      "_Shell-BqrlY9wR.js",
+      "_AppLogo-Hgv-mTH0.js"
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     ],
     "css": [
-      "assets/app-C4ZZbhbm.css"
+      "assets/app-C7sUYvIk.css"
     ]
   },
   "resources/js/Pages/Agent/CreateInspection.tsx": {
+<<<<<<< HEAD
     "file": "assets/CreateInspection-Dy5OBh4i.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+    "file": "assets/CreateInspection-CosVOgit.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "CreateInspection",
     "src": "resources/js/Pages/Agent/CreateInspection.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
       "_AgentLayout-DY2hzqg3.js",
       "_Skeleton-WrGJfRRY.js",
@@ -1518,19 +2157,31 @@
       "_Icon-Bupzo4lG.js",
       "_Shell-oxyqnES4.js",
       "_AppLogo-BLcQhBg-.js"
+=======
+      "_AgentLayout-DvnHfJzN.js",
+      "_Skeleton-Ct2EvzWi.js",
+      "_Icon-CkFVTE9T.js",
+      "_Shell-BqrlY9wR.js",
+      "_AppLogo-Hgv-mTH0.js"
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     ],
     "css": [
-      "assets/app-C4ZZbhbm.css"
+      "assets/app-C7sUYvIk.css"
     ]
   },
   "resources/js/Pages/Agent/CreateListing.tsx": {
+<<<<<<< HEAD
     "file": "assets/CreateListing-YqXqcJER.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+    "file": "assets/CreateListing-idBhpeC5.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "CreateListing",
     "src": "resources/js/Pages/Agent/CreateListing.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
       "_AgentLayout-DY2hzqg3.js",
       "_ListingForm-1E3pwgML.js",
@@ -1550,19 +2201,31 @@
       "_Shell-oxyqnES4.js",
       "_AppLogo-BLcQhBg-.js",
       "_Skeleton-DxMh3G4Z.js"
+=======
+      "_AgentLayout-DvnHfJzN.js",
+      "_ListingForm-CRf-7Ysw.js",
+      "_Shell-BqrlY9wR.js",
+      "_AppLogo-Hgv-mTH0.js",
+      "_Skeleton-Ct2EvzWi.js"
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     ],
     "css": [
-      "assets/app-C4ZZbhbm.css"
+      "assets/app-C7sUYvIk.css"
     ]
   },
   "resources/js/Pages/Agent/EditListing.tsx": {
+<<<<<<< HEAD
     "file": "assets/EditListing-BxHGKqOa.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+    "file": "assets/EditListing-DYYmeI04.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "EditListing",
     "src": "resources/js/Pages/Agent/EditListing.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
       "_AgentLayout-DY2hzqg3.js",
       "_ListingForm-1E3pwgML.js",
@@ -1582,19 +2245,31 @@
       "_Shell-oxyqnES4.js",
       "_AppLogo-BLcQhBg-.js",
       "_Skeleton-DxMh3G4Z.js"
+=======
+      "_AgentLayout-DvnHfJzN.js",
+      "_ListingForm-CRf-7Ysw.js",
+      "_Shell-BqrlY9wR.js",
+      "_AppLogo-Hgv-mTH0.js",
+      "_Skeleton-Ct2EvzWi.js"
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     ],
     "css": [
-      "assets/app-C4ZZbhbm.css"
+      "assets/app-C7sUYvIk.css"
     ]
   },
   "resources/js/Pages/Agent/FfcCompliance.tsx": {
+<<<<<<< HEAD
     "file": "assets/FfcCompliance-BEb09dw9.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+    "file": "assets/FfcCompliance-CUWJVZDW.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "FfcCompliance",
     "src": "resources/js/Pages/Agent/FfcCompliance.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
       "_AgentLayout-DY2hzqg3.js",
       "_Skeleton-WrGJfRRY.js",
@@ -1607,11 +2282,25 @@
   },
   "resources/js/Pages/Agent/Help.tsx": {
     "file": "assets/Help-WZWKJsKl.js",
+=======
+      "_AgentLayout-DvnHfJzN.js",
+      "_Skeleton-Ct2EvzWi.js",
+      "_Shell-BqrlY9wR.js",
+      "_AppLogo-Hgv-mTH0.js"
+    ],
+    "css": [
+      "assets/app-C7sUYvIk.css"
+    ]
+  },
+  "resources/js/Pages/Agent/Help.tsx": {
+    "file": "assets/Help-BVmKCARv.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "Help",
     "src": "resources/js/Pages/Agent/Help.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_AgentLayout-DY2hzqg3.js",
       "_HelpCentre-GhciU1yZ.js",
       "_Shell-CxAvCjzz.js",
@@ -1630,19 +2319,32 @@
       "_Skeleton-DxMh3G4Z.js",
       "_Shell-oxyqnES4.js",
       "_AppLogo-BLcQhBg-.js"
+=======
+      "_AgentLayout-DvnHfJzN.js",
+      "_HelpCentre-DrVGU8jD.js",
+      "_Shell-BqrlY9wR.js",
+      "_AppLogo-Hgv-mTH0.js",
+      "_Charts-CszXgLwC.js",
+      "_Icon-CkFVTE9T.js"
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     ],
     "css": [
-      "assets/app-C4ZZbhbm.css"
+      "assets/app-C7sUYvIk.css"
     ]
   },
   "resources/js/Pages/Agent/Inspections.tsx": {
+<<<<<<< HEAD
     "file": "assets/Inspections-DavBZAUu.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+    "file": "assets/Inspections-KLGePGnv.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "Inspections",
     "src": "resources/js/Pages/Agent/Inspections.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
       "_AgentLayout-DY2hzqg3.js",
       "_Icon-NU758mL4.js",
@@ -1660,19 +2362,30 @@
       "_Icon-Bupzo4lG.js",
       "_Shell-oxyqnES4.js",
       "_AppLogo-BLcQhBg-.js"
+=======
+      "_AgentLayout-DvnHfJzN.js",
+      "_Icon-CkFVTE9T.js",
+      "_Shell-BqrlY9wR.js",
+      "_AppLogo-Hgv-mTH0.js"
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     ],
     "css": [
-      "assets/app-C4ZZbhbm.css"
+      "assets/app-C7sUYvIk.css"
     ]
   },
   "resources/js/Pages/Agent/Listings.tsx": {
+<<<<<<< HEAD
     "file": "assets/Listings-nZuwghAL.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+    "file": "assets/Listings-D1qdOs1u.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "Listings",
     "src": "resources/js/Pages/Agent/Listings.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
       "_AgentLayout-DY2hzqg3.js",
       "_InviteTenantModal-DyEUmQJc.js",
@@ -1694,19 +2407,32 @@
       "_Shell-oxyqnES4.js",
       "_AppLogo-BLcQhBg-.js",
       "_Skeleton-DxMh3G4Z.js"
+=======
+      "_AgentLayout-DvnHfJzN.js",
+      "_InviteTenantModal-u99hHgZE.js",
+      "_Icon-CkFVTE9T.js",
+      "_Shell-BqrlY9wR.js",
+      "_AppLogo-Hgv-mTH0.js",
+      "_Skeleton-Ct2EvzWi.js"
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     ],
     "css": [
-      "assets/app-C4ZZbhbm.css"
+      "assets/app-C7sUYvIk.css"
     ]
   },
   "resources/js/Pages/Agent/Maintenance.tsx": {
+<<<<<<< HEAD
     "file": "assets/Maintenance-ii1zhkva.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+    "file": "assets/Maintenance-vj7J70Hw.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "Maintenance",
     "src": "resources/js/Pages/Agent/Maintenance.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
       "_AgentLayout-DY2hzqg3.js",
       "_MaintenanceBoard-D70vm52L.js",
@@ -1729,19 +2455,33 @@
       "_RateContractorModal-M9YjfQon.js",
       "_Icon-Bupzo4lG.js",
       "_Charts-De92soSD.js"
+=======
+      "_AgentLayout-DvnHfJzN.js",
+      "_MaintenanceBoard-9nLmhJg4.js",
+      "_Shell-BqrlY9wR.js",
+      "_AppLogo-Hgv-mTH0.js",
+      "_RateContractorModal-B_-w4GHz.js",
+      "_Icon-CkFVTE9T.js",
+      "_Charts-CszXgLwC.js"
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     ],
     "css": [
-      "assets/app-C4ZZbhbm.css"
+      "assets/app-C7sUYvIk.css"
     ]
   },
   "resources/js/Pages/Agent/Messages.tsx": {
+<<<<<<< HEAD
     "file": "assets/Messages-C3HFySc_.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+    "file": "assets/Messages-DbsiYSNA.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "Messages",
     "src": "resources/js/Pages/Agent/Messages.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
       "_AgentLayout-DY2hzqg3.js",
       "_Skeleton-WrGJfRRY.js",
@@ -1759,19 +2499,30 @@
       "_Skeleton-DxMh3G4Z.js",
       "_Shell-oxyqnES4.js",
       "_AppLogo-BLcQhBg-.js"
+=======
+      "_AgentLayout-DvnHfJzN.js",
+      "_Skeleton-Ct2EvzWi.js",
+      "_Shell-BqrlY9wR.js",
+      "_AppLogo-Hgv-mTH0.js"
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     ],
     "css": [
-      "assets/app-C4ZZbhbm.css"
+      "assets/app-C7sUYvIk.css"
     ]
   },
   "resources/js/Pages/Agent/Overview.tsx": {
+<<<<<<< HEAD
     "file": "assets/Overview-umAeyOCu.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+    "file": "assets/Overview-C4U0n_Mr.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "Overview",
     "src": "resources/js/Pages/Agent/Overview.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
       "_AgentLayout-DY2hzqg3.js",
       "_Charts-D2QvU_RP.js",
@@ -1789,19 +2540,30 @@
       "_Charts-De92soSD.js",
       "_Shell-oxyqnES4.js",
       "_AppLogo-BLcQhBg-.js"
+=======
+      "_AgentLayout-DvnHfJzN.js",
+      "_Charts-CszXgLwC.js",
+      "_Shell-BqrlY9wR.js",
+      "_AppLogo-Hgv-mTH0.js"
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     ],
     "css": [
-      "assets/app-C4ZZbhbm.css"
+      "assets/app-C7sUYvIk.css"
     ]
   },
   "resources/js/Pages/Agent/Pipeline.tsx": {
+<<<<<<< HEAD
     "file": "assets/Pipeline-DF0T8ffU.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+    "file": "assets/Pipeline-1S9Wn1co.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "Pipeline",
     "src": "resources/js/Pages/Agent/Pipeline.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
       "_AgentLayout-DY2hzqg3.js",
       "_Skeleton-WrGJfRRY.js",
@@ -1819,19 +2581,30 @@
       "_Skeleton-DxMh3G4Z.js",
       "_Shell-oxyqnES4.js",
       "_AppLogo-BLcQhBg-.js"
+=======
+      "_AgentLayout-DvnHfJzN.js",
+      "_Skeleton-Ct2EvzWi.js",
+      "_Shell-BqrlY9wR.js",
+      "_AppLogo-Hgv-mTH0.js"
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     ],
     "css": [
-      "assets/app-C4ZZbhbm.css"
+      "assets/app-C7sUYvIk.css"
     ]
   },
   "resources/js/Pages/Agent/Settings.tsx": {
+<<<<<<< HEAD
     "file": "assets/Settings-Do9ivOT6.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+    "file": "assets/Settings-BKnNEHLq.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "Settings",
     "src": "resources/js/Pages/Agent/Settings.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
       "_AgentLayout-DY2hzqg3.js",
       "_Skeleton-WrGJfRRY.js",
@@ -1853,19 +2626,32 @@
       "_Shell-oxyqnES4.js",
       "_AppLogo-BLcQhBg-.js",
       "_Charts-De92soSD.js"
+=======
+      "_AgentLayout-DvnHfJzN.js",
+      "_Skeleton-Ct2EvzWi.js",
+      "_AppearanceSettings-CZousfCD.js",
+      "_Shell-BqrlY9wR.js",
+      "_AppLogo-Hgv-mTH0.js",
+      "_Charts-CszXgLwC.js"
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     ],
     "css": [
-      "assets/app-C4ZZbhbm.css"
+      "assets/app-C7sUYvIk.css"
     ]
   },
   "resources/js/Pages/Agent/ShowInspection.tsx": {
+<<<<<<< HEAD
     "file": "assets/ShowInspection-C0gJfPhm.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+    "file": "assets/ShowInspection-BEOLw94d.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "ShowInspection",
     "src": "resources/js/Pages/Agent/ShowInspection.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
       "_AgentLayout-DY2hzqg3.js",
       "_Shell-CxAvCjzz.js",
@@ -1881,19 +2667,29 @@
       "_AgentLayout-B_A3XUjQ.js",
       "_Shell-oxyqnES4.js",
       "_AppLogo-BLcQhBg-.js"
+=======
+      "_AgentLayout-DvnHfJzN.js",
+      "_Shell-BqrlY9wR.js",
+      "_AppLogo-Hgv-mTH0.js"
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     ],
     "css": [
-      "assets/app-C4ZZbhbm.css"
+      "assets/app-C7sUYvIk.css"
     ]
   },
   "resources/js/Pages/Agent/Tenants.tsx": {
+<<<<<<< HEAD
     "file": "assets/Tenants-V6hfB24v.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+    "file": "assets/Tenants-Bo3dxO1t.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "Tenants",
     "src": "resources/js/Pages/Agent/Tenants.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
       "_AgentLayout-DY2hzqg3.js",
       "_Shell-CxAvCjzz.js",
@@ -1909,19 +2705,29 @@
       "_AgentLayout-B_A3XUjQ.js",
       "_Shell-oxyqnES4.js",
       "_AppLogo-BLcQhBg-.js"
+=======
+      "_AgentLayout-DvnHfJzN.js",
+      "_Shell-BqrlY9wR.js",
+      "_AppLogo-Hgv-mTH0.js"
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     ],
     "css": [
-      "assets/app-C4ZZbhbm.css"
+      "assets/app-C7sUYvIk.css"
     ]
   },
   "resources/js/Pages/Agent/Viewings.tsx": {
+<<<<<<< HEAD
     "file": "assets/Viewings-CJO-T3ni.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+    "file": "assets/Viewings-CnKkBtyM.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "Viewings",
     "src": "resources/js/Pages/Agent/Viewings.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
       "_AgentLayout-DY2hzqg3.js",
       "_Skeleton-WrGJfRRY.js",
@@ -1939,19 +2745,30 @@
       "_Skeleton-DxMh3G4Z.js",
       "_Shell-oxyqnES4.js",
       "_AppLogo-BLcQhBg-.js"
+=======
+      "_AgentLayout-DvnHfJzN.js",
+      "_Skeleton-Ct2EvzWi.js",
+      "_Shell-BqrlY9wR.js",
+      "_AppLogo-Hgv-mTH0.js"
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     ],
     "css": [
-      "assets/app-C4ZZbhbm.css"
+      "assets/app-C7sUYvIk.css"
     ]
   },
   "resources/js/Pages/Auth/AcceptInvite.tsx": {
+<<<<<<< HEAD
     "file": "assets/AcceptInvite-BjjgmjGW.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+    "file": "assets/AcceptInvite-BF7ae3M8.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "AcceptInvite",
     "src": "resources/js/Pages/Auth/AcceptInvite.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
       "_AuthLayout-Di7hA2fB.js",
       "_FormField-BO-7T-zg.js",
@@ -1966,33 +2783,51 @@
 =======
       "_AppLogo-BLcQhBg-.js",
       "_FormField-B6X3aIQJ.js"
+=======
+      "_AppLogo-Hgv-mTH0.js",
+      "_FormField-CsZfy70B.js"
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     ],
     "css": [
-      "assets/app-C4ZZbhbm.css"
+      "assets/app-C7sUYvIk.css"
     ]
   },
   "resources/js/Pages/Auth/Access.tsx": {
+<<<<<<< HEAD
     "file": "assets/Access-BlU_ASgo.js",
+=======
+    "file": "assets/Access-RqSrg1fE.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "Access",
     "src": "resources/js/Pages/Auth/Access.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_AppLogo-BLcQhBg-.js",
       "_AuthKit-CH1BKcIX.js"
+=======
+      "_AppLogo-Hgv-mTH0.js",
+      "_AuthKit-CqHGXNBA.js"
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     ],
     "css": [
-      "assets/app-C4ZZbhbm.css"
+      "assets/app-C7sUYvIk.css"
     ]
   },
   "resources/js/Pages/Auth/ForgotPassword.tsx": {
+<<<<<<< HEAD
     "file": "assets/ForgotPassword-XWfF_khT.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+    "file": "assets/ForgotPassword-ovSdjuuV.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "ForgotPassword",
     "src": "resources/js/Pages/Auth/ForgotPassword.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
       "_AuthLayout-Di7hA2fB.js",
       "_FormField-BO-7T-zg.js",
@@ -2037,19 +2872,28 @@
 =======
       "_AuthKit-CH1BKcIX.js",
       "_AppLogo-BLcQhBg-.js"
+=======
+      "_AuthKit-CqHGXNBA.js",
+      "_AppLogo-Hgv-mTH0.js"
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     ],
     "css": [
-      "assets/app-C4ZZbhbm.css"
+      "assets/app-C7sUYvIk.css"
     ]
   },
   "resources/js/Pages/Auth/ResetPassword.tsx": {
+<<<<<<< HEAD
     "file": "assets/ResetPassword-D9f3_Sb_.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+    "file": "assets/ResetPassword-9GRgUYkV.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "ResetPassword",
     "src": "resources/js/Pages/Auth/ResetPassword.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
       "_AuthLayout-Di7hA2fB.js",
       "_FormField-BO-7T-zg.js",
@@ -2064,19 +2908,28 @@
 =======
       "_AuthKit-CH1BKcIX.js",
       "_AppLogo-BLcQhBg-.js"
+=======
+      "_AuthKit-CqHGXNBA.js",
+      "_AppLogo-Hgv-mTH0.js"
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     ],
     "css": [
-      "assets/app-C4ZZbhbm.css"
+      "assets/app-C7sUYvIk.css"
     ]
   },
   "resources/js/Pages/Billing/SelectPlan.tsx": {
+<<<<<<< HEAD
     "file": "assets/SelectPlan-Bb7FB0u7.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+    "file": "assets/SelectPlan-DdF0F0zs.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "SelectPlan",
     "src": "resources/js/Pages/Billing/SelectPlan.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
       "_AppLogo-BYfe6pUy.js",
       "_Skeleton-WrGJfRRY.js"
@@ -2090,19 +2943,28 @@
 =======
       "_AppLogo-BLcQhBg-.js",
       "_Skeleton-DxMh3G4Z.js"
+=======
+      "_AppLogo-Hgv-mTH0.js",
+      "_Skeleton-Ct2EvzWi.js"
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     ],
     "css": [
-      "assets/app-C4ZZbhbm.css"
+      "assets/app-C7sUYvIk.css"
     ]
   },
   "resources/js/Pages/Contractor/Finance.tsx": {
+<<<<<<< HEAD
     "file": "assets/Finance-D1hCoPTc.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+    "file": "assets/Finance-DFzW3a6W.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "Finance",
     "src": "resources/js/Pages/Contractor/Finance.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
       "_ContractorLayout-2wawK-_c.js",
       "_Charts-D2QvU_RP.js",
@@ -2120,19 +2982,30 @@
       "_Charts-De92soSD.js",
       "_Shell-oxyqnES4.js",
       "_AppLogo-BLcQhBg-.js"
+=======
+      "_ContractorLayout-CU-ofnJ3.js",
+      "_Charts-CszXgLwC.js",
+      "_Shell-BqrlY9wR.js",
+      "_AppLogo-Hgv-mTH0.js"
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     ],
     "css": [
-      "assets/app-C4ZZbhbm.css"
+      "assets/app-C7sUYvIk.css"
     ]
   },
   "resources/js/Pages/Contractor/Help.tsx": {
+<<<<<<< HEAD
     "file": "assets/Help-Al0XIq9H.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+    "file": "assets/Help-CSKlrLeC.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "Help",
     "src": "resources/js/Pages/Contractor/Help.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
       "_ContractorLayout-2wawK-_c.js",
       "_HelpCentre-GhciU1yZ.js",
@@ -2154,19 +3027,32 @@
       "_AppLogo-BLcQhBg-.js",
       "_Charts-De92soSD.js",
       "_Icon-Bupzo4lG.js"
+=======
+      "_ContractorLayout-CU-ofnJ3.js",
+      "_HelpCentre-DrVGU8jD.js",
+      "_Shell-BqrlY9wR.js",
+      "_AppLogo-Hgv-mTH0.js",
+      "_Charts-CszXgLwC.js",
+      "_Icon-CkFVTE9T.js"
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     ],
     "css": [
-      "assets/app-C4ZZbhbm.css"
+      "assets/app-C7sUYvIk.css"
     ]
   },
   "resources/js/Pages/Contractor/Invoices.tsx": {
+<<<<<<< HEAD
     "file": "assets/Invoices-hwj2o9XO.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+    "file": "assets/Invoices-DWOgBQ33.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "Invoices",
     "src": "resources/js/Pages/Contractor/Invoices.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
       "_ContractorLayout-2wawK-_c.js",
       "_Skeleton-WrGJfRRY.js",
@@ -2186,19 +3072,31 @@
       "_useInertiaLoading-ugvYuVT0.js",
       "_Shell-oxyqnES4.js",
       "_AppLogo-BLcQhBg-.js"
+=======
+      "_ContractorLayout-CU-ofnJ3.js",
+      "_Skeleton-Ct2EvzWi.js",
+      "_useInertiaLoading-CMSApytV.js",
+      "_Shell-BqrlY9wR.js",
+      "_AppLogo-Hgv-mTH0.js"
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     ],
     "css": [
-      "assets/app-C4ZZbhbm.css"
+      "assets/app-C7sUYvIk.css"
     ]
   },
   "resources/js/Pages/Contractor/Jobs.tsx": {
+<<<<<<< HEAD
     "file": "assets/Jobs-Db2YvQhi.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+    "file": "assets/Jobs-1Bu49ynL.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "Jobs",
     "src": "resources/js/Pages/Contractor/Jobs.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
       "_ContractorLayout-2wawK-_c.js",
       "_Shell-CxAvCjzz.js",
@@ -2214,19 +3112,29 @@
       "_ContractorLayout-BiRRDvPc.js",
       "_Shell-oxyqnES4.js",
       "_AppLogo-BLcQhBg-.js"
+=======
+      "_ContractorLayout-CU-ofnJ3.js",
+      "_Shell-BqrlY9wR.js",
+      "_AppLogo-Hgv-mTH0.js"
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     ],
     "css": [
-      "assets/app-C4ZZbhbm.css"
+      "assets/app-C7sUYvIk.css"
     ]
   },
   "resources/js/Pages/Contractor/Messages.tsx": {
+<<<<<<< HEAD
     "file": "assets/Messages-DM-LrgwL.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+    "file": "assets/Messages-B38f-W28.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "Messages",
     "src": "resources/js/Pages/Contractor/Messages.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
       "_ContractorLayout-2wawK-_c.js",
       "_Skeleton-WrGJfRRY.js",
@@ -2244,19 +3152,30 @@
       "_Skeleton-DxMh3G4Z.js",
       "_Shell-oxyqnES4.js",
       "_AppLogo-BLcQhBg-.js"
+=======
+      "_ContractorLayout-CU-ofnJ3.js",
+      "_Skeleton-Ct2EvzWi.js",
+      "_Shell-BqrlY9wR.js",
+      "_AppLogo-Hgv-mTH0.js"
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     ],
     "css": [
-      "assets/app-C4ZZbhbm.css"
+      "assets/app-C7sUYvIk.css"
     ]
   },
   "resources/js/Pages/Contractor/Overview.tsx": {
+<<<<<<< HEAD
     "file": "assets/Overview-Cw3X6Si2.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+    "file": "assets/Overview-Cfnzcg9k.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "Overview",
     "src": "resources/js/Pages/Contractor/Overview.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
       "_ContractorLayout-2wawK-_c.js",
       "_Charts-D2QvU_RP.js",
@@ -2276,19 +3195,31 @@
       "_Icon-Bupzo4lG.js",
       "_Shell-oxyqnES4.js",
       "_AppLogo-BLcQhBg-.js"
+=======
+      "_ContractorLayout-CU-ofnJ3.js",
+      "_Charts-CszXgLwC.js",
+      "_Icon-CkFVTE9T.js",
+      "_Shell-BqrlY9wR.js",
+      "_AppLogo-Hgv-mTH0.js"
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     ],
     "css": [
-      "assets/app-C4ZZbhbm.css"
+      "assets/app-C7sUYvIk.css"
     ]
   },
   "resources/js/Pages/Contractor/Quotes.tsx": {
+<<<<<<< HEAD
     "file": "assets/Quotes-CX6K6t-t.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+    "file": "assets/Quotes-33E-1Icv.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "Quotes",
     "src": "resources/js/Pages/Contractor/Quotes.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
       "_ContractorLayout-2wawK-_c.js",
       "_Skeleton-WrGJfRRY.js",
@@ -2308,19 +3239,31 @@
       "_useInertiaLoading-ugvYuVT0.js",
       "_Shell-oxyqnES4.js",
       "_AppLogo-BLcQhBg-.js"
+=======
+      "_ContractorLayout-CU-ofnJ3.js",
+      "_Skeleton-Ct2EvzWi.js",
+      "_useInertiaLoading-CMSApytV.js",
+      "_Shell-BqrlY9wR.js",
+      "_AppLogo-Hgv-mTH0.js"
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     ],
     "css": [
-      "assets/app-C4ZZbhbm.css"
+      "assets/app-C7sUYvIk.css"
     ]
   },
   "resources/js/Pages/Contractor/Requests.tsx": {
+<<<<<<< HEAD
     "file": "assets/Requests-C_wbTcwv.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+    "file": "assets/Requests-STCHwab6.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "Requests",
     "src": "resources/js/Pages/Contractor/Requests.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
       "_ContractorLayout-2wawK-_c.js",
       "_Skeleton-WrGJfRRY.js",
@@ -2340,19 +3283,31 @@
       "_Icon-Bupzo4lG.js",
       "_Shell-oxyqnES4.js",
       "_AppLogo-BLcQhBg-.js"
+=======
+      "_ContractorLayout-CU-ofnJ3.js",
+      "_Skeleton-Ct2EvzWi.js",
+      "_Icon-CkFVTE9T.js",
+      "_Shell-BqrlY9wR.js",
+      "_AppLogo-Hgv-mTH0.js"
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     ],
     "css": [
-      "assets/app-C4ZZbhbm.css"
+      "assets/app-C7sUYvIk.css"
     ]
   },
   "resources/js/Pages/Contractor/Settings.tsx": {
+<<<<<<< HEAD
     "file": "assets/Settings-Cm6kEblU.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+    "file": "assets/Settings-Z0twYi8X.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "Settings",
     "src": "resources/js/Pages/Contractor/Settings.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
       "_ContractorLayout-2wawK-_c.js",
       "_Skeleton-WrGJfRRY.js",
@@ -2374,19 +3329,32 @@
       "_Shell-oxyqnES4.js",
       "_AppLogo-BLcQhBg-.js",
       "_Charts-De92soSD.js"
+=======
+      "_ContractorLayout-CU-ofnJ3.js",
+      "_Skeleton-Ct2EvzWi.js",
+      "_AppearanceSettings-CZousfCD.js",
+      "_Shell-BqrlY9wR.js",
+      "_AppLogo-Hgv-mTH0.js",
+      "_Charts-CszXgLwC.js"
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     ],
     "css": [
-      "assets/app-C4ZZbhbm.css"
+      "assets/app-C7sUYvIk.css"
     ]
   },
   "resources/js/Pages/Contractors/Index.tsx": {
+<<<<<<< HEAD
     "file": "assets/Index-Cw5Gxkff.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+    "file": "assets/Index-BiZtmqo2.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "Index",
     "src": "resources/js/Pages/Contractors/Index.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
       "_PublicLayout-D26X6lb6.js",
       "_AppLogo-BYfe6pUy.js"
@@ -2400,14 +3368,22 @@
 =======
       "_PublicLayout-B1kNvGbH.js",
       "_AppLogo-BLcQhBg-.js"
+=======
+      "_PublicLayout-C9oj_wXQ.js",
+      "_AppLogo-Hgv-mTH0.js"
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     ],
     "css": [
-      "assets/app-C4ZZbhbm.css"
+      "assets/app-C7sUYvIk.css"
     ]
   },
   "resources/js/Pages/Dashboard/Placeholder.tsx": {
+<<<<<<< HEAD
     "file": "assets/Placeholder-BH8Oxubc.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+    "file": "assets/Placeholder-Dkeu-pLs.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "Placeholder",
     "src": "resources/js/Pages/Dashboard/Placeholder.tsx",
     "isDynamicEntry": true,
@@ -2415,6 +3391,7 @@
       "resources/js/app.tsx"
     ],
     "css": [
+<<<<<<< HEAD
 <<<<<<< HEAD
       "assets/app-CrPaFxYD.css"
     ]
@@ -2428,11 +3405,19 @@
   "resources/js/Pages/Landlord/Contractors.tsx": {
     "file": "assets/Contractors-CVXf6w8a.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+      "assets/app-C7sUYvIk.css"
+    ]
+  },
+  "resources/js/Pages/Landlord/Contractors.tsx": {
+    "file": "assets/Contractors-DRUMjUYq.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "Contractors",
     "src": "resources/js/Pages/Landlord/Contractors.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
       "_LandlordLayout-pV6ofdyk.js",
       "_Charts-D2QvU_RP.js",
@@ -2458,19 +3443,34 @@
       "_AppLogo-BLcQhBg-.js",
       "_SubscriptionBanner-BNx8XP_5.js",
       "_Skeleton-DxMh3G4Z.js"
+=======
+      "_LandlordLayout-eQgzoArm.js",
+      "_Charts-CszXgLwC.js",
+      "_Icon-CkFVTE9T.js",
+      "_InviteContractorModal-BZRjaT_s.js",
+      "_Shell-BqrlY9wR.js",
+      "_AppLogo-Hgv-mTH0.js",
+      "_SubscriptionBanner-CKcJ9EXz.js",
+      "_Skeleton-Ct2EvzWi.js"
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     ],
     "css": [
-      "assets/app-C4ZZbhbm.css"
+      "assets/app-C7sUYvIk.css"
     ]
   },
   "resources/js/Pages/Landlord/CreateListing.tsx": {
+<<<<<<< HEAD
     "file": "assets/CreateListing-HIRz8uJ_.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+    "file": "assets/CreateListing-kD1yBd4o.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "CreateListing",
     "src": "resources/js/Pages/Landlord/CreateListing.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
       "_LandlordLayout-pV6ofdyk.js",
       "_ListingForm-1E3pwgML.js",
@@ -2492,19 +3492,32 @@
       "_AppLogo-BLcQhBg-.js",
       "_SubscriptionBanner-BNx8XP_5.js",
       "_Skeleton-DxMh3G4Z.js"
+=======
+      "_LandlordLayout-eQgzoArm.js",
+      "_ListingForm-CRf-7Ysw.js",
+      "_Shell-BqrlY9wR.js",
+      "_AppLogo-Hgv-mTH0.js",
+      "_SubscriptionBanner-CKcJ9EXz.js",
+      "_Skeleton-Ct2EvzWi.js"
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     ],
     "css": [
-      "assets/app-C4ZZbhbm.css"
+      "assets/app-C7sUYvIk.css"
     ]
   },
   "resources/js/Pages/Landlord/Finance.tsx": {
+<<<<<<< HEAD
     "file": "assets/Finance-DoKHBGss.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+    "file": "assets/Finance-DmOsBDgG.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "Finance",
     "src": "resources/js/Pages/Landlord/Finance.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
       "_LandlordLayout-pV6ofdyk.js",
       "_Charts-D2QvU_RP.js",
@@ -2528,19 +3541,33 @@
       "_Shell-oxyqnES4.js",
       "_AppLogo-BLcQhBg-.js",
       "_SubscriptionBanner-BNx8XP_5.js"
+=======
+      "_LandlordLayout-eQgzoArm.js",
+      "_Charts-CszXgLwC.js",
+      "_useInertiaLoading-CMSApytV.js",
+      "_Icon-CkFVTE9T.js",
+      "_Shell-BqrlY9wR.js",
+      "_AppLogo-Hgv-mTH0.js",
+      "_SubscriptionBanner-CKcJ9EXz.js"
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     ],
     "css": [
-      "assets/app-C4ZZbhbm.css"
+      "assets/app-C7sUYvIk.css"
     ]
   },
   "resources/js/Pages/Landlord/Help.tsx": {
+<<<<<<< HEAD
     "file": "assets/Help-DW3uMGTa.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+    "file": "assets/Help-C5OBr5Zz.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "Help",
     "src": "resources/js/Pages/Landlord/Help.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
       "_LandlordLayout-pV6ofdyk.js",
       "_HelpCentre-GhciU1yZ.js",
@@ -2564,19 +3591,33 @@
       "_SubscriptionBanner-BNx8XP_5.js",
       "_Charts-De92soSD.js",
       "_Icon-Bupzo4lG.js"
+=======
+      "_LandlordLayout-eQgzoArm.js",
+      "_HelpCentre-DrVGU8jD.js",
+      "_Shell-BqrlY9wR.js",
+      "_AppLogo-Hgv-mTH0.js",
+      "_SubscriptionBanner-CKcJ9EXz.js",
+      "_Charts-CszXgLwC.js",
+      "_Icon-CkFVTE9T.js"
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     ],
     "css": [
-      "assets/app-C4ZZbhbm.css"
+      "assets/app-C7sUYvIk.css"
     ]
   },
   "resources/js/Pages/Landlord/Maintenance.tsx": {
+<<<<<<< HEAD
     "file": "assets/Maintenance-4WJsTB5F.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+    "file": "assets/Maintenance-DdrrPucD.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "Maintenance",
     "src": "resources/js/Pages/Landlord/Maintenance.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
       "_LandlordLayout-pV6ofdyk.js",
       "_Charts-D2QvU_RP.js",
@@ -2604,19 +3645,35 @@
       "_Shell-oxyqnES4.js",
       "_AppLogo-BLcQhBg-.js",
       "_SubscriptionBanner-BNx8XP_5.js"
+=======
+      "_LandlordLayout-eQgzoArm.js",
+      "_Charts-CszXgLwC.js",
+      "_Icon-CkFVTE9T.js",
+      "_Skeleton-Ct2EvzWi.js",
+      "_RateContractorModal-B_-w4GHz.js",
+      "_InviteContractorModal-BZRjaT_s.js",
+      "_Shell-BqrlY9wR.js",
+      "_AppLogo-Hgv-mTH0.js",
+      "_SubscriptionBanner-CKcJ9EXz.js"
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     ],
     "css": [
-      "assets/app-C4ZZbhbm.css"
+      "assets/app-C7sUYvIk.css"
     ]
   },
   "resources/js/Pages/Landlord/Messages.tsx": {
+<<<<<<< HEAD
     "file": "assets/Messages-C2jkzYwF.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+    "file": "assets/Messages-BZOxAT3j.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "Messages",
     "src": "resources/js/Pages/Landlord/Messages.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
       "_LandlordLayout-pV6ofdyk.js",
       "_Skeleton-WrGJfRRY.js",
@@ -2638,19 +3695,32 @@
       "_Shell-oxyqnES4.js",
       "_AppLogo-BLcQhBg-.js",
       "_SubscriptionBanner-BNx8XP_5.js"
+=======
+      "_LandlordLayout-eQgzoArm.js",
+      "_Skeleton-Ct2EvzWi.js",
+      "_Icon-CkFVTE9T.js",
+      "_Shell-BqrlY9wR.js",
+      "_AppLogo-Hgv-mTH0.js",
+      "_SubscriptionBanner-CKcJ9EXz.js"
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     ],
     "css": [
-      "assets/app-C4ZZbhbm.css"
+      "assets/app-C7sUYvIk.css"
     ]
   },
   "resources/js/Pages/Landlord/Overview.tsx": {
+<<<<<<< HEAD
     "file": "assets/Overview-ByVLTwzN.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+    "file": "assets/Overview-BYRZuIzm.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "Overview",
     "src": "resources/js/Pages/Landlord/Overview.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
       "_LandlordLayout-pV6ofdyk.js",
       "_LandlordInviteTenantModal-OV_MwfQP.js",
@@ -2678,19 +3748,35 @@
       "_SubscriptionBanner-BNx8XP_5.js",
       "_InviteTenantModal-CNCL6Vzo.js",
       "_Skeleton-DxMh3G4Z.js"
+=======
+      "_LandlordLayout-eQgzoArm.js",
+      "_LandlordInviteTenantModal-D8bv7F0H.js",
+      "_Charts-CszXgLwC.js",
+      "_Icon-CkFVTE9T.js",
+      "_Shell-BqrlY9wR.js",
+      "_AppLogo-Hgv-mTH0.js",
+      "_SubscriptionBanner-CKcJ9EXz.js",
+      "_InviteTenantModal-u99hHgZE.js",
+      "_Skeleton-Ct2EvzWi.js"
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     ],
     "css": [
-      "assets/app-C4ZZbhbm.css"
+      "assets/app-C7sUYvIk.css"
     ]
   },
   "resources/js/Pages/Landlord/Properties.tsx": {
+<<<<<<< HEAD
     "file": "assets/Properties-BzBoCG6v.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+    "file": "assets/Properties-CxXzr2wF.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "Properties",
     "src": "resources/js/Pages/Landlord/Properties.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
       "_LandlordLayout-pV6ofdyk.js",
       "_Charts-D2QvU_RP.js",
@@ -2712,19 +3798,32 @@
       "_AppLogo-BLcQhBg-.js",
       "_Shell-oxyqnES4.js",
       "_SubscriptionBanner-BNx8XP_5.js"
+=======
+      "_LandlordLayout-eQgzoArm.js",
+      "_Charts-CszXgLwC.js",
+      "_Icon-CkFVTE9T.js",
+      "_AppLogo-Hgv-mTH0.js",
+      "_Shell-BqrlY9wR.js",
+      "_SubscriptionBanner-CKcJ9EXz.js"
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     ],
     "css": [
-      "assets/app-C4ZZbhbm.css"
+      "assets/app-C7sUYvIk.css"
     ]
   },
   "resources/js/Pages/Landlord/Settings.tsx": {
+<<<<<<< HEAD
     "file": "assets/Settings-BSwNxw7K.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+    "file": "assets/Settings-9Oogo_Bf.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "Settings",
     "src": "resources/js/Pages/Landlord/Settings.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
       "_LandlordLayout-pV6ofdyk.js",
       "_Skeleton-WrGJfRRY.js",
@@ -2750,19 +3849,34 @@
       "_Shell-oxyqnES4.js",
       "_AppLogo-BLcQhBg-.js",
       "_SubscriptionBanner-BNx8XP_5.js"
+=======
+      "_LandlordLayout-eQgzoArm.js",
+      "_Skeleton-Ct2EvzWi.js",
+      "_AppearanceSettings-CZousfCD.js",
+      "_Charts-CszXgLwC.js",
+      "_Icon-CkFVTE9T.js",
+      "_Shell-BqrlY9wR.js",
+      "_AppLogo-Hgv-mTH0.js",
+      "_SubscriptionBanner-CKcJ9EXz.js"
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     ],
     "css": [
-      "assets/app-C4ZZbhbm.css"
+      "assets/app-C7sUYvIk.css"
     ]
   },
   "resources/js/Pages/Landlord/Tenants.tsx": {
+<<<<<<< HEAD
     "file": "assets/Tenants-qIeFfGV8.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+    "file": "assets/Tenants-B_VYkeNn.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "Tenants",
     "src": "resources/js/Pages/Landlord/Tenants.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
       "_Skeleton-WrGJfRRY.js",
       "_Charts-D2QvU_RP.js",
@@ -2788,19 +3902,34 @@
       "_AppLogo-BLcQhBg-.js",
       "_SubscriptionBanner-BNx8XP_5.js",
       "_InviteTenantModal-CNCL6Vzo.js"
+=======
+      "_Skeleton-Ct2EvzWi.js",
+      "_Charts-CszXgLwC.js",
+      "_LandlordLayout-eQgzoArm.js",
+      "_LandlordInviteTenantModal-D8bv7F0H.js",
+      "_Shell-BqrlY9wR.js",
+      "_AppLogo-Hgv-mTH0.js",
+      "_SubscriptionBanner-CKcJ9EXz.js",
+      "_InviteTenantModal-u99hHgZE.js"
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     ],
     "css": [
-      "assets/app-C4ZZbhbm.css"
+      "assets/app-C7sUYvIk.css"
     ]
   },
   "resources/js/Pages/Public/Advice/Index.tsx": {
+<<<<<<< HEAD
     "file": "assets/Index-CVC0movS.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+    "file": "assets/Index-Cfb3U5l-.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "Index",
     "src": "resources/js/Pages/Public/Advice/Index.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
       "_PublicLayout-D26X6lb6.js",
       "_AppLogo-BYfe6pUy.js"
@@ -2814,19 +3943,28 @@
 =======
       "_PublicLayout-B1kNvGbH.js",
       "_AppLogo-BLcQhBg-.js"
+=======
+      "_PublicLayout-C9oj_wXQ.js",
+      "_AppLogo-Hgv-mTH0.js"
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     ],
     "css": [
-      "assets/app-C4ZZbhbm.css"
+      "assets/app-C7sUYvIk.css"
     ]
   },
   "resources/js/Pages/Public/Advice/Show.tsx": {
+<<<<<<< HEAD
     "file": "assets/Show-CmtWYyYC.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+    "file": "assets/Show-DQebi_zk.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "Show",
     "src": "resources/js/Pages/Public/Advice/Show.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
       "_PublicLayout-D26X6lb6.js",
       "_AppLogo-BYfe6pUy.js"
@@ -2840,19 +3978,28 @@
 =======
       "_PublicLayout-B1kNvGbH.js",
       "_AppLogo-BLcQhBg-.js"
+=======
+      "_PublicLayout-C9oj_wXQ.js",
+      "_AppLogo-Hgv-mTH0.js"
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     ],
     "css": [
-      "assets/app-C4ZZbhbm.css"
+      "assets/app-C7sUYvIk.css"
     ]
   },
   "resources/js/Pages/Public/Agencies/Index.tsx": {
+<<<<<<< HEAD
     "file": "assets/Index-BZtNN9E6.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+    "file": "assets/Index-1KVO7ARx.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "Index",
     "src": "resources/js/Pages/Public/Agencies/Index.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
       "_PublicLayout-D26X6lb6.js",
       "_AppLogo-BYfe6pUy.js"
@@ -2866,19 +4013,28 @@
 =======
       "_PublicLayout-B1kNvGbH.js",
       "_AppLogo-BLcQhBg-.js"
+=======
+      "_PublicLayout-C9oj_wXQ.js",
+      "_AppLogo-Hgv-mTH0.js"
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     ],
     "css": [
-      "assets/app-C4ZZbhbm.css"
+      "assets/app-C7sUYvIk.css"
     ]
   },
   "resources/js/Pages/Public/Agencies/Show.tsx": {
+<<<<<<< HEAD
     "file": "assets/Show-DCXwz1QY.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+    "file": "assets/Show-Cznxlnnd.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "Show",
     "src": "resources/js/Pages/Public/Agencies/Show.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
       "_PublicLayout-D26X6lb6.js",
       "_ListingCard-CJZ6Uks0.js",
@@ -2894,19 +4050,29 @@
       "_PublicLayout-B1kNvGbH.js",
       "_ListingCard-B8Og_nTD.js",
       "_AppLogo-BLcQhBg-.js"
+=======
+      "_PublicLayout-C9oj_wXQ.js",
+      "_ListingCard-DM27J63t.js",
+      "_AppLogo-Hgv-mTH0.js"
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     ],
     "css": [
-      "assets/app-C4ZZbhbm.css"
+      "assets/app-C7sUYvIk.css"
     ]
   },
   "resources/js/Pages/Public/Calculator.tsx": {
+<<<<<<< HEAD
     "file": "assets/Calculator-BxffgJby.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+    "file": "assets/Calculator-CyxNS8Zl.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "Calculator",
     "src": "resources/js/Pages/Public/Calculator.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
       "_PublicLayout-D26X6lb6.js",
       "_AppLogo-BYfe6pUy.js"
@@ -2920,19 +4086,28 @@
 =======
       "_PublicLayout-B1kNvGbH.js",
       "_AppLogo-BLcQhBg-.js"
+=======
+      "_PublicLayout-C9oj_wXQ.js",
+      "_AppLogo-Hgv-mTH0.js"
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     ],
     "css": [
-      "assets/app-C4ZZbhbm.css"
+      "assets/app-C7sUYvIk.css"
     ]
   },
   "resources/js/Pages/Public/Home.tsx": {
+<<<<<<< HEAD
     "file": "assets/Home-B0xpRzp_.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+    "file": "assets/Home-B2or65Cy.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "Home",
     "src": "resources/js/Pages/Public/Home.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
       "_PublicLayout-D26X6lb6.js",
       "_ListingCard-CJZ6Uks0.js",
@@ -2948,20 +4123,30 @@
       "_PublicLayout-B1kNvGbH.js",
       "_ListingCard-B8Og_nTD.js",
       "_AppLogo-BLcQhBg-.js"
+=======
+      "_PublicLayout-C9oj_wXQ.js",
+      "_ListingCard-DM27J63t.js",
+      "_AppLogo-Hgv-mTH0.js"
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     ],
     "css": [
-      "assets/app-C4ZZbhbm.css"
+      "assets/app-C7sUYvIk.css"
     ]
   },
   "resources/js/Pages/Public/Legal/PrivacyPolicy.tsx": {
+<<<<<<< HEAD
     "file": "assets/PrivacyPolicy-CzpUlB4e.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+    "file": "assets/PrivacyPolicy-DjerhrGb.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "PrivacyPolicy",
     "src": "resources/js/Pages/Public/Legal/PrivacyPolicy.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
       "resources/js/Pages/Public/Legal/_Shell.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
       "_PublicLayout-D26X6lb6.js",
       "_AppLogo-BYfe6pUy.js"
@@ -2975,20 +4160,29 @@
 =======
       "_PublicLayout-B1kNvGbH.js",
       "_AppLogo-BLcQhBg-.js"
+=======
+      "_PublicLayout-C9oj_wXQ.js",
+      "_AppLogo-Hgv-mTH0.js"
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     ],
     "css": [
-      "assets/app-C4ZZbhbm.css"
+      "assets/app-C7sUYvIk.css"
     ]
   },
   "resources/js/Pages/Public/Legal/PrivacyPortal.tsx": {
+<<<<<<< HEAD
     "file": "assets/PrivacyPortal-B15e916m.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+    "file": "assets/PrivacyPortal-PIQBx7Tw.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "PrivacyPortal",
     "src": "resources/js/Pages/Public/Legal/PrivacyPortal.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
       "resources/js/Pages/Public/Legal/_Shell.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
       "_PublicLayout-D26X6lb6.js",
       "_AppLogo-BYfe6pUy.js"
@@ -3002,20 +4196,29 @@
 =======
       "_PublicLayout-B1kNvGbH.js",
       "_AppLogo-BLcQhBg-.js"
+=======
+      "_PublicLayout-C9oj_wXQ.js",
+      "_AppLogo-Hgv-mTH0.js"
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     ],
     "css": [
-      "assets/app-C4ZZbhbm.css"
+      "assets/app-C7sUYvIk.css"
     ]
   },
   "resources/js/Pages/Public/Legal/TermsAndConditions.tsx": {
+<<<<<<< HEAD
     "file": "assets/TermsAndConditions-DlM3N-W6.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+    "file": "assets/TermsAndConditions-CYrtA-Rr.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "TermsAndConditions",
     "src": "resources/js/Pages/Public/Legal/TermsAndConditions.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
       "resources/js/Pages/Public/Legal/_Shell.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
       "_PublicLayout-D26X6lb6.js",
       "_AppLogo-BYfe6pUy.js"
@@ -3029,19 +4232,28 @@
 =======
       "_PublicLayout-B1kNvGbH.js",
       "_AppLogo-BLcQhBg-.js"
+=======
+      "_PublicLayout-C9oj_wXQ.js",
+      "_AppLogo-Hgv-mTH0.js"
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     ],
     "css": [
-      "assets/app-C4ZZbhbm.css"
+      "assets/app-C7sUYvIk.css"
     ]
   },
   "resources/js/Pages/Public/Legal/_Shell.tsx": {
+<<<<<<< HEAD
     "file": "assets/_Shell-DDhVeG8K.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+    "file": "assets/_Shell-CCvN4zNa.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "_Shell",
     "src": "resources/js/Pages/Public/Legal/_Shell.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
       "_PublicLayout-D26X6lb6.js",
       "_AppLogo-BYfe6pUy.js"
@@ -3055,19 +4267,28 @@
 =======
       "_PublicLayout-B1kNvGbH.js",
       "_AppLogo-BLcQhBg-.js"
+=======
+      "_PublicLayout-C9oj_wXQ.js",
+      "_AppLogo-Hgv-mTH0.js"
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     ],
     "css": [
-      "assets/app-C4ZZbhbm.css"
+      "assets/app-C7sUYvIk.css"
     ]
   },
   "resources/js/Pages/Public/Listings/Index.tsx": {
+<<<<<<< HEAD
     "file": "assets/Index-CyZKZDJC.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+    "file": "assets/Index-BHzjmT1r.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "Index",
     "src": "resources/js/Pages/Public/Listings/Index.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
       "_PublicLayout-D26X6lb6.js",
       "_ListingCard-CJZ6Uks0.js",
@@ -3083,19 +4304,29 @@
       "_PublicLayout-B1kNvGbH.js",
       "_ListingCard-B8Og_nTD.js",
       "_AppLogo-BLcQhBg-.js"
+=======
+      "_PublicLayout-C9oj_wXQ.js",
+      "_ListingCard-DM27J63t.js",
+      "_AppLogo-Hgv-mTH0.js"
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     ],
     "css": [
-      "assets/app-C4ZZbhbm.css"
+      "assets/app-C7sUYvIk.css"
     ]
   },
   "resources/js/Pages/Public/Listings/Show.tsx": {
+<<<<<<< HEAD
     "file": "assets/Show-DDX_77xz.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+    "file": "assets/Show-226DkrtC.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "Show",
     "src": "resources/js/Pages/Public/Listings/Show.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
       "_PublicLayout-D26X6lb6.js",
       "_FormField-BO-7T-zg.js",
@@ -3111,19 +4342,29 @@
       "_PublicLayout-B1kNvGbH.js",
       "_FormField-B6X3aIQJ.js",
       "_AppLogo-BLcQhBg-.js"
+=======
+      "_PublicLayout-C9oj_wXQ.js",
+      "_FormField-CsZfy70B.js",
+      "_AppLogo-Hgv-mTH0.js"
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     ],
     "css": [
-      "assets/app-C4ZZbhbm.css"
+      "assets/app-C7sUYvIk.css"
     ]
   },
   "resources/js/Pages/Tenant/Documents.tsx": {
+<<<<<<< HEAD
     "file": "assets/Documents-Bi35gNj8.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+    "file": "assets/Documents-CcHIyzZK.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "Documents",
     "src": "resources/js/Pages/Tenant/Documents.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
       "_TenantLayout-B4ZQSWlr.js",
       "_Charts-D2QvU_RP.js",
@@ -3143,19 +4384,31 @@
       "_Icon-Bupzo4lG.js",
       "_Shell-oxyqnES4.js",
       "_AppLogo-BLcQhBg-.js"
+=======
+      "_TenantLayout-DncXkXpH.js",
+      "_Charts-CszXgLwC.js",
+      "_Icon-CkFVTE9T.js",
+      "_Shell-BqrlY9wR.js",
+      "_AppLogo-Hgv-mTH0.js"
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     ],
     "css": [
-      "assets/app-C4ZZbhbm.css"
+      "assets/app-C7sUYvIk.css"
     ]
   },
   "resources/js/Pages/Tenant/Help.tsx": {
+<<<<<<< HEAD
     "file": "assets/Help-CxHDLemN.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+    "file": "assets/Help-CVaLTDUo.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "Help",
     "src": "resources/js/Pages/Tenant/Help.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
       "_TenantLayout-B4ZQSWlr.js",
       "_HelpCentre-GhciU1yZ.js",
@@ -3177,19 +4430,32 @@
       "_AppLogo-BLcQhBg-.js",
       "_Charts-De92soSD.js",
       "_Icon-Bupzo4lG.js"
+=======
+      "_TenantLayout-DncXkXpH.js",
+      "_HelpCentre-DrVGU8jD.js",
+      "_Shell-BqrlY9wR.js",
+      "_AppLogo-Hgv-mTH0.js",
+      "_Charts-CszXgLwC.js",
+      "_Icon-CkFVTE9T.js"
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     ],
     "css": [
-      "assets/app-C4ZZbhbm.css"
+      "assets/app-C7sUYvIk.css"
     ]
   },
   "resources/js/Pages/Tenant/Lease.tsx": {
+<<<<<<< HEAD
     "file": "assets/Lease-CkPdpfP2.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+    "file": "assets/Lease-D_M2VXKm.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "Lease",
     "src": "resources/js/Pages/Tenant/Lease.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
       "_TenantLayout-B4ZQSWlr.js",
       "_Charts-D2QvU_RP.js",
@@ -3209,19 +4475,31 @@
       "_Icon-Bupzo4lG.js",
       "_Shell-oxyqnES4.js",
       "_AppLogo-BLcQhBg-.js"
+=======
+      "_TenantLayout-DncXkXpH.js",
+      "_Charts-CszXgLwC.js",
+      "_Icon-CkFVTE9T.js",
+      "_Shell-BqrlY9wR.js",
+      "_AppLogo-Hgv-mTH0.js"
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     ],
     "css": [
-      "assets/app-C4ZZbhbm.css"
+      "assets/app-C7sUYvIk.css"
     ]
   },
   "resources/js/Pages/Tenant/Maintenance.tsx": {
+<<<<<<< HEAD
     "file": "assets/Maintenance-B7TCX9g6.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+    "file": "assets/Maintenance-DUrep1kV.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "Maintenance",
     "src": "resources/js/Pages/Tenant/Maintenance.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
       "_TenantLayout-B4ZQSWlr.js",
       "_RateContractorModal-CUZLE0r0.js",
@@ -3243,19 +4521,32 @@
       "_Icon-Bupzo4lG.js",
       "_Shell-oxyqnES4.js",
       "_AppLogo-BLcQhBg-.js"
+=======
+      "_TenantLayout-DncXkXpH.js",
+      "_RateContractorModal-B_-w4GHz.js",
+      "_Charts-CszXgLwC.js",
+      "_Icon-CkFVTE9T.js",
+      "_Shell-BqrlY9wR.js",
+      "_AppLogo-Hgv-mTH0.js"
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     ],
     "css": [
-      "assets/app-C4ZZbhbm.css"
+      "assets/app-C7sUYvIk.css"
     ]
   },
   "resources/js/Pages/Tenant/Messages.tsx": {
+<<<<<<< HEAD
     "file": "assets/Messages-xPhcpDqH.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+    "file": "assets/Messages-KPqgbPIK.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "Messages",
     "src": "resources/js/Pages/Tenant/Messages.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
       "_TenantLayout-B4ZQSWlr.js",
       "_Skeleton-WrGJfRRY.js",
@@ -3275,19 +4566,31 @@
       "_Icon-Bupzo4lG.js",
       "_Shell-oxyqnES4.js",
       "_AppLogo-BLcQhBg-.js"
+=======
+      "_TenantLayout-DncXkXpH.js",
+      "_Skeleton-Ct2EvzWi.js",
+      "_Icon-CkFVTE9T.js",
+      "_Shell-BqrlY9wR.js",
+      "_AppLogo-Hgv-mTH0.js"
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     ],
     "css": [
-      "assets/app-C4ZZbhbm.css"
+      "assets/app-C7sUYvIk.css"
     ]
   },
   "resources/js/Pages/Tenant/Overview.tsx": {
+<<<<<<< HEAD
     "file": "assets/Overview-BuR6IQa1.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+    "file": "assets/Overview-DcF41Lkv.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "Overview",
     "src": "resources/js/Pages/Tenant/Overview.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
       "_TenantLayout-B4ZQSWlr.js",
       "_Skeleton-WrGJfRRY.js",
@@ -3305,19 +4608,30 @@
       "_Skeleton-DxMh3G4Z.js",
       "_Shell-oxyqnES4.js",
       "_AppLogo-BLcQhBg-.js"
+=======
+      "_TenantLayout-DncXkXpH.js",
+      "_Skeleton-Ct2EvzWi.js",
+      "_Shell-BqrlY9wR.js",
+      "_AppLogo-Hgv-mTH0.js"
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     ],
     "css": [
-      "assets/app-C4ZZbhbm.css"
+      "assets/app-C7sUYvIk.css"
     ]
   },
   "resources/js/Pages/Tenant/Payments.tsx": {
+<<<<<<< HEAD
     "file": "assets/Payments-B5dEXCEH.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+    "file": "assets/Payments-BkzPIefH.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "Payments",
     "src": "resources/js/Pages/Tenant/Payments.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
       "_TenantLayout-B4ZQSWlr.js",
       "_useInertiaLoading-BeRpDZtM.js",
@@ -3341,19 +4655,33 @@
       "_Icon-Bupzo4lG.js",
       "_Shell-oxyqnES4.js",
       "_AppLogo-BLcQhBg-.js"
+=======
+      "_TenantLayout-DncXkXpH.js",
+      "_useInertiaLoading-CMSApytV.js",
+      "_Skeleton-Ct2EvzWi.js",
+      "_Charts-CszXgLwC.js",
+      "_Icon-CkFVTE9T.js",
+      "_Shell-BqrlY9wR.js",
+      "_AppLogo-Hgv-mTH0.js"
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     ],
     "css": [
-      "assets/app-C4ZZbhbm.css"
+      "assets/app-C7sUYvIk.css"
     ]
   },
   "resources/js/Pages/Tenant/Settings.tsx": {
+<<<<<<< HEAD
     "file": "assets/Settings-DcaxmG8R.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+    "file": "assets/Settings-B4Dj6MgG.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "Settings",
     "src": "resources/js/Pages/Tenant/Settings.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
       "_TenantLayout-B4ZQSWlr.js",
       "_Skeleton-WrGJfRRY.js",
@@ -3377,19 +4705,33 @@
       "_Icon-Bupzo4lG.js",
       "_Shell-oxyqnES4.js",
       "_AppLogo-BLcQhBg-.js"
+=======
+      "_TenantLayout-DncXkXpH.js",
+      "_Skeleton-Ct2EvzWi.js",
+      "_AppearanceSettings-CZousfCD.js",
+      "_Charts-CszXgLwC.js",
+      "_Icon-CkFVTE9T.js",
+      "_Shell-BqrlY9wR.js",
+      "_AppLogo-Hgv-mTH0.js"
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     ],
     "css": [
-      "assets/app-C4ZZbhbm.css"
+      "assets/app-C7sUYvIk.css"
     ]
   },
   "resources/js/Pages/Welcome.tsx": {
+<<<<<<< HEAD
     "file": "assets/Welcome-fw9QjD5-.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+    "file": "assets/Welcome-CDLEf4Q9.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "Welcome",
     "src": "resources/js/Pages/Welcome.tsx",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.tsx",
+<<<<<<< HEAD
 <<<<<<< HEAD
       "_AppLogo-BYfe6pUy.js"
     ],
@@ -3401,14 +4743,21 @@
     "file": "assets/app-C6wkksXw.js",
 =======
       "_AppLogo-BLcQhBg-.js"
+=======
+      "_AppLogo-Hgv-mTH0.js"
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     ],
     "css": [
-      "assets/app-C4ZZbhbm.css"
+      "assets/app-C7sUYvIk.css"
     ]
   },
   "resources/js/app.tsx": {
+<<<<<<< HEAD
     "file": "assets/app-Camsoq0g.js",
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+    "file": "assets/app-DsM0pbhc.js",
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     "name": "app",
     "src": "resources/js/app.tsx",
     "isEntry": true,
@@ -3514,10 +4863,14 @@
     ],
     "css": [
 <<<<<<< HEAD
+<<<<<<< HEAD
       "assets/app-CrPaFxYD.css"
 =======
       "assets/app-C4ZZbhbm.css"
 >>>>>>> 463b98e (Agency dashboard: Financial Reports style across ten tabs)
+=======
+      "assets/app-C7sUYvIk.css"
+>>>>>>> 1e02c44 (Super admin dashboard: Financial Reports style across every page)
     ]
   }
 }

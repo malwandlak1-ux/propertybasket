@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Head, router, usePage } from '@inertiajs/react';
 import AdminLayout from '@/Layouts/AdminLayout';
+import { PageHeader, SectionCard, Segmented, SummaryStrip, btnPrimary, selectCls, thRowCls } from '@/Components/Dashboard/Charts';
 import { useInertiaLoading } from '@/Hooks/useInertiaLoading';
 
 type UserRow = {
@@ -106,56 +107,57 @@ export default function AdminUsers({ users, role_counts, filter, search }: Props
                 </div>
             )}
 
-            <div className="px-4 sm:px-8 py-6 sm:py-7">
-                <div className="flex flex-wrap items-end justify-between gap-3 mb-6">
-                    <div>
-                        <h1 className="text-[28px] sm:text-[32px] leading-tight tracking-tight">User Management</h1>
-                        <p className="text-[14px] text-ink-500 mt-1">
-                            Every user across all dashboards · adjust roles, suspend, impersonate for support
-                        </p>
-                    </div>
-                    <button className="px-3.5 py-2 text-[13px] bg-brand-700 text-white rounded-full hover:bg-brand-800 transition flex items-center gap-2">
-                        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M12 5v14M5 12h14"/></svg>
-                        Create User
-                    </button>
-                </div>
+            <div className="px-4 sm:px-7 py-6">
+                <PageHeader
+                    title="User Management"
+                    subtitle="Every user across all dashboards · adjust roles, suspend, impersonate for support"
+                    actions={
+                        <button className={btnPrimary}>
+                            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M12 5v14M5 12h14"/></svg>
+                            Create User
+                        </button>
+                    }
+                />
 
-                <div className="flex items-center gap-2 mb-4 flex-wrap">
-                    {FILTERS.map((f) => {
-                        const active = filter === f.key;
-                        const count = role_counts[f.key as keyof typeof role_counts];
-                        return (
-                            <button
-                                key={f.key}
-                                onClick={() => applyFilter(f.key)}
-                                className={
-                                    'text-[12px] px-3 py-1.5 rounded-full font-medium transition ' +
-                                    (active
-                                        ? 'bg-ink-900 text-white'
-                                        : 'bg-white border border-ink-200 text-ink-600 hover:bg-ink-100')
-                                }
-                            >
-                                {f.label} · {count.toLocaleString('en-ZA')}
-                            </button>
-                        );
-                    })}
+                <SummaryStrip
+                    title="User Summary"
+                    subtitle="Accounts by role"
+                    cells={[
+                        { label: 'All Users', value: role_counts.all.toLocaleString('en-ZA'), sub: 'Across every dashboard' },
+                        { label: 'Agency Teams', value: (role_counts.agency_admin + role_counts.agent).toLocaleString('en-ZA'), sub: `${role_counts.agency_admin} admins · ${role_counts.agent} agents`, tone: 'muted' },
+                        { label: 'Landlords', value: role_counts.landlord.toLocaleString('en-ZA'), sub: 'Private landlords', tone: 'muted' },
+                        { label: 'Tenants', value: role_counts.tenant.toLocaleString('en-ZA'), sub: 'Renters and buyers', tone: 'muted' },
+                        { label: 'Contractors', value: role_counts.contractor.toLocaleString('en-ZA'), sub: 'Maintenance pool', tone: 'muted' },
+                    ]}
+                />
+
+                <div className="flex flex-wrap items-center gap-3 mb-4">
+                    <div className="max-w-full overflow-x-auto">
+                        <Segmented
+                            options={FILTERS.map((f) => ({ value: f.key, label: `${f.label} · ${role_counts[f.key as keyof typeof role_counts].toLocaleString('en-ZA')}` }))}
+                            value={filter || 'all'}
+                            onChange={applyFilter}
+                        />
+                    </div>
                     <form onSubmit={applySearch} className="ml-auto">
                         <input
                             value={query}
                             onChange={(e) => setQuery(e.target.value)}
-                            className="text-[12px] bg-white border border-ink-200 rounded-md px-3 py-1.5 w-56 focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand"
+                            className={`${selectCls} w-60`}
                             placeholder="Search by name or email…"
                         />
                     </form>
                 </div>
 
-                <div className={
-                    'bg-white rounded-2xl border border-ink-200/60 shadow-soft overflow-visible transition-opacity duration-150 ' +
-                    (loading ? 'opacity-50 pointer-events-none' : '')
-                }>
-                    <div className="overflow-x-auto"><table className="w-full min-w-[700px]">
+                <SectionCard
+                    title="All Users"
+                    subtitle={`${users.length.toLocaleString('en-ZA')} shown${search ? ` for “${search}”` : ''}`}
+                    flush
+                    className={'overflow-visible! transition-opacity duration-150 ' + (loading ? 'opacity-50 pointer-events-none' : '')}
+                >
+                    <div className="overflow-x-auto lg:overflow-visible"><table className="w-full min-w-[700px]">
                         <thead>
-                            <tr className="text-left text-[11px] uppercase text-ink-500 tracking-wider border-b border-ink-200 bg-ink-50">
+                            <tr className={thRowCls}>
                                 <th className="font-semibold px-5 py-3">User</th>
                                 <th className="font-semibold py-3">Role</th>
                                 <th className="font-semibold py-3">Belongs to</th>
@@ -215,7 +217,7 @@ export default function AdminUsers({ users, role_counts, filter, search }: Props
                             ))}
                         </tbody>
                     </table></div>
-                </div>
+                </SectionCard>
 
                 <p className="text-[11px] text-ink-400 mt-3 text-center">
                     Showing up to 100 users. Use filters above to narrow.

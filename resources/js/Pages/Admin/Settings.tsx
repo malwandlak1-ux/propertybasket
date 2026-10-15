@@ -2,6 +2,17 @@ import { useEffect, useState } from 'react';
 import { Head, router, usePage } from '@inertiajs/react';
 import AdminLayout from '@/Layouts/AdminLayout';
 import AppearanceSettings from '@/Components/Dashboard/AppearanceSettings';
+import { PageHeader, SummaryStrip, btnOutline, btnPrimary } from '@/Components/Dashboard/Charts';
+import Icon, { IconName } from '@/Components/Dashboard/Icon';
+
+const TAB_META: Record<string, { hint: string; icon: IconName }> = {
+    general:    { hint: 'Name, support email, currency', icon: 'bulb' },
+    appearance: { hint: 'Dashboard colour and logo', icon: 'eye' },
+    fees:       { hint: 'Platform fee and free trial', icon: 'file' },
+    paystack:   { hint: 'Payments and webhooks', icon: 'wallet' },
+    cities:     { hint: 'Where the platform operates', icon: 'pin' },
+    advanced:   { hint: 'Signups, maintenance, checks', icon: 'wrench' },
+};
 
 type Tab = { key: string; label: string };
 type Currency = { code: string; label: string };
@@ -53,7 +64,7 @@ function Toggle({ on, onClick }: { on: boolean; onClick: () => void }) {
             onClick={onClick}
             className={
                 'relative rounded-full transition-colors shrink-0 ' +
-                (on ? 'bg-brand-500' : 'bg-ink-300')
+                (on ? 'bg-brand-600' : 'bg-ink-200')
             }
             style={{ width: 40, height: 22 }}
             aria-pressed={on}
@@ -68,9 +79,11 @@ function Toggle({ on, onClick }: { on: boolean; onClick: () => void }) {
 
 function FieldGroup({ title, children }: { title: string; children: React.ReactNode }) {
     return (
-        <section className="bg-white rounded-2xl border border-ink-200/60 p-6 shadow-soft">
-            <h2 className="text-base font-semibold mb-5">{title}</h2>
-            {children}
+        <section className="bg-white rounded-2xl border border-ink-200/60 shadow-soft overflow-hidden pb-rise">
+            <div className="p-5 border-b border-ink-200">
+                <h2 className="text-base font-semibold">{title}</h2>
+            </div>
+            <div className="p-5">{children}</div>
         </section>
     );
 }
@@ -83,7 +96,7 @@ function TextInput({ label, value, onChange, suffix }: { label: string; value: s
                 <input
                     value={value}
                     onChange={(e) => onChange(e.target.value)}
-                    className={`w-full bg-white border border-ink-200 rounded-lg px-3 py-2 text-[13px] focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand ${suffix ? 'pr-10' : ''}`}
+                    className={`w-full bg-white border border-ink-200 rounded-xl px-3.5 py-2.5 text-[13.5px] focus:outline-none focus:border-brand-300 focus:ring-4 focus:ring-brand-100 ${suffix ? 'pr-10' : ''}`}
                 />
                 {suffix && (
                     <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[12px] text-ink-500">{suffix}</span>
@@ -100,7 +113,7 @@ function SelectInput({ label, value, onChange, options }: { label: string; value
             <select
                 value={value}
                 onChange={(e) => onChange(e.target.value)}
-                className="w-full bg-white border border-ink-200 rounded-lg px-3 py-2 text-[13px] focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand"
+                className="w-full bg-white border border-ink-200 rounded-xl px-3.5 py-2.5 text-[13.5px] focus:outline-none focus:border-brand-300 focus:ring-4 focus:ring-brand-100"
             >
                 {options.map((o) => (
                     <option key={o.value} value={o.value}>{o.label}</option>
@@ -183,13 +196,13 @@ function TagEditor({
                     onKeyDown={onKey}
                     placeholder={placeholder}
                     maxLength={maxLen}
-                    className="flex-1 bg-white border border-ink-200 rounded-lg px-3 py-1.5 text-[13px] focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand"
+                    className="flex-1 bg-white border border-ink-200 rounded-xl px-3.5 py-2 text-[13px] focus:outline-none focus:border-brand-300 focus:ring-4 focus:ring-brand-100"
                 />
                 <button
                     type="button"
                     onClick={add}
                     disabled={draft.trim() === ''}
-                    className="px-3 py-1.5 text-[12px] bg-brand-700 text-white rounded-full hover:bg-brand-800 transition font-semibold disabled:opacity-40 disabled:cursor-not-allowed"
+                    className={`${btnPrimary} !py-2 !text-[12px] disabled:opacity-40 disabled:cursor-not-allowed`}
                 >
                     Add
                 </button>
@@ -285,45 +298,54 @@ export default function AdminSettings({ tabs, settings: initial, currencies, has
                 </div>
             )}
 
-            <div className="px-4 sm:px-8 py-6 sm:py-7">
-                <div className="mb-6">
-                    <h1 className="text-[28px] sm:text-[32px] leading-tight tracking-tight">
-                        Platform Settings
-                        {has_overrides && (
-                            <span className="ml-2 text-[11px] px-1.5 py-0.5 rounded bg-warning/15 text-warning font-bold align-middle">CUSTOMIZED</span>
-                        )}
-                    </h1>
-                    <p className="text-[14px] text-ink-500 mt-1">
-                        Global configuration for the application
-                    </p>
-                </div>
+            <div className="px-4 sm:px-7 py-6">
+                <PageHeader title="Platform Settings" subtitle="Global configuration for the application" />
+
+                <SummaryStrip
+                    title="Platform Setup"
+                    subtitle={data.general.platform_name}
+                    action={has_overrides ? <span className="text-[11px] px-2 py-1 rounded-full bg-warning/15 text-amber-700 font-bold">CUSTOMISED</span> : undefined}
+                    cells={[
+                        { label: 'Paystack', value: data.paystack.live_mode ? 'Live' : 'Test', sub: data.paystack.secret_key_set ? 'Keys configured' : 'No secret key', tone: data.paystack.live_mode ? 'success' : 'warning' },
+                        { label: 'Signups', value: data.advanced.allow_signups ? 'Open' : 'Closed', sub: data.advanced.tenant_invites_only ? 'Tenants by invite only' : 'All roles can register', tone: data.advanced.allow_signups ? 'success' : 'muted' },
+                        { label: 'Contractor Fee', value: `${data.fees.contractor_platform_fee}%`, sub: `${data.fees.free_trial_days}-day free trial`, tone: 'muted' },
+                        { label: 'Maintenance', value: data.advanced.maintenance_mode ? 'On' : 'Off', sub: data.advanced.maintenance_mode ? 'Site is offline to users' : 'Site is live', tone: data.advanced.maintenance_mode ? 'danger' : 'muted' },
+                    ]}
+                />
 
                 {/* Honest caveat — same as the Roles matrix */}
-                <div className="mb-4 px-4 py-2.5 rounded-lg bg-warning/10 border border-warning/30 text-[12px] text-ink-700">
+                <div className="mb-4 px-5 py-3 rounded-2xl bg-warning/10 border border-warning/30 text-[12.5px] text-ink-700">
                     <strong className="font-semibold">Heads up:</strong> Toggles persist as policy intent. Some flags (Paystack live mode, maintenance mode, FFC/FICA enforcement) are also controlled by environment / middleware and may need a code-level switch to fully take effect. Persisted values here drive UI display and informational state.
                 </div>
 
-                <div className="grid grid-cols-[200px_1fr] gap-6">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
                     {/* Tab nav */}
-                    <nav className="space-y-1">
-                        {tabs.map((t) => (
-                            <button
-                                key={t.key}
-                                onClick={() => setActiveTab(t.key)}
-                                className={
-                                    'w-full text-left text-[13px] px-3 py-2 rounded-lg font-medium transition ' +
-                                    (activeTab === t.key
-                                        ? 'bg-ink-900 text-white'
-                                        : 'text-ink-600 hover:bg-ink-100')
-                                }
-                            >
-                                {t.label}
-                            </button>
-                        ))}
-                    </nav>
+                    <aside className="lg:col-span-4">
+                        <nav className="bg-white rounded-2xl border border-ink-200/60 shadow-soft p-2">
+                            {tabs.map((t) => {
+                                const on = activeTab === t.key;
+                                const meta = TAB_META[t.key] ?? { hint: '', icon: 'bulb' as IconName };
+                                return (
+                                    <button
+                                        key={t.key}
+                                        onClick={() => setActiveTab(t.key)}
+                                        className={'w-full flex items-center gap-3 text-left px-3 py-2.5 rounded-xl transition ' + (on ? 'bg-brand-50' : 'hover:bg-ink-50')}
+                                    >
+                                        <span className={`w-9 h-9 rounded-xl flex items-center justify-center ${on ? 'bg-brand-700 text-white' : 'bg-ink-100 text-ink-500'}`}>
+                                            <Icon name={meta.icon} className="w-4 h-4" />
+                                        </span>
+                                        <span className="min-w-0">
+                                            <span className={`block text-[13.5px] font-semibold ${on ? 'text-brand-800' : 'text-ink-800'}`}>{t.label}</span>
+                                            {meta.hint && <span className="block text-[11.5px] text-ink-500 truncate">{meta.hint}</span>}
+                                        </span>
+                                    </button>
+                                );
+                            })}
+                        </nav>
+                    </aside>
 
                     {/* Tab content */}
-                    <div className="space-y-6">
+                    <div className="lg:col-span-8 space-y-4">
                         {activeTab === 'general' && (
                             <FieldGroup title="General">
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
@@ -368,7 +390,7 @@ export default function AdminSettings({ tabs, settings: initial, currencies, has
                                                     step="0.1"
                                                     value={data.fees.contractor_platform_fee}
                                                     onChange={(e) => patchTab('fees', { contractor_platform_fee: Number(e.target.value) || 0 })}
-                                                    className="w-full bg-white border border-ink-200 rounded-lg pl-3 pr-8 py-1.5 text-[13px] text-right focus:outline-none focus:ring-2 focus:ring-brand/20"
+                                                    className="w-full bg-white border border-ink-200 rounded-xl pl-3 pr-8 py-2 text-[13px] text-right focus:outline-none focus:border-brand-300 focus:ring-4 focus:ring-brand-100"
                                                 />
                                                 <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[12px] text-ink-500">%</span>
                                             </div>
@@ -390,7 +412,7 @@ export default function AdminSettings({ tabs, settings: initial, currencies, has
                                                 type="number"
                                                 value={data.fees.free_trial_days}
                                                 onChange={(e) => patchTab('fees', { free_trial_days: Number(e.target.value) || 0 })}
-                                                className="w-full bg-white border border-ink-200 rounded-lg px-3 py-1.5 text-[13px] text-right focus:outline-none focus:ring-2 focus:ring-brand/20"
+                                                className="w-full bg-white border border-ink-200 rounded-xl px-3 py-2 text-[13px] text-right focus:outline-none focus:border-brand-300 focus:ring-4 focus:ring-brand-100"
                                             />
                                         </div>
                                     </div>
@@ -411,18 +433,18 @@ export default function AdminSettings({ tabs, settings: initial, currencies, has
                                     />
                                     <div className="py-4 border-b border-ink-100">
                                         <p className="text-[13px] font-semibold mb-1.5">Webhook URL</p>
-                                        <code className="block bg-ink-50 border border-ink-200 rounded-lg px-3 py-2 text-[12px] font-mono break-all">
+                                        <code className="block bg-ink-50 border border-ink-200 rounded-xl px-3.5 py-2.5 text-[12px] font-mono break-all">
                                             {data.paystack.webhook_url}
                                         </code>
                                     </div>
                                     <div className="py-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                        <div className="flex items-center justify-between bg-ink-50 rounded-lg px-3 py-2">
+                                        <div className="flex items-center justify-between bg-ink-50 rounded-xl px-3.5 py-2.5">
                                             <span className="text-[12px] font-semibold">Public key</span>
                                             <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${data.paystack.public_key_set ? 'bg-success/15 text-success' : 'bg-danger/15 text-danger'}`}>
                                                 {data.paystack.public_key_set ? 'SET' : 'MISSING'}
                                             </span>
                                         </div>
-                                        <div className="flex items-center justify-between bg-ink-50 rounded-lg px-3 py-2">
+                                        <div className="flex items-center justify-between bg-ink-50 rounded-xl px-3.5 py-2.5">
                                             <span className="text-[12px] font-semibold">Secret key</span>
                                             <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${data.paystack.secret_key_set ? 'bg-success/15 text-success' : 'bg-danger/15 text-danger'}`}>
                                                 {data.paystack.secret_key_set ? 'SET' : 'MISSING'}
@@ -493,7 +515,7 @@ export default function AdminSettings({ tabs, settings: initial, currencies, has
                     </div>
                 </div>
 
-                <div className="flex items-center justify-between gap-2 mt-6">
+                <div className="flex flex-wrap items-center justify-between gap-2 mt-4">
                     <div className="text-[11px] text-ink-500">
                         {dirty && <span className="font-semibold text-warning">Unsaved changes</span>}
                     </div>
@@ -501,7 +523,7 @@ export default function AdminSettings({ tabs, settings: initial, currencies, has
                         {has_overrides && (
                             <button
                                 onClick={resetAll}
-                                className="px-3.5 py-2 text-[13px] border border-ink-200 bg-white rounded-lg hover:bg-ink-50 transition font-semibold text-danger"
+                                className="inline-flex items-center rounded-full border border-danger/40 bg-white px-4 py-2.5 text-[13px] font-semibold text-danger hover:bg-danger/5 transition"
                                 title="Restore every setting to the hardcoded defaults"
                             >
                                 Reset to defaults
@@ -510,14 +532,14 @@ export default function AdminSettings({ tabs, settings: initial, currencies, has
                         <button
                             onClick={cancel}
                             disabled={!dirty}
-                            className="px-3.5 py-2 text-[13px] border border-ink-200 bg-white rounded-lg hover:bg-ink-50 transition font-semibold disabled:opacity-40 disabled:cursor-not-allowed"
+                            className={`${btnOutline} disabled:opacity-40 disabled:cursor-not-allowed`}
                         >
                             Cancel
                         </button>
                         <button
                             onClick={save}
                             disabled={!dirty || saving}
-                            className="px-3.5 py-2 text-[13px] bg-brand-700 text-white rounded-full hover:bg-brand-800 transition font-semibold disabled:opacity-40 disabled:cursor-not-allowed"
+                            className={`${btnPrimary} disabled:opacity-40 disabled:cursor-not-allowed`}
                         >
                             {saving ? 'Saving…' : 'Save Changes'}
                         </button>

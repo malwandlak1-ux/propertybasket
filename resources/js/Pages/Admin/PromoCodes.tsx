@@ -2,6 +2,7 @@ import { FormEvent } from 'react';
 import { Head, router, useForm, usePage } from '@inertiajs/react';
 import AdminLayout from '@/Layouts/AdminLayout';
 import { Spinner } from '@/Components/Skeleton';
+import { FlashBanners, PageHeader, SectionCard, SummaryStrip, btnPrimary, thRowCls } from '@/Components/Dashboard/Charts';
 
 type Code = {
     id: number;
@@ -52,38 +53,40 @@ export default function AdminPromoCodes({ codes }: Props) {
         }
     }
 
-    const inputCls = 'w-full bg-white border border-ink-200 rounded-lg px-3 py-2 text-[13px] focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition';
+    const inputCls = 'w-full bg-white border border-ink-200 rounded-xl px-3.5 py-2.5 text-[13.5px] focus:outline-none focus:border-brand-300 focus:ring-4 focus:ring-brand-100 transition';
     // Selects need extra right padding so the native dropdown caret doesn't
     // crowd / overlap the option text (e.g. "Agencies + Landlords").
-    const selectCls = 'w-full bg-white border border-ink-200 rounded-lg pl-3 pr-9 py-2 text-[13px] focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition';
+    const selectCls = 'w-full bg-white border border-ink-200 rounded-xl pl-3.5 pr-9 py-2.5 text-[13.5px] focus:outline-none focus:border-brand-300 focus:ring-4 focus:ring-brand-100 transition';
+
+    const live = codes.filter((c) => c.is_active && !c.is_expired).length;
+    const redeemed = codes.reduce((n, c) => n + c.times_redeemed, 0);
 
     return (
         <AdminLayout crumb="Promo Codes" section="Financials">
             <Head title="Promo Codes" />
 
-            <div className="px-4 sm:px-8 py-6 sm:py-7">
-                <div className="mb-6">
-                    <h1 className="text-[28px] sm:text-[32px] leading-tight tracking-tight">Promo Codes</h1>
-                    <p className="text-[14px] text-ink-500 mt-1">
-                        Issue full-access codes for agencies &amp; landlords. Each code grants free access for the set
-                        duration; once it lapses the user is prompted to renew and can't reuse the same code.
-                    </p>
-                </div>
+            <div className="px-4 sm:px-7 py-6">
+                <PageHeader
+                    title="Promo Codes"
+                    subtitle="Issue full-access codes for agencies & landlords. Each code grants free access for the set duration; once it lapses the user is prompted to renew and can't reuse the same code."
+                />
 
-                {flash?.success && (
-                    <div className="mb-4 rounded-lg bg-success/10 border border-success/30 text-success px-4 py-3 text-[13px]">
-                        {flash.success}
-                    </div>
-                )}
-                {flash?.error && (
-                    <div className="mb-4 rounded-lg bg-danger/10 border border-danger/30 text-danger px-4 py-3 text-[13px]">
-                        {flash.error}
-                    </div>
-                )}
+                <FlashBanners flash={flash} />
+
+                <SummaryStrip
+                    title="Promo Summary"
+                    subtitle="Free-access codes issued by the platform"
+                    cells={[
+                        { label: 'Codes', value: codes.length, sub: 'Issued in total' },
+                        { label: 'Live', value: live, sub: 'Active and in date', tone: 'success' },
+                        { label: 'Redemptions', value: redeemed, sub: 'Across all codes', tone: 'muted' },
+                        { label: 'Inactive', value: codes.length - live, sub: 'Disabled or expired', tone: 'muted' },
+                    ]}
+                />
 
                 {/* Create form */}
-                <form onSubmit={submit} className="bg-white rounded-2xl border border-ink-200/60 p-5 shadow-soft mb-6">
-                    <h2 className="text-[15px] font-bold mb-4">Create a code</h2>
+                <SectionCard title="Create a code" subtitle="Grant free access for a set number of days">
+                <form onSubmit={submit}>
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
                         <div className="col-span-2 lg:col-span-1">
                             <label className="block text-[12px] font-semibold text-ink-700 mb-1">Code</label>
@@ -134,7 +137,7 @@ export default function AdminPromoCodes({ codes }: Props) {
                         </div>
                     </div>
                     <div className="flex items-end justify-between gap-3 mt-3">
-                        <div className="w-48">
+                        <div className="w-56">
                             <label className="block text-[12px] font-semibold text-ink-700 mb-1">Redeemable until (optional)</label>
                             <input
                                 type="date"
@@ -147,7 +150,7 @@ export default function AdminPromoCodes({ codes }: Props) {
                         <button
                             type="submit"
                             disabled={form.processing}
-                            className="px-5 py-2 bg-brand-500 text-white rounded-lg font-semibold text-[13px] hover:bg-brand-600 disabled:opacity-50 inline-flex items-center gap-2 transition"
+                            className={btnPrimary}
                         >
                             {form.processing ? <><Spinner size={14} />Creating…</> : '+ Create code'}
                         </button>
@@ -156,12 +159,13 @@ export default function AdminPromoCodes({ codes }: Props) {
                         "Access (days)" is how long a user keeps free access after redeeming — e.g. 90 = 3 months.
                     </p>
                 </form>
+                </SectionCard>
 
                 {/* Codes table */}
-                <div className="bg-white rounded-2xl border border-ink-200/60 shadow-soft overflow-hidden">
-                    <table className="w-full text-[13px]">
-                        <thead className="bg-ink-50 text-ink-500 text-[11px] uppercase tracking-wider">
-                            <tr>
+                <SectionCard title="All Codes" subtitle={`${codes.length} code${codes.length === 1 ? '' : 's'}`} flush>
+                    <div className="overflow-x-auto"><table className="w-full min-w-[700px] text-[13px]">
+                        <thead>
+                            <tr className={thRowCls}>
                                 <th className="text-left font-semibold px-4 py-3">Code</th>
                                 <th className="text-left font-semibold px-4 py-3">Audience</th>
                                 <th className="text-left font-semibold px-4 py-3">Access</th>
@@ -207,8 +211,8 @@ export default function AdminPromoCodes({ codes }: Props) {
                                 </tr>
                             ))}
                         </tbody>
-                    </table>
-                </div>
+                    </table></div>
+                </SectionCard>
             </div>
         </AdminLayout>
     );

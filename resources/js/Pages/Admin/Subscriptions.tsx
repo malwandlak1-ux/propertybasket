@@ -2,6 +2,7 @@ import { FormEvent, useState } from 'react';
 import { Head, useForm, usePage } from '@inertiajs/react';
 import AdminLayout from '@/Layouts/AdminLayout';
 import { Spinner } from '@/Components/Skeleton';
+import { FlashBanners, PageHeader, SectionCard, SummaryStrip, btnOutline, btnPrimary } from '@/Components/Dashboard/Charts';
 
 type Plan = {
     key: string;
@@ -34,23 +35,27 @@ export default function AdminSubscriptions({ plans, contractor_fee_percent }: Pr
         <AdminLayout crumb="Subscriptions" section="Financials">
             <Head title="Subscription Plans" />
 
-            <div className="px-4 sm:px-8 py-6 sm:py-7">
-                <div className="flex flex-wrap items-end justify-between gap-3 mb-6">
-                    <div>
-                        <h1 className="text-[28px] sm:text-[32px] leading-tight tracking-tight">Subscription Plans</h1>
-                        <p className="text-[14px] text-ink-500 mt-1">
-                            Adjust pricing and features · changes propagate to every agency's Billing &amp; Plan tab on next load
-                        </p>
-                    </div>
-                </div>
+            <div className="px-4 sm:px-7 py-6">
+                <PageHeader
+                    title="Subscription Plans"
+                    subtitle="Adjust pricing and features · changes propagate to every agency's Billing & Plan tab on next load"
+                />
 
-                {flash?.success && (
-                    <div className="mb-4 rounded-lg bg-success/10 border border-success/30 text-success px-4 py-3 text-[13px]">
-                        {flash.success}
-                    </div>
-                )}
+                <FlashBanners flash={flash} />
 
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                <SummaryStrip
+                    title="Subscription Summary"
+                    subtitle="Paying accounts across every plan"
+                    cells={[
+                        { label: 'Plans', value: plans.length, sub: 'Offered on the platform' },
+                        { label: 'Subscribers', value: plans.reduce((n, p) => n + p.subs, 0), sub: 'Active subscriptions', tone: 'muted' },
+                        { label: 'MRR', value: `R ${fmtPrice(plans.reduce((n, p) => n + p.mrr, 0))}`, sub: 'Monthly recurring revenue', tone: 'success' },
+                        { label: 'Contractor Fee', value: `${contractor_fee_percent}%`, sub: 'Per completed job', tone: 'muted' },
+                    ]}
+                />
+
+                <SectionCard title="Plans" subtitle="Click Edit plan to change a price, headline or features">
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 pt-2">
                     {plans.map((p) => (
                         <PlanCard
                             key={p.key}
@@ -61,8 +66,9 @@ export default function AdminSubscriptions({ plans, contractor_fee_percent }: Pr
                         />
                     ))}
                 </div>
+                </SectionCard>
 
-                <div className="mt-6 bg-brand-50 border border-brand-100 rounded-xl p-4 flex items-start gap-3">
+                <div className="bg-brand-50 border border-brand-100 rounded-2xl p-5 flex items-start gap-3">
                     <svg className="w-5 h-5 text-brand-600 shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
                         <circle cx="12" cy="12" r="10"/>
                         <path d="M12 16v-4M12 8h.01"/>
@@ -85,8 +91,8 @@ function PlanCard({ plan, isEditing, onEdit, onClose }: { plan: Plan; isEditing:
     return (
         <div
             className={
-                'relative bg-white rounded-xl p-5 shadow-soft transition ' +
-                (plan.popular ? 'border-2 border-brand-500 shadow-card' : 'border border-ink-200 hover:shadow-card')
+                'relative bg-white rounded-2xl p-5 shadow-soft transition ' +
+                (plan.popular ? 'border-2 border-brand-500 shadow-lift' : 'border border-ink-200/70 hover:shadow-lift')
             }
         >
             {plan.popular && (
@@ -98,11 +104,11 @@ function PlanCard({ plan, isEditing, onEdit, onClose }: { plan: Plan; isEditing:
                 {plan.subs} {plan.subs === 1 ? 'sub' : 'subs'}
             </span>
 
-            <p className="text-[14px] font-bold mb-3 pr-16">{plan.name}</p>
+            <p className="text-[15px] font-semibold tracking-tight mb-3 pr-16">{plan.name}</p>
 
             <div className="flex items-baseline gap-1 mb-1">
                 <span className="text-lg font-bold text-ink-500">R</span>
-                <span className="text-3xl font-bold">{fmtPrice(plan.price)}</span>
+                <span className="text-[34px] font-semibold tracking-tight leading-none tabular-nums">{fmtPrice(plan.price)}</span>
                 <span className="text-[12px] text-ink-500">/mo</span>
             </div>
             <p className="text-[12px] text-ink-500 mb-4">{plan.headline}</p>
@@ -119,10 +125,10 @@ function PlanCard({ plan, isEditing, onEdit, onClose }: { plan: Plan; isEditing:
             <button
                 onClick={onEdit}
                 className={
-                    'w-full py-2.5 text-[12.5px] rounded-lg font-semibold transition ' +
+                    'w-full py-2.5 text-[12.5px] rounded-full font-semibold transition ' +
                     (plan.popular
-                        ? 'bg-brand-500 text-white hover:bg-brand-600'
-                        : 'border border-ink-200 hover:bg-ink-50')
+                        ? 'bg-brand-700 text-white hover:bg-brand-800'
+                        : 'border border-ink-300 hover:bg-ink-50')
                 }
             >
                 Edit plan
@@ -159,7 +165,7 @@ function PlanEditor({ plan, onClose }: { plan: Plan; onClose: () => void }) {
     }
 
     return (
-        <form onSubmit={submit} className="relative bg-white rounded-xl p-5 border-2 border-brand-500 shadow-card space-y-3">
+        <form onSubmit={submit} className="relative bg-white rounded-2xl p-5 border-2 border-brand-500 shadow-lift space-y-3">
             <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 text-[9px] bg-ink-900 text-white px-2 py-0.5 rounded-full font-bold tracking-wide">
                 EDITING
             </span>
@@ -169,7 +175,7 @@ function PlanEditor({ plan, onClose }: { plan: Plan; onClose: () => void }) {
                 <input
                     value={data.name}
                     onChange={(e) => setData('name', e.target.value)}
-                    className="w-full bg-ink-50 border border-ink-200 rounded-md px-2.5 py-1.5 text-[13px] font-semibold outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand"
+                    className="w-full bg-white border border-ink-200 rounded-xl px-3 py-2 outline-none focus:border-brand-300 focus:ring-4 focus:ring-brand-100 text-[13px] font-semibold"
                 />
                 {errors.name && <p className="text-[11px] text-danger mt-0.5">{errors.name}</p>}
             </div>
@@ -181,7 +187,7 @@ function PlanEditor({ plan, onClose }: { plan: Plan; onClose: () => void }) {
                     min={0}
                     value={data.price}
                     onChange={(e) => setData('price', Number(e.target.value))}
-                    className="w-full bg-ink-50 border border-ink-200 rounded-md px-2.5 py-1.5 text-[18px] font-bold font-mono outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand"
+                    className="w-full bg-white border border-ink-200 rounded-xl px-3 py-2 outline-none focus:border-brand-300 focus:ring-4 focus:ring-brand-100 text-[18px] font-semibold tabular-nums"
                 />
                 {errors.price && <p className="text-[11px] text-danger mt-0.5">{errors.price}</p>}
             </div>
@@ -191,7 +197,7 @@ function PlanEditor({ plan, onClose }: { plan: Plan; onClose: () => void }) {
                 <input
                     value={data.headline}
                     onChange={(e) => setData('headline', e.target.value)}
-                    className="w-full bg-ink-50 border border-ink-200 rounded-md px-2.5 py-1.5 text-[12px] outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand"
+                    className="w-full bg-white border border-ink-200 rounded-xl px-3 py-2 outline-none focus:border-brand-300 focus:ring-4 focus:ring-brand-100 text-[12px]"
                 />
                 {errors.headline && <p className="text-[11px] text-danger mt-0.5">{errors.headline}</p>}
             </div>
@@ -204,7 +210,7 @@ function PlanEditor({ plan, onClose }: { plan: Plan; onClose: () => void }) {
                             <input
                                 value={f}
                                 onChange={(e) => updateFeature(i, e.target.value)}
-                                className="flex-1 bg-ink-50 border border-ink-200 rounded-md px-2 py-1 text-[12px] outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand"
+                                className="flex-1 bg-white border border-ink-200 rounded-lg px-2.5 py-1.5 text-[12px] outline-none focus:border-brand-300 focus:ring-4 focus:ring-brand-100"
                             />
                             <button type="button" onClick={() => removeFeature(i)} className="text-ink-400 hover:text-danger p-1">×</button>
                         </div>
@@ -229,14 +235,14 @@ function PlanEditor({ plan, onClose }: { plan: Plan; onClose: () => void }) {
                 <button
                     type="button"
                     onClick={onClose}
-                    className="px-3 py-1.5 text-[11px] border border-ink-200 rounded-md hover:bg-ink-100"
+                    className={`${btnOutline} !px-3.5 !py-2 !text-[12px]`}
                 >
                     Cancel
                 </button>
                 <button
                     type="submit"
                     disabled={processing}
-                    className="px-3 py-1.5 text-[11px] bg-ink-900 text-white rounded-md hover:bg-brand-500 disabled:opacity-60 inline-flex items-center gap-1 font-semibold"
+                    className={`${btnPrimary} !px-3.5 !py-2 !text-[12px]`}
                 >
                     {processing && <Spinner size={11} />}
                     {processing ? 'Saving…' : 'Save'}

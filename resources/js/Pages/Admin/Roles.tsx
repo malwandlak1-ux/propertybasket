@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Head, router, usePage } from '@inertiajs/react';
 import AdminLayout from '@/Layouts/AdminLayout';
+import { PageHeader, SectionCard, SummaryStrip, btnOutline, btnPrimary, thRowCls } from '@/Components/Dashboard/Charts';
 
 type Row = {
     permission: string;
@@ -130,37 +131,45 @@ export default function AdminRoles({ roles, role_labels, matrix: initialMatrix, 
                 </div>
             )}
 
-            <div className="px-4 sm:px-8 py-6 sm:py-7">
-                <div className="flex flex-wrap items-end justify-between gap-3 mb-6">
-                    <div>
-                        <h1 className="text-[28px] sm:text-[32px] leading-tight tracking-tight">Roles & Permissions</h1>
-                        <p className="text-[14px] text-ink-500 mt-1">
-                            Define what each role can do across the platform
-                            {has_overrides && (
-                                <span className="ml-2 text-[11px] px-1.5 py-0.5 rounded bg-warning/15 text-warning font-bold">CUSTOMIZED</span>
-                            )}
-                        </p>
-                    </div>
-                    <button
-                        onClick={() => setNewRoleOpen(true)}
-                        className="px-3.5 py-2 text-[13px] bg-ink-900 text-white rounded-lg flex items-center gap-2 hover:bg-brand-500 transition"
-                    >
-                        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
-                            <path d="M12 5v14M5 12h14"/>
-                        </svg>
-                        New Role
-                    </button>
-                </div>
+            <div className="px-4 sm:px-7 py-6">
+                <PageHeader
+                    title="Roles & Permissions"
+                    subtitle="Define what each role can do across the platform"
+                    actions={
+                        <button onClick={() => setNewRoleOpen(true)} className={btnPrimary}>
+                            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+                                <path d="M12 5v14M5 12h14"/>
+                            </svg>
+                            New Role
+                        </button>
+                    }
+                />
+
+                <SummaryStrip
+                    title="Access Summary"
+                    subtitle="The permissions matrix applied across every dashboard"
+                    cells={[
+                        { label: 'Roles', value: roles.length, sub: `${roles.filter((r) => core_roles.includes(r)).length} built-in` },
+                        { label: 'Custom Roles', value: roles.filter((r) => !core_roles.includes(r)).length, sub: 'Matrix-only (planning)', tone: 'muted' },
+                        { label: 'Permissions', value: matrix.length, sub: 'Rows in the matrix', tone: 'muted' },
+                        { label: 'Policy', value: has_overrides ? 'Customised' : 'Defaults', sub: dirty ? 'Unsaved changes' : 'Saved', tone: dirty ? 'warning' : has_overrides ? 'warning' : 'success' },
+                    ]}
+                />
 
                 {/* Caveat banner — important: custom roles don't yet grant real app access */}
-                <div className="mb-4 px-4 py-2.5 rounded-lg bg-warning/10 border border-warning/30 text-[12px] text-ink-700">
+                <div className="mb-4 px-5 py-3 rounded-2xl bg-warning/10 border border-warning/30 text-[12.5px] text-ink-700">
                     <strong className="font-semibold">Heads up:</strong> Toggles persist as policy intent. Custom roles you add here are matrix-only — they don't grant real access in the app yet, because route guards still use the built-in role enum. Use them for documentation and planning until controller checks are migrated.
                 </div>
 
-                <div className="bg-white rounded-2xl border border-ink-200/60 shadow-soft overflow-hidden">
+                <SectionCard
+                    title="Permissions Matrix"
+                    subtitle="Super Admin permissions cannot be modified — full access is implicit"
+                    flush
+                    action={dirty ? <span className="text-[11px] px-2 py-1 rounded-full bg-warning/15 text-amber-700 font-bold">UNSAVED CHANGES</span> : undefined}
+                >
                     <div className="overflow-x-auto"><table className="w-full min-w-[700px]">
                         <thead>
-                            <tr className="text-left text-[11px] uppercase text-ink-500 tracking-wider border-b border-ink-200 bg-ink-50">
+                            <tr className={thRowCls}>
                                 <th className="font-semibold px-5 py-3">Permission</th>
                                 {roles.map((r) => {
                                     const isCore = core_roles.includes(r);
@@ -203,14 +212,14 @@ export default function AdminRoles({ roles, role_labels, matrix: initialMatrix, 
                         </tbody>
                     </table></div>
 
-                    <div className="flex items-center justify-between gap-2 px-5 py-4 bg-ink-50/50 border-t border-ink-200">
+                    <div className="flex flex-wrap items-center justify-between gap-2 px-5 py-4 bg-ink-50/50 border-t border-ink-200">
                         <div className="text-[11px] text-ink-500">
                             {dirty && <span className="font-semibold text-warning">Unsaved changes</span>}
                         </div>
                         <div className="flex items-center gap-2">
                             <button
                                 onClick={resetToDefaults}
-                                className="px-3.5 py-2 text-[13px] border border-ink-200 rounded-lg bg-white hover:bg-ink-50 transition font-semibold text-danger"
+                                className="inline-flex items-center rounded-full border border-danger/40 bg-white px-4 py-2.5 text-[13px] font-semibold text-danger hover:bg-danger/5 transition"
                                 title="Restore the entire matrix to its hardcoded defaults"
                             >
                                 Reset to defaults
@@ -218,7 +227,7 @@ export default function AdminRoles({ roles, role_labels, matrix: initialMatrix, 
                             <button
                                 onClick={resetLocal}
                                 disabled={!dirty}
-                                className="px-3.5 py-2 text-[13px] border border-ink-200 rounded-lg bg-white hover:bg-ink-50 transition font-semibold disabled:opacity-40 disabled:cursor-not-allowed"
+                                className={`${btnOutline} disabled:opacity-40 disabled:cursor-not-allowed`}
                                 title="Discard unsaved changes"
                             >
                                 Discard
@@ -226,24 +235,20 @@ export default function AdminRoles({ roles, role_labels, matrix: initialMatrix, 
                             <button
                                 onClick={save}
                                 disabled={!dirty || saving}
-                                className="px-3.5 py-2 text-[13px] bg-brand-700 text-white rounded-full hover:bg-brand-800 transition font-semibold disabled:opacity-40 disabled:cursor-not-allowed"
+                                className={`${btnPrimary} disabled:opacity-40 disabled:cursor-not-allowed`}
                             >
                                 {saving ? 'Saving…' : 'Save Permissions'}
                             </button>
                         </div>
                     </div>
-                </div>
-
-                <p className="text-[11px] text-ink-400 mt-3">
-                    Super Admin permissions cannot be modified — full access is implicit.
-                </p>
+                </SectionCard>
             </div>
 
             {/* New Role modal */}
             {newRoleOpen && (
                 <div className="fixed inset-0 z-40 bg-ink-900/40 flex items-center justify-center p-4" onClick={() => setNewRoleOpen(false)}>
-                    <div className="bg-white rounded-xl shadow-lift w-full max-w-sm p-5" onClick={(e) => e.stopPropagation()}>
-                        <h2 className="font-bold text-lg mb-1">New role</h2>
+                    <div className="bg-white rounded-2xl shadow-lift w-full max-w-sm p-6" onClick={(e) => e.stopPropagation()}>
+                        <h2 className="text-lg font-semibold mb-1">New role</h2>
                         <p className="text-[12px] text-ink-500 mb-4">
                             Adds a new column to the permissions matrix. The role key is auto-derived from the label (e.g. "Marketing Manager" → <code className="text-[11px] bg-ink-100 px-1 rounded">marketing_manager</code>).
                         </p>
@@ -253,21 +258,21 @@ export default function AdminRoles({ roles, role_labels, matrix: initialMatrix, 
                                 value={newRoleLabel}
                                 onChange={(e) => setNewRoleLabel(e.target.value)}
                                 placeholder="e.g. Marketing Manager"
-                                className="w-full text-[13px] bg-white border border-ink-200 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand"
+                                className="w-full bg-white border border-ink-200 rounded-xl px-3.5 py-2.5 text-[13.5px] focus:outline-none focus:border-brand-300 focus:ring-4 focus:ring-brand-100"
                                 maxLength={60}
                             />
                             <div className="flex items-center justify-end gap-2 mt-4">
                                 <button
                                     type="button"
                                     onClick={() => { setNewRoleLabel(''); setNewRoleOpen(false); }}
-                                    className="px-3 py-1.5 text-[12px] border border-ink-200 rounded-lg bg-white hover:bg-ink-50 transition font-semibold"
+                                    className={btnOutline}
                                 >
                                     Cancel
                                 </button>
                                 <button
                                     type="submit"
                                     disabled={newRoleLabel.trim().length < 2}
-                                    className="px-3 py-1.5 text-[12px] bg-brand-700 text-white rounded-full hover:bg-brand-800 transition font-semibold disabled:opacity-40 disabled:cursor-not-allowed"
+                                    className={`${btnPrimary} disabled:opacity-40 disabled:cursor-not-allowed`}
                                 >
                                     Add role
                                 </button>

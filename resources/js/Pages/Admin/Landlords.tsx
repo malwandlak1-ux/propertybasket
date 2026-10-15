@@ -1,6 +1,7 @@
 import { Head, router, usePage } from '@inertiajs/react';
 import { useEffect, useRef, useState } from 'react';
 import AdminLayout from '@/Layouts/AdminLayout';
+import { PageHeader, SectionCard, SummaryStrip, selectCls, thRowCls } from '@/Components/Dashboard/Charts';
 
 type Landlord = {
     id: number;
@@ -47,6 +48,13 @@ export default function AdminLandlords({ landlords, stats }: Props) {
     const flash = props.flash ?? {};
     const [toast, setToast] = useState<{ tone: 'success' | 'error'; message: string } | null>(null);
     const [openMenuId, setOpenMenuId] = useState<number | null>(null);
+    const [query, setQuery] = useState('');
+    const [filter, setFilter] = useState<'all' | 'cap' | 'fica'>('all');
+
+    const q = query.trim().toLowerCase();
+    const shown = landlords.filter((l) =>
+        (!q || l.name.toLowerCase().includes(q) || l.email.toLowerCase().includes(q))
+        && (filter === 'all' || (filter === 'cap' ? l.at_cap : l.fica_verified)));
 
     useEffect(() => {
         if (flash.success) setToast({ tone: 'success', message: flash.success });
@@ -71,37 +79,42 @@ export default function AdminLandlords({ landlords, stats }: Props) {
                 </div>
             )}
 
-            <div className="px-4 sm:px-8 py-6 sm:py-7">
-                <div className="flex flex-wrap items-end justify-between gap-3 mb-6">
-                    <div>
-                        <h1 className="text-[28px] sm:text-[32px] leading-tight tracking-tight">Landlords</h1>
-                        <p className="text-[14px] text-ink-500 mt-1">
-                            {stats.total} registered private landlords · {stats.properties} properties managed
-                        </p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <input className="text-[12px] bg-white border border-ink-200 rounded-md px-3 py-2 w-56 focus:outline-none focus:ring-2 focus:ring-brand/20" placeholder="Search landlords..." />
-                        <select className="text-[12px] bg-white border border-ink-200 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand/20">
-                            <option>All</option>
-                            <option>At property cap</option>
-                            <option>FICA verified</option>
-                        </select>
-                    </div>
-                </div>
+            <div className="px-4 sm:px-7 py-6">
+                <PageHeader
+                    title="Landlords"
+                    subtitle={`${stats.total} registered private landlords · ${stats.properties} properties managed`}
+                />
 
-                {/* Stats strip */}
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                    <Stat label="Total" value={stats.total} />
-                    <Stat label="FICA Verified" value={stats.verified} tone="success" />
-                    <Stat label="At Cap (5)" value={stats.at_cap} tone="warning" />
-                    <Stat label="Properties" value={stats.properties} />
-                </div>
+                <SummaryStrip
+                    title="Landlord Summary"
+                    subtitle="Private landlords on the platform"
+                    cells={[
+                        { label: 'Total', value: stats.total, sub: 'Registered landlords' },
+                        { label: 'FICA Verified', value: stats.verified, sub: `${stats.total - stats.verified} awaiting checks`, tone: 'success' },
+                        { label: 'At Property Cap', value: stats.at_cap, sub: 'Need a bigger plan', tone: stats.at_cap > 0 ? 'warning' : 'muted' },
+                        { label: 'Properties', value: stats.properties, sub: 'Managed by landlords', tone: 'muted' },
+                    ]}
+                />
 
-                {/* Table */}
-                <div className="bg-white rounded-2xl border border-ink-200/60 shadow-soft overflow-visible">
-                    <div className="overflow-x-auto"><table className="w-full min-w-[700px]">
+                <SectionCard
+                    title="All Landlords"
+                    subtitle={`${shown.length} of ${landlords.length} shown`}
+                    flush
+                    className="overflow-visible!"
+                    action={
+                        <div className="flex flex-wrap items-center gap-2">
+                            <input value={query} onChange={(e) => setQuery(e.target.value)} className={`${selectCls} w-56`} placeholder="Search landlords…" />
+                            <select value={filter} onChange={(e) => setFilter(e.target.value as typeof filter)} className={selectCls}>
+                                <option value="all">All</option>
+                                <option value="cap">At property cap</option>
+                                <option value="fica">FICA verified</option>
+                            </select>
+                        </div>
+                    }
+                >
+                    <div className="overflow-x-auto lg:overflow-visible"><table className="w-full min-w-[700px]">
                         <thead>
-                            <tr className="text-left text-[11px] uppercase text-ink-500 tracking-wider border-b border-ink-200 bg-ink-50">
+                            <tr className={thRowCls}>
                                 <th className="font-semibold px-5 py-3">Landlord</th>
                                 <th className="font-semibold py-3">Subscription</th>
                                 <th className="font-semibold py-3 text-right">Properties</th>
@@ -113,9 +126,9 @@ export default function AdminLandlords({ landlords, stats }: Props) {
                             </tr>
                         </thead>
                         <tbody className="text-[13px]">
-                            {landlords.length === 0 ? (
-                                <tr><td colSpan={8} className="text-center text-[12px] text-ink-400 py-10">No landlords registered yet</td></tr>
-                            ) : landlords.map((l) => (
+                            {shown.length === 0 ? (
+                                <tr><td colSpan={8} className="text-center text-[12px] text-ink-400 py-10">{landlords.length === 0 ? 'No landlords registered yet' : 'No landlords match your search'}</td></tr>
+                            ) : shown.map((l) => (
                                 <tr key={l.id} className={`border-b border-ink-100 hover:bg-ink-50 transition ${l.status === 'suspended' ? 'opacity-70' : ''}`}>
                                     <td className="px-5 py-4">
                                         <div className="flex items-center gap-3">
@@ -165,7 +178,7 @@ export default function AdminLandlords({ landlords, stats }: Props) {
                             ))}
                         </tbody>
                     </table></div>
-                </div>
+                </SectionCard>
             </div>
         </AdminLayout>
     );
@@ -260,16 +273,6 @@ function ActionMenu({
                     )}
                 </div>
             )}
-        </div>
-    );
-}
-
-function Stat({ label, value, tone }: { label: string; value: number; tone?: 'success' | 'warning' }) {
-    const cls = tone === 'success' ? 'text-success' : tone === 'warning' ? 'text-warning' : 'text-ink-900';
-    return (
-        <div className="bg-white rounded-2xl border border-ink-200/60 p-4 shadow-soft">
-            <p className="text-[11px] text-ink-500 uppercase tracking-wider font-semibold">{label}</p>
-            <p className={`text-2xl font-bold mt-1 ${cls}`}>{value}</p>
         </div>
     );
 }

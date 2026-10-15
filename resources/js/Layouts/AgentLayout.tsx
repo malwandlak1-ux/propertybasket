@@ -32,6 +32,7 @@ type Props = {
 type NavItem = ShellNavItem;
 
 const I = {
+    help: <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3M12 17h.01"/></svg>,
     dashboard: <svg className="nav-icon w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>,
     pipeline:  <svg className="nav-icon w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M3 7h4v13H3zM10 4h4v16h-4zM17 11h4v9h-4z"/></svg>,
     listings:  <svg className="nav-icon w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M3 21V10l9-7 9 7v11H3z"/><path d="M9 21v-7h6v7"/></svg>,
@@ -90,6 +91,7 @@ export default function AgentLayout({ children, crumb = 'Dashboard', agencyName 
     const account: NavItem[] = [
         { label: 'FFC & Compliance', href: '/agent/ffc',      icon: I.ffc, badge: ffcBadge },
         { label: 'Settings',         href: '/agent/settings', icon: I.settings },
+        { label: 'Help & Support',   href: '/agent/help',     icon: I.help },
     ];
 
     const banners = (ffc && ffc.state !== 'valid') || (agency_ffc && agency_ffc.state !== 'valid') ? (

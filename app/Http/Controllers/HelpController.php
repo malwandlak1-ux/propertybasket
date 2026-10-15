@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Admin\Concerns\EnsuresSuperAdmin;
+use App\Http\Controllers\Agency\Concerns\ResolvesAgency;
+use App\Http\Controllers\Agent\Concerns\ResolvesAgent;
 use App\Http\Controllers\Contractor\Concerns\ResolvesContractor;
 use App\Http\Controllers\Landlord\Concerns\ResolvesLandlord;
 use App\Http\Controllers\Tenant\Concerns\ResolvesTenant;
@@ -12,7 +15,37 @@ use Inertia\Response;
 /** Help & Support pages: how-to guides per role (content lives in resources/js/help). */
 class HelpController extends Controller
 {
-    use ResolvesContractor, ResolvesLandlord, ResolvesTenant;
+    use EnsuresSuperAdmin, ResolvesAgency, ResolvesAgent, ResolvesContractor, ResolvesLandlord, ResolvesTenant {
+        ResolvesContractor::sidebarCounts insteadof EnsuresSuperAdmin;
+        EnsuresSuperAdmin::sidebarCounts as adminSidebarCounts;
+    }
+
+    public function agency(Request $request): Response
+    {
+        $agency = $this->resolveAgency($request);
+
+        return Inertia::render('Agency/Help', [
+            'agency_name'   => $agency->name,
+            'support_email' => self::supportEmail(),
+        ]);
+    }
+
+    public function agent(Request $request): Response
+    {
+        $record = $this->resolveAgentRecord($request);
+
+        return Inertia::render('Agent/Help', [
+            'agency_name'   => $record->agency?->name,
+            'support_email' => self::supportEmail(),
+        ]);
+    }
+
+    public function admin(Request $request): Response
+    {
+        $this->ensureSuperAdmin($request);
+
+        return Inertia::render('Admin/Help', ['counts' => $this->adminSidebarCounts()]);
+    }
 
     public function landlord(Request $request): Response
     {

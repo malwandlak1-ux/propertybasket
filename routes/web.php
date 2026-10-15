@@ -108,6 +108,7 @@ Route::middleware('auth')->group(function () {
 
     Route::prefix('agency')->name('agency.')->middleware([EnsureRoleEnabled::class . ':agency_admin', 'subscribed'])->group(function () {
         Route::get('/', [AgencyDashboardController::class, 'overview'])->name('overview');
+        Route::get('help', [\App\Http\Controllers\HelpController::class, 'agency'])->name('help');
 
         Route::get('agents', [\App\Http\Controllers\Agency\AgentsController::class, 'index'])->name('agents.index');
         Route::post('agents/invite', [\App\Http\Controllers\Agency\AgentsController::class, 'invite'])->name('agents.invite');
@@ -178,6 +179,7 @@ Route::middleware('auth')->group(function () {
         Route::post('ffc',        [Agent\FfcController::class, 'update'])->name('ffc.update');
         Route::get('ffc/certificate', [Agent\FfcController::class, 'certificate'])->name('ffc.certificate');
         Route::get('/',           [Agent\DashboardController::class, 'overview'])->name('overview');
+        Route::get('help',        [\App\Http\Controllers\HelpController::class, 'agent'])->name('help');
         Route::get('pipeline',    [Agent\PipelineController::class,  'index'])->name('pipeline.index');
         Route::post('pipeline/leads', [Agent\PipelineController::class, 'storeLead'])->name('pipeline.leads.store');
         Route::patch('pipeline/leads/{inquiry}/status', [Agent\PipelineController::class, 'updateLeadStatus'])->name('pipeline.leads.status');
@@ -215,6 +217,7 @@ Route::middleware('auth')->group(function () {
 
     Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/',              [Admin\OverviewController::class,      'index'])->name('overview');
+        Route::get('help',           [\App\Http\Controllers\HelpController::class, 'admin'])->name('help');
         Route::get('overview.pdf',   [Admin\OverviewController::class,      'exportPdf'])->name('overview.pdf');
         Route::get('agencies',       [Admin\AgenciesController::class,      'index'])->name('agencies.index')->middleware(EnsureRoleEnabled::class . ':agency_admin');
         Route::post('agencies/{agency}/approve',      [Admin\AgenciesController::class, 'approve'])->name('agencies.approve');

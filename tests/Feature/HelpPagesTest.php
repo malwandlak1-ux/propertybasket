@@ -4,6 +4,8 @@ namespace Tests\Feature;
 
 use App\Enums\Role;
 use App\Enums\UserStatus;
+use App\Models\Agency;
+use App\Models\AgencyAgent;
 use App\Models\Contractor;
 use App\Models\Landlord;
 use App\Models\Lease;
@@ -16,7 +18,7 @@ use Inertia\Testing\AssertableInertia as Assert;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
-/** Help & Support pages for the landlord, tenant and contractor dashboards. */
+/** Help & Support pages for every role's dashboard. */
 class HelpPagesTest extends TestCase
 {
     use RefreshDatabase;
@@ -62,6 +64,41 @@ class HelpPagesTest extends TestCase
 
         // Not across roles.
         $this->actingAs($tenant)->get('/landlord/help')->assertForbidden();
+    }
+
+    #[Test]
+    public function agency_agent_and_admin_have_help_pages(): void
+    {
+        config(['edition.support_email' => 'support@example.test']);
+
+        $owner = User::factory()->create(['role' => Role::AgencyAdmin, 'status' => UserStatus::Active]);
+        $owner->assignRole('agency_admin');
+        $agency = Agency::create([
+            'user_id' => $owner->id, 'name' => 'Sandton Realty', 'slug' => 'sandton-' . Str::random(6),
+            'email' => $owner->email, 'status' => 'active',
+        ]);
+        $agency->activateSubscription('promo', now()->addYear());
+        $this->actingAs($owner)->get('/agency/help')->assertOk()
+            ->assertInertia(fn (Assert $p) => $p->component('Agency/Help')
+                ->where('agency_name', 'Sandton Realty')
+                ->where('support_email', 'support@example.test'));
+
+        $agent = User::factory()->create(['role' => Role::Agent, 'status' => UserStatus::Active]);
+        $agent->assignRole('agent');
+        AgencyAgent::create([
+            'agency_id' => $agency->id, 'user_id' => $agent->id, 'commission_split_percent' => 50,
+            'lead_allocation_position' => 0, 'ffc_expires_at' => now()->addYear(), 'status' => 'active',
+        ]);
+        $this->actingAs($agent)->get('/agent/help')->assertOk()
+            ->assertInertia(fn (Assert $p) => $p->component('Agent/Help')->where('agency_name', 'Sandton Realty'));
+
+        $admin = User::factory()->create(['role' => Role::SuperAdmin, 'status' => UserStatus::Active]);
+        $admin->assignRole('super_admin');
+        $this->actingAs($admin)->get('/admin/help')->assertOk()
+            ->assertInertia(fn (Assert $p) => $p->component('Admin/Help'));
+
+        // Not across roles.
+        $this->actingAs($agent)->get('/admin/help')->assertForbidden();
     }
 
     #[Test]

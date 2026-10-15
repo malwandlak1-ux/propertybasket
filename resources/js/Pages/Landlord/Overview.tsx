@@ -35,7 +35,6 @@ type Props = {
         occupied_count: number;
         total_count: number;
         all_count: number;
-        slots_max?: number;
         open_maint: number;
         needs_quote: number;
     };
@@ -169,7 +168,7 @@ export default function LandlordOverview({ landlord, kpis, properties, attention
                             <div>
                                 <h2 className="text-[16px] font-semibold tracking-tight">My Properties</h2>
                                 <p className="text-xs text-ink-500 mt-0.5">
-                                    {kpis.all_count} of {kpis.slots_max ?? 5} slots used
+                                    {kpis.all_count} of 5 slots used
                                 </p>
                             </div>
                             <a href="/landlord/properties" className="text-[12px] font-semibold text-brand-700 hover:underline">

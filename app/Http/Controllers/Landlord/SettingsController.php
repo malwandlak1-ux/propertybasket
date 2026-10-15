@@ -48,18 +48,6 @@ class SettingsController extends Controller
                     : ($bankingComplete ? 'pending_review' : 'missing'),
             ],
             'penalties' => $this->penalties($landlord),
-            'api_keys'  => \App\Models\ApiKey::where('landlord_id', $landlord->id)->latest('id')->get()
-                ->map(fn ($k) => [
-                    'id'           => $k->id,
-                    'name'         => $k->name,
-                    'prefix'       => $k->prefix,
-                    'created_at'   => $k->created_at?->format('d M Y'),
-                    'last_used_at' => $k->last_used_at?->diffForHumans(),
-                    'revoked'      => $k->revoked_at !== null,
-                ])->values(),
-            // Shown once, straight after creating a key.
-            'new_api_key' => $request->session()->get('new_api_key'),
-            'api_base_url' => url('/api/integration/v1'),
             'banks' => [
                 'ABSA Bank',
                 'Capitec Bank',
@@ -224,31 +212,5 @@ class SettingsController extends Controller
         app(LeaseBillingService::class)->waiveLateFee($payment);
 
         return back()->with('success', 'Penalty waived.');
-    }
-
-    /** POST /landlord/settings/api-keys — create an integration API key (shown once). */
-    public function storeApiKey(Request $request): RedirectResponse
-    {
-        $landlord = $this->resolveLandlord($request);
-        $data = $request->validate(['name' => ['required', 'string', 'max:80']]);
-
-        abort_if(\App\Models\ApiKey::where('landlord_id', $landlord->id)->whereNull('revoked_at')->count() >= 10, 422, 'You can have at most 10 active API keys.');
-
-        [, $plain] = \App\Models\ApiKey::issue($landlord, $data['name'], $request->user()->id);
-
-        return back()
-            ->with('new_api_key', $plain)
-            ->with('success', 'API key created. Copy it now: it will not be shown again.');
-    }
-
-    /** DELETE /landlord/settings/api-keys/{apiKey} — revoke (stops working immediately). */
-    public function revokeApiKey(Request $request, \App\Models\ApiKey $apiKey): RedirectResponse
-    {
-        $landlord = $this->resolveLandlord($request);
-        abort_unless($apiKey->landlord_id === $landlord->id, 404);
-
-        $apiKey->update(['revoked_at' => now()]);
-
-        return back()->with('success', "API key \"{$apiKey->name}\" revoked.");
     }
 }

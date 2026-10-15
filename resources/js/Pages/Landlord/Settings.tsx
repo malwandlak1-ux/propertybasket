@@ -3,7 +3,7 @@ import { Head, router, useForm, usePage } from '@inertiajs/react';
 import LandlordLayout from '@/Layouts/LandlordLayout';
 import { Spinner } from '@/Components/Skeleton';
 import AppearanceSettings from '@/Components/Dashboard/AppearanceSettings';
-import { PageHeader, btnPrimary } from '@/Components/Dashboard/Charts';
+import { PageHeader } from '@/Components/Dashboard/Charts';
 import Icon, { IconName } from '@/Components/Dashboard/Icon';
 
 type BankingState = 'verified' | 'pending_review' | 'missing';
@@ -27,12 +27,7 @@ type Props = {
     };
     banks: string[];
     penalties: Penalty[];
-    api_keys: ApiKeyRow[];
-    new_api_key: string | null;
-    api_base_url: string;
 };
-
-type ApiKeyRow = { id: number; name: string; prefix: string; created_at: string | null; last_used_at: string | null; revoked: boolean };
 
 type Penalty = {
     lease_id: number;
@@ -50,11 +45,10 @@ type Penalty = {
 
 type SharedProps = { flash?: { success?: string | null; error?: string | null } };
 
-const TABS: { key: 'profile' | 'banking' | 'penalties' | 'api' | 'appearance'; label: string; hint: string; icon: IconName }[] = [
+const TABS: { key: 'profile' | 'banking' | 'penalties' | 'appearance'; label: string; hint: string; icon: IconName }[] = [
     { key: 'profile',    label: 'Profile',    hint: 'Name, contact details and ID', icon: 'user' },
     { key: 'banking',    label: 'Banking',    hint: 'Account that receives rent', icon: 'wallet' },
     { key: 'penalties',  label: 'Late payment penalties', hint: 'Per property, as per the lease', icon: 'alert' },
-    { key: 'api',        label: 'API access', hint: 'Connect another system', icon: 'file' },
     { key: 'appearance', label: 'Appearance', hint: 'Dashboard colour and logo', icon: 'eye' },
 ];
 type TabKey = (typeof TABS)[number]['key'];
@@ -80,9 +74,9 @@ const STATE_BANNER: Record<BankingState, { cls: string; title: string; body: str
     },
 };
 
-export default function LandlordSettings({ landlord, profile, banking, banks, penalties, api_keys, new_api_key, api_base_url }: Props) {
+export default function LandlordSettings({ landlord, profile, banking, banks, penalties }: Props) {
     const { flash } = usePage<SharedProps>().props;
-    const [tab, setTab] = useState<TabKey>(new_api_key ? 'api' : 'profile');
+    const [tab, setTab] = useState<TabKey>('profile');
 
     const initials = profile.name.split(' ').map((w) => w[0]).slice(0, 2).join('').toUpperCase();
     const bankState = {
@@ -149,7 +143,6 @@ export default function LandlordSettings({ landlord, profile, banking, banks, pe
                         {tab === 'profile'  && <ProfilePanel profile={profile} />}
                         {tab === 'banking'  && <BankingPanel banking={banking} banks={banks} landlordName={landlord.name} />}
                         {tab === 'penalties' && <PenaltiesPanel penalties={penalties} />}
-                        {tab === 'api' && <ApiAccessPanel keys={api_keys} newKey={new_api_key} baseUrl={api_base_url} />}
                     </div>
                 </div>
             </section>
@@ -479,110 +472,5 @@ function PenaltyCard({ p }: { p: Penalty }) {
                 </button>
             </div>
         </form>
-    );
-}
-
-function ApiAccessPanel({ keys, newKey, baseUrl }: { keys: ApiKeyRow[]; newKey: string | null; baseUrl: string }) {
-    const { data, setData, post, processing, errors, reset } = useForm({ name: '' });
-    const [copied, setCopied] = useState<string | null>(null);
-    const [revoking, setRevoking] = useState<number | null>(null);
-
-    function copy(text: string, what: string) {
-        navigator.clipboard?.writeText(text).then(() => {
-            setCopied(what);
-            setTimeout(() => setCopied(null), 1500);
-        });
-    }
-    function create(e: FormEvent) {
-        e.preventDefault();
-        post('/landlord/settings/api-keys', { preserveScroll: true, onSuccess: () => reset() });
-    }
-    function revoke(k: ApiKeyRow) {
-        if (! confirm(`Revoke "${k.name}"? Any system using it stops working immediately.`)) return;
-        setRevoking(k.id);
-        router.delete(`/landlord/settings/api-keys/${k.id}`, { preserveScroll: true, onFinish: () => setRevoking(null) });
-    }
-
-    const example = `curl -H "Authorization: Bearer ${newKey ?? 'pbk_your_key'}" \\\n  "${baseUrl}/statements/owner?range=12"`;
-
-    return (
-        <div className="space-y-4">
-            <div className="bg-white rounded-2xl border border-ink-200/60 shadow-soft p-5 sm:p-6 pb-rise">
-                <h2 className="text-[18px] font-semibold tracking-tight">API access</h2>
-                <p className="text-[13px] text-ink-500 mt-1">
-                    Let another system (for example your accounting software) pull your properties, leases and financial statements.
-                    Keys are read-only and only see your own portfolio.
-                </p>
-                <div className="mt-4 rounded-xl bg-ink-50 border border-ink-200/70 px-4 py-3 flex items-center justify-between gap-3">
-                    <div className="min-w-0">
-                        <p className="text-[11px] font-semibold uppercase tracking-wide text-ink-500">Base URL</p>
-                        <p className="text-[13px] font-mono truncate">{baseUrl}</p>
-                    </div>
-                    <button type="button" onClick={() => copy(baseUrl, 'url')} className="text-[12px] font-semibold text-brand-700 hover:underline shrink-0">{copied === 'url' ? 'Copied' : 'Copy'}</button>
-                </div>
-            </div>
-
-            {newKey && (
-                <div className="rounded-2xl border-2 border-success/40 bg-success/5 p-5 pb-rise">
-                    <p className="text-[14px] font-semibold text-success">Your new API key</p>
-                    <p className="text-[12.5px] text-ink-600 mt-1">Copy it now and give it to the other system. For your security it will not be shown again.</p>
-                    <div className="mt-3 flex items-center gap-2 bg-white rounded-xl border border-ink-200 px-4 py-3">
-                        <code className="flex-1 min-w-0 text-[13px] font-mono break-all">{newKey}</code>
-                        <button type="button" onClick={() => copy(newKey, 'key')} className={btnPrimary + ' shrink-0'}>{copied === 'key' ? 'Copied' : 'Copy key'}</button>
-                    </div>
-                </div>
-            )}
-
-            <form onSubmit={create} className="bg-white rounded-2xl border border-ink-200/60 shadow-soft p-5 sm:p-6 pb-rise">
-                <label className={labelCls}>New key name</label>
-                <div className="flex flex-col sm:flex-row gap-2">
-                    <input value={data.name} onChange={(e) => setData('name', e.target.value)} required maxLength={80} className={inputCls} placeholder="e.g. Sage accounting sync" />
-                    <button type="submit" disabled={processing || ! data.name.trim()} className={btnPrimary + ' shrink-0 justify-center'}>
-                        {processing && <Spinner size={13} />}Create API key
-                    </button>
-                </div>
-                {errors.name && <p className="text-[11px] text-danger mt-1">{errors.name}</p>}
-            </form>
-
-            <div className="bg-white rounded-2xl border border-ink-200/60 shadow-soft overflow-hidden pb-rise">
-                <div className="px-5 py-4 border-b border-ink-100">
-                    <h3 className="text-[15px] font-semibold tracking-tight">Your keys</h3>
-                </div>
-                {keys.length === 0 ? (
-                    <p className="p-6 text-center text-[13px] text-ink-500">No API keys yet.</p>
-                ) : (
-                    <div className="divide-y divide-ink-100">
-                        {keys.map((k) => (
-                            <div key={k.id} className={`px-5 py-3.5 flex flex-wrap items-center gap-3 ${k.revoked ? 'opacity-50' : ''}`}>
-                                <div className="min-w-0 flex-1">
-                                    <p className="text-[13.5px] font-semibold">{k.name}</p>
-                                    <p className="text-[11.5px] text-ink-500 font-mono">{k.prefix}…</p>
-                                </div>
-                                <p className="text-[11.5px] text-ink-500">Created {k.created_at} · {k.last_used_at ? `last used ${k.last_used_at}` : 'never used'}</p>
-                                {k.revoked ? (
-                                    <span className="text-[10.5px] px-2 py-0.5 rounded-full font-bold bg-ink-100 text-ink-600">REVOKED</span>
-                                ) : (
-                                    <button type="button" onClick={() => revoke(k)} disabled={revoking === k.id} className="text-[12px] font-semibold text-danger hover:underline disabled:opacity-50">
-                                        {revoking === k.id ? 'Revoking…' : 'Revoke'}
-                                    </button>
-                                )}
-                            </div>
-                        ))}
-                    </div>
-                )}
-            </div>
-
-            <div className="bg-white rounded-2xl border border-ink-200/60 shadow-soft p-5 sm:p-6 pb-rise">
-                <h3 className="text-[15px] font-semibold tracking-tight">Quick start</h3>
-                <p className="text-[12.5px] text-ink-500 mt-1">Send the key in the Authorization header. All amounts are in ZAR.</p>
-                <pre className="mt-3 rounded-xl bg-ink-900 text-white/90 text-[12px] p-4 overflow-x-auto"><code>{example}</code></pre>
-                <ul className="mt-3 text-[12.5px] text-ink-700 space-y-1">
-                    <li><code className="font-mono text-[12px]">GET /properties</code> and <code className="font-mono text-[12px]">GET /leases</code></li>
-                    <li><code className="font-mono text-[12px]">GET /statements/owner</code> (JSON), <code className="font-mono text-[12px]">/statements/owner.pdf</code>, <code className="font-mono text-[12px]">/statements/owner/monthly</code></li>
-                    <li><code className="font-mono text-[12px]">GET /leases/{'{id}'}/statement</code> and <code className="font-mono text-[12px]">.pdf</code> for a tenant's account</li>
-                    <li>Filters: <code className="font-mono text-[12px]">property</code>, <code className="font-mono text-[12px]">range</code> (3, 6, 12, lease), <code className="font-mono text-[12px]">month</code> (2026-09) or <code className="font-mono text-[12px]">from</code>/<code className="font-mono text-[12px]">to</code></li>
-                </ul>
-            </div>
-        </div>
     );
 }

@@ -44,9 +44,6 @@ return [
     // Where Help & Support sends people (falls back to MAIL_FROM_ADDRESS).
     'support_email' => env('SUPPORT_EMAIL'),
 
-    // Properties a self-managing landlord can hold (careline: 20).
-    'landlord_property_slots' => (int) (env('LANDLORD_PROPERTY_SLOTS') ?: 5),
-
     'disabled_roles' => array_values(array_filter(array_map(
         'trim',
         explode(',', (string) env('DISABLED_ROLES', ''))

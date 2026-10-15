@@ -2,6 +2,7 @@ import { FormEvent } from 'react';
 import { Head, useForm } from '@inertiajs/react';
 import AgencyLayout from '@/Layouts/AgencyLayout';
 import { Spinner } from '@/Components/Skeleton';
+import { PageHeader, SectionCard, SummaryStrip, btnPrimary } from '@/Components/Dashboard/Charts';
 
 type State = 'verified' | 'pending_review' | 'partial' | 'not_started';
 
@@ -44,7 +45,20 @@ const STATE_BANNER: Record<State, { cls: string; title: string; body: string }> 
     },
 };
 
-const inputCls = 'w-full bg-ink-50 border border-ink-200 rounded-lg px-3.5 py-2.5 text-[14px] outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand';
+const STATE_LABEL: Record<State, string> = {
+    verified: 'Verified',
+    pending_review: 'In review',
+    partial: 'Incomplete',
+    not_started: 'Not set up',
+};
+const STATE_TONE: Record<State, 'success' | 'warning' | 'danger'> = {
+    verified: 'success',
+    pending_review: 'warning',
+    partial: 'warning',
+    not_started: 'danger',
+};
+
+const inputCls = 'w-full bg-white border border-ink-200 rounded-xl px-3.5 py-2.5 text-[14px] focus:outline-none focus:border-brand-300 focus:ring-4 focus:ring-brand-100 transition';
 const labelCls = 'text-[12px] font-semibold text-ink-700 mb-1.5 block';
 
 export default function AgencyTrustAccount({ agency, trust, banks }: Props) {
@@ -72,32 +86,28 @@ export default function AgencyTrustAccount({ agency, trust, banks }: Props) {
         <AgencyLayout crumb="Trust Account" agencyName={agency.name}>
             <Head title="Trust Account" />
 
-            <div className="px-4 sm:px-8 py-6 sm:py-7 max-w-3xl">
-                <div className="mb-6">
-                    <h1 className="text-[28px] sm:text-[32px] leading-tight tracking-tight">Trust Account</h1>
-                    <p className="text-[14px] text-ink-500 mt-1">
-                        Set up the PPRA-registered trust account where client money (deposits, advance rent) is held.
-                    </p>
-                </div>
+            <div className="px-4 sm:px-7 py-6 max-w-6xl">
+                <PageHeader
+                    title="Trust Account"
+                    subtitle="The PPRA-registered trust account where client money (deposits, advance rent) is held"
+                />
 
-                {/* Status banner */}
-                <div className={`border rounded-xl p-4 mb-6 ${banner.cls}`}>
-                    <p className="font-bold text-[14px]">{banner.title}</p>
-                    <p className="text-[13px] mt-1">{banner.body}</p>
-                    {trust.state === 'verified' && trust.verified_at && (
-                        <p className="text-[12px] mt-2 text-ink-600">Verified {trust.verified_at}</p>
-                    )}
-                </div>
+                <SummaryStrip
+                    title="Trust Account Status"
+                    subtitle={banner.title}
+                    cells={[
+                        { label: 'Status', value: STATE_LABEL[trust.state], sub: trust.state === 'verified' && trust.verified_at ? `Verified ${trust.verified_at}` : banner.body, tone: STATE_TONE[trust.state] },
+                        { label: 'Bank', value: trust.bank ?? '—', sub: trust.account_type ? `${trust.account_type.charAt(0).toUpperCase()}${trust.account_type.slice(1)} account` : 'Not captured', tone: 'muted' },
+                        { label: 'Account', value: trust.account_number ? `•••• ${trust.account_number.slice(-4)}` : '—', sub: trust.branch_code ? `Branch ${trust.branch_code}` : 'Not captured', tone: 'muted' },
+                        { label: 'Auditor', value: trust.auditor_name ?? '—', sub: trust.auditor_practice_number ? `IRBA ${trust.auditor_practice_number}` : 'Not captured', tone: 'muted' },
+                    ]}
+                />
 
-                <form onSubmit={submit} className="space-y-5">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+                <form onSubmit={submit} className="lg:col-span-8">
                     {/* Bank details */}
-                    <div className="bg-white rounded-2xl border border-ink-200/60 shadow-soft p-5 space-y-4">
-                        <div>
-                            <h2 className="text-[14px] font-bold">Bank account</h2>
-                            <p className="text-[12px] text-ink-500">
-                                Must be a dedicated trust account — not your operating account.
-                            </p>
-                        </div>
+                    <SectionCard title="Bank Account" subtitle="Must be a dedicated trust account, not your operating account">
+                    <div className="space-y-4">
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
@@ -174,15 +184,11 @@ export default function AgencyTrustAccount({ agency, trust, banks }: Props) {
                             </div>
                         </div>
                     </div>
+                    </SectionCard>
 
                     {/* Auditor */}
-                    <div className="bg-white rounded-2xl border border-ink-200/60 shadow-soft p-5 space-y-4">
-                        <div>
-                            <h2 className="text-[14px] font-bold">Annual auditor</h2>
-                            <p className="text-[12px] text-ink-500">
-                                Section 54 requires an IRBA-registered auditor to audit the trust account annually.
-                            </p>
-                        </div>
+                    <SectionCard title="Annual Auditor" subtitle="Section 54 requires an IRBA-registered auditor to audit the trust account annually">
+                    <div className="space-y-4">
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
@@ -209,28 +215,34 @@ export default function AgencyTrustAccount({ agency, trust, banks }: Props) {
                             </div>
                         </div>
                     </div>
+                    </SectionCard>
 
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-wrap items-center justify-between gap-3">
                         <p className="text-[12px] text-ink-500">
                             Changes to bank details require platform re-verification.
                         </p>
-                        <button
-                            type="submit"
-                            disabled={processing}
-                            className="px-5 py-2 text-[13px] bg-brand-700 text-white rounded-full hover:bg-brand-800 disabled:opacity-60 disabled:cursor-not-allowed inline-flex items-center gap-2 font-semibold transition"
-                        >
+                        <button type="submit" disabled={processing} className={btnPrimary}>
                             {processing && <Spinner size={13} />}
                             {processing ? 'Saving…' : 'Save trust account'}
                         </button>
                     </div>
                 </form>
 
-                {/* Compliance note */}
-                <div className="mt-8 bg-ink-50/60 border border-ink-200 rounded-xl p-5 text-[12.5px] text-ink-600 leading-relaxed">
-                    <p className="font-semibold text-ink-700 mb-1">Why this matters</p>
-                    Sections 54 &amp; 55 of the Property Practitioners Act, 2019 require every practitioner who receives
-                    client money to operate a trust account with a SARB-registered bank, audited annually by an
-                    IRBA-registered auditor. The PPRA may suspend your FFC if these records can't be produced on demand.
+                <aside className="lg:col-span-4 space-y-4">
+                    <div className="pb-swirl rounded-2xl p-5 text-white shadow-lift pb-rise">
+                        <p className="text-[13px] font-medium">{banner.title}</p>
+                        <p className="text-[12.5px] text-white/85 mt-2 leading-relaxed">{banner.body}</p>
+                        {trust.state === 'verified' && trust.verified_at && (
+                            <p className="text-[12px] text-white/75 mt-3">Verified {trust.verified_at}</p>
+                        )}
+                    </div>
+                    <div className="bg-white rounded-2xl border border-ink-200/60 shadow-soft p-5 text-[12.5px] text-ink-600 leading-relaxed pb-rise">
+                        <p className="text-base font-semibold text-ink-900 mb-2">Why this matters</p>
+                        Sections 54 &amp; 55 of the Property Practitioners Act, 2019 require every practitioner who receives
+                        client money to operate a trust account with a SARB-registered bank, audited annually by an
+                        IRBA-registered auditor. The PPRA may suspend your FFC if these records can't be produced on demand.
+                    </div>
+                </aside>
                 </div>
             </div>
         </AgencyLayout>

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { router, usePage } from '@inertiajs/react';
 import RateContractorModal, { StarRow } from '@/Components/RateContractorModal';
 import Icon from '@/Components/Dashboard/Icon';
+import { FlashBanners, PageHeader, SummaryStrip, btnOutline } from '@/Components/Dashboard/Charts';
 
 /**
  * Shared maintenance-request management board used by the Agency and Agent
@@ -83,35 +84,34 @@ export default function MaintenanceBoard({ requests, contractors, baseUrl, quote
     const done = requests.filter((r) => r.stage === 'done');
 
     return (
-        <div className="px-8 py-7">
-            <div className="flex items-end justify-between mb-6 gap-3 flex-wrap">
-                <div>
-                    <h1 className="text-2xl font-bold tracking-tight">Maintenance</h1>
-                    <p className="text-[14px] text-ink-500 mt-1">
-                        {open.length} unallocated · {allocated.length} awaiting quotes · {inProgress.length} in progress
-                    </p>
-                </div>
-                {quotesUrl && (
-                    <a href={quotesUrl} className="px-3.5 py-2 text-[13px] border border-ink-200 rounded-lg hover:bg-ink-100 font-semibold transition">
-                        Review quotes →
-                    </a>
-                )}
-            </div>
+        <div className="px-4 sm:px-7 py-6">
+            <PageHeader
+                title="Maintenance"
+                subtitle={<>{open.length} unallocated · {allocated.length} awaiting quotes · {inProgress.length} in progress</>}
+                actions={quotesUrl ? <a href={quotesUrl} className={btnOutline}>Review quotes →</a> : undefined}
+            />
 
-            {flash?.success && (
-                <div className="mb-4 rounded-lg bg-success/10 border border-success/30 text-success px-4 py-3 text-[13px]">
-                    {flash.success}
-                </div>
-            )}
+            <FlashBanners flash={flash} />
+
+            <SummaryStrip
+                title="Maintenance Summary"
+                subtitle={`${requests.length} request${requests.length === 1 ? '' : 's'} on your properties`}
+                cells={[
+                    { label: 'Needs Allocation', value: String(open.length), sub: open.length > 0 ? 'Request a quote' : 'Nothing waiting', tone: open.length > 0 ? 'danger' : 'muted' },
+                    { label: 'Awaiting Quotes', value: String(allocated.length), sub: 'With a contractor', tone: allocated.length > 0 ? 'warning' : 'muted' },
+                    { label: 'In Progress', value: String(inProgress.length), sub: 'Work under way', tone: 'muted' },
+                    { label: 'Completed', value: String(done.length), sub: 'Done or paid', tone: 'success' },
+                ]}
+            />
 
             {! canAllocate && (
-                <div className="mb-4 rounded-lg bg-ink-100/70 border border-ink-200 text-ink-600 px-4 py-3 text-[12px]">
+                <div className="mb-4 rounded-2xl bg-ink-100/70 border border-ink-200 text-ink-600 px-5 py-3 text-[12.5px]">
                     Contractor allocation is handled by your agency — this view tracks each job through allocation, quoting, and completion.
                 </div>
             )}
 
             {requests.length === 0 ? (
-                <div className="bg-white rounded-xl border border-dashed border-ink-300 p-12 text-center">
+                <div className="bg-white rounded-2xl border border-dashed border-ink-300 p-12 text-center">
                     <p className="text-[13px] text-ink-500">No maintenance requests yet. Tenant submissions will land here.</p>
                 </div>
             ) : (
@@ -170,9 +170,9 @@ function Section({
     if (items.length === 0) return null;
     return (
         <section className="mb-8">
-            <div className="flex items-center gap-2 mb-3">
+            <div className="flex items-center gap-2 mb-3 px-1">
                 {accent && <span className="w-2 h-2 rounded-full bg-danger animate-pulse" />}
-                <h2 className="text-[14px] font-bold uppercase tracking-wide">{title}</h2>
+                <h2 className="text-base font-semibold">{title}</h2>
                 <span className="text-[11px] bg-ink-100 text-ink-600 px-2 py-0.5 rounded-full font-bold">{items.length}</span>
             </div>
             <div className="grid lg:grid-cols-2 gap-4">
@@ -259,14 +259,14 @@ function Card({
                     <>
                         <button
                             onClick={() => onAllocate(r)}
-                            className="px-3 py-1.5 text-[12px] bg-ink-900 text-white rounded-md font-semibold hover:bg-brand-500 transition"
+                            className="px-3.5 py-1.5 text-[12px] bg-brand-700 text-white rounded-full font-semibold hover:bg-brand-800 transition"
                         >
                             {r.contractor ? 'Re-allocate' : 'Request quote'}
                         </button>
                         <button
                             onClick={postToMarketplace}
                             disabled={busy}
-                            className="px-3 py-1.5 text-[12px] border border-ink-200 rounded-md font-semibold hover:bg-ink-50 disabled:opacity-50 transition"
+                            className="px-3.5 py-1.5 text-[12px] border border-ink-300 rounded-full font-semibold hover:bg-ink-50 disabled:opacity-50 transition"
                         >
                             Post to marketplace
                         </button>
@@ -280,7 +280,7 @@ function Card({
                     ) : (
                         <button
                             onClick={() => onRate(r)}
-                            className="px-3 py-1.5 text-[12px] bg-warning/15 text-warning rounded-md font-bold hover:bg-warning/25 transition"
+                            className="px-3.5 py-1.5 text-[12px] bg-warning/15 text-amber-700 rounded-full font-semibold hover:bg-warning/25 transition"
                         >
                             ★ Rate contractor
                         </button>
@@ -362,7 +362,7 @@ function AllocateModal({
                                 <button
                                     onClick={() => assign(c)}
                                     disabled={busy !== null}
-                                    className="px-3 py-1.5 text-[12px] bg-ink-900 text-white rounded-md font-semibold hover:bg-brand-500 disabled:opacity-50 shrink-0 transition"
+                                    className="px-3.5 py-1.5 text-[12px] bg-brand-700 text-white rounded-full font-semibold hover:bg-brand-800 disabled:opacity-50 shrink-0 transition"
                                 >
                                     {busy === c.id ? 'Sending…' : 'Request quote'}
                                 </button>

@@ -44,6 +44,106 @@ export function PageHeader({ title, subtitle, actions }: { title: string; subtit
     );
 }
 
+// ── Financial-Reports building blocks (shared page language) ────────────────
+
+type StripTone = 'default' | 'muted' | 'success' | 'danger' | 'warning';
+
+/**
+ * The Financial Reports "Income Statement Summary" strip: a white card with a
+ * header and a row of divided figure cells (uppercase label, big value, sub).
+ */
+export function SummaryStrip({ title, subtitle, action, cells }: {
+    title: ReactNode;
+    subtitle?: ReactNode;
+    action?: ReactNode;
+    cells: { label: string; value: ReactNode; sub?: ReactNode; tone?: StripTone }[];
+}) {
+    const cols = { 2: 'lg:grid-cols-2', 3: 'lg:grid-cols-3', 4: 'lg:grid-cols-4', 5: 'lg:grid-cols-5' }[Math.min(5, Math.max(2, cells.length)) as 2 | 3 | 4 | 5];
+    return (
+        <section className="bg-white rounded-2xl border border-ink-200/60 shadow-soft overflow-hidden mb-4 pb-rise">
+            <div className="p-5 border-b border-ink-200 flex flex-wrap items-start justify-between gap-3">
+                <div className="min-w-0">
+                    <h2 className="text-base font-semibold">{title}</h2>
+                    {subtitle && <p className="text-[12px] text-ink-500 mt-0.5">{subtitle}</p>}
+                </div>
+                {action}
+            </div>
+            <div className={`grid grid-cols-2 ${cols} divide-x divide-y lg:divide-y-0 divide-ink-200`}>
+                {cells.map((c, i) => {
+                    const tone = c.tone ?? 'default';
+                    const bg = { success: 'bg-success/5', danger: 'bg-danger/5', warning: 'bg-warning/5', default: '', muted: '' }[tone];
+                    const strong = { success: 'text-success', danger: 'text-danger', warning: 'text-amber-700', muted: 'text-ink-700', default: '' }[tone];
+                    const label = { success: 'text-success', danger: 'text-danger', warning: 'text-amber-700', muted: 'text-ink-500', default: 'text-ink-500' }[tone];
+                    return (
+                        <div key={i} className={`p-5 min-w-0 ${bg}`}>
+                            <p className={`text-[11px] uppercase tracking-wider font-semibold ${label}`}>{c.label}</p>
+                            <p className={`text-2xl font-semibold mt-2 tabular-nums truncate ${strong}`}>{c.value}</p>
+                            {c.sub && <p className={`text-[12px] mt-1 ${tone === 'default' || tone === 'muted' ? 'text-ink-500' : label}`}>{c.sub}</p>}
+                        </div>
+                    );
+                })}
+            </div>
+        </section>
+    );
+}
+
+/** Big-number tile: the accent swirl (hero) or a white card, as on Financial Reports. */
+export function StatTile({ label, value, sub, hero = false, tone }: {
+    label: ReactNode; value: ReactNode; sub?: ReactNode; hero?: boolean; tone?: 'danger' | 'success';
+}) {
+    if (hero) {
+        return (
+            <div className="pb-swirl rounded-2xl p-5 text-white shadow-lift pb-rise min-w-0">
+                <p className="text-[13px] font-medium">{label}</p>
+                <p className="text-[34px] font-semibold tracking-tight mt-4 leading-none tabular-nums truncate">{value}</p>
+                {sub && <p className="text-[12px] text-white/80 mt-2.5">{sub}</p>}
+            </div>
+        );
+    }
+    const strong = tone === 'danger' ? 'text-danger' : tone === 'success' ? 'text-success' : '';
+    return (
+        <div className="bg-white rounded-2xl border border-ink-200/60 p-5 shadow-soft pb-rise min-w-0">
+            <p className="text-[13px] font-medium text-ink-700">{label}</p>
+            <p className={`text-[34px] font-semibold tracking-tight mt-4 leading-none tabular-nums truncate ${strong}`}>{value}</p>
+            {sub && <p className="text-[12px] text-ink-500 mt-2.5">{sub}</p>}
+        </div>
+    );
+}
+
+/** White section card with a bordered header, as the Financial Reports tables use. */
+export function SectionCard({ title, subtitle, action, children, flush = false, className = '' }: {
+    title: ReactNode; subtitle?: ReactNode; action?: ReactNode; children: ReactNode; flush?: boolean; className?: string;
+}) {
+    return (
+        <section className={`bg-white rounded-2xl border border-ink-200/60 shadow-soft overflow-hidden mb-4 pb-rise ${className}`}>
+            <div className="p-5 border-b border-ink-200 flex flex-wrap items-start justify-between gap-3">
+                <div className="min-w-0">
+                    <h2 className="text-base font-semibold">{title}</h2>
+                    {subtitle && <p className="text-[12px] text-ink-500 mt-0.5">{subtitle}</p>}
+                </div>
+                {action}
+            </div>
+            <div className={flush ? '' : 'p-5'}>{children}</div>
+        </section>
+    );
+}
+
+/** Table header row class used across the reports-style tables. */
+export const thRowCls = 'text-left text-[11px] uppercase text-ink-500 tracking-wider border-b border-ink-200 bg-ink-50 whitespace-nowrap';
+
+/** Success / error banners in the shared style. */
+export function FlashBanners({ flash }: { flash?: { success?: string | null; error?: string | null } }) {
+    return (
+        <>
+            {flash?.success && <div className="mb-4 rounded-2xl bg-success/10 border border-success/30 text-success px-5 py-3 text-[13px] font-medium">{flash.success}</div>}
+            {flash?.error && <div className="mb-4 rounded-2xl bg-danger/10 border border-danger/30 text-danger px-5 py-3 text-[13px] font-medium">{flash.error}</div>}
+        </>
+    );
+}
+
+/** Small select used in page-header filter bars. */
+export const selectCls = 'text-[12.5px] bg-white border border-ink-200 rounded-full px-3.5 py-2 font-medium focus:outline-none focus:border-brand-300 focus:ring-4 focus:ring-brand-100';
+
 export function Card({
     title, subtitle, action, className = '', bodyClassName = '', children,
 }: { title?: ReactNode; subtitle?: ReactNode; action?: ReactNode; className?: string; bodyClassName?: string; children: ReactNode }) {

@@ -54,7 +54,7 @@ export default function AgentLayout({ children, crumb = 'Dashboard', agencyName 
 
     const workspace: NavItem[] = [
         { label: 'Dashboard',  href: '/agent',             icon: I.dashboard },
-        { label: 'Pipeline',   href: '/agent/pipeline',    icon: I.pipeline,  badge: { text: '12', tone: 'brand' } },
+        { label: 'CRM',        href: '/agent/crm',         icon: I.pipeline },
         { label: 'Listings',   href: '/agent/listings',    icon: I.listings },
         { label: 'Viewings',   href: '/agent/viewings',    icon: I.calendar,  indicator: 'danger' },
         { label: 'Inspections',href: '/agent/inspections', icon: I.inspect,   badge: { text: '2', tone: 'brand' } },

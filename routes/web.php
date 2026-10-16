@@ -154,7 +154,12 @@ Route::middleware('auth')->group(function () {
         Route::get('settings', [\App\Http\Controllers\Agency\SettingsController::class, 'show'])->name('settings.show');
         Route::match(['post', 'patch'], 'settings', [\App\Http\Controllers\Agency\SettingsController::class, 'update'])->name('settings.update');
 
-        Route::get('pipeline', [\App\Http\Controllers\Agency\PipelineController::class, 'index'])->name('pipeline.index');
+        // CRM — read-only view over every agent's farming, outreach and pipeline.
+        Route::get('crm',          [\App\Http\Controllers\Agency\CrmController::class, 'overview'])->name('crm.overview');
+        Route::get('crm/farming',  [\App\Http\Controllers\Agency\CrmController::class, 'farming'])->name('crm.farming');
+        Route::get('crm/schemes/{scheme}/export', [\App\Http\Controllers\Agency\CrmController::class, 'exportProspects'])->name('crm.schemes.export');
+        Route::get('crm/pipeline', [\App\Http\Controllers\Agency\PipelineController::class, 'index'])->name('pipeline.index');
+        Route::redirect('pipeline', '/agency/crm/pipeline')->name('pipeline.legacy');
         Route::post('pipeline/leads/{inquiry}/register', [\App\Http\Controllers\Agency\PipelineController::class, 'register'])->name('pipeline.leads.register');
 
         Route::get('listings', [\App\Http\Controllers\Agency\ListingsAllocationController::class, 'index'])->name('listings.index');
@@ -180,7 +185,24 @@ Route::middleware('auth')->group(function () {
         Route::get('ffc/certificate', [Agent\FfcController::class, 'certificate'])->name('ffc.certificate');
         Route::get('/',           [Agent\DashboardController::class, 'overview'])->name('overview');
         Route::get('help',        [\App\Http\Controllers\HelpController::class, 'agent'])->name('help');
-        Route::get('pipeline',    [Agent\PipelineController::class,  'index'])->name('pipeline.index');
+        // CRM — outreach overview, property farming tracker, pipeline.
+        Route::get('crm',         [Agent\CrmController::class, 'overview'])->name('crm.overview');
+        Route::get('crm/farming', [Agent\CrmController::class, 'farming'])->name('crm.farming');
+        Route::post('crm/suburbs', [Agent\CrmController::class, 'storeSuburb'])->name('crm.suburbs.store');
+        Route::post('crm/schemes', [Agent\CrmController::class, 'storeScheme'])->name('crm.schemes.store');
+        Route::patch('crm/schemes/{scheme}', [Agent\CrmController::class, 'updateScheme'])->name('crm.schemes.update');
+        Route::delete('crm/schemes/{scheme}', [Agent\CrmController::class, 'destroyScheme'])->name('crm.schemes.destroy');
+        Route::post('crm/schemes/{scheme}/prospects', [Agent\CrmController::class, 'storeProspect'])->name('crm.prospects.store');
+        Route::post('crm/schemes/{scheme}/import', [Agent\CrmController::class, 'importProspects'])->name('crm.prospects.import');
+        Route::get('crm/schemes/{scheme}/export', [Agent\CrmController::class, 'exportProspects'])->name('crm.prospects.export');
+        Route::patch('crm/prospects/{prospect}', [Agent\CrmController::class, 'updateProspect'])->name('crm.prospects.update');
+        Route::patch('crm/prospects/{prospect}/status', [Agent\CrmController::class, 'updateProspectStatus'])->name('crm.prospects.status');
+        Route::delete('crm/prospects/{prospect}', [Agent\CrmController::class, 'destroyProspect'])->name('crm.prospects.destroy');
+        Route::post('crm/prospects/{prospect}/pipeline', [Agent\CrmController::class, 'sendToPipeline'])->name('crm.prospects.pipeline');
+        Route::post('crm/activities', [Agent\CrmController::class, 'storeActivity'])->name('crm.activities.store');
+        Route::delete('crm/activities/{activity}', [Agent\CrmController::class, 'destroyActivity'])->name('crm.activities.destroy');
+        Route::get('crm/pipeline', [Agent\PipelineController::class, 'index'])->name('pipeline.index');
+        Route::redirect('pipeline', '/agent/crm/pipeline')->name('pipeline.legacy');
         Route::post('pipeline/leads', [Agent\PipelineController::class, 'storeLead'])->name('pipeline.leads.store');
         Route::patch('pipeline/leads/{inquiry}/status', [Agent\PipelineController::class, 'updateLeadStatus'])->name('pipeline.leads.status');
         Route::get('listings',    [Agent\ListingsController::class,  'index'])->name('listings.index');

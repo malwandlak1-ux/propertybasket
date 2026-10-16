@@ -1,0 +1,2437 @@
+{
+ "generated": "2026-08-23",
+ "regions": [
+  {
+   "slug": "central-old-pretoria",
+   "name": "Central / Old Pretoria",
+   "sort": 0,
+   "suburbs": [
+    {
+     "name": "Arcadia",
+     "municipality": "City of Tshwane",
+     "signal": "Moderate",
+     "angle": "Buy-to-let churn + long-tenure",
+     "priority": 8,
+     "stats": {
+      "totalStock": 4414,
+      "freeholdPct": 0.092,
+      "sectionalPct": 0.908,
+      "lsm": "LSM 7",
+      "income": "R13 000 - R26 000",
+      "adults": 20123,
+      "owners11": 0.49,
+      "owners50": 0.5094,
+      "sellers11": 0.51,
+      "transfers12": 189,
+      "avgPrice12": 703197,
+      "turnover": 0.042818305391934756,
+      "tenureCurrent": [
+       0.22,
+       0.15,
+       0.14,
+       0.49
+      ],
+      "tenureSellers": [
+       0.25,
+       0.18,
+       0.07,
+       0.51
+      ],
+      "ownerAge": [
+       0.0919,
+       0.3987,
+       0.3299,
+       0.1795
+      ],
+      "transf3": 42,
+      "transf12": 189,
+      "avgPrice": 703197,
+      "totalValue": 132904395
+     }
+    },
+    {
+     "name": "Sunnyside",
+     "municipality": "City of Tshwane",
+     "signal": "High",
+     "angle": "High-volume sectional; buy-to-let & long-tenure",
+     "priority": 1,
+     "stats": {
+      "totalStock": 8620,
+      "freeholdPct": 0.0451,
+      "sectionalPct": 0.9549,
+      "lsm": "LSM 7",
+      "income": "R13 000 - R26 000",
+      "adults": 30758,
+      "owners11": 0.5,
+      "owners50": 0.457,
+      "sellers11": 0.55,
+      "transfers12": 530,
+      "avgPrice12": 455303,
+      "turnover": 0.06148491879350348,
+      "tenureCurrent": [
+       0.23,
+       0.15,
+       0.12,
+       0.5
+      ],
+      "tenureSellers": [
+       0.26,
+       0.11,
+       0.08,
+       0.55
+      ],
+      "ownerAge": [
+       0.0931,
+       0.4499,
+       0.3122,
+       0.1448
+      ],
+      "transf3": 126,
+      "transf12": 530,
+      "avgPrice": 455303,
+      "totalValue": 241310936
+     }
+    },
+    {
+     "name": "Hatfield",
+     "municipality": "City of Tshwane",
+     "signal": "High",
+     "angle": "Landlord & student buy-to-let",
+     "priority": 6,
+     "stats": {
+      "totalStock": 3049,
+      "freeholdPct": 0.1177,
+      "sectionalPct": 0.8737,
+      "lsm": "No level",
+      "income": "Too wide to classify",
+      "adults": 9243,
+      "owners11": 0.37,
+      "owners50": 0.5856,
+      "sellers11": 0.49,
+      "transfers12": 209,
+      "avgPrice12": 944421,
+      "turnover": 0.06854706461134798,
+      "tenureCurrent": [
+       0.26,
+       0.16,
+       0.22,
+       0.37
+      ],
+      "tenureSellers": [
+       0.18,
+       0.13,
+       0.2,
+       0.49
+      ],
+      "ownerAge": [
+       0.1308,
+       0.2836,
+       0.3885,
+       0.1971
+      ],
+      "transf3": 56,
+      "transf12": 209,
+      "avgPrice": 944421,
+      "totalValue": 197384000
+     }
+    },
+    {
+     "name": "Brooklyn",
+     "municipality": "City of Tshwane",
+     "signal": "High",
+     "angle": "Active premium; estates & upgrades",
+     "priority": 4,
+     "stats": {
+      "totalStock": 1935,
+      "freeholdPct": 0.508,
+      "sectionalPct": 0.4594,
+      "lsm": "LSM 10",
+      "income": "Too wide to classify",
+      "adults": 4547,
+      "owners11": 0.35,
+      "owners50": 0.6635,
+      "sellers11": 0.34,
+      "transfers12": 136,
+      "avgPrice12": 2891592,
+      "turnover": 0.0702842377260982,
+      "tenureCurrent": [
+       0.31,
+       0.26,
+       0.09,
+       0.35
+      ],
+      "tenureSellers": [
+       0.4,
+       0.19,
+       0.07,
+       0.34
+      ],
+      "ownerAge": [
+       0.0925,
+       0.244,
+       0.4427,
+       0.2208
+      ],
+      "transf3": 37,
+      "transf12": 136,
+      "avgPrice": 2891592,
+      "totalValue": 393256620
+     }
+    },
+    {
+     "name": "Muckleneuk",
+     "municipality": "City of Tshwane",
+     "signal": "Moderate",
+     "angle": "Long-tenure + entry sectional",
+     "priority": 9,
+     "stats": {
+      "totalStock": 1784,
+      "freeholdPct": 0.2904,
+      "sectionalPct": 0.7057,
+      "lsm": "No level",
+      "income": "Too wide to classify",
+      "adults": 5837,
+      "owners11": 0.46,
+      "owners50": 0.4846,
+      "sellers11": 0.5,
+      "transfers12": 112,
+      "avgPrice12": 987532,
+      "turnover": 0.06278026905829596,
+      "tenureCurrent": [
+       0.26,
+       0.17,
+       0.12,
+       0.46
+      ],
+      "tenureSellers": [
+       0.25,
+       0.11,
+       0.14,
+       0.5
+      ],
+      "ownerAge": [
+       0.0875,
+       0.428,
+       0.3197,
+       0.1649
+      ],
+      "transf3": 22,
+      "transf12": 112,
+      "avgPrice": 987532,
+      "totalValue": 110603673
+     }
+    },
+    {
+     "name": "Groenkloof",
+     "municipality": "City of Tshwane",
+     "signal": "High",
+     "angle": "Premium downsizing & estates",
+     "priority": 2,
+     "stats": {
+      "totalStock": 823,
+      "freeholdPct": 0.6744,
+      "sectionalPct": 0.3111,
+      "lsm": "LSM 10",
+      "income": "Too wide to classify",
+      "adults": 3505,
+      "owners11": 0.57,
+      "owners50": 0.689,
+      "sellers11": 0.61,
+      "transfers12": 49,
+      "avgPrice12": 3141448,
+      "turnover": 0.05953827460510328,
+      "tenureCurrent": [
+       0.22,
+       0.13,
+       0.08,
+       0.57
+      ],
+      "tenureSellers": [
+       0.2,
+       0.1,
+       0.08,
+       0.61
+      ],
+      "ownerAge": [
+       0.0496,
+       0.2615,
+       0.4027,
+       0.2863
+      ],
+      "transf3": 14,
+      "transf12": 49,
+      "avgPrice": 3141448,
+      "totalValue": 153930969
+     }
+    },
+    {
+     "name": "Colbyn",
+     "municipality": "City of Tshwane",
+     "signal": null,
+     "angle": null,
+     "priority": null,
+     "stats": {
+      "note": "No Lightstone data imported yet."
+     }
+    },
+    {
+     "name": "Baileys Muckleneuk",
+     "municipality": "City of Tshwane",
+     "signal": "Moderate",
+     "angle": "High-value downsizers",
+     "priority": 10,
+     "stats": {
+      "totalStock": 417,
+      "freeholdPct": 0.4892,
+      "sectionalPct": 0.4604,
+      "lsm": "LSM 10",
+      "income": "R175 000 - R210 000",
+      "adults": 1291,
+      "owners11": 0.42,
+      "owners50": 0.6971,
+      "sellers11": 0.36,
+      "transfers12": 22,
+      "avgPrice12": 2658977,
+      "turnover": 0.05275779376498801,
+      "tenureCurrent": [
+       0.41,
+       0.08,
+       0.08,
+       0.42
+      ],
+      "tenureSellers": [
+       0.36,
+       0.14,
+       0.14,
+       0.36
+      ],
+      "ownerAge": [
+       0.0743,
+       0.2286,
+       0.3714,
+       0.3257
+      ],
+      "transf3": 5,
+      "transf12": 22,
+      "avgPrice": 2658977,
+      "totalValue": 58497500
+     }
+    },
+    {
+     "name": "Clydesdale",
+     "municipality": "City of Tshwane",
+     "signal": "High",
+     "angle": "Liquid; fast churn",
+     "priority": 7,
+     "stats": {
+      "totalStock": 284,
+      "freeholdPct": 0.4613,
+      "sectionalPct": 0.5387,
+      "lsm": "LSM 10",
+      "income": "R105 000 - R140 000",
+      "adults": 834,
+      "owners11": 0.23,
+      "owners50": 0.5225,
+      "sellers11": 0.36,
+      "transfers12": 28,
+      "avgPrice12": 1490107,
+      "turnover": 0.09859154929577464,
+      "tenureCurrent": [
+       0.38,
+       0.14,
+       0.25,
+       0.23
+      ],
+      "tenureSellers": [
+       0.32,
+       0.11,
+       0.21,
+       0.36
+      ],
+      "ownerAge": [
+       0.129,
+       0.3484,
+       0.3677,
+       0.1548
+      ],
+      "transf3": 8,
+      "transf12": 28,
+      "avgPrice": 1490107,
+      "totalValue": 41723000
+     }
+    },
+    {
+     "name": "Trevenna",
+     "municipality": "City of Tshwane",
+     "signal": "Watch",
+     "angle": "Low-ticket landlord churn",
+     "priority": 12,
+     "stats": {
+      "totalStock": 302,
+      "freeholdPct": 0.0265,
+      "sectionalPct": 0.9735,
+      "lsm": "LSM 7",
+      "income": "R13 000 - R26 000",
+      "adults": 1707,
+      "owners11": 0.61,
+      "owners50": 0.5168,
+      "sellers11": 0.56,
+      "transfers12": 19,
+      "avgPrice12": 355368,
+      "turnover": 0.06291390728476821,
+      "tenureCurrent": [
+       0.17,
+       0.12,
+       0.1,
+       0.61
+      ],
+      "tenureSellers": [
+       0.31,
+       0.06,
+       0.06,
+       0.56
+      ],
+      "ownerAge": [
+       0.1053,
+       0.378,
+       0.2967,
+       0.2201
+      ],
+      "transf3": 3,
+      "transf12": 19,
+      "avgPrice": 355368,
+      "totalValue": 6752000
+     }
+    },
+    {
+     "name": "Rietondale",
+     "municipality": "City of Tshwane",
+     "signal": "High",
+     "angle": "Freehold family downsizing",
+     "priority": 3,
+     "stats": {
+      "totalStock": 517,
+      "freeholdPct": 0.9594,
+      "sectionalPct": 0.0406,
+      "lsm": "LSM 10",
+      "income": "R105 000 - R140 000",
+      "adults": 1401,
+      "owners11": 0.56,
+      "owners50": 0.7074,
+      "sellers11": 0.56,
+      "transfers12": 25,
+      "avgPrice12": 2249600,
+      "turnover": 0.048355899419729204,
+      "tenureCurrent": [
+       0.23,
+       0.09,
+       0.12,
+       0.56
+      ],
+      "tenureSellers": [
+       0.28,
+       0.08,
+       0.08,
+       0.56
+      ],
+      "ownerAge": [
+       0.0319,
+       0.2606,
+       0.4255,
+       0.2819
+      ],
+      "transf3": 7,
+      "transf12": 25,
+      "avgPrice": 2249600,
+      "totalValue": 56240000
+     }
+    },
+    {
+     "name": "Riviera",
+     "municipality": "City of Tshwane",
+     "signal": "Moderate",
+     "angle": "Entry investor churn",
+     "priority": 11,
+     "stats": {
+      "totalStock": 781,
+      "freeholdPct": 0.4994,
+      "sectionalPct": 0.5006,
+      "lsm": "LSM 9",
+      "income": "R54 000 - R68 000",
+      "adults": 1808,
+      "owners11": 0.38,
+      "owners50": 0.5882,
+      "sellers11": 0.43,
+      "transfers12": 76,
+      "avgPrice12": 576775,
+      "turnover": 0.0973111395646607,
+      "tenureCurrent": [
+       0.39,
+       0.12,
+       0.11,
+       0.38
+      ],
+      "tenureSellers": [
+       0.11,
+       0.42,
+       0.04,
+       0.43
+      ],
+      "ownerAge": [
+       0.0776,
+       0.3341,
+       0.3929,
+       0.1953
+      ],
+      "transf3": 5,
+      "transf12": 76,
+      "avgPrice": 576775,
+      "totalValue": 43834964
+     }
+    },
+    {
+     "name": "Villieria",
+     "municipality": "City of Tshwane",
+     "signal": "High",
+     "angle": "Large freehold farm; scale",
+     "priority": 5,
+     "stats": {
+      "totalStock": 3745,
+      "freeholdPct": 0.7565,
+      "sectionalPct": 0.2328,
+      "lsm": "LSM 10",
+      "income": "R54 000 - R68 000",
+      "adults": 11107,
+      "owners11": 0.53,
+      "owners50": 0.617,
+      "sellers11": 0.4,
+      "transfers12": 176,
+      "avgPrice12": 1385036,
+      "turnover": 0.04699599465954606,
+      "tenureCurrent": [
+       0.23,
+       0.14,
+       0.1,
+       0.53
+      ],
+      "tenureSellers": [
+       0.32,
+       0.2,
+       0.08,
+       0.4
+      ],
+      "ownerAge": [
+       0.0601,
+       0.3229,
+       0.3897,
+       0.2273
+      ],
+      "transf3": 44,
+      "transf12": 176,
+      "avgPrice": 1385036,
+      "totalValue": 243766495
+     }
+    },
+    {
+     "name": "Pretoria CBD",
+     "municipality": "City of Tshwane",
+     "signal": null,
+     "angle": null,
+     "priority": null,
+     "stats": {
+      "note": "No Lightstone data imported yet."
+     }
+    }
+   ]
+  },
+  {
+   "slug": "eastern-suburbs",
+   "name": "Eastern Suburbs",
+   "sort": 1,
+   "suburbs": [
+    {
+     "name": "Moreleta Park",
+     "municipality": "City of Tshwane",
+     "signal": "High",
+     "angle": "Largest farm — scale, volume & estates",
+     "priority": 1,
+     "stats": {
+      "totalStock": 8636,
+      "freeholdPct": 0.329,
+      "sectionalPct": 0.671,
+      "inEstatePct": 0.209,
+      "lsm": "LSM 10",
+      "income": "R105 000 - R140 000",
+      "adults": 20323,
+      "owners11": 0.5,
+      "owners50": 0.574,
+      "sellers11": 0.43,
+      "transfers12": 525,
+      "avgPrice12": 1844290,
+      "turnover": 0.0607920333487726,
+      "tenureCurrent": [
+       0.24,
+       0.15,
+       0.11,
+       0.5
+      ],
+      "tenureSellers": [
+       0.3,
+       0.16,
+       0.1,
+       0.43
+      ],
+      "ownerAge": [
+       0.0793,
+       0.3464,
+       0.3742,
+       0.2001
+      ],
+      "transf3": 150,
+      "transf12": 525,
+      "avgPrice": 1844290,
+      "totalValue": 968252450
+     }
+    },
+    {
+     "name": "Faerie Glen",
+     "municipality": "City of Tshwane",
+     "signal": "High",
+     "angle": "Huge family-home farm; downsizing",
+     "priority": 2,
+     "stats": {
+      "totalStock": 7568,
+      "freeholdPct": 0.363,
+      "sectionalPct": 0.637,
+      "inEstatePct": 0.132,
+      "lsm": "LSM 10",
+      "income": "R105 000 - R140 000",
+      "adults": 15170,
+      "owners11": 0.49,
+      "owners50": 0.642,
+      "sellers11": 0.41,
+      "transfers12": 482,
+      "avgPrice12": 1943135,
+      "turnover": 0.0636892177589852,
+      "tenureCurrent": [
+       0.25,
+       0.16,
+       0.11,
+       0.49
+      ],
+      "tenureSellers": [
+       0.28,
+       0.16,
+       0.16,
+       0.41
+      ],
+      "ownerAge": [
+       0.0679,
+       0.2898,
+       0.3462,
+       0.2961
+      ],
+      "transf3": 137,
+      "transf12": 482,
+      "avgPrice": 1943135,
+      "totalValue": 936591207
+     }
+    },
+    {
+     "name": "Equestria",
+     "municipality": "City of Tshwane",
+     "signal": "High",
+     "angle": "High-volume sectional; young-owner churn",
+     "priority": 3,
+     "stats": {
+      "totalStock": 7105,
+      "freeholdPct": 0.219,
+      "sectionalPct": 0.781,
+      "inEstatePct": 0.388,
+      "lsm": "LSM 10",
+      "income": "R85 000 - R105 000",
+      "adults": 14173,
+      "owners11": 0.38,
+      "owners50": 0.472,
+      "sellers11": 0.28,
+      "transfers12": 463,
+      "avgPrice12": 1704020,
+      "turnover": 0.0651653764954258,
+      "tenureCurrent": [
+       0.29,
+       0.19,
+       0.15,
+       0.38
+      ],
+      "tenureSellers": [
+       0.42,
+       0.16,
+       0.15,
+       0.28
+      ],
+      "ownerAge": [
+       0.0881,
+       0.4398,
+       0.2812,
+       0.1909
+      ],
+      "transf3": 144,
+      "transf12": 463,
+      "avgPrice": 1704020,
+      "totalValue": 788961716
+     }
+    },
+    {
+     "name": "Garsfontein",
+     "municipality": "City of Tshwane",
+     "signal": "High",
+     "angle": "Large freehold farm; long-tenure",
+     "priority": 4,
+     "stats": {
+      "totalStock": 5866,
+      "freeholdPct": 0.567,
+      "sectionalPct": 0.433,
+      "inEstatePct": 0.029,
+      "lsm": "LSM 10",
+      "income": "R85 000 - R105 000",
+      "adults": 14651,
+      "owners11": 0.53,
+      "owners50": 0.609,
+      "sellers11": 0.42,
+      "transfers12": 335,
+      "avgPrice12": 1740725,
+      "turnover": 0.057108762359359,
+      "tenureCurrent": [
+       0.23,
+       0.14,
+       0.1,
+       0.53
+      ],
+      "tenureSellers": [
+       0.29,
+       0.16,
+       0.13,
+       0.42
+      ],
+      "ownerAge": [
+       0.0693,
+       0.3216,
+       0.3535,
+       0.2556
+      ],
+      "transf3": 85,
+      "transf12": 335,
+      "avgPrice": 1740725,
+      "totalValue": 583143000
+     }
+    },
+    {
+     "name": "Menlo Park",
+     "municipality": "City of Tshwane",
+     "signal": "High",
+     "angle": "Very liquid; recent-buyer churn",
+     "priority": 5,
+     "stats": {
+      "totalStock": 2436,
+      "freeholdPct": 0.412,
+      "sectionalPct": 0.587,
+      "inEstatePct": 0.04,
+      "lsm": "LSM 10",
+      "income": "R140 000 - R175 000",
+      "adults": 5262,
+      "owners11": 0.28,
+      "owners50": 0.526,
+      "sellers11": 0.22,
+      "transfers12": 234,
+      "avgPrice12": 2079525,
+      "turnover": 0.0960591133004926,
+      "tenureCurrent": [
+       0.39,
+       0.18,
+       0.15,
+       0.28
+      ],
+      "tenureSellers": [
+       0.54,
+       0.09,
+       0.15,
+       0.22
+      ],
+      "ownerAge": [
+       0.1346,
+       0.3392,
+       0.3658,
+       0.1604
+      ],
+      "transf3": 43,
+      "transf12": 234,
+      "avgPrice": 2079525,
+      "totalValue": 486608924
+     }
+    },
+    {
+     "name": "Lynnwood",
+     "municipality": "City of Tshwane",
+     "signal": "High",
+     "angle": "Active premium; volume",
+     "priority": 6,
+     "stats": {
+      "totalStock": 2534,
+      "freeholdPct": 0.525,
+      "sectionalPct": 0.475,
+      "inEstatePct": 0.118,
+      "lsm": "LSM 10",
+      "income": "R105 000 - R140 000",
+      "adults": 6644,
+      "owners11": 0.42,
+      "owners50": 0.606,
+      "sellers11": 0.43,
+      "transfers12": 200,
+      "avgPrice12": 2742669,
+      "turnover": 0.0789265982636148,
+      "tenureCurrent": [
+       0.33,
+       0.14,
+       0.11,
+       0.42
+      ],
+      "tenureSellers": [
+       0.37,
+       0.11,
+       0.1,
+       0.43
+      ],
+      "ownerAge": [
+       0.0968,
+       0.2969,
+       0.345,
+       0.2612
+      ],
+      "transf3": 64,
+      "transf12": 200,
+      "avgPrice": 2742669,
+      "totalValue": 548533966
+     }
+    },
+    {
+     "name": "Menlyn",
+     "municipality": "City of Tshwane",
+     "signal": "High",
+     "angle": "Hyper-liquid sectional; investor churn",
+     "priority": 7,
+     "stats": {
+      "totalStock": 620,
+      "freeholdPct": 0.005,
+      "sectionalPct": 0.995,
+      "inEstatePct": 0,
+      "lsm": "LSM 10",
+      "income": "R85 000 - R105 000",
+      "adults": 979,
+      "owners11": 0.13,
+      "owners50": 0.573,
+      "sellers11": 0.06,
+      "transfers12": 148,
+      "avgPrice12": 1796198,
+      "turnover": 0.238709677419355,
+      "tenureCurrent": [
+       0.25,
+       0.56,
+       0.06,
+       0.13
+      ],
+      "tenureSellers": [
+       0.68,
+       0.24,
+       0.01,
+       0.06
+      ],
+      "ownerAge": [
+       0.0769,
+       0.3504,
+       0.4231,
+       0.1496
+      ],
+      "transf3": 18,
+      "transf12": 148,
+      "avgPrice": 1796198,
+      "totalValue": 265837331
+     }
+    },
+    {
+     "name": "Silver Lakes",
+     "municipality": "City of Tshwane",
+     "signal": "High",
+     "angle": "Golf-estate downsizers; premium",
+     "priority": 8,
+     "stats": {
+      "totalStock": 1722,
+      "freeholdPct": 0.899,
+      "sectionalPct": 0.101,
+      "inEstatePct": 0.953,
+      "lsm": "LSM 10",
+      "income": "R400 000 - R800 000",
+      "adults": 4550,
+      "owners11": 0.5,
+      "owners50": 0.707,
+      "sellers11": 0.45,
+      "transfers12": 106,
+      "avgPrice12": 4671952,
+      "turnover": 0.0615563298490128,
+      "tenureCurrent": [
+       0.26,
+       0.15,
+       0.1,
+       0.5
+      ],
+      "tenureSellers": [
+       0.3,
+       0.15,
+       0.11,
+       0.45
+      ],
+      "ownerAge": [
+       0.0294,
+       0.2635,
+       0.4464,
+       0.2607
+      ],
+      "transf3": 32,
+      "transf12": 106,
+      "avgPrice": 4671952,
+      "totalValue": 495227000
+     }
+    },
+    {
+     "name": "Waterkloof",
+     "municipality": "City of Tshwane",
+     "signal": "High",
+     "angle": "Prestige downsizing; high-value",
+     "priority": 9,
+     "stats": {
+      "totalStock": 1549,
+      "freeholdPct": 0.852,
+      "sectionalPct": 0.148,
+      "inEstatePct": 0.165,
+      "lsm": "LSM 10",
+      "income": "R400 000 - R800 000",
+      "adults": 4014,
+      "owners11": 0.54,
+      "owners50": 0.696,
+      "sellers11": 0.49,
+      "transfers12": 80,
+      "avgPrice12": 5116091,
+      "turnover": 0.0516462233699161,
+      "tenureCurrent": [
+       0.22,
+       0.13,
+       0.11,
+       0.54
+      ],
+      "tenureSellers": [
+       0.26,
+       0.12,
+       0.14,
+       0.49
+      ],
+      "ownerAge": [
+       0.0289,
+       0.2747,
+       0.4116,
+       0.2848
+      ],
+      "transf3": 23,
+      "transf12": 80,
+      "avgPrice": 5116091,
+      "totalValue": 409287339
+     }
+    },
+    {
+     "name": "Woodhill",
+     "municipality": "City of Tshwane",
+     "signal": "High",
+     "angle": "Estate downsizing; oldest owners",
+     "priority": 10,
+     "stats": {
+      "totalStock": 863,
+      "freeholdPct": 0.856,
+      "sectionalPct": 0.144,
+      "inEstatePct": 0.994,
+      "lsm": "LSM 10",
+      "income": "R400 000 - R800 000",
+      "adults": 2152,
+      "owners11": 0.56,
+      "owners50": 0.756,
+      "sellers11": 0.45,
+      "transfers12": 55,
+      "avgPrice12": 4683972,
+      "turnover": 0.0637311703360371,
+      "tenureCurrent": [
+       0.25,
+       0.12,
+       0.08,
+       0.56
+      ],
+      "tenureSellers": [
+       0.22,
+       0.22,
+       0.11,
+       0.45
+      ],
+      "ownerAge": [
+       0.0276,
+       0.2165,
+       0.4902,
+       0.2657
+      ],
+      "transf3": 12,
+      "transf12": 55,
+      "avgPrice": 4683972,
+      "totalValue": 257618499
+     }
+    },
+    {
+     "name": "Mooikloof",
+     "municipality": "City of Tshwane",
+     "signal": "High",
+     "angle": "Ultra-prime estate; downsizing",
+     "priority": 11,
+     "stats": {
+      "totalStock": 559,
+      "freeholdPct": 1,
+      "sectionalPct": 0,
+      "inEstatePct": 1,
+      "lsm": "LSM 10",
+      "income": "R400 000 - R800 000",
+      "adults": 1362,
+      "owners11": 0.59,
+      "owners50": 0.818,
+      "sellers11": 0.49,
+      "transfers12": 37,
+      "avgPrice12": 7288149,
+      "turnover": 0.0661896243291592,
+      "tenureCurrent": [
+       0.22,
+       0.09,
+       0.09,
+       0.59
+      ],
+      "tenureSellers": [
+       0.3,
+       0.14,
+       0.08,
+       0.49
+      ],
+      "ownerAge": [
+       0.014,
+       0.1678,
+       0.5944,
+       0.2238
+      ],
+      "transf3": 12,
+      "transf12": 37,
+      "avgPrice": 7288149,
+      "totalValue": 269661532
+     }
+    },
+    {
+     "name": "La Montagne",
+     "municipality": "City of Tshwane",
+     "signal": "Moderate",
+     "angle": "Sectional churn; entry-level",
+     "priority": 12,
+     "stats": {
+      "totalStock": 2558,
+      "freeholdPct": 0.069,
+      "sectionalPct": 0.931,
+      "inEstatePct": 0,
+      "lsm": "LSM 9",
+      "income": "R54 000 - R68 000",
+      "adults": 4561,
+      "owners11": 0.37,
+      "owners50": 0.516,
+      "sellers11": 0.48,
+      "transfers12": 165,
+      "avgPrice12": 1026226,
+      "turnover": 0.0645035183737295,
+      "tenureCurrent": [
+       0.37,
+       0.15,
+       0.11,
+       0.37
+      ],
+      "tenureSellers": [
+       0.21,
+       0.2,
+       0.12,
+       0.48
+      ],
+      "ownerAge": [
+       0.1091,
+       0.3743,
+       0.3269,
+       0.1896
+      ],
+      "transf3": 50,
+      "transf12": 165,
+      "avgPrice": 1026226,
+      "totalValue": 169327387
+     }
+    },
+    {
+     "name": "Die Wilgers",
+     "municipality": "City of Tshwane",
+     "signal": "Moderate",
+     "angle": "Big family farm; steady turnover",
+     "priority": 13,
+     "stats": {
+      "totalStock": 2581,
+      "freeholdPct": 0.387,
+      "sectionalPct": 0.613,
+      "inEstatePct": 0.081,
+      "lsm": "LSM 10",
+      "income": "R105 000 - R140 000",
+      "adults": 5669,
+      "owners11": 0.52,
+      "owners50": 0.636,
+      "sellers11": 0.44,
+      "transfers12": 132,
+      "avgPrice12": 1560070,
+      "turnover": 0.0511429678419217,
+      "tenureCurrent": [
+       0.22,
+       0.13,
+       0.13,
+       0.52
+      ],
+      "tenureSellers": [
+       0.27,
+       0.15,
+       0.15,
+       0.44
+      ],
+      "ownerAge": [
+       0.0619,
+       0.3019,
+       0.3119,
+       0.3243
+      ],
+      "transf3": 39,
+      "transf12": 132,
+      "avgPrice": 1560070,
+      "totalValue": 205929250
+     }
+    },
+    {
+     "name": "Erasmuskloof",
+     "municipality": "City of Tshwane",
+     "signal": "Moderate",
+     "angle": "Mid-market family; long-tenure",
+     "priority": 14,
+     "stats": {
+      "totalStock": 1648,
+      "freeholdPct": 0.302,
+      "sectionalPct": 0.698,
+      "inEstatePct": 0.036,
+      "lsm": "LSM 10",
+      "income": "R85 000 - R105 000",
+      "adults": 4011,
+      "owners11": 0.49,
+      "owners50": 0.591,
+      "sellers11": 0.46,
+      "transfers12": 102,
+      "avgPrice12": 1633629,
+      "turnover": 0.0618932038834951,
+      "tenureCurrent": [
+       0.25,
+       0.14,
+       0.11,
+       0.49
+      ],
+      "tenureSellers": [
+       0.35,
+       0.1,
+       0.1,
+       0.46
+      ],
+      "ownerAge": [
+       0.093,
+       0.3159,
+       0.3855,
+       0.2056
+      ],
+      "transf3": 30,
+      "transf12": 102,
+      "avgPrice": 1633629,
+      "totalValue": 166630196
+     }
+    },
+    {
+     "name": "Lynnwood Glen",
+     "municipality": "City of Tshwane",
+     "signal": "Moderate",
+     "angle": "Active, older-owner base",
+     "priority": 15,
+     "stats": {
+      "totalStock": 1339,
+      "freeholdPct": 0.692,
+      "sectionalPct": 0.308,
+      "inEstatePct": 0.066,
+      "lsm": "LSM 10",
+      "income": "R140 000 - R175 000",
+      "adults": 3302,
+      "owners11": 0.47,
+      "owners50": 0.66,
+      "sellers11": 0.35,
+      "transfers12": 97,
+      "avgPrice12": 2491175,
+      "turnover": 0.0724421209858103,
+      "tenureCurrent": [
+       0.31,
+       0.12,
+       0.1,
+       0.47
+      ],
+      "tenureSellers": [
+       0.45,
+       0.08,
+       0.12,
+       0.35
+      ],
+      "ownerAge": [
+       0.0745,
+       0.2656,
+       0.4026,
+       0.2572
+      ],
+      "transf3": 33,
+      "transf12": 97,
+      "avgPrice": 2491175,
+      "totalValue": 241644000
+     }
+    },
+    {
+     "name": "Newlands",
+     "municipality": "City of Tshwane",
+     "signal": "Moderate",
+     "angle": "Long-tenure family; downsizing pipeline",
+     "priority": 16,
+     "stats": {
+      "totalStock": 1360,
+      "freeholdPct": 0.406,
+      "sectionalPct": 0.594,
+      "inEstatePct": 0.05,
+      "lsm": "LSM 10",
+      "income": "R105 000 - R140 000",
+      "adults": 2991,
+      "owners11": 0.48,
+      "owners50": 0.671,
+      "sellers11": 0.41,
+      "transfers12": 92,
+      "avgPrice12": 1921083,
+      "turnover": 0.0676470588235294,
+      "tenureCurrent": [
+       0.28,
+       0.13,
+       0.11,
+       0.48
+      ],
+      "tenureSellers": [
+       0.33,
+       0.14,
+       0.12,
+       0.41
+      ],
+      "ownerAge": [
+       0.0599,
+       0.2693,
+       0.3498,
+       0.3209
+      ],
+      "transf3": 26,
+      "transf12": 92,
+      "avgPrice": 1921083,
+      "totalValue": 176739700
+     }
+    },
+    {
+     "name": "Olympus AH",
+     "municipality": "City of Tshwane",
+     "signal": "Moderate",
+     "angle": "Smallholdings; high churn",
+     "priority": 17,
+     "stats": {
+      "totalStock": 1068,
+      "freeholdPct": 0.063,
+      "sectionalPct": 0.937,
+      "inEstatePct": 0.031,
+      "lsm": "LSM 10",
+      "income": "R85 000 - R105 000",
+      "adults": 2388,
+      "owners11": 0.08,
+      "owners50": 0.614,
+      "sellers11": 0.04,
+      "transfers12": 74,
+      "avgPrice12": 1520714,
+      "turnover": 0.0692883895131086,
+      "tenureCurrent": [
+       0.24,
+       0.45,
+       0.24,
+       0.08
+      ],
+      "tenureSellers": [
+       0.56,
+       0.17,
+       0.23,
+       0.04
+      ],
+      "ownerAge": [
+       0.109,
+       0.2773,
+       0.2638,
+       0.3499
+      ],
+      "transf3": 29,
+      "transf12": 74,
+      "avgPrice": 1520714,
+      "totalValue": 112532900
+     }
+    },
+    {
+     "name": "Waterkloof Glen",
+     "municipality": "City of Tshwane",
+     "signal": "Moderate",
+     "angle": "Steady family farm",
+     "priority": 18,
+     "stats": {
+      "totalStock": 1067,
+      "freeholdPct": 0.578,
+      "sectionalPct": 0.422,
+      "inEstatePct": 0,
+      "lsm": "LSM 10",
+      "income": "Too wide to classify",
+      "adults": 3211,
+      "owners11": 0.49,
+      "owners50": 0.589,
+      "sellers11": 0.49,
+      "transfers12": 68,
+      "avgPrice12": 2304191,
+      "turnover": 0.0637300843486411,
+      "tenureCurrent": [
+       0.25,
+       0.14,
+       0.11,
+       0.49
+      ],
+      "tenureSellers": [
+       0.34,
+       0.12,
+       0.04,
+       0.49
+      ],
+      "ownerAge": [
+       0.064,
+       0.3473,
+       0.3851,
+       0.2037
+      ],
+      "transf3": 20,
+      "transf12": 68,
+      "avgPrice": 2304191,
+      "totalValue": 156685000
+     }
+    },
+    {
+     "name": "Constantia Park",
+     "municipality": "City of Tshwane",
+     "signal": "Moderate",
+     "angle": "Long-tenure family homes",
+     "priority": 19,
+     "stats": {
+      "totalStock": 1057,
+      "freeholdPct": 0.802,
+      "sectionalPct": 0.198,
+      "inEstatePct": 0.029,
+      "lsm": "LSM 10",
+      "income": "R105 000 - R140 000",
+      "adults": 2708,
+      "owners11": 0.56,
+      "owners50": 0.623,
+      "sellers11": 0.58,
+      "transfers12": 66,
+      "avgPrice12": 2209091,
+      "turnover": 0.0624408703878903,
+      "tenureCurrent": [
+       0.19,
+       0.13,
+       0.12,
+       0.56
+      ],
+      "tenureSellers": [
+       0.34,
+       0.03,
+       0.05,
+       0.58
+      ],
+      "ownerAge": [
+       0.0395,
+       0.3373,
+       0.4045,
+       0.2187
+      ],
+      "transf3": 23,
+      "transf12": 66,
+      "avgPrice": 2209091,
+      "totalValue": 145800045
+     }
+    },
+    {
+     "name": "Lynnwood Manor",
+     "municipality": "City of Tshwane",
+     "signal": "Moderate",
+     "angle": "Long-tenure; premium",
+     "priority": 20,
+     "stats": {
+      "totalStock": 987,
+      "freeholdPct": 0.507,
+      "sectionalPct": 0.493,
+      "inEstatePct": 0.074,
+      "lsm": "LSM 10",
+      "income": "R105 000 - R140 000",
+      "adults": 2149,
+      "owners11": 0.53,
+      "owners50": 0.604,
+      "sellers11": 0.38,
+      "transfers12": 56,
+      "avgPrice12": 2402940,
+      "turnover": 0.0567375886524823,
+      "tenureCurrent": [
+       0.24,
+       0.13,
+       0.11,
+       0.53
+      ],
+      "tenureSellers": [
+       0.36,
+       0.11,
+       0.15,
+       0.38
+      ],
+      "ownerAge": [
+       0.0714,
+       0.3245,
+       0.3509,
+       0.2531
+      ],
+      "transf3": 16,
+      "transf12": 56,
+      "avgPrice": 2402940,
+      "totalValue": 134564650
+     }
+    },
+    {
+     "name": "Lynnwood Ridge",
+     "municipality": "City of Tshwane",
+     "signal": "Moderate",
+     "angle": "Premium; tightly held",
+     "priority": 21,
+     "stats": {
+      "totalStock": 1248,
+      "freeholdPct": 0.422,
+      "sectionalPct": 0.579,
+      "inEstatePct": 0.068,
+      "lsm": "LSM 10",
+      "income": "R85 000 - R105 000",
+      "adults": 2573,
+      "owners11": 0.41,
+      "owners50": 0.584,
+      "sellers11": 0.34,
+      "transfers12": 54,
+      "avgPrice12": 2917553,
+      "turnover": 0.0432692307692308,
+      "tenureCurrent": [
+       0.39,
+       0.11,
+       0.08,
+       0.41
+      ],
+      "tenureSellers": [
+       0.49,
+       0.09,
+       0.08,
+       0.34
+      ],
+      "ownerAge": [
+       0.117,
+       0.299,
+       0.355,
+       0.229
+      ],
+      "transf3": 16,
+      "transf12": 54,
+      "avgPrice": 2917553,
+      "totalValue": 157547900
+     }
+    },
+    {
+     "name": "Willow Acres",
+     "municipality": "City of Tshwane",
+     "signal": "Moderate",
+     "angle": "Estate; active mid-market",
+     "priority": 22,
+     "stats": {
+      "totalStock": 691,
+      "freeholdPct": 0.654,
+      "sectionalPct": 0.346,
+      "inEstatePct": 0.7,
+      "lsm": "LSM 10",
+      "income": "R140 000 - R175 000",
+      "adults": 1300,
+      "owners11": 0.43,
+      "owners50": 0.48,
+      "sellers11": 0.4,
+      "transfers12": 54,
+      "avgPrice12": 2676048,
+      "turnover": 0.0781476121562952,
+      "tenureCurrent": [
+       0.25,
+       0.18,
+       0.14,
+       0.43
+      ],
+      "tenureSellers": [
+       0.36,
+       0.13,
+       0.11,
+       0.4
+      ],
+      "ownerAge": [
+       0.071,
+       0.4486,
+       0.3738,
+       0.1065
+      ],
+      "transf3": 16,
+      "transf12": 54,
+      "avgPrice": 2676048,
+      "totalValue": 144506624
+     }
+    },
+    {
+     "name": "Wingate Park",
+     "municipality": "City of Tshwane",
+     "signal": "Moderate",
+     "angle": "Freehold family; long-tenure",
+     "priority": 23,
+     "stats": {
+      "totalStock": 861,
+      "freeholdPct": 0.79,
+      "sectionalPct": 0.21,
+      "inEstatePct": 0.02,
+      "lsm": "LSM 10",
+      "income": "R105 000 - R140 000",
+      "adults": 2341,
+      "owners11": 0.51,
+      "owners50": 0.544,
+      "sellers11": 0.45,
+      "transfers12": 46,
+      "avgPrice12": 2163673,
+      "turnover": 0.0534262485481998,
+      "tenureCurrent": [
+       0.24,
+       0.12,
+       0.13,
+       0.51
+      ],
+      "tenureSellers": [
+       0.23,
+       0.14,
+       0.18,
+       0.45
+      ],
+      "ownerAge": [
+       0.0671,
+       0.3887,
+       0.3476,
+       0.1966
+      ],
+      "transf3": 11,
+      "transf12": 46,
+      "avgPrice": 2163673,
+      "totalValue": 99529000
+     }
+    },
+    {
+     "name": "Ashlea Gardens",
+     "municipality": "City of Tshwane",
+     "signal": "Moderate",
+     "angle": "Small, active affluent pocket",
+     "priority": 24,
+     "stats": {
+      "totalStock": 439,
+      "freeholdPct": 0.289,
+      "sectionalPct": 0.711,
+      "inEstatePct": 0.009,
+      "lsm": "LSM 10",
+      "income": "R140 000 - R175 000",
+      "adults": 860,
+      "owners11": 0.22,
+      "owners50": 0.557,
+      "sellers11": 0.16,
+      "transfers12": 38,
+      "avgPrice12": 2090394,
+      "turnover": 0.0865603644646925,
+      "tenureCurrent": [
+       0.36,
+       0.36,
+       0.05,
+       0.22
+      ],
+      "tenureSellers": [
+       0.21,
+       0.61,
+       0.03,
+       0.16
+      ],
+      "ownerAge": [
+       0.0773,
+       0.366,
+       0.3711,
+       0.1856
+      ],
+      "transf3": 10,
+      "transf12": 38,
+      "avgPrice": 2090394,
+      "totalValue": 79435000
+     }
+    },
+    {
+     "name": "Val-de-Grace",
+     "municipality": "City of Tshwane",
+     "signal": "Moderate",
+     "angle": "Small premium pocket",
+     "priority": 25,
+     "stats": {
+      "totalStock": 569,
+      "freeholdPct": 0.52,
+      "sectionalPct": 0.48,
+      "inEstatePct": 0.019,
+      "lsm": "LSM 10",
+      "income": "R105 000 - R140 000",
+      "adults": 1378,
+      "owners11": 0.46,
+      "owners50": 0.582,
+      "sellers11": 0.39,
+      "transfers12": 33,
+      "avgPrice12": 1865545,
+      "turnover": 0.0579964850615114,
+      "tenureCurrent": [
+       0.26,
+       0.13,
+       0.15,
+       0.46
+      ],
+      "tenureSellers": [
+       0.36,
+       0.18,
+       0.06,
+       0.39
+      ],
+      "ownerAge": [
+       0.0641,
+       0.3538,
+       0.3788,
+       0.2033
+      ],
+      "transf3": 6,
+      "transf12": 33,
+      "avgPrice": 1865545,
+      "totalValue": 61563000
+     }
+    },
+    {
+     "name": "Waterkloof Heights",
+     "municipality": "City of Tshwane",
+     "signal": "Moderate",
+     "angle": "Premium; recent-buyer churn",
+     "priority": 26,
+     "stats": {
+      "totalStock": 432,
+      "freeholdPct": 0.776,
+      "sectionalPct": 0.224,
+      "inEstatePct": 0.044,
+      "lsm": "LSM 10",
+      "income": "R140 000 - R175 000",
+      "adults": 1057,
+      "owners11": 0.5,
+      "owners50": 0.685,
+      "sellers11": 0.2,
+      "transfers12": 30,
+      "avgPrice12": 4023846,
+      "turnover": 0.0694444444444445,
+      "tenureCurrent": [
+       0.23,
+       0.13,
+       0.13,
+       0.5
+      ],
+      "tenureSellers": [
+       0.47,
+       0.17,
+       0.17,
+       0.2
+      ],
+      "ownerAge": [
+       0.0311,
+       0.284,
+       0.4241,
+       0.2607
+      ],
+      "transf3": 10,
+      "transf12": 30,
+      "avgPrice": 4023846,
+      "totalValue": 120715400
+     }
+    },
+    {
+     "name": "Boschkop",
+     "municipality": "City of Tshwane",
+     "signal": "Watch",
+     "angle": "Rural NU — 15 homes, no market",
+     "priority": 27,
+     "stats": {
+      "totalStock": 15,
+      "freeholdPct": 0.6,
+      "sectionalPct": 0.4,
+      "inEstatePct": 0,
+      "lsm": "LSM 10",
+      "income": ">R210 000",
+      "adults": 370,
+      "owners11": 0.64,
+      "owners50": 0.8,
+      "sellers11": 0,
+      "transfers12": null,
+      "avgPrice12": null,
+      "turnover": null,
+      "tenureCurrent": [
+       0.27,
+       0,
+       0.09,
+       0.64
+      ],
+      "tenureSellers": [
+       0,
+       0,
+       0,
+       0
+      ],
+      "ownerAge": [
+       0,
+       0.2,
+       0.4,
+       0.4
+      ],
+      "transf3": null,
+      "transf12": null,
+      "avgPrice": null,
+      "totalValue": null
+     }
+    },
+    {
+     "name": "Elandspark",
+     "municipality": "⚠ City of Johannesburg",
+     "signal": "Excluded",
+     "angle": "Misfiled — Johannesburg",
+     "priority": null,
+     "stats": {
+      "totalStock": 908,
+      "freeholdPct": 0.902,
+      "sectionalPct": 0.098,
+      "inEstatePct": 0,
+      "lsm": "LSM 9",
+      "income": "R54 000 - R68 000",
+      "adults": 2627,
+      "owners11": 0.68,
+      "owners50": 0.644,
+      "sellers11": 0.51,
+      "transfers12": 40,
+      "avgPrice12": 1086557,
+      "turnover": 0.0440528634361234,
+      "tenureCurrent": [
+       0.14,
+       0.1,
+       0.08,
+       0.68
+      ],
+      "tenureSellers": [
+       0.26,
+       0.15,
+       0.08,
+       0.51
+      ],
+      "ownerAge": [
+       0.046,
+       0.3101,
+       0.4731,
+       0.1708
+      ],
+      "transf3": 10,
+      "transf12": 40,
+      "avgPrice": 1086557,
+      "totalValue": 43462283
+     }
+    }
+   ]
+  },
+  {
+   "slug": "far-east-route21",
+   "name": "Far East / Route 21 Corridor",
+   "sort": 2,
+   "suburbs": [
+    {
+     "name": "Boschkop",
+     "municipality": "City of Tshwane",
+     "signal": null,
+     "angle": null,
+     "priority": null,
+     "stats": null
+    },
+    {
+     "name": "Tiegerpoort",
+     "municipality": "City of Tshwane",
+     "signal": null,
+     "angle": null,
+     "priority": null,
+     "stats": null
+    },
+    {
+     "name": "Mooikloof Ridge",
+     "municipality": "City of Tshwane",
+     "signal": null,
+     "angle": null,
+     "priority": null,
+     "stats": null
+    },
+    {
+     "name": "Six Fountains",
+     "municipality": "City of Tshwane",
+     "signal": null,
+     "angle": null,
+     "priority": null,
+     "stats": null
+    },
+    {
+     "name": "Rietvlei Heights",
+     "municipality": "City of Tshwane",
+     "signal": null,
+     "angle": null,
+     "priority": null,
+     "stats": null
+    },
+    {
+     "name": "Shere",
+     "municipality": "City of Tshwane",
+     "signal": null,
+     "angle": null,
+     "priority": null,
+     "stats": null
+    },
+    {
+     "name": "Bashewa",
+     "municipality": "City of Tshwane",
+     "signal": null,
+     "angle": null,
+     "priority": null,
+     "stats": null
+    },
+    {
+     "name": "Nellmapius",
+     "municipality": "City of Tshwane",
+     "signal": null,
+     "angle": null,
+     "priority": null,
+     "stats": null
+    },
+    {
+     "name": "Olympus AH",
+     "municipality": "City of Tshwane",
+     "signal": null,
+     "angle": null,
+     "priority": null,
+     "stats": null
+    }
+   ]
+  },
+  {
+   "slug": "northern-suburbs",
+   "name": "Northern Suburbs",
+   "sort": 3,
+   "suburbs": [
+    {
+     "name": "Pretoria North",
+     "municipality": "City of Tshwane",
+     "signal": null,
+     "angle": null,
+     "priority": null,
+     "stats": null
+    },
+    {
+     "name": "Annlin",
+     "municipality": "City of Tshwane",
+     "signal": null,
+     "angle": null,
+     "priority": null,
+     "stats": null
+    },
+    {
+     "name": "Sinoville",
+     "municipality": "City of Tshwane",
+     "signal": null,
+     "angle": null,
+     "priority": null,
+     "stats": null
+    },
+    {
+     "name": "Montana",
+     "municipality": "City of Tshwane",
+     "signal": null,
+     "angle": null,
+     "priority": null,
+     "stats": null
+    },
+    {
+     "name": "Montana Park",
+     "municipality": "City of Tshwane",
+     "signal": null,
+     "angle": null,
+     "priority": null,
+     "stats": null
+    },
+    {
+     "name": "Wonderboom",
+     "municipality": "City of Tshwane",
+     "signal": null,
+     "angle": null,
+     "priority": null,
+     "stats": null
+    },
+    {
+     "name": "Doornpoort",
+     "municipality": "City of Tshwane",
+     "signal": null,
+     "angle": null,
+     "priority": null,
+     "stats": null
+    },
+    {
+     "name": "Theresapark",
+     "municipality": "City of Tshwane",
+     "signal": null,
+     "angle": null,
+     "priority": null,
+     "stats": null
+    },
+    {
+     "name": "Ninapark",
+     "municipality": "City of Tshwane",
+     "signal": null,
+     "angle": null,
+     "priority": null,
+     "stats": null
+    },
+    {
+     "name": "Karenpark",
+     "municipality": "City of Tshwane",
+     "signal": null,
+     "angle": null,
+     "priority": null,
+     "stats": null
+    },
+    {
+     "name": "Amandasig",
+     "municipality": "City of Tshwane",
+     "signal": null,
+     "angle": null,
+     "priority": null,
+     "stats": null
+    },
+    {
+     "name": "Chantelle",
+     "municipality": "City of Tshwane",
+     "signal": null,
+     "angle": null,
+     "priority": null,
+     "stats": null
+    },
+    {
+     "name": "Dorandia",
+     "municipality": "City of Tshwane",
+     "signal": null,
+     "angle": null,
+     "priority": null,
+     "stats": null
+    },
+    {
+     "name": "Akasia",
+     "municipality": "City of Tshwane",
+     "signal": null,
+     "angle": null,
+     "priority": null,
+     "stats": null
+    },
+    {
+     "name": "Rosslyn",
+     "municipality": "City of Tshwane",
+     "signal": null,
+     "angle": null,
+     "priority": null,
+     "stats": null
+    }
+   ]
+  },
+  {
+   "slug": "north-east-suburbs",
+   "name": "North-East Suburbs",
+   "sort": 4,
+   "suburbs": [
+    {
+     "name": "Gezina",
+     "municipality": "City of Tshwane",
+     "signal": null,
+     "angle": null,
+     "priority": null,
+     "stats": null
+    },
+    {
+     "name": "Rietfontein",
+     "municipality": "City of Tshwane",
+     "signal": null,
+     "angle": null,
+     "priority": null,
+     "stats": null
+    },
+    {
+     "name": "Les Marais",
+     "municipality": "City of Tshwane",
+     "signal": null,
+     "angle": null,
+     "priority": null,
+     "stats": null
+    },
+    {
+     "name": "Wonderboom South",
+     "municipality": "City of Tshwane",
+     "signal": null,
+     "angle": null,
+     "priority": null,
+     "stats": null
+    },
+    {
+     "name": "Waverley",
+     "municipality": "City of Tshwane",
+     "signal": null,
+     "angle": null,
+     "priority": null,
+     "stats": null
+    },
+    {
+     "name": "Queenswood",
+     "municipality": "City of Tshwane",
+     "signal": null,
+     "angle": null,
+     "priority": null,
+     "stats": null
+    },
+    {
+     "name": "Kilner Park",
+     "municipality": "City of Tshwane",
+     "signal": null,
+     "angle": null,
+     "priority": null,
+     "stats": null
+    },
+    {
+     "name": "Moregloed",
+     "municipality": "City of Tshwane",
+     "signal": null,
+     "angle": null,
+     "priority": null,
+     "stats": null
+    },
+    {
+     "name": "Eloffsdal",
+     "municipality": "City of Tshwane",
+     "signal": null,
+     "angle": null,
+     "priority": null,
+     "stats": null
+    },
+    {
+     "name": "Mayville",
+     "municipality": "City of Tshwane",
+     "signal": null,
+     "angle": null,
+     "priority": null,
+     "stats": null
+    },
+    {
+     "name": "Capital Park",
+     "municipality": "City of Tshwane",
+     "signal": null,
+     "angle": null,
+     "priority": null,
+     "stats": null
+    },
+    {
+     "name": "Silverton",
+     "municipality": "City of Tshwane",
+     "signal": null,
+     "angle": null,
+     "priority": null,
+     "stats": null
+    },
+    {
+     "name": "Meyerspark",
+     "municipality": "City of Tshwane",
+     "signal": null,
+     "angle": null,
+     "priority": null,
+     "stats": null
+    },
+    {
+     "name": "Murrayfield",
+     "municipality": "City of Tshwane",
+     "signal": null,
+     "angle": null,
+     "priority": null,
+     "stats": null
+    }
+   ]
+  },
+  {
+   "slug": "western-suburbs",
+   "name": "Western Suburbs",
+   "sort": 5,
+   "suburbs": [
+    {
+     "name": "Pretoria West",
+     "municipality": "City of Tshwane",
+     "signal": null,
+     "angle": null,
+     "priority": null,
+     "stats": null
+    },
+    {
+     "name": "Danville",
+     "municipality": "City of Tshwane",
+     "signal": null,
+     "angle": null,
+     "priority": null,
+     "stats": null
+    },
+    {
+     "name": "Elandspoort",
+     "municipality": "City of Tshwane",
+     "signal": null,
+     "angle": null,
+     "priority": null,
+     "stats": null
+    },
+    {
+     "name": "Philip Nel Park",
+     "municipality": "City of Tshwane",
+     "signal": null,
+     "angle": null,
+     "priority": null,
+     "stats": null
+    },
+    {
+     "name": "Lotus Gardens",
+     "municipality": "City of Tshwane",
+     "signal": null,
+     "angle": null,
+     "priority": null,
+     "stats": null
+    },
+    {
+     "name": "Claremont",
+     "municipality": "City of Tshwane",
+     "signal": null,
+     "angle": null,
+     "priority": null,
+     "stats": null
+    },
+    {
+     "name": "Hercules",
+     "municipality": "City of Tshwane",
+     "signal": null,
+     "angle": null,
+     "priority": null,
+     "stats": null
+    },
+    {
+     "name": "Kwaggasrand",
+     "municipality": "City of Tshwane",
+     "signal": null,
+     "angle": null,
+     "priority": null,
+     "stats": null
+    },
+    {
+     "name": "Wespark",
+     "municipality": "City of Tshwane",
+     "signal": null,
+     "angle": null,
+     "priority": null,
+     "stats": null
+    },
+    {
+     "name": "Mountain View",
+     "municipality": "City of Tshwane",
+     "signal": null,
+     "angle": null,
+     "priority": null,
+     "stats": null
+    },
+    {
+     "name": "Daspoort",
+     "municipality": "City of Tshwane",
+     "signal": null,
+     "angle": null,
+     "priority": null,
+     "stats": null
+    },
+    {
+     "name": "Booysens",
+     "municipality": "City of Tshwane",
+     "signal": null,
+     "angle": null,
+     "priority": null,
+     "stats": null
+    },
+    {
+     "name": "West Park",
+     "municipality": "City of Tshwane",
+     "signal": null,
+     "angle": null,
+     "priority": null,
+     "stats": null
+    },
+    {
+     "name": "Suiderberg",
+     "municipality": "City of Tshwane",
+     "signal": null,
+     "angle": null,
+     "priority": null,
+     "stats": null
+    },
+    {
+     "name": "Atteridgeville",
+     "municipality": "City of Tshwane",
+     "signal": null,
+     "angle": null,
+     "priority": null,
+     "stats": null
+    }
+   ]
+  },
+  {
+   "slug": "southern-suburbs",
+   "name": "Southern Suburbs",
+   "sort": 6,
+   "suburbs": [
+    {
+     "name": "Salvokop",
+     "municipality": "City of Tshwane",
+     "signal": null,
+     "angle": null,
+     "priority": null,
+     "stats": null
+    },
+    {
+     "name": "Erasmia",
+     "municipality": "City of Tshwane",
+     "signal": null,
+     "angle": null,
+     "priority": null,
+     "stats": null
+    },
+    {
+     "name": "Laudium",
+     "municipality": "City of Tshwane",
+     "signal": null,
+     "angle": null,
+     "priority": null,
+     "stats": null
+    },
+    {
+     "name": "Elardus Park",
+     "municipality": "City of Tshwane",
+     "signal": null,
+     "angle": null,
+     "priority": null,
+     "stats": null
+    },
+    {
+     "name": "Erasmusrand",
+     "municipality": "City of Tshwane",
+     "signal": null,
+     "angle": null,
+     "priority": null,
+     "stats": null
+    }
+   ]
+  },
+  {
+   "slug": "centurion",
+   "name": "Centurion",
+   "sort": 7,
+   "suburbs": [
+    {
+     "name": "Centurion Central",
+     "municipality": "City of Tshwane",
+     "signal": null,
+     "angle": null,
+     "priority": null,
+     "stats": null
+    },
+    {
+     "name": "Eldoraigne",
+     "municipality": "City of Tshwane",
+     "signal": null,
+     "angle": null,
+     "priority": null,
+     "stats": null
+    },
+    {
+     "name": "Wierda Park",
+     "municipality": "City of Tshwane",
+     "signal": null,
+     "angle": null,
+     "priority": null,
+     "stats": null
+    },
+    {
+     "name": "Rooihuiskraal",
+     "municipality": "City of Tshwane",
+     "signal": null,
+     "angle": null,
+     "priority": null,
+     "stats": null
+    },
+    {
+     "name": "Die Hoewes",
+     "municipality": "City of Tshwane",
+     "signal": null,
+     "angle": null,
+     "priority": null,
+     "stats": null
+    },
+    {
+     "name": "Highveld",
+     "municipality": "City of Tshwane",
+     "signal": null,
+     "angle": null,
+     "priority": null,
+     "stats": null
+    },
+    {
+     "name": "Lyttelton",
+     "municipality": "City of Tshwane",
+     "signal": null,
+     "angle": null,
+     "priority": null,
+     "stats": null
+    },
+    {
+     "name": "Clubview",
+     "municipality": "City of Tshwane",
+     "signal": null,
+     "angle": null,
+     "priority": null,
+     "stats": null
+    },
+    {
+     "name": "Zwartkop",
+     "municipality": "City of Tshwane",
+     "signal": null,
+     "angle": null,
+     "priority": null,
+     "stats": null
+    },
+    {
+     "name": "Doringkloof",
+     "municipality": "City of Tshwane",
+     "signal": null,
+     "angle": null,
+     "priority": null,
+     "stats": null
+    },
+    {
+     "name": "Pierre van Ryneveld",
+     "municipality": "City of Tshwane",
+     "signal": null,
+     "angle": null,
+     "priority": null,
+     "stats": null
+    },
+    {
+     "name": "Irene",
+     "municipality": "City of Tshwane",
+     "signal": null,
+     "angle": null,
+     "priority": null,
+     "stats": null
+    },
+    {
+     "name": "Cornwall Hill",
+     "municipality": "City of Tshwane",
+     "signal": null,
+     "angle": null,
+     "priority": null,
+     "stats": null
+    },
+    {
+     "name": "Bronberrik",
+     "municipality": "City of Tshwane",
+     "signal": null,
+     "angle": null,
+     "priority": null,
+     "stats": null
+    },
+    {
+     "name": "Amberfield",
+     "municipality": "City of Tshwane",
+     "signal": null,
+     "angle": null,
+     "priority": null,
+     "stats": null
+    },
+    {
+     "name": "Heuweloord",
+     "municipality": "City of Tshwane",
+     "signal": null,
+     "angle": null,
+     "priority": null,
+     "stats": null
+    },
+    {
+     "name": "Kosmosdal",
+     "municipality": "City of Tshwane",
+     "signal": null,
+     "angle": null,
+     "priority": null,
+     "stats": null
+    },
+    {
+     "name": "Sunderland Ridge",
+     "municipality": "City of Tshwane",
+     "signal": null,
+     "angle": null,
+     "priority": null,
+     "stats": null
+    }
+   ]
+  }
+ ]
+}

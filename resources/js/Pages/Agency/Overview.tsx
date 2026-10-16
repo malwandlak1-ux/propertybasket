@@ -163,7 +163,7 @@ export default function Overview({ agency, kpis, revenue, top_performers, team_h
                 {/* KPI grid — first tile is the accent hero */}
                 <div className="grid grid-cols-2 xl:grid-cols-4 gap-4 mb-4">
                     <KpiCard hero label="YTD Revenue" value={fmtMoney(kpis.ytd_revenue)} sub="Commission earned this year" href="/agency/reports" />
-                    <KpiCard label="Active Deals" value={kpis.active_deals} sub={fmtMoney(kpis.pipeline_value) + ' pipeline value'} href="/agency/pipeline" />
+                    <KpiCard label="Active Deals" value={kpis.active_deals} sub={fmtMoney(kpis.pipeline_value) + ' pipeline value'} href="/agency/crm/pipeline" />
                     <KpiCard
                         label="Due to Agents"
                         value={fmtMoney(kpis.due_to_agents)}

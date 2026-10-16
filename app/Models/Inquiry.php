@@ -9,7 +9,7 @@ class Inquiry extends Model
 {
     protected $fillable = [
         'listing_id', 'listing_unit_id',
-        'name', 'email', 'phone', 'message', 'user_id',
+        'name', 'email', 'phone', 'message', 'deal_value', 'user_id',
         'assigned_to', 'source', 'status',
         'allocated_at', 'allocation_method', 'viewing_scheduled_at',
     ];

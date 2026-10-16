@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Head, router, usePage } from '@inertiajs/react';
 import AgentLayout from '@/Layouts/AgentLayout';
+import CrmTabs from '@/Components/Crm/CrmTabs';
 import NewLeadModal from '@/Components/NewLeadModal';
 import LeadDetailsModal from '@/Components/LeadDetailsModal';
 
@@ -197,7 +198,7 @@ export default function AgentPipeline({ agent, columns: initialColumns, listings
         setColumns(initialColumns);
     }, [initialColumns]);
 
-    // Auto-open "New Lead" modal from Overview → /agent/pipeline?new=1
+    // Auto-open "New Lead" modal from Overview → /agent/crm/pipeline?new=1
     useEffect(() => {
         if (typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('new') === '1') {
             setNewLeadOpen({ open: true, stage: 'new' });
@@ -312,7 +313,7 @@ export default function AgentPipeline({ agent, columns: initialColumns, listings
     }
 
     return (
-        <AgentLayout crumb="Pipeline" agencyName={agent.agency_name}>
+        <AgentLayout crumb="CRM · Pipeline" agencyName={agent.agency_name}>
             <Head title="Sales Pipeline" />
 
             <div className="px-4 sm:px-8 py-6 sm:py-7">
@@ -328,6 +329,8 @@ export default function AgentPipeline({ agent, columns: initialColumns, listings
                         {flash.error}
                     </div>
                 )}
+
+                <CrmTabs base="/agent/crm" active="pipeline" />
 
                 {/* Header */}
                 <div className="flex flex-wrap items-center justify-between gap-3 mb-6">

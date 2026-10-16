@@ -116,7 +116,7 @@ export default function AgentOverview({
                                 <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2}><path d="M12 5v14M5 12h14" /></svg>
                                 Create Listing
                             </Link>
-                            <Link href="/agent/pipeline?new=1" className={btnOutline}>
+                            <Link href="/agent/crm/pipeline?new=1" className={btnOutline}>
                                 <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M19 8v6M22 11h-6" /></svg>
                                 New Lead
                             </Link>
@@ -127,7 +127,7 @@ export default function AgentOverview({
                 {/* KPI row — first tile is the accent hero */}
                 <div className="grid grid-cols-2 xl:grid-cols-4 gap-4 mb-4">
                     <KpiCard hero label="Active Listings" value={kpis.active_listings} sub="+2 this week" href="/agent/listings" />
-                    <KpiCard label="Open Leads" value={kpis.open_leads} sub="Active pipeline" href="/agent/pipeline" />
+                    <KpiCard label="Open Leads" value={kpis.open_leads} sub="Active pipeline" href="/agent/crm/pipeline" />
                     <KpiCard label="YTD Commission" value={fmtMoney(kpis.ytd_commission)} sub="Year to date" href="/agent/commission" />
                     <KpiCard label="Conversion Rate" value={kpis.conversion_rate + '%'} sub="Lead-to-close ratio" href="/agent/analytics" />
                 </div>
@@ -138,7 +138,7 @@ export default function AgentOverview({
                         className="xl:col-span-6"
                         title="Pipeline Analytics"
                         subtitle={`${totalDeals} active deals · ${fmtMoney(pipeline_stats.total_value)} potential value`}
-                        action={<Link href="/agent/pipeline" className="text-[12px] font-semibold text-brand-700 hover:underline">View pipeline →</Link>}
+                        action={<Link href="/agent/crm/pipeline" className="text-[12px] font-semibold text-brand-700 hover:underline">View pipeline →</Link>}
                     >
                         <ErrorBoundary variant="section" label="pipeline chart">
                             <PillBars
@@ -184,7 +184,7 @@ export default function AgentOverview({
                         className="xl:col-span-3 xl:row-span-2"
                         title="Hot Leads"
                         action={
-                            <Link href="/agent/pipeline?new=1" className="inline-flex items-center gap-1 rounded-full border border-ink-900/70 px-3 py-1 text-[12px] font-semibold hover:bg-ink-900 hover:text-white transition">
+                            <Link href="/agent/crm/pipeline?new=1" className="inline-flex items-center gap-1 rounded-full border border-ink-900/70 px-3 py-1 text-[12px] font-semibold hover:bg-ink-900 hover:text-white transition">
                                 <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5}><path d="M12 5v14M5 12h14" /></svg>New
                             </Link>
                         }

@@ -1,7 +1,7 @@
 import { Link, router } from '@inertiajs/react';
 import { selectCls } from '@/Components/Dashboard/Charts';
 
-type Tab = 'overview' | 'farming' | 'pipeline';
+type Tab = 'overview' | 'farming' | 'pipeline' | 'whatsapp';
 
 /**
  * CRM section tabs: Overview (outreach stats) · Farming · Pipeline.
@@ -24,6 +24,7 @@ export default function CrmTabs({ base, active, agents, agentId, agentParam = 'a
         { key: 'overview', label: 'Overview', href: `${base}${q('overview')}` },
         { key: 'farming', label: 'Farming', href: `${base}/farming${q('farming')}` },
         { key: 'pipeline', label: 'Pipeline', href: `${base}/pipeline${q('pipeline')}` },
+        { key: 'whatsapp', label: 'WhatsApp', href: `${base}/whatsapp${q('whatsapp')}` },
     ];
 
     function pickAgent(id: string) {

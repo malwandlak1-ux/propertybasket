@@ -137,7 +137,7 @@ class CrmController extends Controller
         $scheme->prospects()->create([
             'agency_id' => $scheme->agency_id,
             'agent_id'  => $scheme->agent_id,
-        ] + $this->withContactDate($data));
+        ] + $this->withOptIn($this->withContactDate($data)));
 
         return back()->with('success', 'Prospect added.');
     }
@@ -145,7 +145,7 @@ class CrmController extends Controller
     public function updateProspect(Request $request, CrmProspect $prospect): RedirectResponse
     {
         $this->own($request, $prospect->agent_id);
-        $prospect->update($this->withContactDate($this->validateProspect($request), $prospect));
+        $prospect->update($this->withOptIn($this->withContactDate($this->validateProspect($request), $prospect), $prospect));
 
         return back()->with('success', 'Prospect saved.');
     }
@@ -424,7 +424,27 @@ class CrmController extends Controller
             'response'      => ['nullable', 'string', 'max:500'],
             'next_action'   => ['nullable', 'string', 'max:500'],
             'notes'         => ['nullable', 'string', 'max:5000'],
+            'wa_opt_in'     => ['nullable', 'boolean'],
         ]);
+    }
+
+    /** The "agreed to WhatsApp messages" tick → opt-in timestamp. */
+    private function withOptIn(array $data, ?CrmProspect $existing = null): array
+    {
+        if (array_key_exists('wa_opt_in', $data)) {
+            $on = (bool) $data['wa_opt_in'];
+            if ($on && ! $existing?->wa_opt_in_at) {
+                $data['wa_opt_in_at'] = now();
+                $data['wa_opt_in_source'] = 'agent';
+                $data['wa_opted_out_at'] = null;
+            } elseif (! $on) {
+                $data['wa_opt_in_at'] = null;
+                $data['wa_opt_in_source'] = null;
+            }
+        }
+        unset($data['wa_opt_in']);
+
+        return $data;
     }
 
     /** Stamp the first-contact date when a prospect leaves "Not contacted". */

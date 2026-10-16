@@ -17,3 +17,7 @@ Schedule::command('rent:generate')->dailyAt('00:05');
 
 // Hourly: collect rent on active debit orders whose debit date has arrived.
 Schedule::command('debit:collect')->hourly();
+
+// Every minute: send queued CRM WhatsApp campaign messages (throttled; only
+// inside the send window). Also runs after web requests if no cron is set up.
+Schedule::command('whatsapp:dispatch')->everyMinute()->withoutOverlapping();

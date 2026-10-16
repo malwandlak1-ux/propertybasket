@@ -41,6 +41,7 @@ export default function ProspectDrawer({ prospect, scheme, suburb, history, edit
         response: prospect?.response ?? '',
         next_action: prospect?.next_action ?? '',
         notes: prospect?.notes ?? '',
+        wa_opt_in: !!prospect?.wa_opt_in_at,
     });
 
     useEffect(() => {
@@ -160,6 +161,18 @@ export default function ProspectDrawer({ prospect, scheme, suburb, history, edit
                         </div>
                         {field('response', 'Response')}
                         {field('next_action', 'Next action')}
+                        {prospect?.wa_opted_out_at ? (
+                            <p className="rounded-xl bg-danger/10 border border-danger/30 text-danger text-[12.5px] px-3.5 py-2.5">
+                                Replied STOP on WhatsApp ({prospect.wa_opted_out_at}). Campaigns skip this owner. Ticking the box below opts them back in.
+                            </p>
+                        ) : null}
+                        <label className={`flex items-start gap-2.5 rounded-xl border border-ink-200 px-3.5 py-2.5 ${ro ? '' : 'cursor-pointer'}`}>
+                            <input type="checkbox" disabled={ro} checked={form.data.wa_opt_in} onChange={(e) => form.setData('wa_opt_in', e.target.checked)} className="mt-0.5 rounded border-ink-300" />
+                            <span className="text-[12.5px]">
+                                <b>Agreed to WhatsApp messages</b>
+                                <span className="block text-ink-500">{prospect?.wa_opt_in_at ? `Since ${prospect.wa_opt_in_at}` : 'Tick when the owner says yes to WhatsApp updates.'}</span>
+                            </span>
+                        </label>
                         <div>
                             <label className={label}>Notes</label>
                             <textarea value={form.data.notes} readOnly={ro} onChange={(e) => form.setData('notes', e.target.value)} rows={3} className={input + ' resize-y'} />

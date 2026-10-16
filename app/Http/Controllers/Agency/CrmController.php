@@ -7,6 +7,9 @@ use App\Http\Controllers\Agent\CrmController as AgentCrm;
 use App\Http\Controllers\Controller;
 use App\Models\Agency;
 use App\Models\CrmScheme;
+use App\Models\WaCampaign;
+use App\Models\WhatsAppAccount;
+use App\Services\WhatsApp\WhatsAppService;
 use App\Services\CrmService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -53,6 +56,52 @@ class CrmController extends Controller
             'agents'   => $agents->map(fn ($a) => ['id' => $a->id, 'name' => $a->name])->values(),
             'agent_id' => $agentId,
             'farm'     => $this->crm->farming($agency->id, $ids, $q['region'] ?? null, $q['suburb'] ?? null, $q['scheme'] ?? null),
+        ]);
+    }
+
+    /** Every agent's WhatsApp number health and campaign results (view only). */
+    public function whatsapp(Request $request, WhatsAppService $wa): Response
+    {
+        $agency = $this->resolveAgency($request);
+        [$agents, $agentId, $ids] = $this->scope($request, $agency);
+
+        $accounts = WhatsAppAccount::where('agency_id', $agency->id)->whereIn('agent_id', $ids)->get()->keyBy('agent_id');
+        $campaigns = WaCampaign::where('agency_id', $agency->id)->whereIn('agent_id', $ids)
+            ->with('agent:id,name')->latest()->limit(100)->get();
+        $stats = $wa->stats($campaigns->pluck('id')->all());
+
+        return Inertia::render('Agency/Crm/WhatsApp', [
+            'agency'    => ['id' => $agency->id, 'name' => $agency->name],
+            'agents'    => $agents->map(fn ($a) => ['id' => $a->id, 'name' => $a->name])->values(),
+            'agent_id'  => $agentId,
+            'numbers'   => $agents->whereIn('id', $ids)->values()->map(function ($a) use ($accounts) {
+                $acc = $accounts->get($a->id);
+
+                return [
+                    'agent'   => $a->name,
+                    'phone'   => $acc?->display_phone,
+                    'status'  => $acc?->status ?? 'not_connected',
+                    'quality' => $acc?->quality_rating,
+                    'limit'   => $acc ? min($acc->dailyLimit(), 1_000_000) : null,
+                ];
+            }),
+            'campaigns' => $campaigns->map(function (WaCampaign $c) use ($stats) {
+                $s = $stats[$c->id] ?? [];
+
+                return [
+                    'id'        => $c->id,
+                    'name'      => $c->name,
+                    'agent'     => $c->agent?->name,
+                    'status'    => $c->status,
+                    'total'     => $c->total,
+                    'sent'      => ($s['sent'] ?? 0) + ($s['delivered'] ?? 0) + ($s['read'] ?? 0),
+                    'delivered' => ($s['delivered'] ?? 0) + ($s['read'] ?? 0),
+                    'read'      => $s['read'] ?? 0,
+                    'replied'   => $s['replied'] ?? 0,
+                    'failed'    => $s['failed'] ?? 0,
+                    'created_at'=> $c->created_at?->format('d M Y'),
+                ];
+            }),
         ]);
     }
 

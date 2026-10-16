@@ -353,6 +353,7 @@ function SchemeLevel({ farm, base, editable, profile }: { farm: Extract<Farm, { 
                 actions={<>
                     {editable && <button type="button" onClick={() => setEditing(true)} className={btnOutline}>Edit scheme</button>}
                     {editable && <button type="button" onClick={() => setImporting(true)} className={btnOutline}>⬆ Import owners</button>}
+                    {editable && total > 0 && <Link href={`/agent/crm/whatsapp/campaigns/new?scheme=${scheme.id}`} className={btnOutline}>WhatsApp campaign</Link>}
                     <a href={exportUrl} className={btnOutline}>⬇ Export CSV</a>
                     {editable && <button type="button" onClick={() => setOpenId('new')} className={btnPrimary}>+ Add prospect</button>}
                 </>}
@@ -415,6 +416,8 @@ function SchemeLevel({ farm, base, editable, profile }: { farm: Extract<Farm, { 
                                         {p.multi_unit && !/^no$/i.test(p.multi_unit) && <span className="block text-[11.5px] text-ink-500">{p.multi_unit}</span>}
                                         {p.priority_note && !/standard/i.test(p.priority_note) && <span className="block text-[11px] font-semibold text-brand-700 truncate">{p.priority_note}</span>}
                                         {p.inquiry_id && <span className="inline-block mt-0.5 text-[10px] font-bold px-1.5 py-0.5 rounded bg-violet-100 text-violet-700">PIPELINE</span>}
+                                        {p.wa_opt_in_at && !p.wa_opted_out_at && <span className="inline-block mt-0.5 ml-1 text-[10px] font-bold px-1.5 py-0.5 rounded bg-success/15 text-success">WA OPT-IN</span>}
+                                        {p.wa_opted_out_at && <span className="inline-block mt-0.5 ml-1 text-[10px] font-bold px-1.5 py-0.5 rounded bg-danger/10 text-danger">WA STOP</span>}
                                     </td>
                                     <td className="py-3 px-3">
                                         {p.owner_type && <span className={`text-[11px] font-bold px-2 py-0.5 rounded-md ${isCompany(p.owner_type) ? 'bg-violet-100 text-violet-800' : 'bg-sky-100 text-sky-800'}`}>{p.owner_type}</span>}

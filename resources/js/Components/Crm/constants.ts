@@ -70,6 +70,7 @@ export type Prospect = {
     email: string | null; priority_note: string | null; status: StatusKey; method: ChannelKey | null;
     contacted_on: string | null; est_value: number | null; response: string | null; next_action: string | null;
     notes: string | null; inquiry_id: number | null; agent: string | null;
+    wa_opt_in_at: string | null; wa_opted_out_at: string | null;
 };
 
 export type Scheme = {

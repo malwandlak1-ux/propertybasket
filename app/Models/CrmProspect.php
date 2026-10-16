@@ -14,7 +14,7 @@ class CrmProspect extends Model
         'unit', 'size', 'owner_name', 'owner_type', 'id_reg', 'multi_unit',
         'phone1', 'phone2', 'email', 'priority_note',
         'status', 'method', 'contacted_on', 'est_value', 'response', 'next_action', 'notes',
-        'inquiry_id',
+        'inquiry_id', 'wa_opt_in_at', 'wa_opt_in_source', 'wa_opted_out_at',
     ];
 
     protected function casts(): array
@@ -22,6 +22,8 @@ class CrmProspect extends Model
         return [
             'contacted_on' => 'date',
             'est_value'    => 'decimal:2',
+            'wa_opt_in_at' => 'datetime',
+            'wa_opted_out_at' => 'datetime',
         ];
     }
 

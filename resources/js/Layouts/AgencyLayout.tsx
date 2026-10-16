@@ -120,7 +120,7 @@ export default function AgencyLayout({ children, crumb = 'Dashboard', agencyName
 
     const workspace: NavItem[] = [
         { label: 'Dashboard', href: '/agency', icon: ICON_DASHBOARD },
-        { label: 'Pipeline', href: '/agency/pipeline', icon: ICON_PIPELINE },
+        { label: 'CRM', href: '/agency/crm', icon: ICON_PIPELINE },
         { label: 'Listings & Leads', href: '/agency/listings', icon: ICON_LISTINGS },
         { label: 'Team Messages', href: '/agency/messages', icon: ICON_MESSAGES },
         { label: 'Maintenance', href: '/agency/maintenance', icon: ICON_MAINTENANCE },

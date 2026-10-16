@@ -175,6 +175,10 @@ class PipelineController extends Controller
             default           => 0,
         } : 0.0;
 
+        if (! $listing && $inq->deal_value) {
+            $dv = (float) $inq->deal_value;
+        }
+
         $isHot = in_array($inq->status, ['qualified', 'offer']) && $dv >= 1_000_000;
 
         return [
@@ -184,7 +188,7 @@ class PipelineController extends Controller
             'phone'         => $inq->phone,
             'message'       => $inq->message,
             'listing_id'    => $listing?->id,
-            'listing_title' => $listing?->title,
+            'listing_title' => $listing?->title ?? ($inq->source === 'farming' ? 'Seller lead · farming' : null),
             'listing_type'  => $listing?->listing_type,
             'listing_slug'  => $listing?->slug,
             'deal_value'    => $dv,

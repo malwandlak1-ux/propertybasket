@@ -88,16 +88,29 @@ export const AGENCY_GUIDES: Guide[] = [
         link: { label: 'Open Listings & Leads', href: '/agency/listings' },
     },
     {
+        id: 'crm',
+        category: 'Listings & leads',
+        title: 'Follow your agents’ outreach in the CRM',
+        summary: 'Calls, WhatsApps, SMSes, emails and farming progress per agent.',
+        steps: [
+            'Go to CRM. The Overview shows outreach across all agents for the last 7, 30 or 90 days.',
+            'Agent outreach at the bottom compares each agent’s calls, WhatsApps, SMSes, emails, conversations, appraisals and deals sent to the pipeline.',
+            'Use the All agents menu (or click an agent’s name) to see one agent only.',
+            'The Farming tab shows every agent’s suburbs, schemes and owner lists. The CRM is view-only for the agency; agents keep their own records up to date.',
+        ],
+        link: { label: 'Open CRM', href: '/agency/crm' },
+    },
+    {
         id: 'pipeline',
         category: 'Listings & leads',
         title: 'Track deals and register a sale',
         summary: 'See every agent’s deals in one pipeline.',
         steps: [
-            'Go to Pipeline. Deals move from New Lead through Qualified, Viewing and Offer to Closed.',
+            'Go to CRM → Pipeline. Deals move from New Lead through Qualified, Viewing and Offer to Closed.',
             'Filter by agent or by sales/rentals with the dropdowns at the top.',
             'When a deal is closed, click Register deal on its card. This finalises the deal and queues the agent’s commission.',
         ],
-        link: { label: 'Open Pipeline', href: '/agency/pipeline' },
+        link: { label: 'Open Pipeline', href: '/agency/crm/pipeline' },
     },
 
     // ── People ─────────────────────────────────────────────────────────

@@ -155,13 +155,17 @@ class PipelineController extends Controller
             };
         }
 
+        if (! $listing && $inq->deal_value) {
+            $dealValue = (float) $inq->deal_value;
+        }
+
         $isHot = in_array($inq->status, ['qualified', 'offer'], true)
             && $dealValue >= 1_000_000;
 
         return [
             'id' => $inq->id,
             'visitor_name' => $inq->name,
-            'listing_title' => $listing?->title,
+            'listing_title' => $listing?->title ?? ($inq->source === 'farming' ? 'Seller lead · farming' : null),
             'listing_slug' => $listing?->slug,
             'listing_type' => $listing?->listing_type,
             'deal_value' => $dealValue,

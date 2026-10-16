@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Head, router, usePage } from '@inertiajs/react';
 import AgencyLayout from '@/Layouts/AgencyLayout';
 import { FlashBanners, PageHeader, SummaryStrip, selectCls } from '@/Components/Dashboard/Charts';
+import CrmTabs from '@/Components/Crm/CrmTabs';
 
 type Card = {
     id: number;
@@ -82,11 +83,11 @@ export default function Pipeline({ agency, columns, total_pipeline_value, agents
         Object.entries(next).forEach(([k, v]) => {
             if (v && v !== '' && !(k === 'deal_type' && v === 'all')) payload[k] = v;
         });
-        router.get('/agency/pipeline', payload, { preserveState: true, preserveScroll: true });
+        router.get('/agency/crm/pipeline', payload, { preserveState: true, preserveScroll: true });
     }
 
     return (
-        <AgencyLayout agencyName={agency.name} crumb="Pipeline">
+        <AgencyLayout agencyName={agency.name} crumb="CRM · Pipeline">
             <Head title="Pipeline" />
             <section className="px-4 sm:px-7 py-6">
                 <PageHeader
@@ -117,6 +118,7 @@ export default function Pipeline({ agency, columns, total_pipeline_value, agents
                     </>}
                 />
 
+                <CrmTabs base="/agency/crm" active="pipeline" agentId={filters.agent_id ? Number(filters.agent_id) : null} />
                 <FlashBanners flash={flash} />
 
                 <SummaryStrip

@@ -367,6 +367,8 @@ class CrmService
             'next_action'   => $p->next_action,
             'notes'         => $p->notes,
             'inquiry_id'    => $p->inquiry_id,
+            'wa_opt_in_at'  => $p->wa_opt_in_at?->format('d M Y'),
+            'wa_opted_out_at' => $p->wa_opted_out_at?->format('d M Y'),
             'agent'         => $p->agent?->name,
         ];
     }

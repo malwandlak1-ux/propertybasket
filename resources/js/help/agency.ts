@@ -101,6 +101,18 @@ export const AGENCY_GUIDES: Guide[] = [
         link: { label: 'Open CRM', href: '/agency/crm' },
     },
     {
+        id: 'whatsapp',
+        category: 'Listings & leads',
+        title: 'See your agents’ WhatsApp campaigns',
+        summary: 'Each agent connects and pays for their own WhatsApp Business number.',
+        steps: [
+            'Go to CRM → WhatsApp. Agent numbers shows who has connected WhatsApp and Meta’s quality rating for each number.',
+            'Campaigns lists every bulk send with messages sent, read, replies and failures. Use All agents to look at one agent.',
+            'Agents set up, send and pay for their own campaigns; this view is read-only for the agency.',
+        ],
+        link: { label: 'Open WhatsApp', href: '/agency/crm/whatsapp' },
+    },
+    {
         id: 'pipeline',
         category: 'Listings & leads',
         title: 'Track deals and register a sale',

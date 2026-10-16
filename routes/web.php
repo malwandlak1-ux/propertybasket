@@ -159,6 +159,7 @@ Route::middleware('auth')->group(function () {
         Route::get('crm/farming',  [\App\Http\Controllers\Agency\CrmController::class, 'farming'])->name('crm.farming');
         Route::get('crm/schemes/{scheme}/export', [\App\Http\Controllers\Agency\CrmController::class, 'exportProspects'])->name('crm.schemes.export');
         Route::get('crm/pipeline', [\App\Http\Controllers\Agency\PipelineController::class, 'index'])->name('pipeline.index');
+        Route::get('crm/whatsapp', [\App\Http\Controllers\Agency\CrmController::class, 'whatsapp'])->name('crm.whatsapp');
         Route::redirect('pipeline', '/agency/crm/pipeline')->name('pipeline.legacy');
         Route::post('pipeline/leads/{inquiry}/register', [\App\Http\Controllers\Agency\PipelineController::class, 'register'])->name('pipeline.leads.register');
 
@@ -202,6 +203,20 @@ Route::middleware('auth')->group(function () {
         Route::post('crm/activities', [Agent\CrmController::class, 'storeActivity'])->name('crm.activities.store');
         Route::delete('crm/activities/{activity}', [Agent\CrmController::class, 'destroyActivity'])->name('crm.activities.destroy');
         Route::get('crm/pipeline', [Agent\PipelineController::class, 'index'])->name('pipeline.index');
+        // CRM → WhatsApp: the agent's own WhatsApp Business (Cloud API) number.
+        Route::get('crm/whatsapp', [Agent\WhatsAppController::class, 'index'])->name('crm.whatsapp');
+        Route::post('crm/whatsapp/account', [Agent\WhatsAppController::class, 'connect'])->name('crm.whatsapp.connect');
+        Route::delete('crm/whatsapp/account', [Agent\WhatsAppController::class, 'disconnect'])->name('crm.whatsapp.disconnect');
+        Route::post('crm/whatsapp/templates/sync', [Agent\WhatsAppController::class, 'syncTemplates'])->name('crm.whatsapp.templates.sync');
+        Route::post('crm/whatsapp/templates', [Agent\WhatsAppController::class, 'storeTemplate'])->name('crm.whatsapp.templates.store');
+        Route::get('crm/whatsapp/campaigns/new', [Agent\WhatsAppController::class, 'createCampaign'])->name('crm.whatsapp.campaigns.create');
+        Route::post('crm/whatsapp/campaigns', [Agent\WhatsAppController::class, 'storeCampaign'])->name('crm.whatsapp.campaigns.store');
+        Route::get('crm/whatsapp/campaigns/{campaign}', [Agent\WhatsAppController::class, 'showCampaign'])->name('crm.whatsapp.campaigns.show');
+        Route::post('crm/whatsapp/campaigns/{campaign}/pause', [Agent\WhatsAppController::class, 'pauseCampaign'])->name('crm.whatsapp.campaigns.pause');
+        Route::post('crm/whatsapp/campaigns/{campaign}/resume', [Agent\WhatsAppController::class, 'resumeCampaign'])->name('crm.whatsapp.campaigns.resume');
+        Route::post('crm/whatsapp/campaigns/{campaign}/cancel', [Agent\WhatsAppController::class, 'cancelCampaign'])->name('crm.whatsapp.campaigns.cancel');
+        Route::get('crm/whatsapp/chat', [Agent\WhatsAppController::class, 'chat'])->name('crm.whatsapp.chat');
+        Route::post('crm/whatsapp/chat', [Agent\WhatsAppController::class, 'reply'])->name('crm.whatsapp.reply');
         Route::redirect('pipeline', '/agent/crm/pipeline')->name('pipeline.legacy');
         Route::post('pipeline/leads', [Agent\PipelineController::class, 'storeLead'])->name('pipeline.leads.store');
         Route::patch('pipeline/leads/{inquiry}/status', [Agent\PipelineController::class, 'updateLeadStatus'])->name('pipeline.leads.status');

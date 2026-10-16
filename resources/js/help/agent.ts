@@ -94,6 +94,24 @@ export const AGENT_GUIDES: Guide[] = [
         link: { label: 'Open CRM', href: '/agent/crm' },
     },
     {
+        id: 'whatsapp',
+        category: 'CRM',
+        title: 'Send bulk WhatsApp messages safely',
+        summary: 'Your own WhatsApp Business number via Meta’s official Cloud API.',
+        steps: [
+            'Go to CRM → WhatsApp and follow the 7 set-up steps: a Meta business, a Meta app with WhatsApp, your business number, a permanent token and the App secret. Then click Connect.',
+            'Copy the Callback URL and Verify token shown into Meta → WhatsApp → Configuration → Webhook, and subscribe to messages. This brings in delivered/read ticks and replies.',
+            'Click + New template (a value-report message is pre-filled) and submit it. Meta must approve it before you can use it.',
+            'Click + New campaign: pick schemes and statuses, map each blank (owner name, suburb, your name…), check the preview, then Send or Schedule.',
+            'Replies arrive under Replies. You can answer freely for 24 hours after an owner writes. Owners who reply STOP are never messaged again.',
+        ],
+        tips: [
+            'Meta bills your own WhatsApp account per delivered message. If the balance runs out, the campaign pauses and tells you; top up in WhatsApp Manager and press Resume.',
+            'To protect your number: messages only go out 08:00–19:00, never to the same number twice in 30 days, and sending pauses if Meta lowers your quality rating. Tick “Agreed to WhatsApp messages” on owners who say yes.',
+        ],
+        link: { label: 'Open WhatsApp', href: '/agent/crm/whatsapp' },
+    },
+    {
         id: 'pipeline',
         category: 'CRM',
         title: 'Work your leads in the pipeline',

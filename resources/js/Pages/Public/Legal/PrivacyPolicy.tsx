@@ -67,6 +67,7 @@ export default function PrivacyPolicy({ meta }: Props) {
                 <li>From an agency or landlord who invites you to the platform (e.g. tenant onboarding)</li>
                 <li>From third-party services we integrate with, such as Paystack (payment authorisation tokens) and the Hostinger infrastructure that hosts the platform</li>
                 <li>Automatically through standard web logs and analytics cookies</li>
+                <li>From the WhatsApp Business Platform (Meta) when you message, or reply to, an agent who contacts you over WhatsApp — your WhatsApp number, profile name, message content and delivery/read status</li>
             </ul>
 
             <h2>4. Why we collect it (lawful purposes)</h2>
@@ -81,14 +82,19 @@ export default function PrivacyPolicy({ meta }: Props) {
             <p>We do not sell your personal information. We share specific information only as needed:</p>
             <ul>
                 <li><strong>Other users you transact with</strong> — for example, your name and contact details when you inquire about a listing</li>
-                <li><strong>Service providers ("Operators" under POPIA)</strong> — payment processing (Paystack), email delivery, file storage (Hostinger), error monitoring. They process your data only on our instructions and under written contract.</li>
+                <li><strong>Service providers ("Operators" under POPIA)</strong> — payment processing (Paystack), WhatsApp messaging (Meta Platforms, via the WhatsApp Business Platform Cloud API), email delivery, file storage (Hostinger), error monitoring. They process your data only on our instructions and under written contract.</li>
                 <li><strong>Regulators and law-enforcement</strong> — where required by court order or applicable law</li>
                 <li><strong>In a business sale or merger</strong> — your information may transfer with the business; you'll be notified before any change of Responsible Party</li>
             </ul>
 
             <h2>6. Cross-border transfers</h2>
             <p>
-                Our primary hosting is provided by Hostinger International with infrastructure in Europe. POPIA permits cross-border transfers where the receiving country provides adequate protection or where you have consented. By using the platform you consent to this transfer.
+                Our primary hosting is provided by Hostinger International with infrastructure in Europe. POPIA permits cross-border transfers where the receiving country provides adequate protection or where you have consented. WhatsApp messages sent through the platform are processed by Meta Platforms on servers outside South Africa under the WhatsApp Business terms. By using the platform you consent to these transfers.
+            </p>
+
+            <h3>WhatsApp messages</h3>
+            <p>
+                Agents on the platform may contact you on WhatsApp — for example about a property you enquired about or a listing in your area — using their own WhatsApp Business number. We store the messages sent, your number and the delivery status so the agent can manage the conversation. You can stop these messages at any time by replying <strong>STOP</strong> or asking the agent to remove you; we then mark your number as opted out and no further marketing messages are sent to it.
             </p>
 
             <h2>7. How long we keep it</h2>

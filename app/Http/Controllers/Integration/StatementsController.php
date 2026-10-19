@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Landlord;
 use App\Models\Lease;
 use App\Models\Listing;
+use App\Services\FacilityLedgerService;
 use App\Services\LandlordStatementService;
 use App\Services\PdfService;
 use App\Services\TenantStatementService;
@@ -199,6 +200,104 @@ class StatementsController extends Controller
         $month = $this->month($request);
 
         return $pdf->tenantStatement($lease, $month, download: true, range: $month ? null : $this->range($request, 'lease'));
+    }
+
+    // ── Facility operations (separate from rent + maintenance) ─────────
+
+    /** GET /operations — operating expenses and other income, with totals and lines. */
+    public function operations(Request $request, FacilityLedgerService $ledger): JsonResponse
+    {
+        $landlord = $this->landlord($request);
+        [$from, $to, $label] = $this->opsPeriod($request, $landlord, $ledger);
+        $property = $this->opsProperty($request, $landlord);
+        $type = $this->opsType($request);
+
+        $all = $ledger->entries($landlord, $from, $to, $property);
+        $summary = $ledger->summary($all, $from, $to);
+        $lines = ($type ? $all->where('type', $type) : $all)->values();
+
+        return response()->json([
+            'data' => [
+                'landlord'             => $landlord->user?->name,
+                'property'             => $property,
+                'period'               => ['from' => $from->toDateString(), 'to' => $to->toDateString(), 'label' => $label],
+                'currency'             => 'ZAR',
+                'note'                 => 'Facility operations only. Rent and maintenance are reported separately under /statements/owner.',
+                'totals'               => $summary['totals'],
+                'expenses_by_category' => $summary['expenses_by_category'],
+                'income_by_category'   => $summary['income_by_category'],
+                'lines'                => $lines->map(fn ($e) => collect($ledger->line($e))->except(['has_attachment', 'attachment_name'])->all()),
+            ],
+        ]);
+    }
+
+    /** GET /operations/monthly — one row per month: other income, expenses, net. */
+    public function operationsMonthly(Request $request, FacilityLedgerService $ledger): JsonResponse
+    {
+        $landlord = $this->landlord($request);
+        [$from, $to] = $this->opsPeriod($request, $landlord, $ledger, 'all');
+        $property = $this->opsProperty($request, $landlord);
+        $summary = $ledger->summary($ledger->entries($landlord, $from, $to, $property), $from, $to);
+
+        return response()->json(['data' => $summary['months'], 'meta' => ['currency' => 'ZAR', 'property' => $property, 'totals' => $summary['totals']]]);
+    }
+
+    /** GET /operations.csv — the same lines as a spreadsheet. */
+    public function operationsCsv(Request $request, FacilityLedgerService $ledger)
+    {
+        $landlord = $this->landlord($request);
+        [$from, $to] = $this->opsPeriod($request, $landlord, $ledger);
+        $entries = $ledger->entries($landlord, $from, $to, $this->opsProperty($request, $landlord), $this->opsType($request));
+
+        return \App\Http\Controllers\Landlord\OperationsController::csv($entries, $ledger, "facility-operations-{$from->format('Y-m-d')}-to-{$to->format('Y-m-d')}.csv");
+    }
+
+    /** @return array{0: CarbonImmutable, 1: CarbonImmutable, 2: string} */
+    private function opsPeriod(Request $request, Landlord $landlord, FacilityLedgerService $ledger, string $default = '12'): array
+    {
+        if ($month = $this->month($request)) {
+            $start = CarbonImmutable::parse($month . '-01')->startOfDay();
+
+            return [$start, $start->endOfMonth(), $start->format('F Y')];
+        }
+        if ($request->filled('from') || $request->filled('to')) {
+            [$from, $to] = $this->customDates($request);
+
+            return [$from, $to, 'Custom'];
+        }
+        $range = FacilityLedgerService::normaliseRange((string) $request->query('range', $default));
+        if ($range === null) {
+            throw ValidationException::withMessages(['range' => 'range must be one of: 1, 3, 6, 12, all.']);
+        }
+        [$from, $to] = $ledger->period($landlord, $range);
+
+        return [$from, $to, FacilityLedgerService::RANGES[$range]];
+    }
+
+    /** property=<id> one property, property=facility whole-facility entries only, omitted = everything. */
+    private function opsProperty(Request $request, Landlord $landlord): int|string|null
+    {
+        if (! $request->filled('property')) {
+            return null;
+        }
+        if ($request->query('property') === 'facility') {
+            return 'facility';
+        }
+
+        return $this->propertyFilter($request, $landlord);
+    }
+
+    private function opsType(Request $request): ?string
+    {
+        $type = $request->query('type');
+        if ($type === null) {
+            return null;
+        }
+        if (! in_array($type, ['income', 'expense'], true)) {
+            throw ValidationException::withMessages(['type' => 'type must be income or expense.']);
+        }
+
+        return $type;
     }
 
     // ── Helpers ────────────────────────────────────────────────────────

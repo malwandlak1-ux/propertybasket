@@ -20,3 +20,6 @@ Route::get('leases/{lease}/statement.pdf', [StatementsController::class, 'tenant
 Route::get('statements/owner',         [StatementsController::class, 'owner'])->name('statements.owner');
 Route::get('statements/owner/monthly', [StatementsController::class, 'ownerMonthly'])->name('statements.owner.monthly');
 Route::get('statements/owner.pdf',     [StatementsController::class, 'ownerPdf'])->name('statements.owner.pdf');
+Route::get('operations',               [StatementsController::class, 'operations'])->name('operations');
+Route::get('operations/monthly',       [StatementsController::class, 'operationsMonthly'])->name('operations.monthly');
+Route::get('operations.csv',           [StatementsController::class, 'operationsCsv'])->name('operations.csv');

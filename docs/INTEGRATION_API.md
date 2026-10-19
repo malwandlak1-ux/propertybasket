@@ -136,6 +136,58 @@ balance. Default `range=lease`.
 
 The tenant statement PDF. Accepts `range` (default `lease`) or `month`.
 
+### Facility operations (separate from rent + maintenance)
+
+Running costs of the facility (kitchen upkeep, rates & taxes, municipal electricity and water,
+gardening, …) and other income the facility earns, as captured on the landlord's
+**Operations** tab. These never appear in `/statements/owner` (which stays rent received less
+maintenance paid), and nothing here changes rent.
+
+Filters: `range` = `1` (this month), `3`, `6`, `12`, `all` (`lease` is accepted as `all`);
+`month`, `from` + `to` as above; `property` = a property id, or `facility` for whole-facility
+entries only (omit for everything); `type` = `income` or `expense` (filters `lines` only —
+totals always cover both).
+
+#### `GET /operations`
+
+```json
+{
+  "data": {
+    "landlord": "Careline Clinic",
+    "property": null,
+    "period": { "from": "2026-08-01", "to": "2026-10-15", "label": "Last 3 months" },
+    "currency": "ZAR",
+    "totals": { "other_income": 9000.0, "operating_expenses": 6650.5, "net": 2349.5, "coverage_pct": 135.3 },
+    "expenses_by_category": [
+      { "category": "rates", "label": "Rates & taxes", "amount": 4200.5, "count": 1, "share": 63.2 }
+    ],
+    "income_by_category": [
+      { "category": "canteen", "label": "Kitchen / canteen sales", "amount": 9000.0, "count": 1, "share": 100 }
+    ],
+    "lines": [
+      { "id": 12, "date": "2026-10-01", "type": "expense", "category": "rates", "category_label": "Rates & taxes",
+        "description": "City of Tshwane rates — Oct", "property_id": null, "property": "Whole facility",
+        "counterparty": "City of Tshwane", "reference": "ACC-778", "notes": null, "amount": 4200.5 }
+    ]
+  }
+}
+```
+
+Expense categories: `kitchen`, `rates`, `electricity`, `water`, `gardening`, `other_expense`.
+Income categories: `hospital_services`, `canteen`, `parking`, `facility_hire`, `other_income`.
+Amounts are always positive; `type` says which side they're on. `net` = other income − operating
+expenses.
+
+#### `GET /operations/monthly`
+
+One row per month (default `range=all`): `{ "month": "2026-09", "label": "Sep 2026", "income": 9000.0, "expenses": 2450.0, "net": 6550.0 }`,
+with the period totals in `meta.totals`.
+
+#### `GET /operations.csv`
+
+The same lines as a CSV (Date, Type, Category, Description, Property, Supplier / payer,
+Reference, Income, Expense, Notes) followed by totals and net.
+
 ## 4. Errors
 
 | Status | When | Body |
@@ -156,6 +208,10 @@ curl -H "Authorization: Bearer $PB_KEY" \
 # September 2026 for one property
 curl -H "Authorization: Bearer $PB_KEY" \
   "https://careline.propertybasket.co.za/api/integration/v1/statements/owner?property=3&month=2026-09"
+
+# Facility running costs vs other income, last 12 months
+curl -H "Authorization: Bearer $PB_KEY" \
+  "https://careline.propertybasket.co.za/api/integration/v1/operations?range=12"
 
 # Download the full-lease owner statement PDF
 curl -H "Authorization: Bearer $PB_KEY" -o owner-statement.pdf \
@@ -185,5 +241,6 @@ print(stmt["totals"]["net"])
 - Auth: `App\Http\Middleware\AuthenticateApiKey`; keys in `api_keys` (`App\Models\ApiKey`,
   SHA-256 hash only).
 - Data: `App\Http\Controllers\Integration\StatementsController` → `LandlordStatementService`,
-  `TenantStatementService`, `PdfService`.
+  `TenantStatementService`, `PdfService`; operations → `FacilityLedgerService`
+  (`facility_entries` table), shared with `Landlord\OperationsController`.
 - Tests: `tests/Feature/IntegrationApiTest.php`.

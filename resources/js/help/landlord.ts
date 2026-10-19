@@ -253,4 +253,20 @@ export const LANDLORD_GUIDES: Guide[] = [
         tips: ['Your tenants see your logo in their portal too.'],
         link: { label: 'Open Settings', href: '/landlord/settings' },
     },
+    {
+        id: 'operations',
+        category: 'Money & statements',
+        title: 'Capture running costs and other income',
+        summary: 'Rates, municipal bills, kitchen upkeep, gardening — and the income that pays for them.',
+        steps: [
+            'Go to Operations in the menu.',
+            'Click + Add expense, choose the category (kitchen facility maintenance, rates & taxes, electricity, water, gardening or other), enter the amount, date and who you paid, and attach the invoice if you have it.',
+            'Click + Add income for money the facility earns outside rent (hospital services, canteen sales, parking, facility hire or other).',
+            'Leave Property on “Whole facility” for facility-wide costs like rates, or pick a property for costs that belong to one building.',
+            'The summary shows other income, operating expenses and the net position; the chart compares them month by month.',
+            'Click Download CSV for a spreadsheet of the period, or let your accounting system pull it from the API (Settings → API access).',
+        ],
+        tips: ['These entries never change rent, maintenance or your Finance statements — rent already includes water and electricity.'],
+        link: { label: 'Open Operations', href: '/landlord/operations' },
+    },
 ];

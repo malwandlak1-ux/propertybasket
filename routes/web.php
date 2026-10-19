@@ -353,6 +353,13 @@ Route::middleware('auth')->group(function () {
             Route::delete('contractors/{contractor}', [Landlord\ContractorsController::class, 'destroy'])->name('contractors.destroy');
             Route::get('finance',     [Landlord\FinanceController::class,     'index'])->name('finance.index');
             Route::get('finance/statement.pdf', [Landlord\FinanceController::class, 'statement'])->name('finance.statement');
+            // Facility operations: running costs + other income (separate from rent/maintenance).
+            Route::get('operations',                 [Landlord\OperationsController::class, 'index'])->name('operations.index');
+            Route::get('operations/export.csv',      [Landlord\OperationsController::class, 'export'])->name('operations.export');
+            Route::post('operations',                [Landlord\OperationsController::class, 'store'])->name('operations.store');
+            Route::post('operations/{entry}',        [Landlord\OperationsController::class, 'update'])->whereNumber('entry')->name('operations.update');
+            Route::delete('operations/{entry}',      [Landlord\OperationsController::class, 'destroy'])->whereNumber('entry')->name('operations.destroy');
+            Route::get('operations/{entry}/attachment', [Landlord\OperationsController::class, 'attachment'])->whereNumber('entry')->name('operations.attachment');
             Route::get('messages',    [Landlord\MessagesController::class,    'index'])->name('messages.index');
             Route::post('messages/{conversation}', [Landlord\MessagesController::class, 'store'])->name('messages.store');
 

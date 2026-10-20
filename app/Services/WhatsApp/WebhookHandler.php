@@ -67,7 +67,7 @@ class WebhookHandler
         if (! $msg) {
             return;
         }
-        $at = isset($s['timestamp']) ? Carbon::createFromTimestamp((int) $s['timestamp']) : now();
+        $at = isset($s['timestamp']) ? Carbon::createFromTimestamp((int) $s['timestamp'], config('app.timezone')) : now();
         $status = $s['status'] ?? '';
 
         if ($status === 'failed') {
@@ -124,7 +124,7 @@ class WebhookHandler
             'body'                => mb_substr($text, 0, 4000),
             'wamid'               => $m['id'] ?? null,
             'status'              => 'received',
-            'sent_at'             => isset($m['timestamp']) ? Carbon::createFromTimestamp((int) $m['timestamp']) : now(),
+            'sent_at'             => isset($m['timestamp']) ? Carbon::createFromTimestamp((int) $m['timestamp'], config('app.timezone')) : now(),
         ]);
 
         $word = strtolower(trim($text, " \t\n.!"));

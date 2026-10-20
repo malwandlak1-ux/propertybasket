@@ -220,6 +220,7 @@ function ConnectSection({ account, onDone, onCancel }: { account: Account | null
         phone_number_id: account?.phone_number_id ?? '',
         access_token: '',
         app_secret: '',
+        pin: '',
     });
     const hasToken = !!account?.token_hint && account.status === 'connected';
 
@@ -255,7 +256,7 @@ function ConnectSection({ account, onDone, onCancel }: { account: Account | null
                         <p>In <b>WhatsApp Manager</b>, add a card or credit. Meta charges you per delivered marketing or utility template message.</p>
                     </Step>
                     <Step n={7} title="Connect, then set up the webhook">
-                        <p>Fill in the form. Once connected, copy the Callback URL and Verify token shown here into WhatsApp → <b>Configuration</b> → Webhook, and subscribe to <b>messages</b>.</p>
+                        <p>Fill in the form. If the number shows <b>Pending</b> in WhatsApp Manager, also choose a 6-digit PIN — we register the number with Meta and that becomes its two-step PIN. Once connected, copy the Callback URL and Verify token shown here into WhatsApp → <b>Configuration</b> → Webhook, and subscribe to <b>messages</b>.</p>
                     </Step>
                 </ol>
             </section>
@@ -284,6 +285,11 @@ function ConnectSection({ account, onDone, onCancel }: { account: Account | null
                     <label className={label}>App secret {account?.has_app_secret ? '(leave blank to keep)' : '(for delivery ticks + replies)'}</label>
                     <input type="password" autoComplete="off" value={data.app_secret} onChange={(e) => setData('app_secret', e.target.value)} className={input} />
                     {errors.app_secret && <p className="text-[11px] text-danger mt-1">{errors.app_secret}</p>}
+                </div>
+                <div>
+                    <label className={label}>Two-step PIN (only if the number shows “Pending”)</label>
+                    <input type="password" autoComplete="off" inputMode="numeric" maxLength={6} value={data.pin} onChange={(e) => setData('pin', e.target.value.replace(/\D/g, ''))} placeholder="6 digits" className={input} />
+                    {errors.pin && <p className="text-[11px] text-danger mt-1">{errors.pin}</p>}
                 </div>
                 <div className="flex justify-end gap-2 pt-1">
                     {onCancel && <button type="button" onClick={onCancel} className={btnOutline}>Cancel</button>}

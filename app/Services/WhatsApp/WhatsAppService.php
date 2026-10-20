@@ -39,6 +39,32 @@ class WhatsAppService
 
     // ── Account + templates ──────────────────────────────────────────────
 
+    /**
+     * First connect / re-connect: register the number for the Cloud API when
+     * Meta reports it isn't yet (needs the agent's 6-digit PIN), subscribe the
+     * app to the WABA so webhooks flow, then pull details + templates.
+     */
+    public function activate(WhatsAppAccount $account, ?string $pin = null): void
+    {
+        $info = $this->api->phoneNumber($account);
+        $platform = $info['platform_type'] ?? 'CLOUD_API';
+        if ($platform !== 'CLOUD_API') {
+            if (! $pin) {
+                throw new WhatsAppApiException('This number is added but not registered for the Cloud API yet (it shows "Pending" in WhatsApp Manager). Enter a 6-digit two-step PIN and connect again to register it.', 0);
+            }
+            $this->api->register($account, $pin);
+        }
+
+        try {
+            $this->api->subscribeApp($account);
+        } catch (\Throwable $e) {
+            // Not fatal: sending still works; the webhook can be subscribed from the Meta dashboard.
+            report($e);
+        }
+
+        $this->refresh($account);
+    }
+
     /** Check the credentials with Meta and pull the number's details + templates. */
     public function refresh(WhatsAppAccount $account): void
     {

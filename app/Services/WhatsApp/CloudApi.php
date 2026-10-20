@@ -22,10 +22,34 @@ class CloudApi
     public function phoneNumber(WhatsAppAccount $a): array
     {
         if ($this->isStub()) {
-            return ['display_phone_number' => '+27 82 000 0000', 'verified_name' => 'Demo Agent', 'quality_rating' => 'GREEN'];
+            return ['display_phone_number' => '+27 82 000 0000', 'verified_name' => 'Demo Agent', 'quality_rating' => 'GREEN', 'platform_type' => 'CLOUD_API'];
         }
 
-        return $this->get($a, $a->phone_number_id, ['fields' => 'display_phone_number,verified_name,quality_rating']);
+        return $this->get($a, $a->phone_number_id, ['fields' => 'display_phone_number,verified_name,quality_rating,platform_type']);
+    }
+
+    /**
+     * Register the number for the Cloud API (moves it from "Pending" to
+     * "Connected" in WhatsApp Manager). The 6-digit PIN becomes the number's
+     * two-step verification PIN.
+     */
+    public function register(WhatsAppAccount $a, string $pin): void
+    {
+        if ($this->isStub()) {
+            return;
+        }
+
+        $this->post($a, "{$a->phone_number_id}/register", ['messaging_product' => 'whatsapp', 'pin' => $pin]);
+    }
+
+    /** Subscribe the app to the WhatsApp Business account so Meta sends it webhooks. */
+    public function subscribeApp(WhatsAppAccount $a): void
+    {
+        if ($this->isStub()) {
+            return;
+        }
+
+        $this->post($a, "{$a->waba_id}/subscribed_apps", []);
     }
 
     /** Every message template on the WhatsApp Business account. */

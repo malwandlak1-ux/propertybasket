@@ -64,6 +64,7 @@ class WhatsAppController extends Controller
             'phone_number_id' => ['required', 'regex:/^\d{5,25}$/'],
             'access_token'    => [$existing && $existing->status !== 'disconnected' ? 'nullable' : 'required', 'string', 'min:20', 'max:2000'],
             'app_secret'      => ['nullable', 'string', 'min:16', 'max:200'],
+            'pin'             => ['nullable', 'digits:6'],
         ], [
             'waba_id.regex'         => 'The WhatsApp Business Account ID is the long number from WhatsApp Manager.',
             'phone_number_id.regex' => 'The Phone number ID is the long number shown under API Setup (not the phone number itself).',
@@ -84,7 +85,7 @@ class WhatsAppController extends Controller
 
         try {
             $account->save();
-            $this->wa->refresh($account);
+            $this->wa->activate($account, $data['pin'] ?? null);
         } catch (WhatsAppApiException $e) {
             $account->forceFill(['status' => 'error', 'last_error' => $e->getMessage()])->save();
 

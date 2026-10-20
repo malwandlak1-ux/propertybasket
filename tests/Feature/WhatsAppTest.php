@@ -100,6 +100,7 @@ class WhatsAppTest extends TestCase
     {
         Http::fake([
             'graph.facebook.com/v23.0/2222222222/messages' => $send ?? Http::response(['messages' => [['id' => 'wamid.' . Str::random(12)]]]),
+            'graph.facebook.com/v23.0/1111111111/subscribed_apps' => Http::response(['success' => true]),
             'graph.facebook.com/v23.0/2222222222*' => Http::response(['display_phone_number' => '+27 82 555 0000', 'verified_name' => 'Sipho Dlamini', 'quality_rating' => 'GREEN']),
             'graph.facebook.com/v23.0/1111111111/message_templates*' => Http::response(['data' => [
                 ['id' => '9', 'name' => 'home_value_report', 'language' => 'en', 'status' => 'APPROVED', 'category' => 'MARKETING', 'components' => [['type' => 'BODY', 'text' => 'Hi {{1}}, I am {{2}} focused on {{3}}.']]],
@@ -138,6 +139,27 @@ class WhatsAppTest extends TestCase
                 ->where('account.display_phone', '+27 82 555 0000')
                 ->missing('account.access_token')
                 ->where('account.token_hint', '••••7890'));
+    }
+
+    #[Test]
+    public function a_pending_number_is_registered_with_the_pin_and_the_app_subscribed(): void
+    {
+        Http::fake([
+            'graph.facebook.com/v23.0/2222222222/register' => Http::response(['success' => true]),
+            'graph.facebook.com/v23.0/1111111111/subscribed_apps' => Http::response(['success' => true]),
+            'graph.facebook.com/v23.0/2222222222*' => Http::response(['display_phone_number' => '+27 74 832 9393', 'verified_name' => 'Property Basket', 'platform_type' => 'NOT_APPLICABLE']),
+            'graph.facebook.com/v23.0/1111111111/message_templates*' => Http::response(['data' => []]),
+        ]);
+        $creds = ['waba_id' => '1111111111', 'phone_number_id' => '2222222222', 'access_token' => 'EAAG-test-token-1234567890'];
+
+        // Without a PIN the agent is told the number still needs registering.
+        $this->actingAs($this->agent)->post('/agent/crm/whatsapp/account', $creds)->assertSessionHas('error');
+        Http::assertNotSent(fn ($r) => str_ends_with($r->url(), '/register'));
+
+        $this->actingAs($this->agent)->post('/agent/crm/whatsapp/account', $creds + ['pin' => '123456'])->assertSessionHas('success');
+        Http::assertSent(fn ($r) => str_ends_with($r->url(), '2222222222/register') && $r['pin'] === '123456' && $r['messaging_product'] === 'whatsapp');
+        Http::assertSent(fn ($r) => str_ends_with($r->url(), '1111111111/subscribed_apps'));
+        $this->assertSame('connected', WhatsAppAccount::firstOrFail()->status);
     }
 
     #[Test]

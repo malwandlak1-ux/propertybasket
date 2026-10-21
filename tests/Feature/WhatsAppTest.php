@@ -15,7 +15,9 @@ use App\Models\WaCampaign;
 use App\Models\WaMessage;
 use App\Models\WaTemplate;
 use App\Models\WhatsAppAccount;
+use App\Services\WhatsApp\SendSchedule;
 use App\Services\WhatsApp\WhatsAppService;
+use Carbon\CarbonImmutable;
 use Carbon\Carbon;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -261,6 +263,59 @@ class WhatsAppTest extends TestCase
         $this->campaign(['name' => 'Again']);
         $this->assertSame(0, app(WhatsAppService::class)->dispatch());
         $this->assertSame('skipped', WaMessage::where('wa_campaign_id', WaCampaign::latest('id')->first()->id)->value('status'));
+    }
+
+    #[Test]
+    public function the_send_schedule_follows_the_consumer_protection_act(): void
+    {
+        $at = fn (string $t) => CarbonImmutable::parse($t, 'Africa/Johannesburg');
+
+        // Weekdays 08:00–20:00 (Tue 20 Oct 2026).
+        $this->assertFalse(SendSchedule::isOpen(null, $at('2026-10-20 07:59')));
+        $this->assertTrue(SendSchedule::isOpen(null, $at('2026-10-20 08:00')));
+        $this->assertTrue(SendSchedule::isOpen(null, $at('2026-10-20 19:59')));
+        $this->assertFalse(SendSchedule::isOpen(null, $at('2026-10-20 20:00')));
+        // Saturdays 09:00–13:00, never Sundays.
+        $this->assertFalse(SendSchedule::isOpen(null, $at('2026-10-24 08:30')));
+        $this->assertTrue(SendSchedule::isOpen(null, $at('2026-10-24 12:00')));
+        $this->assertFalse(SendSchedule::isOpen(null, $at('2026-10-24 13:00')));
+        $this->assertFalse(SendSchedule::isOpen(null, $at('2026-10-25 10:00')));
+        // Public holidays, incl. Easter-based and the Sunday→Monday rule.
+        $this->assertSame('Day of Reconciliation', SendSchedule::publicHoliday($at('2026-12-16')));
+        $this->assertSame('Good Friday', SendSchedule::publicHoliday($at('2026-04-03')));
+        $this->assertSame('Family Day', SendSchedule::publicHoliday($at('2026-04-06')));
+        $this->assertSame('Youth Day (observed)', SendSchedule::publicHoliday($at('2024-06-17')));
+        $this->assertFalse(SendSchedule::isOpen(null, $at('2026-12-16 10:00')));
+        // After Friday 20:00 the next slot is Saturday 09:00.
+        $this->assertSame('2026-10-24 09:00', SendSchedule::nextOpen(null, $at('2026-10-23 20:30'))->format('Y-m-d H:i'));
+    }
+
+    #[Test]
+    public function an_agent_can_narrow_but_not_widen_their_sending_hours(): void
+    {
+        $this->fakeMeta();
+        $this->account();
+
+        $this->actingAs($this->agent)->post('/agent/crm/whatsapp/schedule', ['send_from' => '06:00', 'send_until' => '17:00', 'send_saturdays' => false])
+            ->assertSessionHas('success');
+        $a = WhatsAppAccount::firstOrFail();
+        $at = fn (string $t) => CarbonImmutable::parse($t, 'Africa/Johannesburg');
+
+        $this->assertFalse(SendSchedule::isOpen($a, $at('2026-10-20 07:00')), 'Cannot start before the legal 08:00');
+        $this->assertTrue(SendSchedule::isOpen($a, $at('2026-10-20 16:00')));
+        $this->assertFalse(SendSchedule::isOpen($a, $at('2026-10-20 18:00')), 'Own cut-off at 17:00');
+        $this->assertFalse(SendSchedule::isOpen($a, $at('2026-10-24 10:00')), 'Saturdays switched off');
+
+        $this->actingAs($this->agent)->post('/agent/crm/whatsapp/schedule', ['send_from' => '15:00', 'send_until' => '09:00', 'send_saturdays' => true])
+            ->assertSessionHasErrors('send_until');
+
+        // The dispatcher holds the campaign outside the agent's own hours.
+        $this->prospect();
+        Carbon::setTestNow(Carbon::parse('2026-10-20 18:00', 'Africa/Johannesburg'));
+        $this->campaign();
+        $this->assertSame(0, app(WhatsAppService::class)->dispatch());
+        Carbon::setTestNow(Carbon::parse('2026-10-21 09:00', 'Africa/Johannesburg'));
+        $this->assertSame(1, app(WhatsAppService::class)->dispatch());
     }
 
     #[Test]

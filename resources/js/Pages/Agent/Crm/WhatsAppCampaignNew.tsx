@@ -5,6 +5,7 @@ import CrmTabs from '@/Components/Crm/CrmTabs';
 import { FlashBanners, PageHeader, btnOutline, btnPrimary } from '@/Components/Dashboard/Charts';
 import { Spinner } from '@/Components/Skeleton';
 import { STATUSES, StatusKey } from '@/Components/Crm/constants';
+import type { Schedule } from '@/Components/Crm/waParts';
 
 type Template = { id: number; name: string; language: string; body: string | null; footer: string | null; params: string[] };
 type Filters = { scheme_ids: number[]; statuses: StatusKey[]; prospect_ids: number[]; opted_in_only: boolean };
@@ -19,7 +20,7 @@ type Props = {
     filters: Filters;
     audience: Audience;
     fields: Record<string, string>;
-    limits: { daily: number; used_today: number; frequency_days: number; window: [string, string] };
+    limits: { daily: number; used_today: number; frequency_days: number; schedule: Schedule };
 };
 
 const input = 'w-full bg-white border border-ink-200 rounded-xl px-3.5 py-2.5 text-[13.5px] focus:outline-none focus:border-brand-300 focus:ring-4 focus:ring-brand-100';
@@ -160,7 +161,7 @@ export default function NewCampaign({ agent, templates, schemes, filters, audien
                             </Panel>
 
                             {/* 3. Send */}
-                            <Panel n={3} title="Send" sub={`Messages go out between ${limits.window[0]} and ${limits.window[1]} (SAST), throttled within Meta’s limits.`}>
+                            <Panel n={3} title="Send" sub={`Sending hours (SAST): weekdays ${limits.schedule.weekdays}, Saturdays ${limits.schedule.saturday}, never Sundays or public holidays. ${limits.schedule.open_now ? 'Open now.' : `Next window opens ${limits.schedule.next_open}.`}`}>
                                 <div>
                                     <label className={label}>Campaign name</label>
                                     <input value={form.data.name} onChange={(e) => form.setData('name', e.target.value)} maxLength={160} className={input} />

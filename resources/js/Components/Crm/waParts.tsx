@@ -74,3 +74,6 @@ export function Step({ n, title, children }: { n: number; title: string; childre
         </li>
     );
 }
+
+/** Campaign sending hours (platform CPA schedule narrowed by the agent's own hours). */
+export type Schedule = { weekdays: string; saturday: string; sunday: string; holidays: string; next_open: string; open_now: boolean };

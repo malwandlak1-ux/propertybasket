@@ -13,8 +13,15 @@ return [
     // Fake every Meta call (local demos, tests). Never on in production.
     'stub' => (bool) env('WHATSAPP_STUB', false),
 
-    // Business-initiated sends only go out inside this window (SAST).
-    'send_window' => [env('WHATSAPP_SEND_FROM', '08:00'), env('WHATSAPP_SEND_UNTIL', '19:00')],
+    // When campaign (direct-marketing) messages may go out, SAST. Defaults follow the
+    // Consumer Protection Act regulations: Mon–Fri 08:00–20:00, Sat 09:00–13:00,
+    // never Sundays or public holidays. Agents can narrow this per number, not widen it.
+    'schedule' => [
+        'weekdays'        => [env('WHATSAPP_WEEKDAY_FROM', '08:00'), env('WHATSAPP_WEEKDAY_UNTIL', '20:00')],
+        'saturday'        => [env('WHATSAPP_SATURDAY_FROM', '09:00'), env('WHATSAPP_SATURDAY_UNTIL', '13:00')],
+        'sunday'          => null,
+        'public_holidays' => false,
+    ],
 
     // Don't send the same number another campaign message within N days.
     'frequency_days' => (int) env('WHATSAPP_FREQUENCY_DAYS', 30),

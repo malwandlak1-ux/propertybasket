@@ -207,6 +207,7 @@ Route::middleware('auth')->group(function () {
         Route::get('crm/whatsapp', [Agent\WhatsAppController::class, 'index'])->name('crm.whatsapp');
         Route::post('crm/whatsapp/account', [Agent\WhatsAppController::class, 'connect'])->name('crm.whatsapp.connect');
         Route::delete('crm/whatsapp/account', [Agent\WhatsAppController::class, 'disconnect'])->name('crm.whatsapp.disconnect');
+        Route::post('crm/whatsapp/schedule', [Agent\WhatsAppController::class, 'updateSchedule'])->name('crm.whatsapp.schedule');
         Route::post('crm/whatsapp/templates/sync', [Agent\WhatsAppController::class, 'syncTemplates'])->name('crm.whatsapp.templates.sync');
         Route::post('crm/whatsapp/templates', [Agent\WhatsAppController::class, 'storeTemplate'])->name('crm.whatsapp.templates.store');
         Route::get('crm/whatsapp/campaigns/new', [Agent\WhatsAppController::class, 'createCampaign'])->name('crm.whatsapp.campaigns.create');

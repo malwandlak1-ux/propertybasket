@@ -257,13 +257,10 @@ class WhatsAppService
         }
     }
 
-    public function inSendWindow(?CarbonImmutable $at = null): bool
+    /** Whether campaign messages may go out right now (platform CPA schedule, narrowed by the number's own hours). */
+    public function inSendWindow(?CarbonImmutable $at = null, ?WhatsAppAccount $account = null): bool
     {
-        $at ??= CarbonImmutable::now('Africa/Johannesburg');
-        [$from, $until] = config('whatsapp.send_window', ['08:00', '19:00']);
-        $t = $at->setTimezone('Africa/Johannesburg')->format('H:i');
-
-        return $t >= $from && $t < $until;
+        return SendSchedule::isOpen($account, $at);
     }
 
     private function dispatchUnlocked(int $limit): int
@@ -282,6 +279,9 @@ class WhatsAppService
         foreach ($campaigns as $campaign) {
             if ($sent >= $limit) {
                 break;
+            }
+            if ($campaign->account && ! $this->inSendWindow(null, $campaign->account)) {
+                continue; // outside this agent's own sending hours
             }
             $sent += $this->runCampaign($campaign, $limit - $sent);
         }

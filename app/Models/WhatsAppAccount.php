@@ -19,6 +19,7 @@ class WhatsAppAccount extends Model
         'agent_id', 'agency_id', 'waba_id', 'phone_number_id', 'display_phone', 'verified_name',
         'access_token', 'app_secret', 'webhook_key', 'verify_token',
         'quality_rating', 'messaging_limit', 'status', 'last_error', 'last_synced_at',
+        'send_from', 'send_until', 'send_saturdays',
     ];
 
     protected $hidden = ['access_token', 'app_secret', 'verify_token'];
@@ -29,6 +30,7 @@ class WhatsAppAccount extends Model
             'access_token'   => 'encrypted',
             'app_secret'     => 'encrypted',
             'last_synced_at' => 'datetime',
+            'send_saturdays' => 'boolean',
         ];
     }
 

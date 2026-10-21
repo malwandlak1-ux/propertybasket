@@ -4,13 +4,14 @@ import AgentLayout from '@/Layouts/AgentLayout';
 import CrmTabs from '@/Components/Crm/CrmTabs';
 import { FlashBanners, PageHeader, SummaryStrip, btnOutline, btnPrimary, thRowCls } from '@/Components/Dashboard/Charts';
 import { Spinner } from '@/Components/Skeleton';
-import { CampaignRow, CampaignStatus, CopyField, Progress, Quality, Step } from '@/Components/Crm/waParts';
+import { CampaignRow, CampaignStatus, CopyField, Progress, Quality, Schedule, Step } from '@/Components/Crm/waParts';
 
 type Account = {
     waba_id: string; phone_number_id: string; display_phone: string | null; verified_name: string | null;
     quality_rating: string | null; messaging_limit: string | null; daily_limit: number; status: string;
     last_error: string | null; last_synced_at: string | null; token_hint: string | null; has_app_secret: boolean;
     webhook_url: string; verify_token: string;
+    send_from: string | null; send_until: string | null; send_saturdays: boolean; schedule: Schedule;
 };
 type Template = { id: number; name: string; language: string; category: string | null; status: string; body: string | null; footer: string | null; params: string[]; sendable: boolean; reason: string | null };
 type Thread = { phone: string; display: string; owner: string | null; last: string | null; at: string | null; open: boolean };
@@ -183,6 +184,8 @@ export default function AgentCrmWhatsApp({ agent, account, stub, templates, camp
                                 )}
                             </section>
 
+                            <SendingHours account={account!} />
+
                             {/* Connection */}
                             <section className="bg-white rounded-2xl border border-ink-200/60 shadow-soft p-5 pb-rise space-y-3">
                                 <h2 className="text-[16px] font-semibold tracking-tight">Connection</h2>
@@ -207,6 +210,58 @@ export default function AgentCrmWhatsApp({ agent, account, stub, templates, camp
             </div>
             {newTemplate && <NewTemplateModal agentName={agent.name} onClose={() => setNewTemplate(false)} />}
         </AgentLayout>
+    );
+}
+
+function SendingHours({ account }: { account: Account }) {
+    const { data, setData, post, processing, errors } = useForm({
+        send_from: account.send_from ?? '',
+        send_until: account.send_until ?? '',
+        send_saturdays: account.send_saturdays,
+    });
+    const s = account.schedule;
+
+    function save(e: FormEvent) {
+        e.preventDefault();
+        post('/agent/crm/whatsapp/schedule', { preserveScroll: true });
+    }
+
+    return (
+        <section className="bg-white rounded-2xl border border-ink-200/60 shadow-soft p-5 pb-rise space-y-3">
+            <div>
+                <h2 className="text-[16px] font-semibold tracking-tight">Sending hours</h2>
+                <p className="text-[12px] text-ink-500 mt-0.5">
+                    Campaigns only go out inside the Consumer Protection Act hours: weekdays 08:00–20:00, Saturdays 09:00–13:00, never Sundays or public holidays. You can narrow them; replies to owners aren’t affected.
+                </p>
+            </div>
+            <dl className="text-[12.5px] space-y-1.5">
+                <Row k="Weekdays" v={s.weekdays} />
+                <Row k="Saturdays" v={s.saturday} />
+                <Row k="Sundays & public holidays" v="No sending" />
+                <Row k={s.open_now ? 'Status' : 'Next window'} v={s.open_now ? 'Open now' : s.next_open} />
+            </dl>
+            <form onSubmit={save} className="space-y-3 pt-1">
+                <div className="grid grid-cols-2 gap-2">
+                    <div>
+                        <label className={label}>From</label>
+                        <input type="time" value={data.send_from} onChange={(e) => setData('send_from', e.target.value)} className={input} />
+                    </div>
+                    <div>
+                        <label className={label}>Until</label>
+                        <input type="time" value={data.send_until} onChange={(e) => setData('send_until', e.target.value)} className={input} />
+                    </div>
+                </div>
+                {(errors.send_from || errors.send_until) && <p className="text-[11px] text-danger">{errors.send_from || errors.send_until}</p>}
+                <label className="flex items-center gap-2 text-[12.5px] text-ink-700">
+                    <input type="checkbox" checked={data.send_saturdays} onChange={(e) => setData('send_saturdays', e.target.checked)} />
+                    Send on Saturdays (09:00–13:00)
+                </label>
+                <div className="flex justify-between items-center gap-2">
+                    <span className="text-[11px] text-ink-400">Leave times blank to use the full hours.</span>
+                    <button type="submit" disabled={processing} className={`${btnOutline} !py-2 !text-[12px]`}>{processing && <Spinner size={12} />}Save hours</button>
+                </div>
+            </form>
+        </section>
     );
 }
 

@@ -10,10 +10,12 @@ use App\Models\WaMessage;
 use App\Models\WaTemplate;
 use App\Models\WhatsAppAccount;
 use App\Services\WhatsApp\CloudApi;
+use App\Services\WhatsApp\SendSchedule;
 use App\Services\WhatsApp\WhatsAppApiException;
 use App\Services\WhatsApp\WhatsAppService;
 use App\Support\Crm;
 use App\Support\Phone;
+use Carbon\CarbonImmutable;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -93,6 +95,28 @@ class WhatsAppController extends Controller
         }
 
         return back()->with('success', 'WhatsApp connected: ' . ($account->display_phone ?? 'number verified') . '. ' . $account->templates()->count() . ' templates synced.');
+    }
+
+    /** The agent's own sending hours — may only narrow the platform (CPA) schedule. */
+    public function updateSchedule(Request $request): RedirectResponse
+    {
+        $account = $this->account($request);
+        abort_unless($account, 422, 'Connect your WhatsApp Business number first.');
+        $data = $request->validate([
+            'send_from'      => ['nullable', 'date_format:H:i'],
+            'send_until'     => ['nullable', 'date_format:H:i'],
+            'send_saturdays' => ['required', 'boolean'],
+        ]);
+        if (! empty($data['send_from']) && ! empty($data['send_until']) && $data['send_from'] >= $data['send_until']) {
+            throw ValidationException::withMessages(['send_until' => 'The end time must be after the start time.']);
+        }
+        $account->update([
+            'send_from'      => $data['send_from'] ?: null,
+            'send_until'     => $data['send_until'] ?: null,
+            'send_saturdays' => (bool) $data['send_saturdays'],
+        ]);
+
+        return back()->with('success', 'Sending hours saved. Campaigns go out ' . SendSchedule::describe($account->fresh())['weekdays'] . ' on weekdays.');
     }
 
     public function disconnect(Request $request): RedirectResponse
@@ -178,7 +202,7 @@ class WhatsAppController extends Controller
                 'daily'          => min($account->dailyLimit(), 1_000_000),
                 'used_today'     => $usedToday,
                 'frequency_days' => (int) config('whatsapp.frequency_days'),
-                'window'         => config('whatsapp.send_window'),
+                'schedule'       => SendSchedule::describe($account),
             ],
         ]);
     }
@@ -233,9 +257,11 @@ class WhatsAppController extends Controller
             });
         }
 
-        $when = $this->wa->inSendWindow() && ! $campaign->scheduled_at?->isFuture()
+        $start = $campaign->scheduled_at?->isFuture() ? CarbonImmutable::parse($campaign->scheduled_at) : CarbonImmutable::now();
+        $next = SendSchedule::nextOpen($account, $start);
+        $when = $next && $next->lessThanOrEqualTo(CarbonImmutable::now())
             ? 'Sending has started.'
-            : 'It will send between ' . implode(' and ', config('whatsapp.send_window')) . ' (SAST).';
+            : 'It will start sending ' . SendSchedule::label($next) . ' (your sending hours).';
 
         return redirect()->route('agent.crm.whatsapp.campaigns.show', $campaign)
             ->with('success', "Campaign queued for {$recipients->count()} owners. {$when}");
@@ -447,6 +473,10 @@ class WhatsAppController extends Controller
             'has_app_secret'  => (bool) $a->app_secret,
             'webhook_url'     => url("/webhooks/whatsapp/{$a->webhook_key}"),
             'verify_token'    => $a->verify_token,
+            'send_from'       => $a->send_from,
+            'send_until'      => $a->send_until,
+            'send_saturdays'  => $a->send_saturdays !== false,
+            'schedule'        => SendSchedule::describe($a),
         ];
     }
 

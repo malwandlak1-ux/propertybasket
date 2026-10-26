@@ -189,6 +189,7 @@ Route::middleware('auth')->group(function () {
         // CRM — outreach overview, property farming tracker, pipeline.
         Route::get('crm',         [Agent\CrmController::class, 'overview'])->name('crm.overview');
         Route::get('crm/farming', [Agent\CrmController::class, 'farming'])->name('crm.farming');
+        Route::post('crm/regions', [Agent\CrmController::class, 'storeRegion'])->name('crm.regions.store');
         Route::post('crm/suburbs', [Agent\CrmController::class, 'storeSuburb'])->name('crm.suburbs.store');
         Route::post('crm/schemes', [Agent\CrmController::class, 'storeScheme'])->name('crm.schemes.store');
         Route::patch('crm/schemes/{scheme}', [Agent\CrmController::class, 'updateScheme'])->name('crm.schemes.update');

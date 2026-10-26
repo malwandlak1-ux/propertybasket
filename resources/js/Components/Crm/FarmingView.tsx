@@ -63,6 +63,7 @@ type Href = (p: Record<string, number | undefined>) => string;
 
 function Regions({ farm, href, editable }: { farm: Extract<Farm, { level: 'regions' }>; href: Href; editable: boolean }) {
     const tot = farm.regions.reduce((a, r) => ({ s: a.s + r.suburbs, sc: a.sc + r.schemes, p: a.p + r.prospects, c: a.c + r.contacted }), { s: 0, sc: 0, p: 0, c: 0 });
+    const [adding, setAdding] = useState(false);
     return (
         <>
             <PageHeader
@@ -70,6 +71,7 @@ function Regions({ farm, href, editable }: { farm: Extract<Farm, { level: 'regio
                 subtitle={editable
                     ? 'Pick a farming region to drill into its suburbs, sectional titles and owner prospect lists.'
                     : 'Every agent’s farms. Drill into a region to see suburbs, schemes and owner lists (view only).'}
+                actions={editable && <button type="button" onClick={() => setAdding(true)} className={btnOutline}>+ Add region</button>}
             />
             <SummaryStrip
                 title="Farming summary"
@@ -93,6 +95,7 @@ function Regions({ farm, href, editable }: { farm: Extract<Farm, { level: 'regio
                     );
                 })}
             </div>
+            {adding && <AddRegionModal onClose={() => setAdding(false)} />}
         </>
     );
 }
@@ -521,6 +524,21 @@ function Modal({ title, sub, onClose, onSubmit, busy, submit, children }: {
                 </div>
             </form>
         </div>
+    );
+}
+
+function AddRegionModal({ onClose }: { onClose: () => void }) {
+    const { data, setData, post, processing, errors } = useForm({ name: '' });
+    return (
+        <Modal title="Add region" sub="a farming area of your own" onClose={onClose} busy={processing} submit="Add region"
+            onSubmit={(e) => { e.preventDefault(); post('/agent/crm/regions', { onSuccess: onClose }); }}>
+            <div>
+                <label className={mLabel}>Region name *</label>
+                <input autoFocus required maxLength={120} value={data.name} onChange={(e) => setData('name', e.target.value)} placeholder="e.g. Centurion" className={mInput} />
+                {errors.name && <p className="text-[11px] text-danger mt-1">{errors.name}</p>}
+            </div>
+            <p className="text-[11.5px] text-ink-500">Added regions are shared with everyone in your agency. Next, add its suburbs with + Add suburb.</p>
+        </Modal>
     );
 }
 

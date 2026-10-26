@@ -15,6 +15,7 @@ use App\Support\Crm;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -62,7 +63,31 @@ class CrmController extends Controller
         ]);
     }
 
-    // ── Suburbs & schemes ─────────────────────────────────────────────────
+    // ── Regions, suburbs & schemes ────────────────────────────────────────
+
+    /** An agent adds their own farming region; it's shared with their agency, not other agencies. */
+    public function storeRegion(Request $request): RedirectResponse
+    {
+        $record = $this->resolveAgentRecord($request);
+        $data = $request->validate(['name' => ['required', 'string', 'max:120']]);
+        $name = trim(preg_replace('/\s+/', ' ', $data['name']));
+
+        $exists = CrmRegion::visibleTo($record->agency_id)->whereRaw('LOWER(name) = ?', [mb_strtolower($name)])->exists();
+        if ($exists) {
+            return back()->with('error', "There is already a region called {$name}.");
+        }
+
+        $region = CrmRegion::create([
+            'agency_id' => $record->agency_id,
+            'slug'      => Str::slug($name) ?: 'region',
+            'name'      => $name,
+            'sort'      => (int) CrmRegion::visibleTo($record->agency_id)->max('sort') + 1,
+        ]);
+
+        return redirect()->route('agent.crm.farming', ['region' => $region->id])
+            ->with('success', "Region {$name} added. Add its suburbs with + Add suburb.");
+    }
+
 
     public function storeSuburb(Request $request): RedirectResponse
     {

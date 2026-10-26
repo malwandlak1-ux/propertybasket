@@ -78,7 +78,10 @@ export const AGENT_GUIDES: Guide[] = [
             'Work the list: filter by status, search by owner, unit or phone, and change a status straight from the table.',
             'Use Export CSV to download the list with your progress.',
         ],
-        tips: ['You can add a suburb that isn’t listed with + Add suburb. It becomes available to your whole agency.'],
+        tips: [
+            'Farming somewhere that isn’t listed? Use + Add region on the Farming page, then + Add suburb inside it. Both become available to your whole agency.',
+            'You can add a suburb that isn’t listed with + Add suburb. It becomes available to your whole agency.',
+        ],
         link: { label: 'Open Farming', href: '/agent/crm/farming' },
     },
     {

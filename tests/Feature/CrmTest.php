@@ -108,6 +108,40 @@ class CrmTest extends TestCase
     }
 
     #[Test]
+    public function an_agent_adds_a_region_shared_with_their_agency_only(): void
+    {
+        $this->actingAs($this->agent)->post('/agent/crm/regions', ['name' => '  Centurion   West '])
+            ->assertSessionHas('success');
+        $region = CrmRegion::where('name', 'Centurion West')->firstOrFail();
+        $this->assertSame($this->agency->id, $region->agency_id);
+        $this->assertSame('centurion-west', $region->slug);
+        $this->assertGreaterThan(CrmRegion::whereNull('agency_id')->max('sort'), $region->sort, 'Listed after the shared regions');
+
+        // Lands inside the new region, ready for suburbs; a colleague sees it too.
+        $this->actingAs($this->agent)->post('/agent/crm/suburbs', ['region_id' => $region->id, 'name' => 'Highveld'])->assertSessionHas('success');
+        $this->actingAs($this->other)->get('/agent/crm/farming?region=' . $region->id)->assertOk()
+            ->assertInertia(fn (Assert $p) => $p->where('farm.level', 'region')->has('farm.suburbs', 1));
+
+        // Duplicate names (incl. shared regions) are refused.
+        $this->actingAs($this->agent)->post('/agent/crm/regions', ['name' => 'centurion west'])->assertSessionHas('error');
+        $shared = CrmRegion::whereNull('agency_id')->first();
+        $this->actingAs($this->agent)->post('/agent/crm/regions', ['name' => strtoupper($shared->name)])->assertSessionHas('error');
+        $this->assertSame(1, CrmRegion::where('agency_id', $this->agency->id)->count());
+
+        // Another agency's agent can't see or use it.
+        $owner2 = User::factory()->create(['role' => Role::AgencyAdmin, 'status' => UserStatus::Active]);
+        $agency2 = Agency::create(['user_id' => $owner2->id, 'name' => 'Other Realty', 'slug' => 'other-' . Str::random(6), 'email' => $owner2->email, 'status' => 'active']);
+        $agency2->activateSubscription('promo', now()->addYear());
+        $outsider = User::factory()->create(['role' => Role::Agent, 'status' => UserStatus::Active]);
+        $outsider->assignRole('agent');
+        AgencyAgent::create(['agency_id' => $agency2->id, 'user_id' => $outsider->id, 'commission_split_percent' => 50,
+            'lead_allocation_position' => 0, 'ffc_number' => 'FFC-X', 'ffc_expires_at' => now()->addYear(), 'status' => 'active']);
+        $this->actingAs($outsider)->get('/agent/crm/farming')->assertOk()
+            ->assertInertia(fn (Assert $p) => $p->where('farm.regions', fn ($rs) => collect($rs)->doesntContain('name', 'Centurion West')));
+        $this->actingAs($outsider)->post('/agent/crm/suburbs', ['region_id' => $region->id, 'name' => 'Sneaky'])->assertNotFound();
+    }
+
+    #[Test]
     public function an_agent_adds_a_scheme_and_imports_owners_skipping_duplicates(): void
     {
         $this->actingAs($this->agent)->post('/agent/crm/schemes', [

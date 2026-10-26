@@ -266,6 +266,37 @@ class WhatsAppTest extends TestCase
     }
 
     #[Test]
+    public function an_owners_whatsapp_message_rings_the_agents_bell(): void
+    {
+        $a = $this->account();
+        $this->prospect();
+        $post = function (array $msg) use ($a) {
+            $raw = json_encode(['object' => 'whatsapp_business_account', 'entry' => [['id' => '1111111111', 'changes' => [['field' => 'messages', 'value' => [
+                'metadata' => ['phone_number_id' => '2222222222'], 'messages' => [$msg],
+            ]]]]]]);
+            $this->call('POST', "/webhooks/whatsapp/{$a->webhook_key}", [], [], [], [
+                'CONTENT_TYPE' => 'application/json', 'HTTP_X_HUB_SIGNATURE_256' => 'sha256=' . hash_hmac('sha256', $raw, 'app-secret-abcdef123456'),
+            ], $raw)->assertOk();
+        };
+
+        $post(['from' => '27821112222', 'id' => 'wamid.IN1', 'timestamp' => (string) now()->timestamp, 'type' => 'text', 'text' => ['body' => 'Hi, yes please send the valuation']]);
+        $post(['from' => '27821112222', 'id' => 'wamid.IN1', 'timestamp' => (string) now()->timestamp, 'type' => 'text', 'text' => ['body' => 'Hi, yes please send the valuation']]); // Meta retry
+
+        $this->assertSame(1, $this->agent->fresh()->unreadNotifications()->count(), 'One bell item per message, retries ignored');
+        $this->actingAs($this->agent)->get('/agent/crm/whatsapp')->assertOk()
+            ->assertInertia(fn (Assert $p) => $p->where('notifications.unread_count', 1)
+                ->where('notifications.recent.0.title', 'New WhatsApp message')
+                ->where('notifications.recent.0.href', '/agent/crm/whatsapp/chat?phone=27821112222')
+                ->where('notifications.recent.0.body', fn ($b) => str_contains($b, 'NKOSI THABO') && str_contains($b, 'yes please send the valuation')));
+        $this->assertSame(0, $this->other->fresh()->unreadNotifications()->count(), 'Only the number\'s own agent is notified');
+
+        Carbon::setTestNow(now()->addMinute());
+        $post(['from' => '27821112222', 'id' => 'wamid.IN2', 'timestamp' => (string) now()->timestamp, 'type' => 'text', 'text' => ['body' => 'STOP']]);
+        $this->actingAs($this->agent)->get('/agent/crm/whatsapp')
+            ->assertInertia(fn (Assert $p) => $p->where('notifications.unread_count', 2)->where('notifications.recent.0.title', 'WhatsApp opt-out'));
+    }
+
+    #[Test]
     public function the_send_schedule_follows_the_consumer_protection_act(): void
     {
         $at = fn (string $t) => CarbonImmutable::parse($t, 'Africa/Johannesburg');

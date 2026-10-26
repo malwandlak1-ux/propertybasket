@@ -7,6 +7,7 @@ use App\Models\WaCampaign;
 use App\Models\WaMessage;
 use App\Models\WaTemplate;
 use App\Models\WhatsAppAccount;
+use App\Notifications\WhatsAppMessageReceived;
 use App\Support\Phone;
 use Illuminate\Support\Carbon;
 
@@ -128,6 +129,7 @@ class WebhookHandler
         ]);
 
         $word = strtolower(trim($text, " \t\n.!"));
+        $this->notifyAgent($account, $in, $prospects->first()?->owner_name, in_array($word, self::STOP, true));
         if (in_array($word, self::STOP, true)) {
             $prospects->each->update(['wa_opted_out_at' => now()]);
             $last = $this->lastOutbound($account, $phone);
@@ -146,6 +148,16 @@ class WebhookHandler
         if ($last && ! $last->replied_at) {
             $last->update(['replied_at' => $in->sent_at]);
             $this->wa->logToCrm($last, 'connected', 'WhatsApp reply: ' . $text);
+        }
+    }
+
+    /** Ring the agent's notification bell for every message an owner sends. */
+    private function notifyAgent(WhatsAppAccount $account, WaMessage $in, ?string $ownerName, bool $optedOut): void
+    {
+        try {
+            $account->agent?->notify(new WhatsAppMessageReceived($in, $ownerName, $optedOut));
+        } catch (\Throwable $e) {
+            report($e); // never let a notification failure lose the inbound message
         }
     }
 

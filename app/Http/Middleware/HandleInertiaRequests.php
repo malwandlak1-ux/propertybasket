@@ -238,6 +238,13 @@ class HandleInertiaRequests extends Middleware
                 'href'  => '/agency/compliance',
                 'tone'  => ($data['days_left'] ?? 99) <= 7 ? 'danger' : 'warning',
             ],
+            \App\Notifications\WhatsAppMessageReceived::class => [
+                'title' => ($data['opted_out'] ?? false) ? 'WhatsApp opt-out' : 'New WhatsApp message',
+                'body'  => ($data['owner_name'] ?? $data['display'] ?? 'An owner')
+                    . (($data['opted_out'] ?? false) ? ' replied STOP and was opted out.' : ': “' . ($data['preview'] ?? '') . '”'),
+                'href'  => '/agent/crm/whatsapp/chat?phone=' . urlencode((string) ($data['phone'] ?? '')),
+                'tone'  => ($data['opted_out'] ?? false) ? 'muted' : 'success',
+            ],
             \App\Notifications\InquiryReceived::class => [
                 'title' => 'New lead allocated',
                 'body'  => ($data['inquirer_name'] ?? 'Someone') . ' inquired about ' . ($data['listing_title'] ?? 'a listing') . '.',

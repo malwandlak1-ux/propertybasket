@@ -6,7 +6,10 @@
  * — see HandleInertiaRequests::notifications().
  */
 import { useEffect, useRef, useState } from 'react';
-import { router } from '@inertiajs/react';
+import { router, usePoll } from '@inertiajs/react';
+
+/** How often the bell re-checks for new notifications (e.g. an owner's WhatsApp reply). */
+const POLL_MS = 15_000;
 
 export type NotificationItem = {
     id: string;
@@ -29,6 +32,10 @@ export default function NotificationBell({ notifications }: Props) {
     const ref             = useRef<HTMLDivElement>(null);
     const unread          = notifications?.unread_count ?? 0;
     const recent          = notifications?.recent ?? [];
+
+    // Partial reload of just the bell, so new items appear without a page refresh.
+    // Inertia throttles this while the tab is in the background.
+    usePoll(POLL_MS, { only: ['notifications'] });
 
     useEffect(() => {
         if (! open) return;

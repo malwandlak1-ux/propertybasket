@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Head, router } from '@inertiajs/react';
 import AgentLayout from '@/Layouts/AgentLayout';
 import ScheduleViewingModal from '@/Components/ScheduleViewingModal';
+import LeadDetailsModal, { Lead } from '@/Components/LeadDetailsModal';
 
 type ViewMode = 'day' | 'week' | 'month';
 
@@ -18,6 +19,7 @@ type Viewing = {
     listing: string;
     status: string;
     type: string;
+    lead: Lead;
 };
 
 type DayMeta = {
@@ -29,7 +31,7 @@ type DayMeta = {
     in_period: boolean;
 };
 
-type Upcoming = { id: number; name: string; time: string; listing: string };
+type Upcoming = { id: number; name: string; time: string; listing: string; lead: Lead };
 type Listing = { id: number; label: string; type: string };
 
 type Props = {
@@ -54,7 +56,24 @@ const STATUS_COLOR: Record<string, string> = {
     qualified: 'bg-sky-500',
     offer:     'bg-warning',
     closed:    'bg-success',
+    disqualified: 'bg-ink-400',
 };
+
+/**
+ * Click handler for an entry that sits inside a clickable day/slot cell:
+ * opens the lead popup without also triggering "schedule a viewing here".
+ */
+function entryProps(v: Viewing, onOpen: (v: Viewing) => void) {
+    return {
+        role: 'button' as const,
+        tabIndex: 0,
+        title: `${v.time} · ${v.name} — view details`,
+        onClick: (e: React.MouseEvent) => { e.stopPropagation(); onOpen(v); },
+        onKeyDown: (e: React.KeyboardEvent) => {
+            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); onOpen(v); }
+        },
+    };
+}
 
 const DAY_HOUR_START = 7;
 const DAY_HOUR_END   = 20; // inclusive
@@ -82,6 +101,8 @@ export default function AgentViewings({
 }: Props) {
     const [modalOpen, setModalOpen]   = useState(false);
     const [modalDate, setModalDate]   = useState<string | undefined>(undefined);
+    const [activeLead, setActiveLead] = useState<Lead | null>(null);
+    const openEntry = (v: { lead: Lead }) => setActiveLead(v.lead);
 
     function openSchedule(prefillDate?: string) {
         setModalDate(prefillDate);
@@ -153,9 +174,9 @@ export default function AgentViewings({
                 </div>
 
                 {/* Calendar */}
-                {view === 'day'   && <DayView   days={days} viewings={viewings} onSlotClick={openSchedule} />}
-                {view === 'week'  && <WeekView  days={days} viewings={viewings} onCellClick={openSchedule} />}
-                {view === 'month' && <MonthView days={days} viewings={viewings} onCellClick={openSchedule} />}
+                {view === 'day'   && <DayView   days={days} viewings={viewings} onSlotClick={openSchedule} onOpen={openEntry} />}
+                {view === 'week'  && <WeekView  days={days} viewings={viewings} onCellClick={openSchedule} onOpen={openEntry} />}
+                {view === 'month' && <MonthView days={days} viewings={viewings} onCellClick={openSchedule} onOpen={openEntry} />}
 
                 {/* Upcoming viewings — only on day/week, where they're useful */}
                 {view !== 'month' && upcoming.length > 0 && (
@@ -163,7 +184,7 @@ export default function AgentViewings({
                         <h2 className="text-base font-semibold mb-4">Upcoming Viewings</h2>
                         <div className="space-y-3">
                             {upcoming.map((v) => (
-                                <div key={v.id} className="flex items-center gap-4 p-3 rounded-lg hover:bg-ink-50 border border-ink-100">
+                                <button type="button" key={v.id} onClick={() => openEntry(v)} className="w-full text-left flex items-center gap-4 p-3 rounded-lg hover:bg-ink-50 border border-ink-100">
                                     <div className="w-10 h-10 rounded-lg bg-brand-50 flex items-center justify-center shrink-0">
                                         <svg className="w-5 h-5 text-brand-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
                                             <rect x="3" y="5" width="18" height="16" rx="2" />
@@ -175,7 +196,7 @@ export default function AgentViewings({
                                         <p className="text-[11px] text-ink-500 truncate">{v.listing}</p>
                                     </div>
                                     <span className="text-[12px] text-ink-600 font-mono whitespace-nowrap">{v.time}</span>
-                                </div>
+                                </button>
                             ))}
                         </div>
                     </div>
@@ -187,6 +208,8 @@ export default function AgentViewings({
                     </div>
                 )}
             </div>
+
+            {activeLead && <LeadDetailsModal lead={activeLead} onClose={() => setActiveLead(null)} />}
 
             {modalOpen && (
                 <ScheduleViewingModal
@@ -203,7 +226,7 @@ export default function AgentViewings({
 
 /* ---------------- Day view ---------------- */
 
-function DayView({ days, viewings, onSlotClick }: { days: DayMeta[]; viewings: Viewing[]; onSlotClick: (iso: string) => void }) {
+function DayView({ days, viewings, onSlotClick, onOpen }: { days: DayMeta[]; viewings: Viewing[]; onSlotClick: (iso: string) => void; onOpen: (v: Viewing) => void }) {
     const dayIso = days[0]?.iso ?? '';
 
     return (
@@ -238,7 +261,8 @@ function DayView({ days, viewings, onSlotClick }: { days: DayMeta[]; viewings: V
                                         {slotItems.map((v) => (
                                             <div
                                                 key={v.id}
-                                                className={`${STATUS_COLOR[v.status] ?? 'bg-brand-500'} text-white rounded-md px-3 py-2 text-[12px]`}
+                                                {...entryProps(v, onOpen)}
+                                                className={`${STATUS_COLOR[v.status] ?? 'bg-brand-500'} text-white rounded-md px-3 py-2 text-[12px] cursor-pointer hover:ring-2 hover:ring-ink-900/20`}
                                             >
                                                 <p className="font-bold">{v.time} · {v.name}</p>
                                                 <p className="opacity-90 truncate">{v.listing}</p>
@@ -257,7 +281,7 @@ function DayView({ days, viewings, onSlotClick }: { days: DayMeta[]; viewings: V
 
 /* ---------------- Week view ---------------- */
 
-function WeekView({ days, viewings, onCellClick }: { days: DayMeta[]; viewings: Viewing[]; onCellClick: (iso: string) => void }) {
+function WeekView({ days, viewings, onCellClick, onOpen }: { days: DayMeta[]; viewings: Viewing[]; onCellClick: (iso: string) => void; onOpen: (v: Viewing) => void }) {
     const byIso: Record<string, Viewing[]> = {};
     viewings.forEach((v) => {
         (byIso[v.date] ??= []).push(v);
@@ -295,7 +319,8 @@ function WeekView({ days, viewings, onCellClick }: { days: DayMeta[]; viewings: 
                             {items.map((v) => (
                                 <div
                                     key={v.id}
-                                    className={`${STATUS_COLOR[v.status] ?? 'bg-brand-500'} text-white rounded-md p-1.5 text-[10px]`}
+                                    {...entryProps(v, onOpen)}
+                                    className={`${STATUS_COLOR[v.status] ?? 'bg-brand-500'} text-white rounded-md p-1.5 text-[10px] cursor-pointer hover:ring-2 hover:ring-ink-900/20`}
                                 >
                                     <p className="font-bold">{v.time}</p>
                                     <p className="opacity-90 truncate">{firstName(v.name)}</p>
@@ -312,7 +337,7 @@ function WeekView({ days, viewings, onCellClick }: { days: DayMeta[]; viewings: 
 
 /* ---------------- Month view ---------------- */
 
-function MonthView({ days, viewings, onCellClick }: { days: DayMeta[]; viewings: Viewing[]; onCellClick: (iso: string) => void }) {
+function MonthView({ days, viewings, onCellClick, onOpen }: { days: DayMeta[]; viewings: Viewing[]; onCellClick: (iso: string) => void; onOpen: (v: Viewing) => void }) {
     const byIso: Record<string, Viewing[]> = {};
     viewings.forEach((v) => {
         (byIso[v.date] ??= []).push(v);
@@ -365,7 +390,8 @@ function MonthView({ days, viewings, onCellClick }: { days: DayMeta[]; viewings:
                                 {items.slice(0, 3).map((v) => (
                                     <div
                                         key={v.id}
-                                        className={`${STATUS_COLOR[v.status] ?? 'bg-brand-500'} text-white rounded px-1.5 py-0.5 text-[9px] leading-tight truncate`}
+                                        {...entryProps(v, onOpen)}
+                                        className={`${STATUS_COLOR[v.status] ?? 'bg-brand-500'} text-white rounded px-1.5 py-0.5 text-[9px] leading-tight truncate cursor-pointer hover:ring-2 hover:ring-ink-900/20`}
                                     >
                                         {v.time} {firstName(v.name)}
                                     </div>

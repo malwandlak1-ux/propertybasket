@@ -222,6 +222,7 @@ Route::middleware('auth')->group(function () {
         Route::redirect('pipeline', '/agent/crm/pipeline')->name('pipeline.legacy');
         Route::post('pipeline/leads', [Agent\PipelineController::class, 'storeLead'])->name('pipeline.leads.store');
         Route::patch('pipeline/leads/{inquiry}/status', [Agent\PipelineController::class, 'updateLeadStatus'])->name('pipeline.leads.status');
+        Route::patch('pipeline/leads/{inquiry}/viewing', [Agent\PipelineController::class, 'scheduleViewing'])->name('pipeline.leads.viewing');
         Route::get('listings',    [Agent\ListingsController::class,  'index'])->name('listings.index');
         Route::get('listings/create', [Agent\ListingsController::class, 'create'])->name('listings.create');
         Route::get('listings/{listing}/edit', [Agent\ListingsController::class, 'edit'])->name('listings.edit');

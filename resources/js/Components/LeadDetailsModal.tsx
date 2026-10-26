@@ -1,8 +1,14 @@
 /**
- * LeadDetailsModal — popup shown when an agent clicks a lead card on the pipeline.
- * Reveals the contact details (email, phone, message) + listing context + quick actions.
+ * LeadDetailsModal — popup shown when an agent clicks a lead card on the pipeline
+ * or a viewing on the calendar. Reveals the contact details (email, phone,
+ * message) + listing context + quick actions, and lets the agent set the viewing
+ * date/time (which puts the lead on the viewings calendar).
  */
-type Lead = {
+import { FormEvent, useState } from 'react';
+import { router } from '@inertiajs/react';
+import { Spinner } from '@/Components/Skeleton';
+
+export type Lead = {
     id: number;
     visitor_name: string;
     email: string | null;
@@ -19,11 +25,17 @@ type Lead = {
     created_at: string | null;
     age_label: string;
     viewing_at?: string | null;
+    viewing_date?: string | null;
+    viewing_time?: string | null;
 };
 
 type Props = {
     lead: Lead;
     onClose: () => void;
+    /** Show the date/time picker for the viewing (agent's own leads). */
+    canSchedule?: boolean;
+    /** Open with the picker highlighted, e.g. right after a card is dropped into Viewing. */
+    promptSchedule?: boolean;
 };
 
 const STATUS_LABELS: Record<string, string> = {
@@ -33,6 +45,9 @@ const STATUS_LABELS: Record<string, string> = {
     viewing:   'Viewing',
     offer:     'Offer',
     closed:    'Closed Won',
+    registered:   'Registered',
+    lost:         'Lost',
+    disqualified: 'Disqualified',
 };
 
 const STATUS_TONES: Record<string, string> = {
@@ -42,6 +57,9 @@ const STATUS_TONES: Record<string, string> = {
     viewing:   'bg-violet-50 text-violet-700',
     offer:     'bg-warning/15 text-warning',
     closed:    'bg-success/15 text-success',
+    registered:   'bg-violet-100 text-violet-800',
+    lost:         'bg-ink-100 text-ink-600',
+    disqualified: 'bg-danger/10 text-danger',
 };
 
 function fmtMoney(n: number, type?: string | null): string {
@@ -50,9 +68,10 @@ function fmtMoney(n: number, type?: string | null): string {
     return base;
 }
 
-export default function LeadDetailsModal({ lead, onClose }: Props) {
+export default function LeadDetailsModal({ lead, onClose, canSchedule = true, promptSchedule = false }: Props) {
     const initials = lead.visitor_name
         .split(' ').map((s) => s[0]).slice(0, 2).join('').toUpperCase();
+    const schedulable = canSchedule && lead.status !== 'registered';
 
     return (
         <div
@@ -163,8 +182,10 @@ export default function LeadDetailsModal({ lead, onClose }: Props) {
                         </div>
                     )}
 
-                    {/* Viewing if scheduled */}
-                    {lead.viewing_at && (
+                    {/* Viewing — date/time picker feeds the viewings calendar */}
+                    {schedulable ? (
+                        <ViewingScheduler lead={lead} prompt={promptSchedule} onSaved={onClose} />
+                    ) : lead.viewing_at && (
                         <div className="bg-brand-50 border border-brand-100 rounded-lg p-3 flex items-center gap-2.5">
                             <svg className="w-4 h-4 text-brand-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
                                 <rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/>
@@ -219,6 +240,57 @@ export default function LeadDetailsModal({ lead, onClose }: Props) {
                 </div>
             </div>
         </div>
+    );
+}
+
+function ViewingScheduler({ lead, prompt, onSaved }: { lead: Lead; prompt: boolean; onSaved: () => void }) {
+    const [date, setDate] = useState(lead.viewing_date ?? '');
+    const [time, setTime] = useState(lead.viewing_time ?? '');
+    const [busy, setBusy] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const dirty = date !== (lead.viewing_date ?? '') || time !== (lead.viewing_time ?? '');
+
+    function send(payload: { viewing_date: string | null; viewing_time: string | null }) {
+        setBusy(true);
+        setError(null);
+        router.patch(`/agent/pipeline/leads/${lead.id}/viewing`, payload, {
+            preserveScroll: true,
+            onSuccess: onSaved,
+            onError: (e) => setError(e.viewing_date || e.viewing_time || 'Could not save the viewing.'),
+            onFinish: () => setBusy(false),
+        });
+    }
+    function save(e: FormEvent) {
+        e.preventDefault();
+        if (!date || !time) { setError('Pick both a date and a time.'); return; }
+        send({ viewing_date: date, viewing_time: time });
+    }
+
+    const input = 'bg-white border border-ink-200 rounded-lg px-3 py-2 text-[13px] outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand';
+    return (
+        <form onSubmit={save} className={`rounded-lg p-3 border ${prompt && !lead.viewing_at ? 'bg-warning/10 border-warning/40' : 'bg-brand-50 border-brand-100'}`}>
+            <div className="flex items-center gap-2 mb-2">
+                <svg className="w-4 h-4 text-brand-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+                    <rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/>
+                </svg>
+                <h3 className="text-[12px] font-bold text-brand-700">
+                    {lead.viewing_at ? `Viewing: ${lead.viewing_at}` : prompt ? 'When is the viewing? Pick a date and time to add it to your calendar.' : 'Schedule a viewing'}
+                </h3>
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+                <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className={input} aria-label="Viewing date" />
+                <input type="time" value={time} onChange={(e) => setTime(e.target.value)} step={900} className={input} aria-label="Viewing time" />
+                <button type="submit" disabled={busy || !dirty}
+                    className="px-3 py-2 text-[12px] bg-brand-700 text-white rounded-md hover:bg-brand-800 disabled:opacity-50 font-semibold inline-flex items-center gap-1.5">
+                    {busy && <Spinner size={12} />}{lead.viewing_at ? 'Reschedule' : 'Add to calendar'}
+                </button>
+                {lead.viewing_at && (
+                    <button type="button" disabled={busy} onClick={() => send({ viewing_date: null, viewing_time: null })}
+                        className="px-2 py-2 text-[12px] text-danger hover:underline font-semibold">Remove</button>
+                )}
+            </div>
+            {error && <p className="text-[11px] text-danger mt-1.5">{error}</p>}
+        </form>
     );
 }
 

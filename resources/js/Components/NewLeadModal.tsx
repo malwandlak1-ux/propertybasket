@@ -31,7 +31,10 @@ export default function NewLeadModal({ listings, onClose, initialStage = 'new' }
         phone:         '',
         message:       '',
         initial_stage: initialStage,
+        viewing_date:  '',
+        viewing_time:  '',
     });
+    const needsViewing = data.initial_stage === 'viewing';
 
     function submit(e: FormEvent) {
         e.preventDefault();
@@ -135,6 +138,35 @@ export default function NewLeadModal({ listings, onClose, initialStage = 'new' }
                             />
                             {errors.phone && <p className="text-[11px] text-danger mt-1">{errors.phone}</p>}
                         </div>
+                    </div>
+
+                    <div className={`rounded-lg p-3 border ${needsViewing ? 'bg-brand-50 border-brand-100' : 'bg-ink-50 border-ink-200'}`}>
+                        <label className="text-[12px] font-semibold text-ink-700 mb-1.5 block">
+                            Viewing date &amp; time {needsViewing ? '*' : <span className="font-normal text-ink-500">(optional)</span>}
+                        </label>
+                        <div className="grid grid-cols-2 gap-3">
+                            <input
+                                type="date"
+                                value={data.viewing_date}
+                                onChange={(e) => setData('viewing_date', e.target.value)}
+                                required={needsViewing || !!data.viewing_time}
+                                aria-label="Viewing date"
+                                className="w-full bg-white border border-ink-200 rounded-lg px-3.5 py-2.5 text-[14px] outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand"
+                            />
+                            <input
+                                type="time"
+                                step={900}
+                                value={data.viewing_time}
+                                onChange={(e) => setData('viewing_time', e.target.value)}
+                                required={needsViewing || !!data.viewing_date}
+                                aria-label="Viewing time"
+                                className="w-full bg-white border border-ink-200 rounded-lg px-3.5 py-2.5 text-[14px] outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand"
+                            />
+                        </div>
+                        <p className="text-[11px] text-ink-500 mt-1.5">Adds the viewing to your Viewings calendar.</p>
+                        {(errors.viewing_date || errors.viewing_time) && (
+                            <p className="text-[11px] text-danger mt-1">{errors.viewing_date || errors.viewing_time}</p>
+                        )}
                     </div>
 
                     <div>

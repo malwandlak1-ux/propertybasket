@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Agency;
 use App\Models\Inquiry;
 use App\Models\Listing;
+use App\Support\PipelineCard;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -36,7 +37,7 @@ class ViewingsController extends Controller
         $viewings = Inquiry::where('assigned_to', $user->id)
             ->whereNotNull('viewing_scheduled_at')
             ->whereBetween('viewing_scheduled_at', [$periodStart, $periodEnd])
-            ->with('listing:id,title,suburb,city')
+            ->with(PipelineCard::LISTING_COLUMNS)
             ->orderBy('viewing_scheduled_at')
             ->get()
             ->map(function ($inq) use ($periodStart) {
@@ -54,6 +55,7 @@ class ViewingsController extends Controller
                     'listing'    => $inq->listing?->title ?? '—',
                     'status'     => $inq->status,
                     'type'       => 'viewing',
+                    'lead'       => PipelineCard::from($inq), // opens the same popup as the pipeline
                 ];
             });
 
@@ -65,7 +67,7 @@ class ViewingsController extends Controller
             ->whereNotNull('viewing_scheduled_at')
             ->where('viewing_scheduled_at', '>', $periodEnd)
             ->where('viewing_scheduled_at', '<=', $periodEnd->addDays(14))
-            ->with('listing:id,title')
+            ->with(PipelineCard::LISTING_COLUMNS)
             ->orderBy('viewing_scheduled_at')
             ->take(5)
             ->get()
@@ -74,6 +76,7 @@ class ViewingsController extends Controller
                 'name'    => $inq->name,
                 'time'    => $inq->viewing_scheduled_at?->format('D d M · H:i'),
                 'listing' => $inq->listing?->title ?? '—',
+                'lead'    => PipelineCard::from($inq),
             ]);
 
         // Listings the agent can schedule a viewing against

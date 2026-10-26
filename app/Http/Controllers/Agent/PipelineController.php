@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Agency;
 use App\Models\Inquiry;
 use App\Models\Listing;
+use App\Support\PipelineCard;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -25,7 +26,11 @@ class PipelineController extends Controller
         'offer'     => ['label' => 'Offer',      'dot' => 'bg-warning',  'statuses' => ['offer']],
         'closed'    => ['label' => 'Closed Won', 'dot' => 'bg-success',  'statuses' => ['closed']],
         'registered'=> ['label' => 'Registered', 'dot' => 'bg-violet-500','statuses' => ['registered']],
+        'disqualified' => ['label' => 'Disqualified', 'dot' => 'bg-danger', 'statuses' => ['disqualified']],
     ];
+
+    /** Statuses an agent may set themselves (Registered is agency-only). */
+    private const AGENT_STATUSES = ['new', 'contacted', 'qualified', 'viewing', 'offer', 'closed', 'lost', 'disqualified'];
 
     public function index(Request $request): Response
     {
@@ -34,8 +39,7 @@ class PipelineController extends Controller
         $now         = CarbonImmutable::now();
         $monthStart  = $now->startOfMonth();
 
-        $query = Inquiry::where('assigned_to', $user->id)
-            ->with('listing:id,title,slug,listing_type,sale_price,monthly_rent,short_stay_nightly_price');
+        $query = Inquiry::where('assigned_to', $user->id)->with(PipelineCard::LISTING_COLUMNS);
 
         $columns = [];
         $totalValue = 0.0;
@@ -49,10 +53,10 @@ class PipelineController extends Controller
             $count = (clone $colQuery)->count();
             $rows  = $colQuery->orderByDesc('updated_at')->take(10)->get();
 
-            $cards = $rows->map(fn ($inq) => $this->card($inq));
+            $cards = $rows->map(fn ($inq) => PipelineCard::from($inq));
             $colValue = (float) $cards->sum('deal_value');
 
-            if ($key !== 'closed') {
+            if (! in_array($key, ['closed', 'registered', 'disqualified'], true)) {
                 $totalValue += $colValue;
             }
 
@@ -109,6 +113,12 @@ class PipelineController extends Controller
             'phone'        => ['nullable', 'string', 'max:30'],
             'message'      => ['nullable', 'string', 'max:2000'],
             'initial_stage'=> ['nullable', Rule::in(['new', 'contacted', 'qualified', 'viewing', 'offer'])],
+            // A viewing date + time puts the lead on the viewings calendar.
+            'viewing_date' => ['nullable', 'required_if:initial_stage,viewing', 'date_format:Y-m-d', 'required_with:viewing_time'],
+            'viewing_time' => ['nullable', 'required_with:viewing_date', 'date_format:H:i'],
+        ], [
+            'viewing_date.required_if' => 'Pick the viewing date so it shows on your calendar.',
+            'viewing_time.required_with' => 'Pick the viewing time.',
         ]);
 
         Inquiry::create([
@@ -122,6 +132,7 @@ class PipelineController extends Controller
             'status'            => $data['initial_stage'] ?? 'new',
             'allocated_at'      => now(),
             'allocation_method' => 'manual',
+            'viewing_scheduled_at' => $this->viewingAt($data),
         ]);
 
         // Bump the listing's inquiries counter to keep listings KPIs consistent.
@@ -157,7 +168,7 @@ class PipelineController extends Controller
         );
 
         $data = $request->validate([
-            'status' => ['required', Rule::in(['new', 'contacted', 'qualified', 'viewing', 'offer', 'closed', 'lost'])],
+            'status' => ['required', Rule::in(self::AGENT_STATUSES)],
         ]);
 
         $inquiry->update(['status' => $data['status']]);
@@ -165,39 +176,38 @@ class PipelineController extends Controller
         return response()->noContent();
     }
 
-    private function card(Inquiry $inq): array
+    /**
+     * PATCH /agent/pipeline/leads/{inquiry}/viewing — set (or clear) the viewing
+     * date + time from the lead popup. Puts it on the viewings calendar and moves
+     * an early-stage lead into Viewing.
+     */
+    public function scheduleViewing(Request $request, Inquiry $inquiry): RedirectResponse
     {
-        $listing  = $inq->listing;
-        $dv       = $listing ? (float) match ($listing->listing_type) {
-            'for_sale'        => $listing->sale_price ?? 0,
-            'long_term_rent'  => ($listing->monthly_rent ?? 0) * 12,
-            'short_term_stay' => ($listing->short_stay_nightly_price ?? 0) * 30,
-            default           => 0,
-        } : 0.0;
+        abort_unless($inquiry->assigned_to === $request->user()->id, 403, 'You can only schedule your own leads.');
 
-        if (! $listing && $inq->deal_value) {
-            $dv = (float) $inq->deal_value;
+        $data = $request->validate([
+            'viewing_date' => ['nullable', 'date_format:Y-m-d', 'required_with:viewing_time'],
+            'viewing_time' => ['nullable', 'date_format:H:i', 'required_with:viewing_date'],
+        ]);
+        $at = $this->viewingAt($data);
+
+        $inquiry->viewing_scheduled_at = $at;
+        if ($at && in_array($inquiry->status, ['new', 'contacted', 'qualified'], true)) {
+            $inquiry->status = 'viewing';
+        }
+        $inquiry->save();
+
+        return back()->with('success', $at
+            ? "Viewing with {$inquiry->name} set for " . $at->format('D d M') . ' at ' . $at->format('H:i') . ' — it’s on your calendar.'
+            : "Viewing with {$inquiry->name} removed from your calendar.");
+    }
+
+    private function viewingAt(array $data): ?CarbonImmutable
+    {
+        if (empty($data['viewing_date']) || empty($data['viewing_time'])) {
+            return null;
         }
 
-        $isHot = in_array($inq->status, ['qualified', 'offer']) && $dv >= 1_000_000;
-
-        return [
-            'id'            => $inq->id,
-            'visitor_name'  => $inq->name,
-            'email'         => $inq->email,
-            'phone'         => $inq->phone,
-            'message'       => $inq->message,
-            'listing_id'    => $listing?->id,
-            'listing_title' => $listing?->title ?? ($inq->source === 'farming' ? 'Seller lead · farming' : null),
-            'listing_type'  => $listing?->listing_type,
-            'listing_slug'  => $listing?->slug,
-            'deal_value'    => $dv,
-            'is_hot'        => $isHot,
-            'status'        => $inq->status,
-            'source'        => $inq->source,
-            'created_at'    => $inq->created_at?->format('d M Y \a\t H:i'),
-            'age_label'     => $inq->updated_at?->diffForHumans() ?? '—',
-            'viewing_at'    => $inq->viewing_scheduled_at?->format('D d M · H:i'),
-        ];
+        return CarbonImmutable::createFromFormat('Y-m-d H:i', "{$data['viewing_date']} {$data['viewing_time']}", config('app.timezone'));
     }
 }

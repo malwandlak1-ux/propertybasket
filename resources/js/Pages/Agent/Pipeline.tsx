@@ -34,6 +34,8 @@ type Card = {
     created_at: string | null;
     age_label: string;
     viewing_at?: string | null;
+    viewing_date?: string | null;
+    viewing_time?: string | null;
 };
 
 type Column = {
@@ -67,7 +69,11 @@ const COLUMN_TO_STATUS: Record<string, string> = {
     viewing: 'viewing',
     offer: 'offer',
     closed: 'closed',
+    disqualified: 'disqualified',
 };
+
+/** Columns that don't count as live pipeline (value / active-deal totals). */
+const INACTIVE_COLUMNS = ['closed', 'registered', 'disqualified'];
 
 const STATUS_TONES: Record<string, string> = {
     new:       'bg-ink-100 text-ink-700',
@@ -76,6 +82,7 @@ const STATUS_TONES: Record<string, string> = {
     viewing:   'bg-violet-50 text-violet-700',
     offer:     'bg-warning/15 text-warning',
     closed:    'bg-success/15 text-success',
+    disqualified: 'bg-danger/10 text-danger',
 };
 
 const STATUS_LABELS: Record<string, string> = {
@@ -85,6 +92,7 @@ const STATUS_LABELS: Record<string, string> = {
     viewing:   'Viewing',
     offer:     'Offer',
     closed:    'Closed Won',
+    disqualified: 'Disqualified',
 };
 
 function KanbanCard({
@@ -175,6 +183,8 @@ export default function AgentPipeline({ agent, columns: initialColumns, listings
     const [hoverCol, setHoverCol] = useState<string | null>(null);
     const [newLeadOpen, setNewLeadOpen] = useState<{ open: boolean; stage: Stage }>({ open: false, stage: 'new' });
     const [activeLead, setActiveLead] = useState<Card | null>(null);
+    // Set when a lead is moved into Viewing without a date, so the popup asks for one.
+    const [promptSchedule, setPromptSchedule] = useState(false);
 
     // After a drag, browsers fire a synthetic `click` event. If the dragged
     // card got unmounted by our optimistic move, the click can land on a
@@ -186,7 +196,17 @@ export default function AgentPipeline({ agent, columns: initialColumns, listings
     }
     function handleCardClick(card: Card) {
         if (Date.now() - dragEndAtRef.current < 500) return;
+        setPromptSchedule(false);
         setActiveLead(card);
+    }
+    /** Moving a lead into Viewing: if it has no date yet, open the popup to pick one (calendar entry). */
+    function askForViewingDate(id: number, newStatus: string) {
+        if (newStatus !== 'viewing') return;
+        const card = columns.flatMap((c) => c.cards).find((cc) => cc.id === id);
+        if (card && ! card.viewing_at) {
+            setPromptSchedule(true);
+            setActiveLead({ ...card, status: 'viewing' });
+        }
     }
     function onCardDragEnd() {
         markDragEnd();
@@ -205,9 +225,9 @@ export default function AgentPipeline({ agent, columns: initialColumns, listings
         }
     }, []);
 
-    const totalDeals = useMemo(() => columns.reduce((a, c) => a + c.count, 0), [columns]);
+    const totalDeals = useMemo(() => columns.filter((c) => c.key !== 'disqualified').reduce((a, c) => a + c.count, 0), [columns]);
     const totalValue = useMemo(
-        () => columns.filter((c) => c.key !== 'closed').reduce((a, c) => a + c.total_value, 0),
+        () => columns.filter((c) => ! INACTIVE_COLUMNS.includes(c.key)).reduce((a, c) => a + c.total_value, 0),
         [columns]
     );
 
@@ -253,6 +273,7 @@ export default function AgentPipeline({ agent, columns: initialColumns, listings
             if (! newStatus) return;
 
             moveCardLocally(id, sourceCol.key, targetColKey, newStatus);
+            askForViewingDate(id, newStatus);
 
             router.patch(
                 `/agent/pipeline/leads/${id}/status`,
@@ -305,6 +326,7 @@ export default function AgentPipeline({ agent, columns: initialColumns, listings
         if (sourceCol.key === targetKey && sourceCol.cards.find((cc) => cc.id === id)?.status === newStatus) return;
 
         moveCardLocally(id, sourceCol.key, targetKey, newStatus);
+        askForViewingDate(id, newStatus);
         router.patch(`/agent/pipeline/leads/${id}/status`, { status: newStatus }, {
             preserveScroll: true,
             preserveState: true,
@@ -379,7 +401,7 @@ export default function AgentPipeline({ agent, columns: initialColumns, listings
                 </div>
 
                 {view === 'kanban' ? (
-                    <div className="flex gap-3 overflow-x-auto pb-2 min-h-[600px] snap-x lg:grid lg:grid-cols-6 lg:overflow-visible">
+                    <div className="flex gap-3 overflow-x-auto pb-2 min-h-[600px] snap-x xl:grid xl:grid-cols-7 xl:overflow-visible">
                         {columns.map((col) => {
                             const isHovered = hoverCol === col.key;
                             const isRegistered = col.key === 'registered';
@@ -390,7 +412,7 @@ export default function AgentPipeline({ agent, columns: initialColumns, listings
                                     onDragLeave={onColumnDragLeave(col.key)}
                                     onDrop={onColumnDrop(col.key)}
                                     className={
-                                        'rounded-xl p-3 flex flex-col transition-colors shrink-0 snap-start w-[82vw] sm:w-[300px] lg:w-auto lg:shrink ' +
+                                        'rounded-xl p-3 flex flex-col transition-colors shrink-0 snap-start w-[82vw] sm:w-[300px] xl:w-auto xl:shrink ' +
                                         (isHovered && ! isRegistered ? 'bg-brand-50 ring-2 ring-brand-300' : 'bg-ink-100/50')
                                     }
                                 >
@@ -416,7 +438,7 @@ export default function AgentPipeline({ agent, columns: initialColumns, listings
                                             />
                                         ))}
 
-                                        {col.key !== 'closed' && col.key !== 'registered' && (
+                                        {! INACTIVE_COLUMNS.includes(col.key) && (
                                             <button
                                                 type="button"
                                                 onClick={() => setNewLeadOpen({ open: true, stage: col.key as Stage })}
@@ -433,13 +455,16 @@ export default function AgentPipeline({ agent, columns: initialColumns, listings
                                         {col.count === 0 && col.key === 'registered' && (
                                             <div className="py-8 text-center text-[11px] text-ink-400">Your agency registers closed deals here</div>
                                         )}
+                                        {col.count === 0 && col.key === 'disqualified' && (
+                                            <div className="py-8 text-center text-[11px] text-ink-400">Drag leads here that aren’t a fit</div>
+                                        )}
                                     </div>
                                 </div>
                             );
                         })}
                     </div>
                 ) : (
-                    <TableView cards={allCards} onClickRow={setActiveLead} onStatusChange={changeStatus} />
+                    <TableView cards={allCards} onClickRow={(c) => { setPromptSchedule(false); setActiveLead(c); }} onStatusChange={changeStatus} />
                 )}
             </div>
 
@@ -451,7 +476,7 @@ export default function AgentPipeline({ agent, columns: initialColumns, listings
                 />
             )}
             {activeLead && (
-                <LeadDetailsModal lead={activeLead} onClose={() => setActiveLead(null)} />
+                <LeadDetailsModal lead={activeLead} promptSchedule={promptSchedule} onClose={() => { setActiveLead(null); setPromptSchedule(false); }} />
             )}
         </AgentLayout>
     );
@@ -483,7 +508,7 @@ function TableView({
     }
 
     const sortedCards = [...cards].sort((a, b) => {
-        const order: Record<string, number> = { new: 1, contacted: 2, qualified: 3, viewing: 4, offer: 5, closed: 6 };
+        const order: Record<string, number> = { new: 1, contacted: 2, qualified: 3, viewing: 4, offer: 5, closed: 6, registered: 7, disqualified: 8 };
         const so = (order[a.status] ?? 99) - (order[b.status] ?? 99);
         if (so !== 0) return so;
         return b.deal_value - a.deal_value;

@@ -114,6 +114,45 @@ class CloudApi
         ]);
     }
 
+    /**
+     * Upload a file to Meta for this number; returns the media id to send.
+     * Media ids are valid for 30 days.
+     */
+    public function uploadMedia(WhatsAppAccount $a, string $path, string $mime, string $filename): string
+    {
+        if ($this->isStub()) {
+            return 'media-stub-' . Str::random(10);
+        }
+
+        $res = $this->handle(
+            Http::withToken($a->access_token)->acceptJson()->timeout(120)
+                ->attach('file', fopen($path, 'r'), $filename, ['Content-Type' => $mime])
+                ->post($this->url("{$a->phone_number_id}/media"), ['messaging_product' => 'whatsapp', 'type' => $mime])
+        );
+        if (empty($res['id'])) {
+            throw new WhatsAppApiException('Meta did not return a media id for the attachment.', 0);
+        }
+
+        return (string) $res['id'];
+    }
+
+    /**
+     * Send an uploaded attachment (inside the 24h reply window).
+     * $kind is image | video | audio | document; audio can't carry a caption.
+     */
+    public function sendMedia(WhatsAppAccount $a, string $to, string $kind, string $mediaId, ?string $caption = null, ?string $filename = null): string
+    {
+        $media = ['id' => $mediaId];
+        if ($caption !== null && $caption !== '' && $kind !== 'audio') {
+            $media['caption'] = $caption;
+        }
+        if ($kind === 'document' && $filename) {
+            $media['filename'] = $filename;
+        }
+
+        return $this->send($a, ['to' => $to, 'type' => $kind, $kind => $media]);
+    }
+
     /** Free-form text — only allowed within 24h of the owner's last message. */
     public function sendText(WhatsAppAccount $a, string $to, string $body): string
     {

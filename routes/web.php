@@ -219,6 +219,7 @@ Route::middleware('auth')->group(function () {
         Route::post('crm/whatsapp/campaigns/{campaign}/cancel', [Agent\WhatsAppController::class, 'cancelCampaign'])->name('crm.whatsapp.campaigns.cancel');
         Route::get('crm/whatsapp/chat', [Agent\WhatsAppController::class, 'chat'])->name('crm.whatsapp.chat');
         Route::post('crm/whatsapp/chat', [Agent\WhatsAppController::class, 'reply'])->name('crm.whatsapp.reply');
+        Route::get('crm/whatsapp/media/{message}', [Agent\WhatsAppController::class, 'media'])->name('crm.whatsapp.media');
         Route::redirect('pipeline', '/agent/crm/pipeline')->name('pipeline.legacy');
         Route::post('pipeline/leads', [Agent\PipelineController::class, 'storeLead'])->name('pipeline.leads.store');
         Route::patch('pipeline/leads/{inquiry}/status', [Agent\PipelineController::class, 'updateLeadStatus'])->name('pipeline.leads.status');

@@ -297,6 +297,54 @@ class WhatsAppTest extends TestCase
     }
 
     #[Test]
+    public function an_agent_can_reply_with_attachments_inside_the_24h_window(): void
+    {
+        \Illuminate\Support\Facades\Storage::fake('local');
+        Http::fake([
+            'graph.facebook.com/v23.0/2222222222/media' => Http::response(['id' => 'MEDIA123']),
+            'graph.facebook.com/v23.0/2222222222/messages' => Http::sequence()
+                ->push(['messages' => [['id' => 'wamid.DOC']]])
+                ->push(['messages' => [['id' => 'wamid.IMG']]])
+                ->push(['messages' => [['id' => 'wamid.AUD']]])
+                ->push(['messages' => [['id' => 'wamid.TXT']]]),
+        ]);
+        $a = $this->account();
+        WaMessage::create(['whatsapp_account_id' => $a->id, 'agent_id' => $this->agent->id, 'direction' => 'in', 'type' => 'text',
+            'phone' => '27821112222', 'body' => 'Send me the details', 'status' => 'received', 'sent_at' => now()->subHour()]);
+        $reply = fn (array $data) => $this->actingAs($this->agent)->post('/agent/crm/whatsapp/chat', $data + ['phone' => '27821112222']);
+
+        // Document with a caption.
+        $pdf = \Illuminate\Http\UploadedFile::fake()->create('Valuation report.pdf', 300, 'application/pdf');
+        $reply(['body' => 'Here is your valuation', 'attachment' => $pdf])->assertSessionHasNoErrors();
+        Http::assertSent(fn ($r) => str_ends_with($r->url(), '/media') && $r->isMultipart());
+        Http::assertSent(fn ($r) => str_ends_with($r->url(), '/messages') && $r['type'] === 'document'
+            && $r['document']['id'] === 'MEDIA123' && $r['document']['caption'] === 'Here is your valuation'
+            && $r['document']['filename'] === 'Valuation report.pdf');
+        $doc = WaMessage::where('wamid', 'wamid.DOC')->firstOrFail();
+        $this->assertSame('document', $doc->type);
+        \Illuminate\Support\Facades\Storage::disk('local')->assertExists($doc->media_path);
+
+        // Photo without a caption.
+        $reply(['attachment' => \Illuminate\Http\UploadedFile::fake()->image('unit-4.jpg', 800, 600)])->assertSessionHasNoErrors();
+        $this->assertSame('image', WaMessage::where('wamid', 'wamid.IMG')->value('type'));
+
+        // Audio can't carry a caption: the text follows as its own message.
+        $reply(['body' => 'Voice note above', 'attachment' => \Illuminate\Http\UploadedFile::fake()->create('note.mp3', 50, 'audio/mpeg')])->assertSessionHasNoErrors();
+        $this->assertSame('audio', WaMessage::where('wamid', 'wamid.AUD')->value('type'));
+        $this->assertSame('Voice note above', WaMessage::where('wamid', 'wamid.TXT')->value('body'));
+
+        // Unsupported types and empty replies are refused before anything is sent.
+        $reply(['attachment' => \Illuminate\Http\UploadedFile::fake()->create('setup.exe', 10, 'application/octet-stream')])->assertSessionHasErrors('attachment');
+        $reply(['body' => ''])->assertSessionHasErrors('body');
+
+        // The chat shows the attachment; only its own agent can open the copy.
+        $this->actingAs($this->agent)->get('/agent/crm/whatsapp/chat?phone=27821112222')->assertOk()
+            ->assertInertia(fn (Assert $p) => $p->where('messages', fn ($ms) => collect($ms)->contains(fn ($m) => ($m['media']['name'] ?? null) === 'Valuation report.pdf')));
+        $this->actingAs($this->agent)->get("/agent/crm/whatsapp/media/{$doc->id}")->assertOk();
+        $this->actingAs($this->other)->get("/agent/crm/whatsapp/media/{$doc->id}")->assertForbidden();
+    }
+
+    #[Test]
     public function the_send_schedule_follows_the_consumer_protection_act(): void
     {
         $at = fn (string $t) => CarbonImmutable::parse($t, 'Africa/Johannesburg');

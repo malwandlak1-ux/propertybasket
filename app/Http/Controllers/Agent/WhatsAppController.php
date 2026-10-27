@@ -18,10 +18,12 @@ use App\Support\Phone;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
  * CRM → WhatsApp: the agent connects their own WhatsApp Business (Cloud API)
@@ -351,6 +353,11 @@ class WhatsAppController extends Controller
                 'id'        => $m->id,
                 'direction' => $m->direction,
                 'body'      => $m->body,
+                'media'     => $m->media_path ? [
+                    'url'  => route('agent.crm.whatsapp.media', $m),
+                    'name' => $m->media_name,
+                    'kind' => $m->type,
+                ] : null,
                 'status'    => $m->status,
                 'campaign'  => $m->campaign?->name,
                 'at'        => ($m->sent_at ?? $m->created_at)?->format('d M H:i'),
@@ -358,37 +365,99 @@ class WhatsAppController extends Controller
         ]);
     }
 
+    /** Attachment types WhatsApp accepts on a reply, by our upload extension. */
+    private const ATTACH_EXT = 'jpg,jpeg,png,mp4,3gp,mp3,ogg,aac,m4a,amr,pdf,doc,docx,xls,xlsx,ppt,pptx,txt,csv';
+
     public function reply(Request $request): RedirectResponse
     {
         $account = $this->connected($request);
-        $data = $request->validate(['phone' => ['required', 'string'], 'body' => ['required', 'string', 'max:4000']]);
+        $data = $request->validate([
+            'phone'      => ['required', 'string'],
+            'body'       => ['nullable', 'required_without:attachment', 'string', 'max:4000'],
+            'attachment' => ['nullable', 'file', 'max:16384', 'mimes:' . self::ATTACH_EXT],
+        ], [
+            'body.required_without' => 'Type a message or attach a file.',
+            'attachment.max'        => 'Attachments can be up to 16 MB.',
+            'attachment.mimes'      => 'WhatsApp accepts photos (JPG/PNG), videos (MP4), voice notes/audio and documents (PDF, Word, Excel, PowerPoint, TXT, CSV).',
+        ]);
         $phone = Phone::waZa($data['phone']) ?? abort(422);
+        $body = trim((string) ($data['body'] ?? ''));
 
         $lastIn = WaMessage::where('whatsapp_account_id', $account->id)->where('phone', $phone)->where('direction', 'in')->latest('sent_at')->first();
         if (! $lastIn || $lastIn->sent_at->lt(now()->subDay())) {
             return back()->with('error', 'WhatsApp only allows free replies within 24 hours of the owner’s last message. Use a template campaign instead.');
         }
 
-        try {
-            $wamid = $this->api->sendText($account, $phone, $data['body']);
-        } catch (WhatsAppApiException $e) {
-            return back()->with('error', 'Not sent: ' . $e->friendly());
-        }
-
-        WaMessage::create([
+        $base = [
             'whatsapp_account_id' => $account->id,
             'agent_id'            => $account->agent_id,
             'crm_prospect_id'     => $lastIn->crm_prospect_id,
             'direction'           => 'out',
-            'type'                => 'text',
             'phone'               => $phone,
-            'body'                => $data['body'],
-            'wamid'               => $wamid,
             'status'              => 'sent',
             'sent_at'             => now(),
+        ];
+
+        $file = $request->file('attachment');
+        if (! $file) {
+            try {
+                $wamid = $this->api->sendText($account, $phone, $body);
+            } catch (WhatsAppApiException $e) {
+                return back()->with('error', 'Not sent: ' . $e->friendly());
+            }
+            WaMessage::create($base + ['type' => 'text', 'body' => $body, 'wamid' => $wamid]);
+
+            return back();
+        }
+
+        $mime = $file->getMimeType() ?: 'application/octet-stream';
+        $name = mb_substr(preg_replace('/[^\w.\- ()]+/u', '_', $file->getClientOriginalName()) ?: 'attachment', 0, 200);
+        $kind = $this->mediaKind($mime, $file->getSize());
+        $path = $file->store("wa-media/{$account->id}", 'local');
+
+        try {
+            $mediaId = $this->api->uploadMedia($account, Storage::disk('local')->path($path), $mime, $name);
+            $wamid = $this->api->sendMedia($account, $phone, $kind, $mediaId, $body ?: null, $name);
+            // Audio can't carry a caption — send the text straight after it.
+            $textWamid = ($kind === 'audio' && $body !== '') ? $this->api->sendText($account, $phone, $body) : null;
+        } catch (WhatsAppApiException $e) {
+            Storage::disk('local')->delete($path);
+
+            return back()->with('error', 'Not sent: ' . $e->friendly());
+        }
+
+        WaMessage::create($base + [
+            'type' => $kind, 'body' => $kind === 'audio' ? null : ($body ?: null), 'wamid' => $wamid,
+            'media_path' => $path, 'media_name' => $name, 'media_mime' => $mime,
         ]);
+        if ($textWamid) {
+            WaMessage::create($base + ['type' => 'text', 'body' => $body, 'wamid' => $textWamid]);
+        }
 
         return back();
+    }
+
+    /** GET /agent/crm/whatsapp/media/{message} — the agent's own copy of an attachment they sent. */
+    public function media(Request $request, WaMessage $message): StreamedResponse
+    {
+        abort_unless((int) $message->agent_id === (int) $request->user()->id, 403);
+        abort_unless($message->media_path && Storage::disk('local')->exists($message->media_path), 404);
+
+        return Storage::disk('local')->response($message->media_path, $message->media_name, [
+            'Content-Type'  => $message->media_mime ?: 'application/octet-stream',
+            'Cache-Control' => 'private, max-age=86400',
+        ], $request->boolean('download') ? 'attachment' : 'inline');
+    }
+
+    /** WhatsApp message type for a file: images over 5 MB (or not JPG/PNG) go as documents. */
+    private function mediaKind(string $mime, ?int $bytes): string
+    {
+        return match (true) {
+            in_array($mime, ['image/jpeg', 'image/png'], true) && ($bytes ?? 0) <= 5 * 1024 * 1024 => 'image',
+            in_array($mime, ['video/mp4', 'video/3gpp'], true) => 'video',
+            str_starts_with($mime, 'audio/') => 'audio',
+            default => 'document',
+        };
     }
 
     // ── Helpers ──────────────────────────────────────────────────────────

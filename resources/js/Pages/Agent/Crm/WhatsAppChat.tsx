@@ -5,6 +5,8 @@ import CrmTabs from '@/Components/Crm/CrmTabs';
 import { FlashBanners, PageHeader, btnPrimary } from '@/Components/Dashboard/Charts';
 import { Spinner } from '@/Components/Skeleton';
 import { safeUploadFile } from '@/lib/safeUpload';
+import ProspectDrawer from '@/Components/Crm/ProspectDrawer';
+import type { Activity, Profile, Prospect, Scheme, Suburb } from '@/Components/Crm/constants';
 
 type Media = { url: string; name: string | null; kind: string };
 type Msg = { id: number; direction: 'in' | 'out'; body: string | null; media: Media | null; status: string; campaign: string | null; at: string | null };
@@ -17,13 +19,17 @@ function fmtSize(b: number) {
     return b >= 1024 * 1024 ? `${(b / 1024 / 1024).toFixed(1)} MB` : `${Math.max(1, Math.round(b / 1024))} KB`;
 }
 
-export default function Chat({ agent, phone, display, prospect, window_open_until, messages }: {
+type Panel = { prospect: Prospect; scheme: Scheme; suburb: Suburb; history: Activity[] };
+
+export default function Chat({ agent, phone, display, prospect, window_open_until, messages, panel, profile }: {
     agent: { agency_name: string };
     phone: string;
     display: string;
     prospect: { id: number; owner: string; unit: string | null; scheme: string | null; scheme_id: number; opted_out: boolean } | null;
     window_open_until: string | null;
     messages: Msg[];
+    panel: Panel | null;
+    profile: Profile;
 }) {
     const { flash } = usePage<{ flash?: { success?: string | null; error?: string | null } }>().props;
     const { data, setData, post, processing, reset, errors, progress } = useForm<{ phone: string; body: string; attachment: File | null }>({ phone, body: '', attachment: null });
@@ -57,7 +63,7 @@ export default function Chat({ agent, phone, display, prospect, window_open_unti
     return (
         <AgentLayout crumb="CRM · WhatsApp" agencyName={agent.agency_name}>
             <Head title={prospect?.owner ?? display} />
-            <div className="px-4 sm:px-7 py-6 max-w-4xl">
+            <div className="px-4 sm:px-7 py-6">
                 <PageHeader
                     title={prospect?.owner ?? display}
                     subtitle={<>
@@ -69,7 +75,8 @@ export default function Chat({ agent, phone, display, prospect, window_open_unti
                 <FlashBanners flash={flash} />
                 {prospect?.opted_out && <div className="mb-4 rounded-2xl bg-danger/10 border border-danger/30 text-danger px-5 py-3 text-[13px]">This owner replied STOP. They won’t get campaign messages again.</div>}
 
-                <section className="bg-white rounded-2xl border border-ink-200/60 shadow-soft overflow-hidden pb-rise">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
+                <section className="lg:col-span-7 bg-white rounded-2xl border border-ink-200/60 shadow-soft overflow-hidden pb-rise">
                     <div className="bg-[#E7DFD4] p-4 sm:p-5 space-y-2.5 max-h-[60vh] overflow-y-auto">
                         {messages.map((m) => (
                             <div key={m.id} className={`flex ${m.direction === 'out' ? 'justify-end' : 'justify-start'}`}>
@@ -122,6 +129,28 @@ export default function Chat({ agent, phone, display, prospect, window_open_unti
                     </form>
                     {window_open_until && <p className="px-4 pb-3 -mt-2 text-[11px] text-ink-400">You can reply freely until {window_open_until}.</p>}
                 </section>
+
+                {/* The owner's farming record beside the chat: log a contact, send to pipeline, edit details. */}
+                <div className="lg:col-span-5">
+                    {panel ? (
+                        <ProspectDrawer
+                            key={JSON.stringify(panel.prospect) + panel.history.length}
+                            inline
+                            prospect={panel.prospect}
+                            scheme={panel.scheme}
+                            suburb={panel.suburb}
+                            history={panel.history}
+                            editable
+                            profile={profile}
+                            onClose={() => {}}
+                        />
+                    ) : (
+                        <div className="bg-white rounded-2xl border border-dashed border-ink-200 p-5 text-[12.5px] text-ink-500">
+                            This number isn’t linked to an owner in your farming lists. Add it to an owner’s Phone 1 or Phone 2 under CRM → Farming to log contacts from here.
+                        </div>
+                    )}
+                </div>
+                </div>
             </div>
         </AgentLayout>
     );

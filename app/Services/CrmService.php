@@ -345,6 +345,33 @@ class CrmService
         ];
     }
 
+    /**
+     * Everything the ProspectDrawer needs for one owner — used to show the drawer as a side
+     * panel next to a WhatsApp chat: the prospect row, its scheme + suburb and recent history.
+     */
+    public function prospectPanel(CrmProspect $p): array
+    {
+        // load(), not loadMissing(): callers often load a slim scheme (id,name) without its suburb key.
+        $p->load(['scheme.suburb', 'scheme.agent:id,name', 'agent:id,name']);
+        $scheme = $p->scheme;
+
+        return [
+            'prospect' => $this->prospectRow($p),
+            'scheme'   => [
+                'id'            => $scheme->id,
+                'name'          => $scheme->name,
+                'scheme_number' => $scheme->scheme_number,
+                'erf'           => $scheme->erf,
+                'address'       => $scheme->address,
+                'units_count'   => $scheme->units_count,
+                'agent'         => $scheme->agent?->name,
+            ],
+            'suburb'   => $this->suburbRow($scheme->suburb),
+            'history'  => CrmActivity::where('crm_prospect_id', $p->id)->latest('occurred_on')->latest('id')->limit(15)->get()
+                ->map(fn (CrmActivity $a) => $this->activityRow($a))->values(),
+        ];
+    }
+
     public function prospectRow(CrmProspect $p): array
     {
         return [

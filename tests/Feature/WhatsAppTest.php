@@ -342,6 +342,31 @@ class WhatsAppTest extends TestCase
     }
 
     #[Test]
+    public function the_chat_shows_the_owners_farming_record_beside_it(): void
+    {
+        $a = $this->account();
+        $p = $this->prospect(['owner_name' => 'MALOMA EVELINE', 'unit' => '72', 'phone1' => '0737811807', 'phone2' => '0815819053', 'status' => 'contacted']);
+        \App\Models\CrmActivity::create(['agency_id' => $this->agency->id, 'agent_id' => $this->agent->id, 'crm_prospect_id' => $p->id,
+            'channel' => 'whatsapp', 'outcome' => 'sent', 'occurred_on' => now()->toDateString()]);
+        // Inbound message not linked to the prospect: matched by number.
+        WaMessage::create(['whatsapp_account_id' => $a->id, 'agent_id' => $this->agent->id, 'direction' => 'in', 'type' => 'text',
+            'phone' => '27815819053', 'body' => 'Send it here', 'status' => 'received', 'sent_at' => now()]);
+
+        $this->actingAs($this->agent)->get('/agent/crm/whatsapp/chat?phone=27815819053')->assertOk()
+            ->assertInertia(fn (Assert $pg) => $pg->component('Agent/Crm/WhatsAppChat')
+                ->where('panel.prospect.id', $p->id)
+                ->where('panel.prospect.owner_name', 'MALOMA EVELINE')
+                ->where('panel.scheme.name', 'SS Maxbie')
+                ->where('panel.suburb.name', 'Sunnyside')
+                ->has('panel.history', 1)
+                ->where('profile.name', $this->agent->name));
+
+        // A number nobody in the farming lists has: no panel.
+        $this->actingAs($this->agent)->get('/agent/crm/whatsapp/chat?phone=27609999999')->assertOk()
+            ->assertInertia(fn (Assert $pg) => $pg->where('panel', null));
+    }
+
+    #[Test]
     public function the_audience_report_handles_an_owner_whose_every_unit_was_messaged(): void
     {
         // Regression: all of the owner's units have a sent message, but one of their numbers

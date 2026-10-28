@@ -4,11 +4,13 @@ namespace App\Http\Controllers\Agent;
 
 use App\Http\Controllers\Agent\Concerns\ResolvesAgent;
 use App\Http\Controllers\Controller;
+use App\Models\CrmProspect;
 use App\Models\CrmScheme;
 use App\Models\WaCampaign;
 use App\Models\WaMessage;
 use App\Models\WaTemplate;
 use App\Models\WhatsAppAccount;
+use App\Services\CrmService;
 use App\Services\WhatsApp\CloudApi;
 use App\Services\WhatsApp\SendSchedule;
 use App\Services\WhatsApp\WhatsAppApiException;
@@ -345,12 +347,24 @@ class WhatsAppController extends Controller
             ->with('campaign:id,name')->latest('id')->limit(200)->get()->reverse()->values();
         $lastIn = $messages->where('direction', 'in')->last();
         $prospect = $messages->firstWhere('crm_prospect_id', '!=', null)?->prospect()->with('scheme:id,name')->first();
+        if (! $prospect) {
+            // Not linked to a message yet: match the number against the agent's CRM owners.
+            $tail = substr($phone, -4);
+            $prospect = CrmProspect::where('agent_id', $request->user()->id)
+                ->where(fn ($q) => $q->where('phone1', 'like', "%{$tail}%")->orWhere('phone2', 'like', "%{$tail}%"))
+                ->with('scheme:id,name')->get()
+                ->first(fn ($p) => Phone::waZa((string) $p->phone1) === $phone || Phone::waZa((string) $p->phone2) === $phone);
+        }
+        $user = $request->user();
 
         return Inertia::render('Agent/Crm/WhatsAppChat', [
             'agent'    => ['name' => $request->user()->name, 'agency_name' => $record->agency->name],
             'phone'    => $phone,
             'display'  => Phone::local($phone),
             'prospect' => $prospect ? ['id' => $prospect->id, 'owner' => $prospect->owner_name, 'unit' => $prospect->unit, 'scheme' => $prospect->scheme?->name, 'scheme_id' => $prospect->crm_scheme_id, 'opted_out' => (bool) $prospect->wa_opted_out_at] : null,
+            // The owner's farming record, shown as a side panel (log a contact, pipeline, details).
+            'panel'    => $prospect ? app(CrmService::class)->prospectPanel($prospect) : null,
+            'profile'  => ['name' => $user->name, 'agency' => $record->agency->name, 'phone' => $user->phone],
             'window_open_until' => $lastIn && $lastIn->sent_at?->gt(now()->subDay()) ? $lastIn->sent_at->addDay()->format('d M H:i') : null,
             'messages' => $messages->map(fn (WaMessage $m) => [
                 'id'        => $m->id,

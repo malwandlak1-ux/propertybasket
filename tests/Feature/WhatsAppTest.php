@@ -328,10 +328,66 @@ class WhatsAppTest extends TestCase
         Carbon::setTestNow(Carbon::parse('2026-10-21 09:00', 'Africa/Johannesburg'));
         $this->assertSame(1, app(WhatsAppService::class)->dispatch());
 
-        // A second campaign to the same number within 30 days is skipped.
+        // A second campaign: the already-contacted owner is left out up front (agent decides)…
         $this->campaign(['name' => 'Again']);
+        $this->assertSame(1, WaCampaign::count(), 'Nobody left to message, so no campaign is created');
+
+        // …and if a repeat slips through without the agent's say-so, repeat protection still skips it.
+        $first = WaMessage::firstOrFail();
+        $dup = WaMessage::create(['whatsapp_account_id' => $first->whatsapp_account_id, 'agent_id' => $first->agent_id, 'wa_campaign_id' => $first->wa_campaign_id,
+            'crm_prospect_id' => $first->crm_prospect_id, 'direction' => 'out', 'type' => 'template', 'phone' => $first->phone, 'body' => 'x', 'status' => 'queued']);
+        WaCampaign::first()->update(['status' => 'sending']);
         $this->assertSame(0, app(WhatsAppService::class)->dispatch());
-        $this->assertSame('skipped', WaMessage::where('wa_campaign_id', WaCampaign::latest('id')->first()->id)->value('status'));
+        $this->assertSame('skipped', $dup->fresh()->status);
+    }
+
+    #[Test]
+    public function opted_out_owners_are_caught_across_schemes_and_contacted_owners_need_a_decision(): void
+    {
+        $this->fakeMeta();
+        $this->account();
+        $other = CrmScheme::create(['crm_suburb_id' => $this->scheme->crm_suburb_id, 'agency_id' => $this->agency->id, 'agent_id' => $this->agent->id, 'name' => 'SS La-Mon Villa']);
+        $inOther = fn (array $a) => $other->prospects()->create($a + ['agency_id' => $this->agency->id, 'agent_id' => $this->agent->id, 'status' => 'not_contacted']);
+
+        // Owner A opted out on their unit in ANOTHER scheme; owner B shares a number someone opted out on.
+        $this->prospect(['owner_name' => 'KHUMALO A', 'unit' => '5', 'id_reg' => '7505055800085', 'phone1' => '0821000005']);
+        $inOther(['owner_name' => 'KHUMALO A', 'unit' => '88', 'id_reg' => '7505055800085', 'phone1' => '0821000005', 'wa_opted_out_at' => now()->subWeek()]);
+        $this->prospect(['owner_name' => 'NAIDOO B', 'unit' => '6', 'id_reg' => '8606065800086', 'phone1' => '0821000006']);
+        $inOther(['owner_name' => 'NAIDOO SPOUSE', 'unit' => '90', 'id_reg' => '8707075800087', 'phone1' => '0821000006', 'wa_opted_out_at' => now()->subDay()]);
+        // Owner C was messaged before from the other scheme (first contact); owner D is new.
+        $this->prospect(['owner_name' => 'PETERS C', 'unit' => '7', 'id_reg' => '6808085800088', 'phone1' => '0821000007']);
+        $cElsewhere = $inOther(['owner_name' => 'PETERS C', 'unit' => '91', 'id_reg' => '6808085800088', 'phone1' => '0821000077']);
+        $old = WaCampaign::create(['agency_id' => $this->agency->id, 'agent_id' => $this->agent->id, 'whatsapp_account_id' => WhatsAppAccount::first()->id,
+            'name' => 'La-Mon intro', 'template_name' => 'home_value_report', 'template_language' => 'en', 'status' => 'completed', 'total' => 1]);
+        WaMessage::create(['whatsapp_account_id' => WhatsAppAccount::first()->id, 'agent_id' => $this->agent->id, 'wa_campaign_id' => $old->id, 'crm_prospect_id' => $cElsewhere->id,
+            'direction' => 'out', 'type' => 'template', 'phone' => '27821000077', 'body' => 'Hi', 'status' => 'read', 'sent_at' => now()->subDays(40)]);
+        $this->prospect(['owner_name' => 'MOKOENA D', 'unit' => '8', 'id_reg' => '9909095800089', 'phone1' => '0821000008']);
+
+        // The agent is told before sending.
+        $this->actingAs($this->agent)->get('/agent/crm/whatsapp/campaigns/new?scheme_ids[]=' . $this->scheme->id)->assertOk()
+            ->assertInertia(fn (Assert $p) => $p->component('Agent/Crm/WhatsAppCampaignNew')
+                ->where('audience.count', 1)
+                ->has('audience.opted_out', 2)
+                ->where('audience.opted_out', fn ($o) => collect($o)->firstWhere('owner', 'KHUMALO A')['where'] === 'SS La-Mon Villa unit 88')
+                ->has('audience.contacted', 1)
+                ->where('audience.contacted.0.owner', 'PETERS C')
+                ->where('audience.contacted.0.last_campaign', 'La-Mon intro')
+                ->where('audience.contacted.0.included', false));
+
+        // Default: contacted owner excluded → only D.
+        $this->campaign();
+        $this->assertSame(['27821000008'], WaMessage::where('wa_campaign_id', WaCampaign::latest('id')->first()->id)->pluck('phone')->all());
+
+        // Agent chooses "send again" for C: included, and repeat protection won't hold it back.
+        $key = WhatsAppService::ownerKey(CrmProspect::where('owner_name', 'PETERS C')->first());
+        $this->campaign(['name' => 'Round 2', 'include_contacted' => [$key]]);
+        $round2 = WaCampaign::where('name', 'Round 2')->firstOrFail();
+        $msg = WaMessage::where('wa_campaign_id', $round2->id)->firstOrFail();
+        $this->assertSame('27821000007', $msg->phone);
+        $this->assertTrue($msg->repeat_ok);
+        app(WhatsAppService::class)->dispatch();
+        $this->assertSame('sent', $msg->fresh()->status);
+        $this->assertSame(0, WaMessage::whereIn('phone', ['27821000005', '27821000006'])->where('direction', 'out')->count(), 'Opted-out owners never messaged');
     }
 
     #[Test]

@@ -221,6 +221,9 @@ class WhatsAppController extends Controller
             'variable_map.*'  => ['nullable', 'string', 'max:300'],
             'scheduled_at'    => ['nullable', 'date', 'after_or_equal:now'],
             'confirm_consent' => ['nullable', 'boolean'],
+            // Owners already messaged before whom the agent chose to message again.
+            'include_contacted'   => ['nullable', 'array', 'max:5000'],
+            'include_contacted.*' => ['string', 'max:300'],
         ]);
 
         $template = $account->templates()->where('status', 'APPROVED')->where('sendable', true)->findOrFail($data['template_id']);
@@ -233,9 +236,9 @@ class WhatsAppController extends Controller
             $map[$p] = $v;
         }
 
-        $recipients = $this->wa->recipients($request->user(), $filters);
+        $recipients = $this->wa->recipients($request->user(), $filters, $data['include_contacted'] ?? []);
         if ($recipients->isEmpty()) {
-            return back()->with('error', 'No owners with a valid mobile number match that audience.');
+            return back()->with('error', 'No owners to message: everyone in that audience has opted out, was already contacted (and not added back), or has no valid mobile number.');
         }
         $notOptedIn = $recipients->filter(fn ($r) => ! $r['prospect']->wa_opt_in_at)->count();
         if ($notOptedIn > 0 && empty($data['confirm_consent'])) {
@@ -506,10 +509,15 @@ class WhatsAppController extends Controller
 
     private function audience(Request $request, array $filters): array
     {
-        $r = $this->wa->recipients($request->user(), $filters);
+        $report = $this->wa->audienceReport($request->user(), $filters);
+        $r = $report['recipients'];
         $first = $r->first();
 
         return [
+            // Opted out (here or on another scheme) — always left out, shown so the agent knows.
+            'opted_out'    => $report['opted_out'],
+            // Already received a campaign message — left out unless the agent ticks "send again".
+            'contacted'    => $report['contacted'],
             'count'        => $r->count(),
             'not_opted_in' => $r->filter(fn ($x) => ! $x['prospect']->wa_opt_in_at)->count(),
             'sample'       => $first ? [

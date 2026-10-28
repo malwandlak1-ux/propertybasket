@@ -13,7 +13,7 @@ class WaMessage extends Model
 
     protected $fillable = [
         'whatsapp_account_id', 'agent_id', 'wa_campaign_id', 'crm_prospect_id',
-        'direction', 'type', 'phone', 'body', 'media_path', 'media_name', 'media_mime', 'variables', 'wamid', 'status',
+        'direction', 'type', 'phone', 'body', 'media_path', 'media_name', 'media_mime', 'variables', 'wamid', 'status', 'repeat_ok',
         'error_code', 'error_message', 'sent_at', 'delivered_at', 'read_at', 'failed_at', 'replied_at',
     ];
 
@@ -21,6 +21,7 @@ class WaMessage extends Model
     {
         return [
             'variables'    => 'array',
+            'repeat_ok'    => 'boolean',
             'sent_at'      => 'datetime',
             'delivered_at' => 'datetime',
             'read_at'      => 'datetime',

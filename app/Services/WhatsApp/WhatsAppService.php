@@ -149,11 +149,25 @@ class WhatsAppService
      * - an owner with several units (same ID/reg number, else same name) gets one message;
      * - it goes to contact 1 of their first unit; contact 2 (then numbers on their other
      *   units) is only used if contact 1 turns out not to be on WhatsApp — see tryNextNumber();
-     * - an owner who opted out on any unit is left out; a number already used for another
-     *   owner (e.g. a spouse who co-owns) isn't messaged twice.
-     * Each row: prospect (first unit), phone, units ("39, 51 and 72"), prospect_ids.
+     * - owners who opted out on ANY unit in ANY scheme (or share a number with someone who
+     *   did) are left out;
+     * - owners who already received a campaign message from this agent (any scheme) are left
+     *   out unless their owner key is in $includeContacted (the agent chose "send again");
+     * - a number already used for another owner (e.g. a co-owning spouse) isn't messaged twice.
+     * Each row: prospect (first unit), phone, units ("39, 51 and 72"), prospect_ids, owner_key, repeat_ok.
      */
-    public function recipients(User $agent, array $filters): Collection
+    public function recipients(User $agent, array $filters, array $includeContacted = []): Collection
+    {
+        return $this->audienceReport($agent, $filters, $includeContacted)['recipients'];
+    }
+
+    /**
+     * recipients() plus what the agent must know before sending:
+     * opted_out — owners in this audience left out because they opted out (here or elsewhere);
+     * contacted — owners who already received a WhatsApp campaign message from this agent,
+     *             each with included=true when the agent chose to send again.
+     */
+    public function audienceReport(User $agent, array $filters, array $includeContacted = []): array
     {
         $q = CrmProspect::query()->where('agent_id', $agent->id)->with('scheme.suburb');
         if (! empty($filters['prospect_ids'])) {
@@ -165,32 +179,91 @@ class WhatsAppService
         if (! empty($filters['statuses'])) {
             $q->whereIn('status', $filters['statuses']);
         }
+        $groups = $q->orderBy('id')->get()->groupBy(fn (CrmProspect $p) => self::ownerKey($p));
 
+        // Everything this agent knows about every owner, across all schemes.
+        $all = CrmProspect::where('agent_id', $agent->id)->with('scheme:id,name')
+            ->get(['id', 'crm_scheme_id', 'owner_name', 'id_reg', 'unit', 'phone1', 'phone2', 'wa_opted_out_at']);
+        $byKey = $all->groupBy(fn (CrmProspect $p) => self::ownerKey($p));
+        $optedOutByPhone = [];
+        foreach ($all->whereNotNull('wa_opted_out_at') as $p) {
+            foreach ([$p->phone1, $p->phone2] as $raw) {
+                if ($wa = Phone::waZa((string) $raw)) {
+                    $optedOutByPhone[$wa] = $p;
+                }
+            }
+        }
+
+        // Campaign messages that actually went out (first contact), newest first.
+        $sent = WaMessage::where('agent_id', $agent->id)->where('direction', 'out')->where('type', 'template')
+            ->whereIn('status', ['sent', 'delivered', 'read'])->with('campaign:id,name')
+            ->orderByDesc('sent_at')->get(['id', 'wa_campaign_id', 'crm_prospect_id', 'phone', 'status', 'sent_at', 'replied_at']);
+        $sentByProspect = $sent->whereNotNull('crm_prospect_id')->groupBy('crm_prospect_id')->map->first();
+        $sentByPhone = $sent->groupBy('phone')->map->first();
+
+        $include = array_flip($includeContacted);
         $seen = [];
+        $recipients = collect();
+        $optedOut = [];
+        $contacted = [];
 
-        return $q->orderBy('id')->get()
-            ->groupBy(fn (CrmProspect $p) => self::ownerKey($p))
-            ->map(function (Collection $units) use (&$seen, $filters) {
-                if ($units->contains(fn ($u) => $u->wa_opted_out_at)) {
-                    return null;
-                }
-                if (! empty($filters['opted_in_only']) && ! $units->contains(fn ($u) => $u->wa_opt_in_at)) {
-                    return null;
-                }
-                $phone = self::orderedPhones($units)[0] ?? null;
-                if (! $phone || isset($seen[$phone])) {
-                    return null;
-                }
-                $seen[$phone] = true;
-                $first = $units->first();
+        foreach ($groups as $key => $units) {
+            $everywhere = $byKey->get($key, $units);
+            $phones = self::orderedPhones($everywhere);
+            $first = $units->first();
+            $label = ['owner_key' => $key, 'owner' => $first->owner_name, 'units' => self::unitList($units), 'scheme' => $first->scheme?->name];
 
-                return [
-                    'prospect'     => $first,
-                    'phone'        => $phone,
-                    'units'        => self::unitList($units),
-                    'prospect_ids' => $units->pluck('id')->all(),
+            // 1. Opted out on any unit, any scheme — or a number someone opted out on.
+            $stop = $everywhere->first(fn ($u) => $u->wa_opted_out_at)
+                ?? collect($phones)->map(fn ($ph) => $optedOutByPhone[$ph] ?? null)->filter()->first();
+            if ($stop) {
+                $optedOut[] = $label + [
+                    'where' => trim(($stop->scheme?->name ?? 'another scheme') . ($stop->unit ? " unit {$stop->unit}" : '')),
+                    'at'    => $stop->wa_opted_out_at?->format('d M Y'),
                 ];
-            })->filter()->values();
+                continue;
+            }
+            if (! empty($filters['opted_in_only']) && ! $units->contains(fn ($u) => $u->wa_opt_in_at)) {
+                continue;
+            }
+
+            // 2. Already received a campaign message from this agent (any scheme, any of their numbers).
+            $last = $everywhere->map(fn ($u) => $sentByProspect->get($u->id))
+                ->merge(collect($phones)->map(fn ($ph) => $sentByPhone->get($ph)))
+                ->filter()->sortByDesc('sent_at')->first();
+            $repeat = false;
+            if ($last) {
+                $included = isset($include[$key]);
+                $contacted[] = $label + [
+                    'last_at'       => $last->sent_at?->format('d M Y'),
+                    'last_campaign' => $last->campaign?->name,
+                    'last_status'   => $last->status,
+                    'replied'       => (bool) $last->replied_at,
+                    'phone'         => Phone::local($last->phone),
+                    'included'      => $included,
+                ];
+                if (! $included) {
+                    continue;
+                }
+                $repeat = true;
+            }
+
+            $phone = self::orderedPhones($units)[0] ?? null;
+            if (! $phone || isset($seen[$phone])) {
+                continue;
+            }
+            $seen[$phone] = true;
+            $recipients->push([
+                'prospect'     => $first,
+                'phone'        => $phone,
+                'units'        => self::unitList($units),
+                'prospect_ids' => $units->pluck('id')->all(),
+                'owner_key'    => $key,
+                'repeat_ok'    => $repeat,
+            ]);
+        }
+
+        return ['recipients' => $recipients->values(), 'opted_out' => $optedOut, 'contacted' => $contacted];
     }
 
     /** One key per real owner: ID / registration number when known, else the normalised name. */
@@ -273,6 +346,7 @@ class WhatsAppService
                 'body'                => $msg->body,
                 'variables'           => $msg->variables,
                 'status'              => 'queued',
+                'repeat_ok'           => $msg->repeat_ok,
             ]);
             $msg->update(['error_message' => mb_substr(rtrim((string) $msg->error_message) . ' — not on WhatsApp, trying ' . Phone::local($next), 0, 500)]);
 
@@ -341,6 +415,7 @@ class WhatsAppService
                     'body'                => TemplateParser::render((string) $template->body, $values),
                     'variables'           => json_encode($values),
                     'status'              => 'queued',
+                    'repeat_ok'           => (bool) ($r['repeat_ok'] ?? false), // agent chose to message again
                     'created_at'          => $now,
                     'updated_at'          => $now,
                 ];
@@ -441,7 +516,7 @@ class WhatsAppService
                 $msg->update(['status' => 'skipped', 'error_message' => 'Owner opted out']);
                 continue;
             }
-            $recent = WaMessage::where('whatsapp_account_id', $account->id)->where('phone', $msg->phone)
+            $recent = ! $msg->repeat_ok && WaMessage::where('whatsapp_account_id', $account->id)->where('phone', $msg->phone)
                 ->where('direction', 'out')->where('type', 'template')->where('id', '!=', $msg->id)
                 ->where('sent_at', '>=', now()->subDays($days))->exists();
             if ($recent) {

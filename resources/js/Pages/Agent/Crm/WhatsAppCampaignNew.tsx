@@ -9,8 +9,13 @@ import type { Schedule } from '@/Components/Crm/waParts';
 
 type Template = { id: number; name: string; language: string; body: string | null; footer: string | null; params: string[] };
 type Filters = { scheme_ids: number[]; statuses: StatusKey[]; prospect_ids: number[]; opted_in_only: boolean };
+type OwnerRef = { owner_key: string; owner: string; units: string; scheme: string | null };
+type OptedOut = OwnerRef & { where: string; at: string | null };
+type Contacted = OwnerRef & { last_at: string | null; last_campaign: string | null; last_status: string; replied: boolean; phone: string; included: boolean };
 type Audience = {
     count: number; not_opted_in: number;
+    opted_out: OptedOut[];
+    contacted: Contacted[];
     sample: { owner: string; unit: string | null; scheme: string | null; suburb: string | null; values: Record<string, string> } | null;
 };
 type Props = {
@@ -39,7 +44,15 @@ export default function NewCampaign({ agent, templates, schemes, filters, audien
         send: 'now' as 'now' | 'later',
         scheduled_at: '',
         confirm_consent: false,
+        include_contacted: [] as string[],
     });
+    // Only keep "send again" choices for owners still in the current audience.
+    const contactedKeys = useMemo(() => new Set(audience.contacted.map((c) => c.owner_key)), [audience.contacted]);
+    const included = form.data.include_contacted.filter((k) => contactedKeys.has(k));
+    const total = audience.count + included.length;
+    function toggleContacted(key: string) {
+        form.setData('include_contacted', included.includes(key) ? included.filter((k) => k !== key) : [...included, key]);
+    }
     const template = templates.find((t) => t.id === Number(form.data.template_id));
 
     function pickTemplate(id: number) {
@@ -75,6 +88,7 @@ export default function NewCampaign({ agent, templates, schemes, filters, audien
             variable_map: d.variable_map,
             scheduled_at: d.send === 'later' && d.scheduled_at ? d.scheduled_at : null,
             confirm_consent: d.confirm_consent,
+            include_contacted: included,
             ...filters,
             opted_in_only: filters.opted_in_only ? 1 : 0,
         }));
@@ -128,9 +142,62 @@ export default function NewCampaign({ agent, templates, schemes, filters, audien
                                     Only owners who agreed to WhatsApp messages
                                 </label>
                                 <div className={`rounded-xl bg-ink-50 border border-ink-200 px-4 py-3 flex items-center justify-between gap-3 transition-opacity ${refreshing ? 'opacity-50' : ''}`}>
-                                    <span className="text-[13px]"><b className="text-[18px] tabular-nums">{audience.count.toLocaleString('en-ZA')}</b> owners will get this</span>
+                                    <span className="text-[13px]"><b className="text-[18px] tabular-nums">{total.toLocaleString('en-ZA')}</b> owners will get this</span>
                                     {audience.not_opted_in > 0 && <span className="text-[12px] text-amber-700 font-semibold">{audience.not_opted_in} haven’t opted in</span>}
                                 </div>
+
+                                {audience.opted_out.length > 0 && (
+                                    <details className={`rounded-xl bg-danger/5 border border-danger/25 px-4 py-3 transition-opacity ${refreshing ? 'opacity-50' : ''}`}>
+                                        <summary className="cursor-pointer text-[13px] text-danger font-semibold">
+                                            {audience.opted_out.length} owner{audience.opted_out.length === 1 ? '' : 's'} opted out of WhatsApp and won’t get this
+                                            <span className="font-normal text-ink-500"> · includes opt-outs on their units in other schemes</span>
+                                        </summary>
+                                        <ul className="mt-2 max-h-56 overflow-y-auto divide-y divide-danger/10 text-[12.5px]">
+                                            {audience.opted_out.map((o) => (
+                                                <li key={o.owner_key} className="py-1.5 flex justify-between gap-3">
+                                                    <span><b>{o.owner}</b>{o.units && <span className="text-ink-500"> · unit {o.units}</span>}</span>
+                                                    <span className="text-ink-500 text-right">opted out at {o.where}{o.at ? ` · ${o.at}` : ''}</span>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </details>
+                                )}
+
+                                {audience.contacted.length > 0 && (
+                                    <div className={`rounded-xl bg-warning/10 border border-warning/30 px-4 py-3 space-y-2 transition-opacity ${refreshing ? 'opacity-50' : ''}`}>
+                                        <div className="flex flex-wrap items-start justify-between gap-2">
+                                            <p className="text-[13px] text-ink-800">
+                                                <b>{audience.contacted.length} owner{audience.contacted.length === 1 ? '' : 's'} already received a WhatsApp from you</b> (any scheme).
+                                                <span className="text-ink-600"> They’re left out unless you tick <b>Send again</b>.</span>
+                                            </p>
+                                            <div className="flex gap-1.5 shrink-0">
+                                                <button type="button" onClick={() => form.setData('include_contacted', audience.contacted.map((c) => c.owner_key))} className="text-[11.5px] font-semibold px-2.5 py-1 rounded-full border border-ink-200 bg-white hover:bg-ink-50">Send to all</button>
+                                                <button type="button" onClick={() => form.setData('include_contacted', [])} className="text-[11.5px] font-semibold px-2.5 py-1 rounded-full border border-ink-200 bg-white hover:bg-ink-50">Exclude all</button>
+                                            </div>
+                                        </div>
+                                        <ul className="max-h-64 overflow-y-auto divide-y divide-warning/20 text-[12.5px] bg-white/60 rounded-lg">
+                                            {audience.contacted.map((c) => {
+                                                const on = included.includes(c.owner_key);
+                                                return (
+                                                    <li key={c.owner_key}>
+                                                        <label className="flex items-start gap-2.5 px-3 py-2 cursor-pointer hover:bg-white">
+                                                            <input type="checkbox" checked={on} onChange={() => toggleContacted(c.owner_key)} className="mt-0.5 rounded border-ink-300" aria-label={`Send again to ${c.owner}`} />
+                                                            <span className="flex-1 min-w-0">
+                                                                <span className="font-semibold">{c.owner}</span>
+                                                                {c.units && <span className="text-ink-500"> · unit {c.units}</span>}
+                                                                <span className="block text-[11.5px] text-ink-500">
+                                                                    Last WhatsApp {c.last_at}{c.last_campaign ? ` · ${c.last_campaign}` : ''} · {c.phone} ·{' '}
+                                                                    {c.replied ? <b className="text-success">replied</b> : c.last_status === 'read' ? 'read, no reply' : c.last_status === 'delivered' ? 'delivered, no reply' : 'sent'}
+                                                                </span>
+                                                            </span>
+                                                            <span className={`text-[11px] font-bold shrink-0 ${on ? 'text-brand-700' : 'text-ink-400'}`}>{on ? 'Send again' : 'Excluded'}</span>
+                                                        </label>
+                                                    </li>
+                                                );
+                                            })}
+                                        </ul>
+                                    </div>
+                                )}
                             </Panel>
 
                             {/* 2. Message */}
@@ -205,13 +272,13 @@ export default function NewCampaign({ agent, templates, schemes, filters, audien
                                 <h2 className="text-[16px] font-semibold tracking-tight mb-1">Limits &amp; cost</h2>
                                 <p className="flex justify-between"><span className="text-ink-500">Meta daily limit</span><b className="tabular-nums">{limits.daily.toLocaleString('en-ZA')} people</b></p>
                                 <p className="flex justify-between"><span className="text-ink-500">Room left today</span><b className="tabular-nums">{roomToday.toLocaleString('en-ZA')}</b></p>
-                                {audience.count > roomToday && <p className="text-amber-700">This campaign is bigger than today’s room. The rest sends automatically as the limit frees up.</p>}
+                                {total > roomToday && <p className="text-amber-700">This campaign is bigger than today’s room. The rest sends automatically as the limit frees up.</p>}
                                 <p className="flex justify-between"><span className="text-ink-500">Repeat protection</span><b>{limits.frequency_days} days per number</b></p>
                                 <p className="text-ink-500 pt-1 border-t border-ink-100">Meta bills your own WhatsApp account per delivered template message. Keep it topped up in WhatsApp Manager, or the campaign pauses until you do.</p>
                             </section>
-                            <button type="submit" disabled={form.processing || audience.count === 0} className={`${btnPrimary} w-full !py-3`}>
+                            <button type="submit" disabled={form.processing || total === 0} className={`${btnPrimary} w-full !py-3`}>
                                 {form.processing && <Spinner size={14} />}
-                                {form.data.send === 'later' ? 'Schedule' : 'Send'} to {audience.count.toLocaleString('en-ZA')} owners
+                                {form.data.send === 'later' ? 'Schedule' : 'Send'} to {total.toLocaleString('en-ZA')} owners
                             </button>
                             <Link href="/agent/crm/whatsapp" className={`${btnOutline} w-full`}>Cancel</Link>
                         </aside>

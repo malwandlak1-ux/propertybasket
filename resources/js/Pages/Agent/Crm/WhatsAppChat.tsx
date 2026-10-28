@@ -4,6 +4,7 @@ import AgentLayout from '@/Layouts/AgentLayout';
 import CrmTabs from '@/Components/Crm/CrmTabs';
 import { FlashBanners, PageHeader, btnPrimary } from '@/Components/Dashboard/Charts';
 import { Spinner } from '@/Components/Skeleton';
+import { safeUploadFile } from '@/lib/safeUpload';
 
 type Media = { url: string; name: string | null; kind: string };
 type Msg = { id: number; direction: 'in' | 'out'; body: string | null; media: Media | null; status: string; campaign: string | null; at: string | null };
@@ -34,7 +35,7 @@ export default function Chat({ agent, phone, display, prospect, window_open_unti
         setFileError(null);
         if (!f) return;
         if (f.size > MAX_BYTES) { setFileError('Attachments can be up to 16 MB.'); return; }
-        setData('attachment', f);
+        setData('attachment', safeUploadFile(f)); // filenames with ' " ; are blocked by the host firewall (403)
     }
     function clearFile() {
         setData('attachment', null);

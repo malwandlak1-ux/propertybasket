@@ -6,6 +6,10 @@ import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createRoot } from 'react-dom/client';
 import ErrorBoundary from '@/Components/ErrorBoundary';
 import NetworkErrorToast from '@/Components/NetworkErrorToast';
+import { installSafeUploads } from '@/lib/safeUpload';
+
+// Every upload form: re-name files whose names the host firewall rejects (403).
+installSafeUploads();
 
 // Site name for tab titles: the white-label brand (e.g. Careline Clinic) when
 // the server shares one, else the build-time app name.

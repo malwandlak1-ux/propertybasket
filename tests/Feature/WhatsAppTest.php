@@ -342,6 +342,21 @@ class WhatsAppTest extends TestCase
     }
 
     #[Test]
+    public function the_audience_report_handles_an_owner_whose_every_unit_was_messaged(): void
+    {
+        // Regression: all of the owner's units have a sent message, but one of their numbers
+        // doesn't — merging an Eloquent collection with that null used to throw getKey() on null.
+        $a = $this->account();
+        $p = $this->prospect(['owner_name' => 'VAN WYK J', 'unit' => '9', 'id_reg' => '7101015800081', 'phone1' => '0822220001', 'phone2' => '0822220002']);
+        WaMessage::create(['whatsapp_account_id' => $a->id, 'agent_id' => $this->agent->id, 'crm_prospect_id' => $p->id,
+            'direction' => 'out', 'type' => 'template', 'phone' => '27822220001', 'body' => 'Hi', 'status' => 'delivered', 'sent_at' => now()->subDays(3)]);
+
+        $r = app(WhatsAppService::class)->audienceReport($this->agent, []);
+        $this->assertCount(0, $r['recipients']);
+        $this->assertSame('VAN WYK J', $r['contacted'][0]['owner']);
+    }
+
+    #[Test]
     public function opted_out_owners_are_caught_across_schemes_and_contacted_owners_need_a_decision(): void
     {
         $this->fakeMeta();

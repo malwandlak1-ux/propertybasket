@@ -228,7 +228,8 @@ class WhatsAppService
             }
 
             // 2. Already received a campaign message from this agent (any scheme, any of their numbers).
-            $last = $everywhere->map(fn ($u) => $sentByProspect->get($u->id))
+            // toBase(): an Eloquent collection of messages can't merge() with nulls (getKey() on null).
+            $last = $everywhere->toBase()->map(fn ($u) => $sentByProspect->get($u->id))
                 ->merge(collect($phones)->map(fn ($ph) => $sentByPhone->get($ph)))
                 ->filter()->sortByDesc('sent_at')->first();
             $repeat = false;

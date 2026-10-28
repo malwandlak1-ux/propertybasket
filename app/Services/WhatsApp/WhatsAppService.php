@@ -141,10 +141,21 @@ class WhatsAppService
      *
      * @return Collection<int, array{prospect: CrmProspect, phone: string}>
      */
+    /** Meta error codes meaning "this number can't receive WhatsApp" (not on WhatsApp / unsupported client). */
+    public const UNDELIVERABLE = [131026];
+
+    /**
+     * Campaign recipients — one per OWNER, not per unit or per number:
+     * - an owner with several units (same ID/reg number, else same name) gets one message;
+     * - it goes to contact 1 of their first unit; contact 2 (then numbers on their other
+     *   units) is only used if contact 1 turns out not to be on WhatsApp — see tryNextNumber();
+     * - an owner who opted out on any unit is left out; a number already used for another
+     *   owner (e.g. a spouse who co-owns) isn't messaged twice.
+     * Each row: prospect (first unit), phone, units ("39, 51 and 72"), prospect_ids.
+     */
     public function recipients(User $agent, array $filters): Collection
     {
-        $q = CrmProspect::query()->where('agent_id', $agent->id)->whereNull('wa_opted_out_at')
-            ->with('scheme.suburb');
+        $q = CrmProspect::query()->where('agent_id', $agent->id)->with('scheme.suburb');
         if (! empty($filters['prospect_ids'])) {
             $q->whereIn('id', $filters['prospect_ids']);
         }
@@ -154,31 +165,136 @@ class WhatsAppService
         if (! empty($filters['statuses'])) {
             $q->whereIn('status', $filters['statuses']);
         }
-        if (! empty($filters['opted_in_only'])) {
-            $q->whereNotNull('wa_opt_in_at');
-        }
 
         $seen = [];
-        return $q->orderBy('id')->get()->map(function (CrmProspect $p) use (&$seen) {
-            $phone = Phone::waZa($p->phone1) ?? Phone::waZa($p->phone2);
-            if (! $phone || isset($seen[$phone])) {
-                return null;
-            }
-            $seen[$phone] = true;
 
-            return ['prospect' => $p, 'phone' => $phone];
-        })->filter()->values();
+        return $q->orderBy('id')->get()
+            ->groupBy(fn (CrmProspect $p) => self::ownerKey($p))
+            ->map(function (Collection $units) use (&$seen, $filters) {
+                if ($units->contains(fn ($u) => $u->wa_opted_out_at)) {
+                    return null;
+                }
+                if (! empty($filters['opted_in_only']) && ! $units->contains(fn ($u) => $u->wa_opt_in_at)) {
+                    return null;
+                }
+                $phone = self::orderedPhones($units)[0] ?? null;
+                if (! $phone || isset($seen[$phone])) {
+                    return null;
+                }
+                $seen[$phone] = true;
+                $first = $units->first();
+
+                return [
+                    'prospect'     => $first,
+                    'phone'        => $phone,
+                    'units'        => self::unitList($units),
+                    'prospect_ids' => $units->pluck('id')->all(),
+                ];
+            })->filter()->values();
+    }
+
+    /** One key per real owner: ID / registration number when known, else the normalised name. */
+    public static function ownerKey(CrmProspect $p): string
+    {
+        $id = strtoupper(preg_replace('/[^A-Za-z0-9]/', '', (string) $p->id_reg));
+
+        return strlen($id) >= 6
+            ? "id:{$id}"
+            : 'name:' . strtoupper(preg_replace('/\s+/', ' ', trim((string) $p->owner_name)));
+    }
+
+    /** The owner's WhatsApp-able numbers in send order: contact 1, contact 2, then those on their other units. */
+    public static function orderedPhones(Collection $units): array
+    {
+        $out = [];
+        foreach ($units as $u) {
+            foreach ([$u->phone1, $u->phone2] as $raw) {
+                $wa = Phone::waZa((string) $raw);
+                if ($wa && ! in_array($wa, $out, true)) {
+                    $out[] = $wa;
+                }
+            }
+        }
+
+        return $out;
+    }
+
+    /** "39", "39 and 51", "39, 51 and 72". */
+    public static function unitList(Collection $units): string
+    {
+        $list = $units->pluck('unit')->filter()->map(fn ($u) => trim((string) $u))->unique()
+            ->sortBy(fn ($u) => ctype_digit($u) ? str_pad($u, 8, '0', STR_PAD_LEFT) : $u)->values()->all();
+        if (count($list) <= 1) {
+            return $list[0] ?? '';
+        }
+        $last = array_pop($list);
+
+        return implode(', ', $list) . ' and ' . $last;
+    }
+
+    /**
+     * Contact 1 couldn't receive WhatsApp: queue the same campaign message to the owner's
+     * next number (contact 2, then numbers on their other units). Returns the new message,
+     * or null when it isn't an "undeliverable" failure or there's no untried number left.
+     */
+    public function tryNextNumber(WaMessage $msg, ?string $errorCode): ?WaMessage
+    {
+        $p = $msg->prospect;
+        if (! in_array((int) $errorCode, self::UNDELIVERABLE, true) || ! $msg->wa_campaign_id || ! $p || $p->wa_opted_out_at) {
+            return null;
+        }
+
+        $key = self::ownerKey($p);
+        $owner = CrmProspect::where('agent_id', $p->agent_id)
+            ->where(fn ($q) => $q->where('owner_name', $p->owner_name)->when($p->id_reg, fn ($q) => $q->orWhere('id_reg', $p->id_reg)))
+            ->orderBy('id')->get()
+            ->filter(fn ($u) => self::ownerKey($u) === $key)
+            ->sortBy(fn ($u) => $u->id === $p->id ? 0 : 1)->values();
+        if ($owner->contains(fn ($u) => $u->wa_opted_out_at)) {
+            return null;
+        }
+
+        $phones = self::orderedPhones($owner);
+        $tried = WaMessage::where('wa_campaign_id', $msg->wa_campaign_id)->whereIn('phone', $phones)->pluck('phone')->all();
+        $next = collect($phones)->first(fn ($ph) => ! in_array($ph, $tried, true));
+        if (! $next) {
+            return null;
+        }
+
+        return DB::transaction(function () use ($msg, $next) {
+            $retry = WaMessage::create([
+                'whatsapp_account_id' => $msg->whatsapp_account_id,
+                'agent_id'            => $msg->agent_id,
+                'wa_campaign_id'      => $msg->wa_campaign_id,
+                'crm_prospect_id'     => $msg->crm_prospect_id,
+                'direction'           => 'out',
+                'type'                => 'template',
+                'phone'               => $next,
+                'body'                => $msg->body,
+                'variables'           => $msg->variables,
+                'status'              => 'queued',
+            ]);
+            $msg->update(['error_message' => mb_substr(rtrim((string) $msg->error_message) . ' — not on WhatsApp, trying ' . Phone::local($next), 0, 500)]);
+
+            $campaign = $msg->campaign;
+            $campaign->increment('total');
+            if ($campaign->status === 'completed') {
+                $campaign->update(['status' => 'sending', 'completed_at' => null]);
+            }
+
+            return $retry;
+        });
     }
 
     /** Values for one recipient: template placeholder → text. */
-    public function values(array $map, ?CrmProspect $p, User $agent, string $agencyName): array
+    public function values(array $map, ?CrmProspect $p, User $agent, string $agencyName, ?string $units = null): array
     {
         $owner = $p ? self::displayName($p->owner_name) : '';
         $fields = [
             'owner_name'  => $owner,
             'suburb'      => $p?->scheme?->suburb?->name ?? '',
             'scheme'      => $p?->scheme?->name ?? '',
-            'unit'        => $p?->unit ?? '',
+            'unit'        => $units ?: ($p?->unit ?? ''), // all of the owner's units when they have several
             'agent_name'  => $agent->name,
             'agent_phone' => (string) ($agent->phone ?? ''),
             'agency_name' => $agencyName,
@@ -212,7 +328,7 @@ class WhatsAppService
 
             $now = now();
             $rows = $recipients->map(function ($r) use ($campaign, $account, $agent, $agencyName, $template, $data, $now) {
-                $values = $this->values($data['variable_map'], $r['prospect'], $agent, $agencyName);
+                $values = $this->values($data['variable_map'], $r['prospect'], $agent, $agencyName, $r['units'] ?? null);
 
                 return [
                     'whatsapp_account_id' => $account->id,
@@ -348,6 +464,7 @@ class WhatsAppService
                     break;
                 }
                 $msg->update(['status' => 'failed', 'failed_at' => now(), 'error_code' => (string) $e->metaCode, 'error_message' => mb_substr($e->getMessage(), 0, 500)]);
+                $this->tryNextNumber($msg, (string) $e->metaCode); // contact 1 not on WhatsApp → contact 2
                 continue;
             }
 
@@ -356,6 +473,7 @@ class WhatsAppService
             $sent++;
         }
 
+        // A retry to contact 2 may have just been queued in this run; it goes out next run.
         if (! $campaign->messages()->where('status', 'queued')->exists() && $campaign->fresh()->status === 'sending') {
             $campaign->update(['status' => 'completed', 'completed_at' => now()]);
         }

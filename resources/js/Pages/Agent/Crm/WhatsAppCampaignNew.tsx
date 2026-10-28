@@ -98,7 +98,7 @@ export default function NewCampaign({ agent, templates, schemes, filters, audien
                     <form onSubmit={submit} className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
                         <div className="lg:col-span-7 space-y-4">
                             {/* 1. Audience */}
-                            <Panel n={1} title="Who gets it" sub="Your farming owners with a valid SA mobile number. Opted-out owners are always left out.">
+                            <Panel n={1} title="Who gets it" sub="One message per owner: owners with several units get it once. It goes to contact 1; if that number isn’t on WhatsApp it’s sent to contact 2 automatically. Opted-out owners are always left out.">
                                 <div>
                                     <p className={label}>Schemes</p>
                                     {schemes.length === 0 ? <p className="text-[12.5px] text-ink-400">No farmed schemes yet. Add one under CRM → Farming.</p> : (

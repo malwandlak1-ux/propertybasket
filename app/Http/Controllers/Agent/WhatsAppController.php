@@ -514,12 +514,12 @@ class WhatsAppController extends Controller
             'not_opted_in' => $r->filter(fn ($x) => ! $x['prospect']->wa_opt_in_at)->count(),
             'sample'       => $first ? [
                 'owner'  => $first['prospect']->owner_name,
-                'unit'   => $first['prospect']->unit,
+                'unit'   => $first['units'] ?: $first['prospect']->unit,
                 'scheme' => $first['prospect']->scheme?->name,
                 'suburb' => $first['prospect']->scheme?->suburb?->name,
                 'values' => $this->wa->values(
                     array_combine(array_keys(WhatsAppService::FIELDS), array_keys(WhatsAppService::FIELDS)),
-                    $first['prospect'], $request->user(), $this->resolveAgentRecord($request)->agency->name,
+                    $first['prospect'], $request->user(), $this->resolveAgentRecord($request)->agency->name, $first['units'],
                 ),
             ] : null,
         ];

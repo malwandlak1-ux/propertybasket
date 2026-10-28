@@ -79,6 +79,8 @@ class WebhookHandler
                 'error_code'    => isset($err['code']) ? (string) $err['code'] : null,
                 'error_message' => mb_substr(trim(($err['title'] ?? 'Failed') . ' ' . ($err['error_data']['details'] ?? '')), 0, 500),
             ]);
+            // Contact 1 isn't on WhatsApp → queue the same message to the owner's contact 2.
+            $this->wa->tryNextNumber($msg, isset($err['code']) ? (string) $err['code'] : null);
 
             return;
         }

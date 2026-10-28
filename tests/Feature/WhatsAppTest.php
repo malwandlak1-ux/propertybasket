@@ -165,6 +165,75 @@ class WhatsAppTest extends TestCase
     }
 
     #[Test]
+    public function one_message_per_owner_to_contact_1_then_contact_2_if_not_on_whatsapp(): void
+    {
+        $this->fakeMeta();
+        $a = $this->account();
+        // MOLEFE owns units 1 and 7 (same ID); contact 1 differs per unit, unit 1 also has contact 2.
+        $this->prospect(['owner_name' => 'MOLEFE SIPHO', 'unit' => '7', 'id_reg' => '8001015800081', 'phone1' => '0831110001']);
+        $this->prospect(['owner_name' => 'MOLEFE SIPHO', 'unit' => '1', 'id_reg' => '8001015800081', 'phone1' => '0831110002', 'phone2' => '0831110003']);
+        // Owner with two units but no ID: matched by name.
+        $this->prospect(['owner_name' => 'MEGA PROP PTY LTD', 'unit' => '27', 'phone1' => '0721110001']);
+        $this->prospect(['owner_name' => 'Mega  Prop Pty Ltd', 'unit' => '28', 'phone1' => '0721110001']);
+        // Contact 1 works for this owner; contact 2 must never be used.
+        $this->prospect(['owner_name' => 'DLAMINI ZODWA', 'unit' => '3', 'id_reg' => '9002020800082', 'phone1' => '0611110001', 'phone2' => '0611110002']);
+
+        $this->campaign();
+        $campaign = WaCampaign::firstOrFail();
+        $this->assertSame(3, $campaign->total, 'Three owners, not five units');
+        $molefe = WaMessage::where('wa_campaign_id', $campaign->id)->where('phone', '27831110001')->firstOrFail();
+        $this->assertSame(0, WaMessage::whereIn('phone', ['27831110002', '27831110003'])->count(), 'Only contact 1 of the first unit is queued');
+        $this->assertSame(1, WaMessage::where('phone', '27721110001')->count());
+
+        // The template's unit field lists all the owner's units.
+        $vals = app(WhatsAppService::class)->values(['1' => 'unit'], $molefe->prospect, $this->agent, 'Sandton Realty', '1 and 7');
+        $this->assertSame('1 and 7', $vals['1']);
+        $this->assertSame('1 and 7', app(WhatsAppService::class)->recipients($this->agent, ['scheme_ids' => [$this->scheme->id]])
+            ->firstWhere('phone', '27831110001')['units']);
+
+        app(WhatsAppService::class)->dispatch();
+        $this->assertSame(3, WaMessage::where('wa_campaign_id', $campaign->id)->where('status', 'sent')->count());
+        $molefe->refresh();
+
+        $status = function (WaMessage $m, string $status, ?int $code = null) use ($a) {
+            $st = ['id' => $m->wamid, 'status' => $status, 'timestamp' => (string) now()->timestamp, 'recipient_id' => $m->phone]
+                + ($code ? ['errors' => [['code' => $code, 'title' => 'Message undeliverable.']]] : []);
+            $raw = json_encode(['object' => 'whatsapp_business_account', 'entry' => [['id' => '1111111111', 'changes' => [['field' => 'messages', 'value' => [
+                'metadata' => ['phone_number_id' => '2222222222'], 'statuses' => [$st],
+            ]]]]]]);
+            $this->call('POST', "/webhooks/whatsapp/{$a->webhook_key}", [], [], [], [
+                'CONTENT_TYPE' => 'application/json', 'HTTP_X_HUB_SIGNATURE_256' => 'sha256=' . hash_hmac('sha256', $raw, 'app-secret-abcdef123456'),
+            ], $raw)->assertOk();
+        };
+
+        // Contact 1 isn't on WhatsApp → the same message is queued to the next number.
+        $status($molefe, 'failed', 131026);
+        $next = WaMessage::where('wa_campaign_id', $campaign->id)->where('status', 'queued')->firstOrFail();
+        $this->assertSame('27831110002', $next->phone, 'Next number in order: the owner\'s other unit contact');
+        $this->assertSame($molefe->body, $next->body);
+        $this->assertSame(4, $campaign->fresh()->total);
+        $this->assertStringContainsString('not on WhatsApp', $molefe->fresh()->error_message);
+
+        app(WhatsAppService::class)->dispatch();
+        $next->refresh();
+        $this->assertSame('sent', $next->status);
+
+        // Still undeliverable → contact 2 of unit 1; then nothing left to try.
+        $status($next, 'failed', 131026);
+        $third = WaMessage::where('wa_campaign_id', $campaign->id)->where('status', 'queued')->firstOrFail();
+        $this->assertSame('27831110003', $third->phone);
+        app(WhatsAppService::class)->dispatch();
+        $status($third->fresh(), 'failed', 131026);
+        $this->assertSame(0, WaMessage::where('wa_campaign_id', $campaign->id)->where('status', 'queued')->count(), 'No numbers left');
+
+        // Other failures (not "undeliverable") don't fall back; delivered contact 1 never uses contact 2.
+        $dlamini = WaMessage::where('phone', '27611110001')->firstOrFail();
+        $status($dlamini, 'failed', 131049);
+        $status(WaMessage::where('phone', '27721110001')->firstOrFail(), 'delivered');
+        $this->assertSame(0, WaMessage::where('phone', '27611110002')->count());
+    }
+
+    #[Test]
     public function a_campaign_sends_personalised_templates_and_feeds_the_crm(): void
     {
         $this->fakeMeta();

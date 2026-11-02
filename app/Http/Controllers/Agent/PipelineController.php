@@ -147,25 +147,22 @@ class PipelineController extends Controller
      * PATCH /agent/pipeline/leads/{inquiry}/status
      * Drag-and-drop status change. Updates the inquiry's status enum; the agency
      * pipeline view queries the same `inquiries` table so its kanban + reports
-     * auto-reflect on next page load. Returns 204 No Content for fire-and-forget UX.
+     * auto-reflect on next page load. Redirects back (Inertia needs a page
+     * response — an empty 204 made Inertia show a blank white error dialog).
      */
-    public function updateLeadStatus(Request $request, Inquiry $inquiry): \Illuminate\Http\Response
+    public function updateLeadStatus(Request $request, Inquiry $inquiry): RedirectResponse
     {
         $user = $request->user();
 
-        abort_unless(
-            $inquiry->assigned_to === $user->id,
-            403,
-            'You can only move your own leads.'
-        );
+        if ($inquiry->assigned_to !== $user->id) {
+            return back()->with('error', 'You can only move your own leads.');
+        }
 
         // Registration is an agency-only step — agents can't move a deal into
         // or back out of Registered.
-        abort_if(
-            $inquiry->status === 'registered',
-            422,
-            'This deal has been registered by your agency and is locked.',
-        );
+        if ($inquiry->status === 'registered') {
+            return back()->with('error', 'This deal has been registered by your agency and is locked.');
+        }
 
         $data = $request->validate([
             'status' => ['required', Rule::in(self::AGENT_STATUSES)],
@@ -173,7 +170,7 @@ class PipelineController extends Controller
 
         $inquiry->update(['status' => $data['status']]);
 
-        return response()->noContent();
+        return back(303);
     }
 
     /**

@@ -129,7 +129,7 @@ class PipelineViewingsTest extends TestCase
     {
         $lead = $this->lead();
 
-        $this->actingAs($this->agent)->patch("/agent/pipeline/leads/{$lead->id}/status", ['status' => 'disqualified'])->assertNoContent();
+        $this->actingAs($this->agent)->patch("/agent/pipeline/leads/{$lead->id}/status", ['status' => 'disqualified'])->assertRedirect()->assertSessionHasNoErrors();
         $this->assertSame('disqualified', $lead->fresh()->status);
 
         $this->actingAs($this->agent)->get('/agent/crm/pipeline')->assertOk()
@@ -140,5 +140,14 @@ class PipelineViewingsTest extends TestCase
 
         // Agents still can't touch the agency-only Registered stage.
         $this->actingAs($this->agent)->patch("/agent/pipeline/leads/{$lead->id}/status", ['status' => 'registered'])->assertSessionHasErrors('status');
+
+        // Refusals come back as a page redirect with a message — never a bare 403/422/204 (Inertia's white error dialog).
+        $locked = $this->lead(['status' => 'registered']);
+        $this->actingAs($this->agent)->patch("/agent/pipeline/leads/{$locked->id}/status", ['status' => 'offer'])
+            ->assertRedirect()->assertSessionHas('error');
+        $this->assertSame('registered', $locked->fresh()->status);
+        $this->actingAs($this->other)->patch("/agent/pipeline/leads/{$lead->id}/status", ['status' => 'new'])
+            ->assertRedirect()->assertSessionHas('error');
+        $this->assertSame('disqualified', $lead->fresh()->status);
     }
 }

@@ -342,6 +342,53 @@ class WhatsAppTest extends TestCase
     }
 
     #[Test]
+    public function documents_and_photos_owners_send_are_downloaded_and_viewable(): void
+    {
+        \Illuminate\Support\Facades\Storage::fake('local');
+        Http::fake([
+            'graph.facebook.com/v23.0/MEDIA-PDF' => Http::response(['url' => 'https://lookaside.fbsbx.com/whatsapp_business/attachments/?mid=MEDIA-PDF', 'mime_type' => 'application/pdf']),
+            'graph.facebook.com/v23.0/MEDIA-IMG' => Http::response(['url' => 'https://lookaside.fbsbx.com/whatsapp_business/attachments/?mid=MEDIA-IMG', 'mime_type' => 'image/jpeg']),
+            'lookaside.fbsbx.com/*' => Http::response('%PDF-1.4 owner file', 200, ['Content-Type' => 'application/pdf']),
+        ]);
+        $a = $this->account();
+        $this->prospect();
+        $post = function (array $msg) use ($a) {
+            $raw = json_encode(['object' => 'whatsapp_business_account', 'entry' => [['id' => '1111111111', 'changes' => [['field' => 'messages', 'value' => [
+                'metadata' => ['phone_number_id' => '2222222222'], 'messages' => [$msg],
+            ]]]]]]);
+            $this->call('POST', "/webhooks/whatsapp/{$a->webhook_key}", [], [], [], [
+                'CONTENT_TYPE' => 'application/json', 'HTTP_X_HUB_SIGNATURE_256' => 'sha256=' . hash_hmac('sha256', $raw, 'app-secret-abcdef123456'),
+            ], $raw)->assertOk();
+        };
+        $base = ['from' => '27821112222', 'timestamp' => (string) now()->timestamp];
+
+        $post($base + ['id' => 'wamid.DOC1', 'type' => 'document', 'document' => ['id' => 'MEDIA-PDF', 'mime_type' => 'application/pdf', 'filename' => "Lindi's ID copy.pdf"]]);
+        $doc = WaMessage::where('wamid', 'wamid.DOC1')->firstOrFail();
+        $this->assertNull($doc->body, 'No more "[document]" placeholder');
+        $this->assertSame('MEDIA-PDF', $doc->wa_media_id);
+        $this->assertNotNull($doc->media_path, 'Downloaded right after the webhook');
+        \Illuminate\Support\Facades\Storage::disk('local')->assertExists($doc->media_path);
+        $this->assertSame('Lindi_s ID copy.pdf', $doc->media_name);
+
+        // Photo with a caption: if the immediate download didn't happen, opening it fetches it.
+        $post($base + ['id' => 'wamid.IMG1', 'type' => 'image', 'image' => ['id' => 'MEDIA-IMG', 'mime_type' => 'image/jpeg', 'caption' => 'The kitchen']]);
+        $img = WaMessage::where('wamid', 'wamid.IMG1')->firstOrFail();
+        $this->assertSame('The kitchen', $img->body);
+        $img->update(['media_path' => null]);
+        $this->actingAs($this->agent)->get("/agent/crm/whatsapp/media/{$img->id}")->assertOk();
+        $this->assertNotNull($img->fresh()->media_path);
+
+        $this->actingAs($this->agent)->get('/agent/crm/whatsapp/chat?phone=27821112222')->assertOk()
+            ->assertInertia(fn (Assert $p) => $p->where('messages', fn ($ms) => collect($ms)->contains(fn ($m) => ($m['media']['name'] ?? null) === 'Lindi_s ID copy.pdf' && $m['media']['kind'] === 'document')
+                && collect($ms)->contains(fn ($m) => ($m['media']['kind'] ?? null) === 'image' && $m['body'] === 'The kitchen')));
+        $this->actingAs($this->other)->get("/agent/crm/whatsapp/media/{$doc->id}")->assertForbidden();
+
+        // Reactions read as the emoji instead of "[reaction]".
+        $post($base + ['id' => 'wamid.R1', 'type' => 'reaction', 'reaction' => ['message_id' => 'wamid.X', 'emoji' => '🙏']]);
+        $this->assertSame('Reacted 🙏', WaMessage::where('wamid', 'wamid.R1')->value('body'));
+    }
+
+    #[Test]
     public function the_chat_shows_the_owners_farming_record_beside_it(): void
     {
         $a = $this->account();

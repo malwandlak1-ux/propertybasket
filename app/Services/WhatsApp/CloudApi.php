@@ -153,6 +153,28 @@ class CloudApi
         return $this->send($a, ['to' => $to, 'type' => $kind, $kind => $media]);
     }
 
+    /**
+     * Download a file an owner sent us: look up the media id for a short-lived URL,
+     * then fetch it with the same token. Returns ['body' => bytes, 'mime' => type].
+     */
+    public function downloadMedia(WhatsAppAccount $a, string $mediaId): array
+    {
+        if ($this->isStub()) {
+            return ['body' => "%PDF-1.4\n%stub\n", 'mime' => 'application/pdf'];
+        }
+
+        $info = $this->get($a, $mediaId);
+        if (empty($info['url'])) {
+            throw new WhatsAppApiException('Meta did not return a download link for this file.', 0);
+        }
+        $res = Http::withToken($a->access_token)->timeout(120)->get($info['url']);
+        if ($res->failed()) {
+            throw new WhatsAppApiException('Could not download the file from WhatsApp (HTTP ' . $res->status() . ').', 0);
+        }
+
+        return ['body' => $res->body(), 'mime' => $info['mime_type'] ?? ($res->header('Content-Type') ?: 'application/octet-stream')];
+    }
+
     /** Free-form text — only allowed within 24h of the owner's last message. */
     public function sendText(WhatsAppAccount $a, string $to, string $body): string
     {

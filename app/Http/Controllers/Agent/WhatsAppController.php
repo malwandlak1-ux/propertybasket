@@ -370,10 +370,10 @@ class WhatsAppController extends Controller
                 'id'        => $m->id,
                 'direction' => $m->direction,
                 'body'      => $m->body,
-                'media'     => $m->media_path ? [
+                'media'     => ($m->media_path || $m->wa_media_id) ? [
                     'url'  => route('agent.crm.whatsapp.media', $m),
                     'name' => $m->media_name,
-                    'kind' => $m->type,
+                    'kind' => $m->type === 'sticker' ? 'image' : $m->type,
                 ] : null,
                 'status'    => $m->status,
                 'campaign'  => $m->campaign?->name,
@@ -458,6 +458,10 @@ class WhatsAppController extends Controller
     public function media(Request $request, WaMessage $message): StreamedResponse
     {
         abort_unless((int) $message->agent_id === (int) $request->user()->id, 403);
+        if (! $message->media_path && $message->wa_media_id) {
+            $this->wa->fetchInboundMedia($message); // an owner's file not downloaded yet
+            $message->refresh();
+        }
         abort_unless($message->media_path && Storage::disk('local')->exists($message->media_path), 404);
 
         return Storage::disk('local')->response($message->media_path, $message->media_name, [
@@ -625,7 +629,7 @@ class WhatsAppController extends Controller
                 'phone'   => $row->phone,
                 'display' => Phone::local($row->phone),
                 'owner'   => $m?->prospect?->owner_name,
-                'last'    => $m?->body,
+                'last'    => $m?->body ?: ($m?->wa_media_id || $m?->media_path ? '📎 ' . ucfirst((string) $m->type) : null),
                 'at'      => $m?->sent_at?->diffForHumans(),
                 'open'    => (bool) $m?->sent_at?->gt(now()->subDay()),
             ];

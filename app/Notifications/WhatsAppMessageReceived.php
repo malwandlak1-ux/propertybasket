@@ -31,7 +31,7 @@ class WhatsAppMessageReceived extends Notification
             'phone'         => $this->message->phone,
             'display'       => Phone::local($this->message->phone),
             'owner_name'    => $this->ownerName,
-            'preview'       => mb_strimwidth((string) $this->message->body, 0, 120, '…'),
+            'preview'       => mb_strimwidth((string) ($this->message->body ?: '📎 ' . ($this->message->media_name ?: ucfirst((string) $this->message->type))), 0, 120, '…'),
             'opted_out'     => $this->optedOut,
         ];
     }

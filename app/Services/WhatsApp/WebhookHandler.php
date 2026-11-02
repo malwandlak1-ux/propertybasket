@@ -110,11 +110,16 @@ class WebhookHandler
         }
 
         $phone = Phone::waZa('+' . ltrim((string) ($m['from'] ?? ''), '+')) ?? (string) ($m['from'] ?? '');
+        $type = (string) ($m['type'] ?? 'text');
+        // Photos, documents, voice notes, videos and stickers carry a Meta media id (+ caption / filename).
+        $media = in_array($type, ['image', 'document', 'audio', 'video', 'sticker'], true) ? ($m[$type] ?? []) : [];
         $text = trim((string) ($m['text']['body']
             ?? $m['button']['text']
             ?? $m['interactive']['button_reply']['title']
             ?? $m['interactive']['list_reply']['title']
-            ?? '[' . ($m['type'] ?? 'message') . ']'));
+            ?? ($media['caption'] ?? null)
+            ?? ($type === 'reaction' ? (($m['reaction']['emoji'] ?? '') !== '' ? 'Reacted ' . $m['reaction']['emoji'] : 'Removed a reaction') : null)
+            ?? ($media ? '' : '[' . $type . ']')));
         $prospects = $this->prospectsFor($account, $phone);
 
         $in = WaMessage::create([
@@ -124,11 +129,20 @@ class WebhookHandler
             'direction'           => 'in',
             'type'                => $m['type'] ?? 'text',
             'phone'               => $phone,
-            'body'                => mb_substr($text, 0, 4000),
+            'body'                => $text === '' ? null : mb_substr($text, 0, 4000),
+            'wa_media_id'         => $media['id'] ?? null,
+            'media_mime'          => $media['mime_type'] ?? null,
+            'media_name'          => isset($media['filename']) ? mb_substr(preg_replace('/[^\w.\- ()]+/u', '_', (string) $media['filename']), 0, 200) : null,
             'wamid'               => $m['id'] ?? null,
             'status'              => 'received',
             'sent_at'             => isset($m['timestamp']) ? Carbon::createFromTimestamp((int) $m['timestamp'], config('app.timezone')) : now(),
         ]);
+
+        if ($in->wa_media_id) {
+            // Fetch the file once Meta has had its 200 OK (keeps the webhook fast);
+            // the chat also fetches on first open if this didn't finish.
+            app()->terminating(fn () => $this->wa->fetchInboundMedia($in));
+        }
 
         $word = strtolower(trim($text, " \t\n.!"));
         $this->notifyAgent($account, $in, $prospects->first()?->owner_name, in_array($word, self::STOP, true));
@@ -149,7 +163,7 @@ class WebhookHandler
         $last = $this->lastOutbound($account, $phone);
         if ($last && ! $last->replied_at) {
             $last->update(['replied_at' => $in->sent_at]);
-            $this->wa->logToCrm($last, 'connected', 'WhatsApp reply: ' . $text);
+            $this->wa->logToCrm($last, 'connected', 'WhatsApp reply: ' . ($text !== '' ? $text : '📎 ' . ucfirst($type)));
         }
     }
 

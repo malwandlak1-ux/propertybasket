@@ -557,6 +557,53 @@ class WhatsAppService
         return $sent;
     }
 
+    /**
+     * Download a file an owner sent (photo, document, voice note…) from Meta and keep a
+     * private copy for the chat. Safe to call repeatedly; returns true once it's stored.
+     */
+    public function fetchInboundMedia(WaMessage $msg): bool
+    {
+        if ($msg->media_path && \Illuminate\Support\Facades\Storage::disk('local')->exists($msg->media_path)) {
+            return true;
+        }
+        $account = WhatsAppAccount::find($msg->whatsapp_account_id);
+        if (! $msg->wa_media_id || ! $account) {
+            return false;
+        }
+
+        try {
+            $file = $this->api->downloadMedia($account, $msg->wa_media_id);
+        } catch (\Throwable $e) {
+            report($e);
+
+            return false;
+        }
+
+        $mime = strtolower(trim(explode(';', (string) ($file['mime'] ?: $msg->media_mime))[0])) ?: 'application/octet-stream';
+        $ext = self::EXT[$mime] ?? (pathinfo((string) $msg->media_name, PATHINFO_EXTENSION) ?: 'bin');
+        $path = "wa-media/{$account->id}/in/{$msg->id}-" . \Illuminate\Support\Str::random(8) . ".{$ext}";
+        \Illuminate\Support\Facades\Storage::disk('local')->put($path, $file['body']);
+
+        $msg->update([
+            'media_path' => $path,
+            'media_mime' => $mime,
+            'media_name' => $msg->media_name ?: ucfirst($msg->type) . ' ' . $msg->created_at?->format('d M H:i') . ".{$ext}",
+        ]);
+
+        return true;
+    }
+
+    /** File extension for the media types WhatsApp sends. */
+    private const EXT = [
+        'image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp',
+        'video/mp4' => 'mp4', 'video/3gpp' => '3gp',
+        'audio/ogg' => 'ogg', 'audio/mpeg' => 'mp3', 'audio/mp4' => 'm4a', 'audio/aac' => 'aac', 'audio/amr' => 'amr',
+        'application/pdf' => 'pdf', 'text/plain' => 'txt', 'text/csv' => 'csv',
+        'application/msword' => 'doc', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' => 'docx',
+        'application/vnd.ms-excel' => 'xls', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' => 'xlsx',
+        'application/vnd.ms-powerpoint' => 'ppt', 'application/vnd.openxmlformats-officedocument.presentationml.presentation' => 'pptx',
+    ];
+
     public function pause(WaCampaign $campaign, string $reason): void
     {
         $campaign->update(['status' => 'paused', 'pause_reason' => $reason]);

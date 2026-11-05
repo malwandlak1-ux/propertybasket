@@ -48,11 +48,18 @@ class EnsureValidFfc
             return $next($request);
         }
 
+        $error = $pivot && $pivot->ffc_expires_at
+            ? 'Your FFC expired on ' . $pivot->ffc_expires_at->format('d M Y') . '. Upload a current certificate before continuing.'
+            : 'Upload your FFC certificate before performing any actions.';
+
+        // Mobile API clients get a straight 422; no FFC page to redirect to.
+        if ($request->expectsJson() && ! $request->header('X-Inertia')) {
+            return response()->json(['message' => $error], 422);
+        }
+
         // Inertia clients get a redirect to the FFC page with a flash error.
         return redirect()
             ->route('agent.ffc.index')
-            ->with('error', $pivot && $pivot->ffc_expires_at
-                ? 'Your FFC expired on ' . $pivot->ffc_expires_at->format('d M Y') . '. Upload a current certificate before continuing.'
-                : 'Upload your FFC certificate before performing any actions.');
+            ->with('error', $error);
     }
 }

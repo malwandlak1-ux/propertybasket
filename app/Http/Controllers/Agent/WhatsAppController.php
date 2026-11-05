@@ -25,6 +25,7 @@ use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
@@ -383,7 +384,8 @@ class WhatsAppController extends Controller
     }
 
     /** Attachment types WhatsApp accepts on a reply, by our upload extension. */
-    private const ATTACH_EXT = 'jpg,jpeg,png,mp4,3gp,mp3,ogg,aac,m4a,amr,pdf,doc,docx,xls,xlsx,ppt,pptx,txt,csv';
+    // ogx: an Ogg voice note the server sniffs as application/ogg (it's then treated as audio/ogg).
+    private const ATTACH_EXT = 'jpg,jpeg,png,mp4,3gp,mp3,ogg,oga,opus,ogx,aac,m4a,amr,pdf,doc,docx,xls,xlsx,ppt,pptx,txt,csv';
 
     public function reply(Request $request): RedirectResponse
     {
@@ -392,6 +394,7 @@ class WhatsAppController extends Controller
             'phone'      => ['required', 'string'],
             'body'       => ['nullable', 'required_without:attachment', 'string', 'max:4000'],
             'attachment' => ['nullable', 'file', 'max:16384', 'mimes:' . self::ATTACH_EXT],
+            'voice'      => ['nullable', 'boolean'], // recorded in the chat with the mic button
         ], [
             'body.required_without' => 'Type a message or attach a file.',
             'attachment.max'        => 'Attachments can be up to 16 MB.',
@@ -429,12 +432,23 @@ class WhatsAppController extends Controller
 
         $mime = $file->getMimeType() ?: 'application/octet-stream';
         $name = mb_substr(preg_replace('/[^\w.\- ()]+/u', '_', $file->getClientOriginalName()) ?: 'attachment', 0, 200);
+        $recorded = $request->boolean('voice');
+        // An .ogg/.opus file is Ogg audio whatever PHP sniffs it as (application/ogg, video/ogg);
+        // a voice note recorded in Safari is an audio-only .m4a that can sniff as video/mp4.
+        $ext = strtolower($file->getClientOriginalExtension());
+        if (in_array($ext, ['ogg', 'oga', 'opus'], true) && ! str_starts_with($mime, 'audio/')) {
+            $mime = 'audio/ogg';
+        } elseif ($recorded && $ext === 'm4a') {
+            $mime = 'audio/mp4';
+        }
         $kind = $this->mediaKind($mime, $file->getSize());
+        // WhatsApp only shows a voice-note bubble (mic icon, plays inline) for Ogg/Opus sent with voice=true.
+        $asVoice = $recorded && $kind === 'audio' && $mime === 'audio/ogg';
         $path = $file->store("wa-media/{$account->id}", 'local');
 
         try {
             $mediaId = $this->api->uploadMedia($account, Storage::disk('local')->path($path), $mime, $name);
-            $wamid = $this->api->sendMedia($account, $phone, $kind, $mediaId, $body ?: null, $name);
+            $wamid = $this->api->sendMedia($account, $phone, $kind, $mediaId, $body ?: null, $name, $asVoice);
             // Audio can't carry a caption — send the text straight after it.
             $textWamid = ($kind === 'audio' && $body !== '') ? $this->api->sendText($account, $phone, $body) : null;
         } catch (WhatsAppApiException $e) {
@@ -455,7 +469,7 @@ class WhatsAppController extends Controller
     }
 
     /** GET /agent/crm/whatsapp/media/{message} — the agent's own copy of an attachment they sent. */
-    public function media(Request $request, WaMessage $message): StreamedResponse
+    public function media(Request $request, WaMessage $message): BinaryFileResponse
     {
         abort_unless((int) $message->agent_id === (int) $request->user()->id, 403);
         if (! $message->media_path && $message->wa_media_id) {
@@ -464,10 +478,20 @@ class WhatsAppController extends Controller
         }
         abort_unless($message->media_path && Storage::disk('local')->exists($message->media_path), 404);
 
-        return Storage::disk('local')->response($message->media_path, $message->media_name, [
+        // A real file response (not streamed) so browsers get byte ranges: Safari won't play
+        // audio/video without them, and Chrome can't seek a voice note.
+        $res = response()->file(Storage::disk('local')->path($message->media_path), [
             'Content-Type'  => $message->media_mime ?: 'application/octet-stream',
             'Cache-Control' => 'private, max-age=86400',
-        ], $request->boolean('download') ? 'attachment' : 'inline');
+        ]);
+        $name = $message->media_name ?: basename($message->media_path);
+        $res->setContentDisposition(
+            $request->boolean('download') ? 'attachment' : 'inline',
+            $name,
+            preg_replace('/[^ -~]|[%\/\\\\"]/', '_', \Illuminate\Support\Str::ascii($name)), // plain-ASCII copy for old browsers
+        );
+
+        return $res;
     }
 
     /** WhatsApp message type for a file: images over 5 MB (or not JPG/PNG) go as documents. */
@@ -629,7 +653,7 @@ class WhatsAppController extends Controller
                 'phone'   => $row->phone,
                 'display' => Phone::local($row->phone),
                 'owner'   => $m?->prospect?->owner_name,
-                'last'    => $m?->body ?: ($m?->wa_media_id || $m?->media_path ? '📎 ' . ucfirst((string) $m->type) : null),
+                'last'    => $m?->body ?: ($m?->wa_media_id || $m?->media_path ? WaMessage::mediaLabel($m) : null),
                 'at'      => $m?->sent_at?->diffForHumans(),
                 'open'    => (bool) $m?->sent_at?->gt(now()->subDay()),
             ];

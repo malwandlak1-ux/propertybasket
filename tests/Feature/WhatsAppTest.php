@@ -557,6 +557,74 @@ class WhatsAppTest extends TestCase
     }
 
     #[Test]
+    public function an_agent_can_record_and_send_voice_notes(): void
+    {
+        \Illuminate\Support\Facades\Storage::fake('local');
+        Http::fake([
+            'graph.facebook.com/v23.0/2222222222/media' => Http::response(['id' => 'MEDIAV']),
+            'graph.facebook.com/v23.0/2222222222/messages' => Http::sequence()
+                ->push(['messages' => [['id' => 'wamid.V1']]])
+                ->push(['messages' => [['id' => 'wamid.V1TXT']]])
+                ->push(['messages' => [['id' => 'wamid.V2']]])
+                ->push(['messages' => [['id' => 'wamid.V3']]]),
+        ]);
+        $a = $this->account();
+        WaMessage::create(['whatsapp_account_id' => $a->id, 'agent_id' => $this->agent->id, 'direction' => 'in', 'type' => 'text',
+            'phone' => '27821112222', 'body' => 'Can you call me?', 'status' => 'received', 'sent_at' => now()->subHour()]);
+        $reply = fn (array $data) => $this->actingAs($this->agent)->post('/agent/crm/whatsapp/chat', $data + ['phone' => '27821112222']);
+
+        // Recorded in the chat (Chrome/Firefox → Ogg/Opus): goes as a real WhatsApp voice note.
+        $reply(['voice' => '1', 'body' => 'Call me after 5', 'attachment' => \Illuminate\Http\UploadedFile::fake()->create('voice-note.ogg', 40, 'audio/ogg')])
+            ->assertSessionHasNoErrors();
+        Http::assertSent(fn ($r) => str_ends_with($r->url(), '/messages') && $r['type'] === 'audio'
+            && $r['audio']['id'] === 'MEDIAV' && ($r['audio']['voice'] ?? null) === true && ! isset($r['audio']['caption']));
+        $v1 = WaMessage::where('wamid', 'wamid.V1')->firstOrFail();
+        $this->assertSame(['audio', 'audio/ogg', null], [$v1->type, $v1->media_mime, $v1->body]);
+        $this->assertSame('Call me after 5', WaMessage::where('wamid', 'wamid.V1TXT')->value('body'), 'Text typed with a voice note follows it');
+
+        // Recorded in Safari (.m4a that sniffs as video/mp4): sent as audio, not as a video or a voice-flagged note.
+        $reply(['voice' => '1', 'attachment' => \Illuminate\Http\UploadedFile::fake()->create('voice-note.m4a', 40, 'video/mp4')])->assertSessionHasNoErrors();
+        $v2 = WaMessage::where('wamid', 'wamid.V2')->firstOrFail();
+        $this->assertSame(['audio', 'audio/mp4'], [$v2->type, $v2->media_mime]);
+        Http::assertSent(fn ($r) => str_ends_with($r->url(), '/messages') && $r['type'] === 'audio' && $r['audio']['id'] === 'MEDIAV' && ! isset($r['audio']['voice']) && WaMessage::where('wamid', 'wamid.V2')->exists());
+
+        // An .ogg file attached with the paperclip is plain audio (no voice flag) — even when the
+        // server sniffs it as application/ogg, which the allow-list used to refuse.
+        $reply(['attachment' => \Illuminate\Http\UploadedFile::fake()->create('old note.ogg', 40, 'application/ogg')])->assertSessionHasNoErrors();
+        $this->assertSame('audio', WaMessage::where('wamid', 'wamid.V3')->value('type'));
+        $this->assertSame(1, collect(Http::recorded())->filter(fn ($pair) => ($pair[0]['audio']['voice'] ?? false) === true)->count(), 'Only the recorded Ogg note carries voice=true');
+
+        // Playback supports byte ranges (Safari needs them; Chrome uses them to seek).
+        \Illuminate\Support\Facades\Storage::disk('local')->put($v1->media_path, str_repeat('x', 2000));
+        $this->actingAs($this->agent)->get("/agent/crm/whatsapp/media/{$v1->id}", ['Range' => 'bytes=0-99'])
+            ->assertStatus(206)->assertHeader('Content-Range', 'bytes 0-99/2000')->assertHeader('Content-Type', 'audio/ogg');
+        $this->actingAs($this->agent)->get("/agent/crm/whatsapp/media/{$v1->id}?download=1")
+            ->assertOk()->assertHeader('Content-Disposition', 'attachment; filename=voice-note.ogg');
+    }
+
+    #[Test]
+    public function an_owners_voice_note_shows_as_a_voice_note(): void
+    {
+        $a = $this->account();
+        $this->prospect();
+        $raw = json_encode(['object' => 'whatsapp_business_account', 'entry' => [['id' => '1111111111', 'changes' => [['field' => 'messages', 'value' => [
+            'metadata' => ['phone_number_id' => '2222222222'],
+            'messages' => [['from' => '27821112222', 'id' => 'wamid.VOICE', 'timestamp' => (string) now()->timestamp, 'type' => 'audio',
+                'audio' => ['id' => 'MEDIA-IN-1', 'mime_type' => 'audio/ogg; codecs=opus', 'voice' => true]]],
+        ]]]]]]);
+        Http::fake(['graph.facebook.com/*' => Http::response([], 500)]); // media fetch can fail; the message still lands
+        $this->call('POST', "/webhooks/whatsapp/{$a->webhook_key}", [], [], [], [
+            'CONTENT_TYPE' => 'application/json', 'HTTP_X_HUB_SIGNATURE_256' => 'sha256=' . hash_hmac('sha256', $raw, 'app-secret-abcdef123456'),
+        ], $raw)->assertOk();
+
+        $this->actingAs($this->agent)->get('/agent/crm/whatsapp')->assertOk()
+            ->assertInertia(fn (Assert $p) => $p->where('notifications.recent.0.body', fn ($b) => str_contains($b, '🎤 Voice note'))
+                ->where('threads.0.last', '🎤 Voice note'));
+        $this->actingAs($this->agent)->get('/agent/crm/whatsapp/chat?phone=27821112222')->assertOk()
+            ->assertInertia(fn (Assert $p) => $p->where('messages.0.media.kind', 'audio'));
+    }
+
+    #[Test]
     public function the_send_schedule_follows_the_consumer_protection_act(): void
     {
         $at = fn (string $t) => CarbonImmutable::parse($t, 'Africa/Johannesburg');

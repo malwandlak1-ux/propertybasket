@@ -216,12 +216,12 @@ class CrmTest extends TestCase
         $lead = Inquiry::where('source', 'farming')->firstOrFail();
         $this->assertNull($lead->listing_id);
         $this->assertSame($this->agent->id, $lead->assigned_to);
-        $this->assertSame('qualified', $lead->status);
+        $this->assertSame('new', $lead->status, 'Lands in New, not Qualified');
         $this->assertSame($lead->id, $p->fresh()->inquiry_id);
 
         $this->actingAs($this->agent)->get('/agent/crm/pipeline')->assertOk()
             ->assertInertia(fn (Assert $page) => $page->component('Agent/Pipeline')
-                ->where('columns', fn ($cols) => collect($cols)->firstWhere('key', 'qualified')['cards'][0]['deal_value'] == 850000));
+                ->where('columns', fn ($cols) => collect($cols)->firstWhere('key', 'new')['cards'][0]['deal_value'] == 850000));
 
         // Only once.
         $this->actingAs($this->agent)->post("/agent/crm/prospects/{$p->id}/pipeline")->assertSessionHas('error');

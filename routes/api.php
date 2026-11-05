@@ -1,8 +1,11 @@
 <?php
 
+use App\Http\Controllers\Api\V1\AgentCalendarController;
 use App\Http\Controllers\Api\V1\AgentController;
 use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\PushTokenController;
 use App\Http\Controllers\Api\V1\TenantController;
+use App\Http\Middleware\EnsureRoleEnabled;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -23,6 +26,9 @@ Route::prefix('v1')->group(function () {
         Route::post('auth/logout', [AuthController::class, 'logout']);
         Route::get('me', [AuthController::class, 'me']);
 
+        Route::post('push-tokens',   [PushTokenController::class, 'store']);
+        Route::delete('push-tokens', [PushTokenController::class, 'destroy']);
+
         Route::prefix('tenant')->group(function () {
             Route::get('overview',     [TenantController::class, 'overview']);
             Route::get('payments',     [TenantController::class, 'payments']);
@@ -31,13 +37,19 @@ Route::prefix('v1')->group(function () {
             Route::post('maintenance', [TenantController::class, 'storeMaintenance']);
         });
 
-        // Same FFC compliance gate as the web agent routes (writes only).
-        Route::prefix('agent')->middleware('ffc')->group(function () {
+        // Same role switch + FFC compliance gate as the web agent routes (FFC blocks writes only).
+        Route::prefix('agent')->middleware([EnsureRoleEnabled::class . ':agent', 'ffc'])->group(function () {
             Route::get('overview',  [AgentController::class, 'overview']);
             Route::get('pipeline',  [AgentController::class, 'pipeline']);
             Route::get('listings',  [AgentController::class, 'listings']);
             Route::post('pipeline/leads', [AgentController::class, 'storeLead']);
             Route::patch('pipeline/leads/{inquiry}/status', [AgentController::class, 'updateLeadStatus']);
+
+            Route::get('calendar',                         [AgentCalendarController::class, 'index']);
+            Route::post('calendar/viewings',               [AgentCalendarController::class, 'storeViewing']);
+            Route::post('calendar/reminders',              [AgentCalendarController::class, 'storeReminder']);
+            Route::patch('calendar/reminders/{reminder}',  [AgentCalendarController::class, 'toggleReminder']);
+            Route::delete('calendar/reminders/{reminder}', [AgentCalendarController::class, 'destroyReminder']);
         });
     });
 });

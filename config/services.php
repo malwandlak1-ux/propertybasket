@@ -35,6 +35,12 @@ return [
         ],
     ],
 
+    // Expo push (mobile app). The access token is only needed if "enhanced
+    // push security" is switched on for the Expo project.
+    'expo' => [
+        'access_token' => env('EXPO_ACCESS_TOKEN'),
+    ],
+
     'paystack' => [
         'base_url'   => env('PAYSTACK_BASE_URL', 'https://api.paystack.co'),
         'public_key' => env('PAYSTACK_PUBLIC_KEY'),

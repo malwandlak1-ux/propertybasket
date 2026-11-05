@@ -106,6 +106,12 @@ class User extends Authenticatable
         return $this->hasMany(Inquiry::class, 'assigned_to');
     }
 
+    /** Expo push tokens — one per device signed in to the mobile app. */
+    public function pushTokens(): HasMany
+    {
+        return $this->hasMany(PushToken::class);
+    }
+
     public function leasesAsTenant(): HasMany
     {
         return $this->hasMany(Lease::class, 'tenant_id');

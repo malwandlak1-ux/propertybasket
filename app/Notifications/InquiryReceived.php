@@ -3,6 +3,7 @@
 namespace App\Notifications;
 
 use App\Models\Inquiry;
+use App\Notifications\Channels\ExpoPushChannel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
@@ -17,7 +18,19 @@ class InquiryReceived extends Notification
 
     public function via(object $notifiable): array
     {
-        return ['database', 'mail'];
+        return ['database', 'mail', ...ExpoPushChannel::for($notifiable)];
+    }
+
+    /** Mobile push: tapping it opens the lead in the app. */
+    public function toExpoPush(object $notifiable): array
+    {
+        $listing = $this->inquiry->listing?->title;
+
+        return [
+            'title' => 'New lead: ' . $this->inquiry->name,
+            'body'  => $listing ? "Inquired about {$listing}" : 'A new lead was assigned to you.',
+            'data'  => ['type' => 'lead', 'inquiry_id' => $this->inquiry->id],
+        ];
     }
 
     public function toMail(object $notifiable): MailMessage

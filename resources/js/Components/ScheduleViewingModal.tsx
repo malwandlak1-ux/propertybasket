@@ -1,7 +1,9 @@
 /**
- * ScheduleViewingModal — opens from the "Schedule" button on /agent/viewings.
- * Creates an Inquiry with status=viewing and viewing_scheduled_at set; same row
- * the agency dashboard reads, so it propagates.
+ * ScheduleViewingModal — opens from "New entry" (or a day/slot) on the agent
+ * Calendar (/agent/viewings). Two kinds of entry:
+ *  - Viewing: creates an Inquiry with status=viewing + viewing_scheduled_at; same
+ *    row the agency dashboard reads, so it propagates.
+ *  - Reminder: the agent's own AgentReminder; the bell rings when it's due.
  */
 import { FormEvent, useMemo, useState } from 'react';
 import { router } from '@inertiajs/react';
@@ -15,8 +17,13 @@ type Props = {
     cursor: string;
     /** Pre-fill the date (YYYY-MM-DD) — set when opened by clicking a calendar cell. */
     initialDate?: string;
+    /** Pre-fill the time (HH:mm) — set when opened from a day-view hour slot. */
+    initialTime?: string;
+    initialKind?: Kind;
     onClose: () => void;
 };
+
+type Kind = 'viewing' | 'reminder';
 
 function todayIso(): string {
     const d = new Date();
@@ -26,9 +33,10 @@ function todayIso(): string {
     return `${yyyy}-${mm}-${dd}`;
 }
 
-export default function ScheduleViewingModal({ listings, view, cursor, initialDate, onClose }: Props) {
+export default function ScheduleViewingModal({ listings, view, cursor, initialDate, initialTime, initialKind = 'viewing', onClose }: Props) {
     const minDate = useMemo(() => todayIso(), []);
     const defaultDate = initialDate && initialDate >= minDate ? initialDate : minDate;
+    const [kind, setKind] = useState<Kind>(initialKind);
 
     const [data, setDataState] = useState({
         listing_id:   '',
@@ -36,8 +44,9 @@ export default function ScheduleViewingModal({ listings, view, cursor, initialDa
         email:        '',
         phone:        '',
         date:         defaultDate,
-        time:         '10:00',
+        time:         initialTime ?? '10:00',
         message:      '',
+        title:        '',
     });
     const [processing, setProcessing] = useState(false);
     const [errors, setErrors]         = useState<Record<string, string>>({});
@@ -49,6 +58,20 @@ export default function ScheduleViewingModal({ listings, view, cursor, initialDa
     function submit(e: FormEvent) {
         e.preventDefault();
         setProcessing(true);
+        const opts = {
+            onSuccess: () => onClose(),
+            onError: (errs: Record<string, string>) => setErrors(errs),
+            onFinish: () => setProcessing(false),
+        };
+        if (kind === 'reminder') {
+            router.post('/agent/viewings/reminders', {
+                title:     data.title,
+                notes:     data.message,
+                remind_at: `${data.date} ${data.time}:00`,
+                view,
+            }, opts);
+            return;
+        }
         router.post('/agent/viewings', {
             listing_id:   data.listing_id,
             name:         data.name,
@@ -58,20 +81,13 @@ export default function ScheduleViewingModal({ listings, view, cursor, initialDa
             scheduled_at: `${data.date} ${data.time}:00`,
             view,
             cursor,
-        }, {
-            onSuccess: () => {
-                onClose();
-            },
-            onError: (errs) => {
-                setErrors(errs as Record<string, string>);
-            },
-            onFinish: () => {
-                setProcessing(false);
-            },
-        });
+        }, opts);
     }
 
-    const scheduledAtError = errors.scheduled_at as string | undefined;
+    const scheduledAtError = (kind === 'reminder' ? errors.remind_at : errors.scheduled_at) as string | undefined;
+    const canSubmit = kind === 'reminder'
+        ? !! data.title && !! data.date && !! data.time
+        : !! data.name && !! data.listing_id && !! data.date && !! data.time;
 
     return (
         <div
@@ -86,9 +102,11 @@ export default function ScheduleViewingModal({ listings, view, cursor, initialDa
             >
                 <div className="flex items-start justify-between mb-5">
                     <div>
-                        <h2 className="text-lg font-bold">Schedule a viewing</h2>
+                        <h2 className="text-lg font-bold">{kind === 'reminder' ? 'Add a reminder' : 'Schedule a viewing'}</h2>
                         <p className="text-[13px] text-ink-500 mt-1">
-                            Book a property visit for a lead. They'll appear on your calendar.
+                            {kind === 'reminder'
+                                ? "A note on your calendar. We'll ring your notification bell when it's due."
+                                : "Book a property visit for a lead. They'll appear on your calendar."}
                         </p>
                     </div>
                     <button
@@ -101,7 +119,41 @@ export default function ScheduleViewingModal({ listings, view, cursor, initialDa
                     </button>
                 </div>
 
+                <div className="flex items-center bg-ink-50 border border-ink-200 rounded-lg p-1 mb-5" role="tablist">
+                    {(['viewing', 'reminder'] as Kind[]).map((k) => (
+                        <button
+                            key={k}
+                            type="button"
+                            role="tab"
+                            aria-selected={kind === k}
+                            onClick={() => { setKind(k); setErrors({}); }}
+                            className={`flex-1 text-[13px] px-3 py-1.5 rounded-md capitalize transition ${
+                                kind === k ? 'bg-white shadow-soft font-semibold text-ink-900' : 'text-ink-500 hover:text-ink-900'
+                            }`}
+                        >
+                            {k}
+                        </button>
+                    ))}
+                </div>
+
                 <form onSubmit={submit} className="space-y-4">
+                    {kind === 'reminder' && (
+                        <div>
+                            <label className="text-[12px] font-semibold text-ink-700 mb-1.5 block">What to remember *</label>
+                            <input
+                                value={data.title}
+                                onChange={(e) => setData('title', e.target.value)}
+                                required
+                                autoFocus
+                                maxLength={160}
+                                placeholder="e.g. Call Mrs Dlamini back about the valuation"
+                                className="w-full bg-ink-50 border border-ink-200 rounded-lg px-3.5 py-2.5 text-[14px] outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand"
+                            />
+                            {errors.title && <p className="text-[11px] text-danger mt-1">{errors.title}</p>}
+                        </div>
+                    )}
+
+                    {kind === 'viewing' && (
                     <div>
                         <label className="text-[12px] font-semibold text-ink-700 mb-1.5 block">Property *</label>
                         <select
@@ -117,6 +169,7 @@ export default function ScheduleViewingModal({ listings, view, cursor, initialDa
                         </select>
                         {errors.listing_id && <p className="text-[11px] text-danger mt-1">{errors.listing_id}</p>}
                     </div>
+                    )}
 
                     <div className="grid grid-cols-2 gap-3">
                         <div>
@@ -143,6 +196,7 @@ export default function ScheduleViewingModal({ listings, view, cursor, initialDa
                     </div>
                     {scheduledAtError && <p className="text-[11px] text-danger -mt-2">{scheduledAtError}</p>}
 
+                    {kind === 'viewing' && (<>
                     <div className="grid grid-cols-2 gap-3">
                         <div>
                             <label className="text-[12px] font-semibold text-ink-700 mb-1.5 block">Lead name *</label>
@@ -168,28 +222,28 @@ export default function ScheduleViewingModal({ listings, view, cursor, initialDa
                     </div>
 
                     <div>
-                        <label className="text-[12px] font-semibold text-ink-700 mb-1.5 block">Email *</label>
+                        <label className="text-[12px] font-semibold text-ink-700 mb-1.5 block">Email</label>
                         <input
                             type="email"
                             value={data.email}
                             onChange={(e) => setData('email', e.target.value)}
-                            required
                             placeholder="tebogo@example.com"
                             className="w-full bg-ink-50 border border-ink-200 rounded-lg px-3.5 py-2.5 text-[14px] outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand"
                         />
                         {errors.email && <p className="text-[11px] text-danger mt-1">{errors.email}</p>}
                     </div>
+                    </>)}
 
                     <div>
                         <label className="text-[12px] font-semibold text-ink-700 mb-1.5 block">Notes</label>
                         <textarea
                             value={data.message}
                             onChange={(e) => setData('message', e.target.value)}
-                            placeholder="Meeting point, what they're looking for, anything else…"
+                            placeholder={kind === 'reminder' ? 'Optional details…' : "Meeting point, what they're looking for, anything else…"}
                             rows={3}
                             className="w-full bg-ink-50 border border-ink-200 rounded-lg px-3.5 py-2.5 text-[14px] outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand resize-none"
                         />
-                        {errors.message && <p className="text-[11px] text-danger mt-1">{errors.message}</p>}
+                        {(errors.message || errors.notes) && <p className="text-[11px] text-danger mt-1">{errors.message || errors.notes}</p>}
                     </div>
 
                     <div className="flex justify-end gap-2 pt-2">
@@ -202,11 +256,11 @@ export default function ScheduleViewingModal({ listings, view, cursor, initialDa
                         </button>
                         <button
                             type="submit"
-                            disabled={processing || ! data.email || ! data.name || ! data.listing_id || ! data.date || ! data.time}
+                            disabled={processing || ! canSubmit}
                             className="px-4 py-2 text-[13px] bg-brand-700 text-white rounded-full hover:bg-brand-800 disabled:opacity-60 disabled:cursor-not-allowed inline-flex items-center gap-2 font-semibold transition"
                         >
                             {processing && <Spinner size={13} />}
-                            {processing ? 'Scheduling…' : 'Schedule viewing'}
+                            {processing ? 'Saving…' : kind === 'reminder' ? 'Add reminder' : 'Schedule viewing'}
                         </button>
                     </div>
                 </form>

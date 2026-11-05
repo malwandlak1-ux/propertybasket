@@ -237,6 +237,9 @@ Route::middleware('auth')->group(function () {
         });
         Route::get('viewings',    [Agent\ViewingsController::class,  'index'])->name('viewings.index');
         Route::post('viewings',   [Agent\ViewingsController::class,  'store'])->name('viewings.store');
+        Route::post('viewings/reminders',              [Agent\ViewingsController::class, 'storeReminder'])->name('viewings.reminders.store');
+        Route::patch('viewings/reminders/{reminder}',  [Agent\ViewingsController::class, 'toggleReminder'])->name('viewings.reminders.toggle');
+        Route::delete('viewings/reminders/{reminder}', [Agent\ViewingsController::class, 'destroyReminder'])->name('viewings.reminders.destroy');
         Route::get('maintenance', [Agent\MaintenanceController::class, 'index'])->name('maintenance.index');
 
         Route::get('inspections', [Agent\InspectionsController::class, 'index'])->name('inspections.index');

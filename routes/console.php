@@ -21,3 +21,6 @@ Schedule::command('debit:collect')->hourly();
 // Every minute: send queued CRM WhatsApp campaign messages (throttled; only
 // inside the send window). Also runs after web requests if no cron is set up.
 Schedule::command('whatsapp:dispatch')->everyMinute()->withoutOverlapping();
+
+// Every minute: ring the bell for agents' calendar reminders that are due.
+Schedule::command('reminders:send')->everyMinute()->withoutOverlapping();

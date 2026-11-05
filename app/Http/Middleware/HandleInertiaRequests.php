@@ -238,6 +238,12 @@ class HandleInertiaRequests extends Middleware
                 'href'  => '/agency/compliance',
                 'tone'  => ($data['days_left'] ?? 99) <= 7 ? 'danger' : 'warning',
             ],
+            \App\Notifications\ReminderDue::class => [
+                'title' => 'Reminder',
+                'body'  => ($data['title'] ?? 'A reminder') . ' · ' . ($data['time'] ?? ''),
+                'href'  => '/agent/viewings?view=day&cursor=' . urlencode((string) ($data['date'] ?? '')),
+                'tone'  => 'warning',
+            ],
             \App\Notifications\WhatsAppMessageReceived::class => [
                 'title' => ($data['opted_out'] ?? false) ? 'WhatsApp opt-out' : 'New WhatsApp message',
                 'body'  => ($data['owner_name'] ?? $data['display'] ?? 'An owner')

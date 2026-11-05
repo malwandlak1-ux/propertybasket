@@ -163,7 +163,7 @@ export default function NewLeadModal({ listings, onClose, initialStage = 'new' }
                                 className="w-full bg-white border border-ink-200 rounded-lg px-3.5 py-2.5 text-[14px] outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand"
                             />
                         </div>
-                        <p className="text-[11px] text-ink-500 mt-1.5">Adds the viewing to your Viewings calendar.</p>
+                        <p className="text-[11px] text-ink-500 mt-1.5">Adds the viewing to your Calendar.</p>
                         {(errors.viewing_date || errors.viewing_time) && (
                             <p className="text-[11px] text-danger mt-1">{errors.viewing_date || errors.viewing_time}</p>
                         )}

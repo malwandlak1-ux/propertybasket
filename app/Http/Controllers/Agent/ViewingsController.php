@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Agent;
 use App\Http\Controllers\Agent\Concerns\ResolvesAgent;
 use App\Http\Controllers\Controller;
 use App\Models\Agency;
+use App\Models\AgentReminder;
 use App\Models\Inquiry;
 use App\Models\Listing;
 use App\Support\PipelineCard;
@@ -59,6 +60,13 @@ class ViewingsController extends Controller
                 ];
             });
 
+        // The agent's own reminders in the displayed period
+        $reminders = AgentReminder::where('agent_id', $user->id)
+            ->whereBetween('remind_at', [$periodStart, $periodEnd])
+            ->orderBy('remind_at')
+            ->get()
+            ->map(fn (AgentReminder $r) => $this->reminderRow($r));
+
         // Day cells the calendar needs for the current view
         $days = $this->buildDays($view, $cursor, $periodStart, $periodEnd);
 
@@ -78,6 +86,15 @@ class ViewingsController extends Controller
                 'listing' => $inq->listing?->title ?? '—',
                 'lead'    => PipelineCard::from($inq),
             ]);
+
+        $upcomingReminders = AgentReminder::where('agent_id', $user->id)
+            ->whereNull('done_at')
+            ->where('remind_at', '>', $periodEnd)
+            ->where('remind_at', '<=', $periodEnd->addDays(14))
+            ->orderBy('remind_at')
+            ->take(5)
+            ->get()
+            ->map(fn (AgentReminder $r) => $this->reminderRow($r) + ['when' => $r->remind_at->format('D d M · H:i')]);
 
         // Listings the agent can schedule a viewing against
         $listings = Listing::query()
@@ -110,6 +127,8 @@ class ViewingsController extends Controller
             'days'            => $days,
             'viewings'        => $viewings,
             'upcoming'        => $upcoming,
+            'reminders'       => $reminders,
+            'upcoming_reminders' => $upcomingReminders,
             'listings'        => $listings,
             'total_in_period' => $viewings->count(),
         ]);
@@ -128,7 +147,7 @@ class ViewingsController extends Controller
         $data = $request->validate([
             'listing_id'   => ['required', 'integer', 'exists:listings,id'],
             'name'         => ['required', 'string', 'max:120'],
-            'email'        => ['required', 'email', 'max:180'],
+            'email'        => ['nullable', 'email', 'max:180'],
             'phone'        => ['nullable', 'string', 'max:30'],
             'scheduled_at' => ['required', 'date', 'after_or_equal:' . CarbonImmutable::now()->startOfDay()->toDateString()],
             'message'      => ['nullable', 'string', 'max:2000'],
@@ -141,7 +160,7 @@ class ViewingsController extends Controller
         Inquiry::create([
             'listing_id'           => $data['listing_id'],
             'name'                 => $data['name'],
-            'email'                => $data['email'],
+            'email'                => $data['email'] ?? null,
             'phone'                => $data['phone'] ?? null,
             'message'              => $data['message'] ?? null,
             'assigned_to'          => $user->id,
@@ -164,6 +183,70 @@ class ViewingsController extends Controller
                 'cursor' => $scheduledAt->format('Y-m-d'),
             ])
             ->with('success', "Viewing scheduled with {$data['name']} on {$scheduledAt->format('D d M · H:i')}.");
+    }
+
+    /** POST /agent/viewings/reminders — put a reminder on the agent's calendar. */
+    public function storeReminder(Request $request): RedirectResponse
+    {
+        $user = $request->user();
+        $this->resolveAgentRecord($request);
+
+        $data = $request->validate([
+            'title'     => ['required', 'string', 'max:160'],
+            'notes'     => ['nullable', 'string', 'max:2000'],
+            'remind_at' => ['required', 'date'],
+            'view'      => ['nullable', Rule::in(self::VIEWS)],
+        ]);
+
+        $at = CarbonImmutable::parse($data['remind_at']);
+
+        AgentReminder::create([
+            'agent_id'  => $user->id,
+            'title'     => $data['title'],
+            'notes'     => $data['notes'] ?? null,
+            'remind_at' => $at,
+            // A reminder set in the past is already due — don't ring the bell for it.
+            'notified_at' => $at->isPast() ? now() : null,
+        ]);
+
+        $view = in_array($data['view'] ?? null, self::VIEWS, true) ? $data['view'] : 'week';
+
+        return redirect()
+            ->route('agent.viewings.index', ['view' => $view, 'cursor' => $at->format('Y-m-d')])
+            ->with('success', "Reminder set for {$at->format('D d M · H:i')}.");
+    }
+
+    /** PATCH /agent/viewings/reminders/{reminder} — mark done / not done. */
+    public function toggleReminder(Request $request, AgentReminder $reminder): RedirectResponse
+    {
+        abort_unless((int) $reminder->agent_id === (int) $request->user()->id, 403);
+
+        $reminder->update(['done_at' => $reminder->done_at ? null : now()]);
+
+        return back();
+    }
+
+    /** DELETE /agent/viewings/reminders/{reminder} */
+    public function destroyReminder(Request $request, AgentReminder $reminder): RedirectResponse
+    {
+        abort_unless((int) $reminder->agent_id === (int) $request->user()->id, 403);
+
+        $reminder->delete();
+
+        return back()->with('success', 'Reminder deleted.');
+    }
+
+    private function reminderRow(AgentReminder $r): array
+    {
+        return [
+            'id'    => $r->id,
+            'title' => $r->title,
+            'notes' => $r->notes,
+            'date'  => $r->remind_at->format('Y-m-d'),
+            'time'  => $r->remind_at->format('H:i'),
+            'hour'  => (int) $r->remind_at->format('G'),
+            'done'  => $r->done_at !== null,
+        ];
     }
 
     private function parseCursor(?string $raw): CarbonImmutable

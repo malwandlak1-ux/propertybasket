@@ -33,7 +33,9 @@ class CommissionPaid extends Notification
         return (new MailMessage)
             ->subject('Payment sent — R ' . number_format($netTotal, 2))
             ->greeting('Hi ' . $notifiable->name . ',')
-            ->line("Your commission payout has been processed via Paystack.")
+            ->line($this->batch->method === 'trust_account'
+                ? 'Your agency has paid your commission by EFT from its trust account.'
+                : 'Your commission payout has been processed via Paystack.')
             ->line('Amount: **R ' . number_format($netTotal, 2) . '** for ' . $count . ' ' . ($count === 1 ? 'deal' : 'deals'))
             ->line('Batch date: ' . $this->batch->batch_date->format('d M Y'))
             ->line('Funds should reflect in your bank account within 1–2 business days.')

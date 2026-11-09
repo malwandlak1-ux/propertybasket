@@ -23,7 +23,7 @@ class Agency extends Model
         'paystack_subaccount_code', 'trust_bank', 'trust_account_number',
         'trust_branch_code', 'trust_account_holder', 'trust_account_type',
         'trust_auditor_name', 'trust_auditor_practice_number', 'trust_verified_at',
-        'payout_day', 'status',
+        'payout_day', 'payout_method', 'status',
         'subscription_plan', 'subscription_expires_at',
     ];
 
@@ -81,5 +81,18 @@ class Agency extends Model
     public function payoutBatches(): HasMany
     {
         return $this->hasMany(PayoutBatch::class);
+    }
+
+    /** Payout methods an agency can choose for agents' commission. */
+    public const PAYOUT_METHODS = ['paystack', 'trust_account'];
+
+    public function trustAccountVerified(): bool
+    {
+        return $this->trust_verified_at !== null && filled($this->trust_account_number);
+    }
+
+    public function paysFromTrustAccount(): bool
+    {
+        return ($this->payout_method ?? 'paystack') === 'trust_account';
     }
 }

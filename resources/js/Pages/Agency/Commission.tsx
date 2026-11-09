@@ -20,7 +20,9 @@ type Commission = {
 };
 
 type Props = {
-    agency: { id: number; name: string; payout_day: number; vat_rate: number; sale_commission_percent: number; rental_commission_percent: number };
+    agency: { id: number; name: string; payout_day: number; vat_rate: number; sale_commission_percent: number; rental_commission_percent: number; payout_method: 'paystack' | 'trust_account' };
+    payout: { method: 'paystack' | 'trust_account'; paystack_stub: boolean; trust_verified: boolean; trust_bank: string | null; trust_account: string | null };
+    eft_batch: EftBatch | null;
     commissions: Commission[];
     totals: { gross: number; vat: number; agent_net: number; count_eligible: number; count_total: number };
     next_batch: {
@@ -36,8 +38,16 @@ type Props = {
     paid_ytd: number;
     agency_retained_ytd: number;
     vat_ytd: number;
-    recent_transfers: { id: number; batch_date: string; total_agent_net: number; commissions_count: number }[];
+    recent_transfers: { id: number; batch_date: string; total_agent_net: number; commissions_count: number; method: 'paystack' | 'trust_account'; paid_reference: string | null }[];
     contractor_invoices: { queue: ContractorInvoice[]; paid: ContractorInvoice[] };
+};
+
+type EftBatch = {
+    id: number;
+    batch_date: string;
+    total: number;
+    payees: { agent: string | null; bank: string | null; account: string | null; amount: number; deals: number }[];
+    file_url: string;
 };
 
 type ContractorInvoice = {
@@ -108,7 +118,8 @@ function reasonChips(reason: string): { text: string; tone: string }[] {
     }));
 }
 
-export default function Commission({ agency, commissions, totals, next_batch, paid_ytd, agency_retained_ytd, vat_ytd, recent_transfers, contractor_invoices }: Props) {
+export default function Commission({ agency, payout, eft_batch, commissions, totals, next_batch, paid_ytd, agency_retained_ytd, vat_ytd, recent_transfers, contractor_invoices }: Props) {
+    const viaTrust = payout.method === 'trust_account';
     const { flash } = usePage<SharedProps>().props;
     const [selected, setSelected] = useState<Set<number>>(new Set());
     const [payInvoiceModal, setPayInvoiceModal] = useState<ContractorInvoice | null>(null);
@@ -140,7 +151,12 @@ export default function Commission({ agency, commissions, totals, next_batch, pa
     }
     function runPayoutBatch() {
         if (paying) return;
-        if (!confirm('Run the payout batch via Paystack? This is a stub call and will mark commissions as paid.')) return;
+        const msg = viaTrust
+            ? `Prepare an EFT payout from your trust account (${payout.trust_bank ?? 'bank'} ${payout.trust_account ?? ''})? You'll get a bank payment file; commissions are marked paid once you confirm the EFT went through.`
+            : payout.paystack_stub
+                ? 'Run the payout batch via Paystack? Paystack is in test mode: no real money moves, and commissions are marked paid.'
+                : 'Run the payout batch via Paystack? Agents are paid immediately by Paystack transfer.';
+        if (!confirm(msg)) return;
         setPaying(true);
         router.post('/agency/commissions/payout', {}, {
             preserveScroll: true,
@@ -159,8 +175,11 @@ export default function Commission({ agency, commissions, totals, next_batch, pa
                     <div>
                         <h1 className="text-[28px] sm:text-[32px] leading-tight tracking-tight">Commission &amp; Payouts</h1>
                         <p className="text-[14px] text-ink-500 mt-1">
-                            Monthly payout day: <span className="font-semibold text-ink-900">{agency.payout_day}th of each month</span> ·
-                            Paystack stub connected ✓
+                            Monthly payout day: <span className="font-semibold text-ink-900">{agency.payout_day}th of each month</span> ·{' '}
+                            {viaTrust
+                                ? <>Paid by EFT from your trust account <span className="font-semibold text-ink-900">{payout.trust_bank} {payout.trust_account}</span></>
+                                : <>Paid via Paystack{payout.paystack_stub ? ' (test mode)' : ''}</>}
+                            {' '}· <a href="/agency/settings" className="font-semibold text-brand-700 hover:underline">Change</a>
                         </p>
                     </div>
                     <div className="flex items-center gap-2">
@@ -172,7 +191,8 @@ export default function Commission({ agency, commissions, totals, next_batch, pa
                         </button>
                         <button
                             onClick={runPayoutBatch}
-                            disabled={paying || (!next_batch && totals.count_eligible === 0)}
+                            disabled={paying || !!eft_batch || (!next_batch && totals.count_eligible === 0)}
+                            title={eft_batch ? 'Finish the EFT payout below first' : undefined}
                             className="px-3.5 py-2 text-[13px] bg-brand-500 text-white rounded-lg hover:bg-brand-600 disabled:opacity-50 flex items-center gap-2"
                         >
                             {paying ? <Spinner size={14} /> : (
@@ -181,7 +201,7 @@ export default function Commission({ agency, commissions, totals, next_batch, pa
                                     <path d="M8 12h8M12 8v8" />
                                 </svg>
                             )}
-                            {paying ? 'Running…' : 'Run Payout Batch'}
+                            {paying ? 'Running…' : viaTrust ? 'Prepare EFT Payout' : 'Run Payout Batch'}
                         </button>
                     </div>
                 </div>
@@ -196,6 +216,8 @@ export default function Commission({ agency, commissions, totals, next_batch, pa
                         {flash.error}
                     </div>
                 )}
+
+                {eft_batch && <EftBatchCard batch={eft_batch} trust={`${payout.trust_bank ?? ''} ${payout.trust_account ?? ''}`.trim()} />}
 
                 {/* Stat strip */}
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
@@ -447,15 +469,27 @@ export default function Commission({ agency, commissions, totals, next_batch, pa
                                         <path d="M2 10h20" />
                                     </svg>
                                 </div>
-                                <h3 className="text-base font-semibold">Paystack</h3>
+                                <h3 className="text-base font-semibold">{viaTrust ? 'Trust account (EFT)' : 'Paystack'}</h3>
                             </div>
-                            <span className="text-[10px] px-2 py-0.5 rounded-full bg-warning/15 text-warning font-bold">STUB</span>
+                            {viaTrust
+                                ? <span className="text-[10px] px-2 py-0.5 rounded-full bg-success/15 text-success font-bold">VERIFIED</span>
+                                : <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${payout.paystack_stub ? 'bg-warning/15 text-warning' : 'bg-success/15 text-success'}`}>{payout.paystack_stub ? 'TEST MODE' : 'LIVE'}</span>}
                         </div>
-                        <p className="text-[12px] text-ink-500 mb-3">Phase 3 uses a stub provider — real Paystack hooks come in Phase 9.</p>
+                        <p className="text-[12px] text-ink-500 mb-3">
+                            {viaTrust
+                                ? 'You pay agents from your trust account with the bank file we prepare, then mark the batch paid.'
+                                : 'Agents are paid automatically by Paystack transfer when you run the batch.'}
+                        </p>
                         <div className="bg-ink-50 rounded-lg p-3 text-[11px] font-mono text-ink-700 space-y-1">
-                            <p>Balance: <span className="font-semibold text-ink-900">simulated</span></p>
-                            <p>Last sync: <span className="text-ink-500">now</span></p>
-                            <p>Webhook: <span className="text-success">healthy ✓</span></p>
+                            {viaTrust ? (
+                                <>
+                                    <p>Account: <span className="font-semibold text-ink-900">{payout.trust_bank} {payout.trust_account}</span></p>
+                                    <p>Waiting: <span className="text-ink-900">{eft_batch ? `${fmtMoney(eft_batch.total)} to pay` : 'nothing'}</span></p>
+                                </>
+                            ) : (
+                                <p>Mode: <span className="font-semibold text-ink-900">{payout.paystack_stub ? 'test (no real money moves)' : 'live transfers'}</span></p>
+                            )}
+                            <p><a href="/agency/settings" className="text-brand-700 hover:underline font-sans font-semibold">Change payout method →</a></p>
                         </div>
                     </div>
 
@@ -469,7 +503,7 @@ export default function Commission({ agency, commissions, totals, next_batch, pa
                                 {recent_transfers.map((t) => (
                                     <div key={t.id} className="flex items-center justify-between py-1.5 border-b border-ink-100 last:border-0">
                                         <span className="text-ink-700">
-                                            Batch ·{' '}
+                                            {t.method === 'trust_account' ? 'EFT' : 'Batch'} ·{' '}
                                             {new Date(t.batch_date).toLocaleDateString('en-ZA', { day: 'numeric', month: 'short' })} ·{' '}
                                             {t.commissions_count} agent{t.commissions_count === 1 ? '' : 's'}
                                         </span>
@@ -491,6 +525,10 @@ export default function Commission({ agency, commissions, totals, next_batch, pa
                             <div className="flex items-center justify-between py-1.5 border-b border-ink-100">
                                 <span className="text-ink-500">Day of month</span>
                                 <span className="font-semibold">{agency.payout_day}th</span>
+                            </div>
+                            <div className="flex items-center justify-between py-1.5 border-b border-ink-100">
+                                <span className="text-ink-500">Method</span>
+                                <span className="font-semibold">{viaTrust ? 'Trust account (EFT)' : 'Paystack'}</span>
                             </div>
                             <div className="flex items-center justify-between py-1.5 border-b border-ink-100">
                                 <span className="text-ink-500">VAT rate</span>
@@ -706,6 +744,74 @@ function Stat({ label, value, meta }: { label: string; value: string; meta: stri
             <p className="text-[11px] text-ink-500 uppercase tracking-wider font-semibold">{label}</p>
             <p className="text-3xl font-bold mt-2">{value}</p>
             <p className="text-[11px] text-ink-500 mt-1">{meta}</p>
+        </div>
+    );
+}
+
+/** A trust-account batch waiting for the agency to pay it from its bank. */
+function EftBatchCard({ batch, trust }: { batch: EftBatch; trust: string }) {
+    const [open, setOpen] = useState(false);
+    const [reference, setReference] = useState('');
+    const [saving, setSaving] = useState(false);
+
+    function markPaid() {
+        setSaving(true);
+        router.post(`/agency/commissions/batches/${batch.id}/paid`, { reference }, {
+            preserveScroll: true,
+            onFinish: () => setSaving(false),
+            onSuccess: () => setOpen(false),
+        });
+    }
+
+    return (
+        <div className="mb-6 rounded-2xl border border-warning/40 bg-warning/5 p-5">
+            <div className="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                    <p className="text-[11px] font-bold uppercase tracking-wider text-warning">EFT payout ready · #{batch.id}</p>
+                    <p className="text-[20px] font-bold mt-1">{fmtMoney(batch.total)} to {batch.payees.length} agent{batch.payees.length === 1 ? '' : 's'}</p>
+                    <p className="text-[12.5px] text-ink-600 mt-1">
+                        1. Download the payment file and import it as a bulk payment from your trust account{trust ? ` (${trust})` : ''}.
+                        {' '}2. Approve the payment in your banking. 3. Mark it paid here and agents are notified.
+                    </p>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                    <a href={batch.file_url} className="px-3.5 py-2 text-[13px] font-semibold border border-ink-300 bg-white rounded-lg hover:bg-ink-50">Download payment file (CSV)</a>
+                    <button type="button" onClick={() => setOpen(true)} className="px-3.5 py-2 text-[13px] font-semibold bg-success text-white rounded-lg hover:bg-success/90">Mark as paid</button>
+                </div>
+            </div>
+            <div className="mt-4 overflow-x-auto">
+                <table className="w-full min-w-[480px] text-[12.5px]">
+                    <thead><tr className="text-left text-[11px] uppercase tracking-wider text-ink-500"><th className="py-1.5 font-semibold">Agent</th><th className="font-semibold">Bank</th><th className="font-semibold">Account</th><th className="font-semibold text-right">Deals</th><th className="font-semibold text-right">Amount</th></tr></thead>
+                    <tbody>
+                        {batch.payees.map((p, i) => (
+                            <tr key={i} className="border-t border-warning/20">
+                                <td className="py-2 font-semibold">{p.agent}</td>
+                                <td>{p.bank ?? '—'}</td>
+                                <td className="font-mono">{p.account ?? '—'}</td>
+                                <td className="text-right">{p.deals}</td>
+                                <td className="text-right font-mono font-semibold">{fmtMoney(p.amount)}</td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+            {open && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink-900/40" onMouseDown={(e) => { if (e.target === e.currentTarget) setOpen(false); }}>
+                    <div role="dialog" aria-modal="true" aria-label="Mark EFT payout paid" className="w-full max-w-sm bg-white rounded-2xl shadow-lift p-6">
+                        <h2 className="text-lg font-bold">Mark payout #{batch.id} paid?</h2>
+                        <p className="text-[12.5px] text-ink-600 mt-1">Only do this once the EFT of {fmtMoney(batch.total)} has gone out from your trust account. The commissions are marked paid and each agent gets a payment notice.</p>
+                        <label className="block text-[12px] font-semibold text-ink-700 mt-4 mb-1.5">Bank payment reference (optional)</label>
+                        <input value={reference} onChange={(e) => setReference(e.target.value)} maxLength={80} placeholder="e.g. FNB batch 20261109-01"
+                            className="w-full bg-white border border-ink-200 rounded-xl px-3.5 py-2.5 text-[13.5px] focus:outline-none focus:border-brand-300 focus:ring-4 focus:ring-brand-100" />
+                        <div className="flex justify-end gap-2 mt-5">
+                            <button type="button" onClick={() => setOpen(false)} className="px-4 py-2 rounded-lg text-[13px] font-semibold text-ink-600 hover:bg-ink-100">Cancel</button>
+                            <button type="button" onClick={markPaid} disabled={saving} className="px-4 py-2 rounded-lg text-[13px] font-semibold text-white bg-success hover:bg-success/90 disabled:opacity-60">
+                                {saving ? 'Saving…' : 'Yes, it’s paid'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

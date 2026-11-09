@@ -12,6 +12,7 @@ class PayoutBatch extends Model
         'agency_id', 'batch_date',
         'total_gross', 'total_vat', 'total_agent_net',
         'paystack_bulk_transfer_id', 'status',
+        'method', 'paid_reference', 'paid_at',
     ];
 
     protected function casts(): array
@@ -21,6 +22,7 @@ class PayoutBatch extends Model
             'total_gross' => 'decimal:2',
             'total_vat' => 'decimal:2',
             'total_agent_net' => 'decimal:2',
+            'paid_at' => 'datetime',
         ];
     }
 

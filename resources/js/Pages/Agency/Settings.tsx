@@ -1,5 +1,5 @@
 import { FormEvent, useState } from 'react';
-import { Head, useForm, usePage } from '@inertiajs/react';
+import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import AgencyLayout from '@/Layouts/AgencyLayout';
 import AppearanceSettings from '@/Components/Dashboard/AppearanceSettings';
 import { FlashBanners, PageHeader, btnOutline, btnPrimary } from '@/Components/Dashboard/Charts';
@@ -23,8 +23,14 @@ type AgencyProps = {
     trust_account_number: string | null;
     trust_branch_code: string | null;
     payout_day: number;
+    payout_method: PayoutMethod;
     paystack_subaccount_code: string | null;
+    paystack_stub: boolean;
+    trust_holder: string | null;
+    trust_status: 'none' | 'review' | 'verified';
 };
+
+type PayoutMethod = 'paystack' | 'trust_account';
 
 type Props = { agency: AgencyProps };
 
@@ -34,14 +40,18 @@ const TABS: readonly { key: 'general' | 'vat' | 'trust' | 'payouts' | 'complianc
     { key: 'general', label: 'General Profile', hint: 'Name, contact details, logo', icon: 'user' },
     { key: 'vat', label: 'VAT & Tax', hint: 'VAT registration and rate', icon: 'file' },
     { key: 'trust', label: 'Trust Account', hint: 'Section 32 account', icon: 'wallet' },
-    { key: 'payouts', label: 'Payouts & Paystack', hint: 'When agents get paid', icon: 'calendar' },
+    { key: 'payouts', label: 'Payouts', hint: 'How and when agents get paid', icon: 'calendar' },
     { key: 'compliance', label: 'EAAB & Compliance', hint: 'FFC number', icon: 'alert' },
     { key: 'appearance', label: 'Appearance', hint: 'Dashboard colour and logo', icon: 'eye' },
 ] as const;
 
 type TabKey = (typeof TABS)[number]['key'];
 
-const SA_BANKS = ['First National Bank (FNB)', 'Standard Bank', 'ABSA', 'Nedbank', 'Capitec', 'Investec', 'TymeBank'];
+const TRUST_BADGE = {
+    none: { label: 'NOT SET', tone: 'ink' },
+    review: { label: 'AWAITING VERIFICATION', tone: 'warning' },
+    verified: { label: 'VERIFIED', tone: 'success' },
+} as const;
 
 export default function Settings({ agency }: Props) {
     const { flash } = usePage<SharedProps>().props;
@@ -57,10 +67,8 @@ export default function Settings({ agency }: Props) {
         vat_registered: boolean;
         vat_number: string;
         vat_rate: number;
-        trust_bank: string;
-        trust_account_number: string;
-        trust_branch_code: string;
         payout_day: number;
+        payout_method: PayoutMethod;
         eaab_ffc_number: string;
         _method: string;
     }>({
@@ -75,11 +83,8 @@ export default function Settings({ agency }: Props) {
         vat_number: agency.vat_number ?? '',
         vat_rate: agency.vat_rate,
 
-        trust_bank: agency.trust_bank ?? '',
-        trust_account_number: agency.trust_account_number ?? '',
-        trust_branch_code: agency.trust_branch_code ?? '',
-
         payout_day: agency.payout_day,
+        payout_method: agency.payout_method,
         eaab_ffc_number: agency.eaab_ffc_number ?? '',
         _method: 'patch',
     });
@@ -245,45 +250,60 @@ export default function Settings({ agency }: Props) {
 
                         {tab === 'trust' && (
                             <Panel
-                                title="Trust Account (Section 32)"
-                                subtitle="EAAB-mandated separate account for rental income & deposits"
-                                statusBadge={data.trust_account_number ? { label: 'CONFIGURED', tone: 'success' } : { label: 'NOT SET', tone: 'ink' }}
+                                title="Trust Account (Section 54)"
+                                subtitle="Separate account for client money: rent, deposits and payouts"
+                                statusBadge={TRUST_BADGE[agency.trust_status]}
                             >
-                                <Row>
-                                    <Field label="Bank">
-                                        <Select
-                                            value={data.trust_bank}
-                                            onChange={(v) => setData('trust_bank', v)}
-                                            options={['', ...SA_BANKS]}
-                                            placeholder="Select bank…"
-                                        />
-                                    </Field>
-                                    <Field label="Branch Code">
-                                        <Input
-                                            value={data.trust_branch_code}
-                                            onChange={(v) => setData('trust_branch_code', v)}
-                                            className="font-mono"
-                                            error={errors.trust_branch_code}
-                                        />
-                                    </Field>
-                                </Row>
-                                <Field label="Account Number">
-                                    <Input
-                                        value={data.trust_account_number}
-                                        onChange={(v) => setData('trust_account_number', v)}
-                                        className="font-mono"
-                                        error={errors.trust_account_number}
-                                    />
-                                </Field>
+                                {agency.trust_status === 'none' ? (
+                                    <p className="text-[13px] text-ink-600">No trust account captured yet. Add it on the Trust Account page so the platform can verify it.</p>
+                                ) : (
+                                    <dl className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-[13px]">
+                                        <div><dt className="text-[11.5px] text-ink-500">Bank</dt><dd className="font-semibold">{agency.trust_bank}</dd></div>
+                                        <div><dt className="text-[11.5px] text-ink-500">Account</dt><dd className="font-semibold font-mono">•••• {agency.trust_account_number?.slice(-4)}</dd></div>
+                                        <div><dt className="text-[11.5px] text-ink-500">Branch code</dt><dd className="font-semibold font-mono">{agency.trust_branch_code}</dd></div>
+                                    </dl>
+                                )}
+                                <Link href="/agency/trust-account" className={`${btnOutline} inline-flex`}>
+                                    {agency.trust_status === 'none' ? 'Capture trust account' : 'View or change trust account'}
+                                </Link>
+                                <p className="text-[11.5px] text-ink-500">Bank detail changes are made there and go back to the platform for re-verification.</p>
                             </Panel>
                         )}
 
                         {tab === 'payouts' && (
                             <Panel
-                                title="Payouts & Paystack"
-                                subtitle="Configure when and how agents get paid"
-                                statusBadge={{ label: 'STUB', tone: 'warning' }}
+                                title="Payouts"
+                                subtitle="Choose how your agents’ commission is paid"
+                                statusBadge={data.payout_method === 'trust_account'
+                                    ? { label: 'TRUST ACCOUNT', tone: 'success' }
+                                    : agency.paystack_stub ? { label: 'PAYSTACK · TEST MODE', tone: 'warning' } : { label: 'PAYSTACK', tone: 'success' }}
                             >
+                                <div role="radiogroup" aria-label="Payout method" className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                    <MethodCard
+                                        selected={data.payout_method === 'paystack'}
+                                        onSelect={() => setData('payout_method', 'paystack')}
+                                        title="Paystack"
+                                        tag={agency.paystack_stub ? 'Test mode' : 'Automatic'}
+                                        description="Run the payout and agents are paid automatically by Paystack transfer. Agents need a Paystack payout account."
+                                    />
+                                    <MethodCard
+                                        selected={data.payout_method === 'trust_account'}
+                                        onSelect={() => setData('payout_method', 'trust_account')}
+                                        disabled={agency.trust_status !== 'verified'}
+                                        title="Trust account (EFT)"
+                                        tag={agency.trust_status === 'verified' ? `${agency.trust_bank ?? 'Bank'} •••• ${agency.trust_account_number?.slice(-4) ?? ''}` : agency.trust_status === 'review' ? 'Awaiting verification' : 'Not linked'}
+                                        description="Pay agents from your own trust account. We prepare the bank payment file; you upload it in your banking, pay, then mark the batch paid."
+                                    />
+                                </div>
+                                {agency.trust_status !== 'verified' && (
+                                    <p className="text-[12px] text-ink-600 bg-ink-50 rounded-lg px-3.5 py-2.5">
+                                        {agency.trust_status === 'review'
+                                            ? 'Your trust account is waiting for platform verification. You can pay from it once it’s verified.'
+                                            : 'To pay from your trust account, capture it first. The platform verifies it before you can use it for payouts.'}{' '}
+                                        <Link href="/agency/trust-account" className="font-semibold text-brand-700 hover:underline">Trust account →</Link>
+                                    </p>
+                                )}
+                                {errors.payout_method && <p className="text-[12px] text-danger">{errors.payout_method}</p>}
                                 <Row>
                                     <Field label="Payout Cycle">
                                         <Select value="Monthly" onChange={() => {}} options={['Monthly']} disabled />
@@ -300,21 +320,6 @@ export default function Settings({ agency }: Props) {
                                         />
                                     </Field>
                                 </Row>
-                                <div className="bg-ink-50 rounded-lg p-4 flex items-center gap-4">
-                                    <div className="w-10 h-10 rounded-lg bg-white flex items-center justify-center shrink-0">
-                                        <svg className="w-5 h-5 text-sky-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
-                                            <rect x="2" y="5" width="20" height="14" rx="2" />
-                                            <path d="M2 10h20" />
-                                        </svg>
-                                    </div>
-                                    <div className="flex-1">
-                                        <p className="text-[13px] font-semibold">Paystack integration</p>
-                                        <p className="text-[11px] text-ink-500 font-mono">
-                                            {agency.paystack_subaccount_code ?? 'No subaccount yet — using stub'}
-                                        </p>
-                                    </div>
-                                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-warning/15 text-warning font-bold">PHASE 9</span>
-                                </div>
                             </Panel>
                         )}
 
@@ -525,5 +530,31 @@ function ToggleRow({
                 />
             </button>
         </div>
+    );
+}
+
+function MethodCard({ selected, onSelect, disabled, title, tag, description }: {
+    selected: boolean; onSelect: () => void; disabled?: boolean; title: string; tag: string; description: string;
+}) {
+    return (
+        <button
+            type="button"
+            role="radio"
+            aria-checked={selected}
+            disabled={disabled}
+            onClick={onSelect}
+            className={'text-left rounded-xl border p-4 transition ' + (selected
+                ? 'border-brand-500 ring-4 ring-brand-100 bg-brand-50/50'
+                : disabled ? 'border-ink-200 opacity-55 cursor-not-allowed' : 'border-ink-200 hover:border-ink-300 hover:bg-ink-50')}
+        >
+            <span className="flex items-center gap-2">
+                <span className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${selected ? 'border-brand-600' : 'border-ink-300'}`}>
+                    {selected && <span className="w-2 h-2 rounded-full bg-brand-600" />}
+                </span>
+                <span className="text-[14px] font-semibold">{title}</span>
+            </span>
+            <span className="block text-[11px] font-semibold text-ink-500 mt-1.5 ml-6">{tag}</span>
+            <span className="block text-[12px] text-ink-600 mt-2 leading-relaxed">{description}</span>
+        </button>
     );
 }

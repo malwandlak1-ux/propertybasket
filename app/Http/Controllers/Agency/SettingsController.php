@@ -37,7 +37,11 @@ class SettingsController extends Controller
                 'trust_account_number' => $agency->trust_account_number,
                 'trust_branch_code' => $agency->trust_branch_code,
                 'payout_day' => (int) ($agency->payout_day ?? 25),
+                'payout_method' => $agency->payout_method ?? 'paystack',
                 'paystack_subaccount_code' => $agency->paystack_subaccount_code,
+                'paystack_stub' => app(\App\Services\PaystackService::class)->isStub(),
+                'trust_holder' => $agency->trust_account_holder,
+                'trust_status' => $agency->trust_verified_at ? 'verified' : (filled($agency->trust_account_number) ? 'review' : 'none'),
             ],
         ]);
     }
@@ -58,11 +62,10 @@ class SettingsController extends Controller
             'vat_number' => ['nullable', 'string', 'max:40'],
             'vat_rate' => ['required', 'numeric', 'min:0', 'max:100'],
 
-            'trust_bank' => ['nullable', 'string', 'max:80'],
-            'trust_account_number' => ['nullable', 'string', 'max:40'],
-            'trust_branch_code' => ['nullable', 'string', 'max:20'],
+            // Trust account details are edited on /agency/trust-account (platform-verified), not here.
 
             'payout_day' => ['required', 'integer', 'min:1', 'max:28'],
+            'payout_method' => ['required', \Illuminate\Validation\Rule::in(\App\Models\Agency::PAYOUT_METHODS)],
             'eaab_ffc_number' => ['nullable', 'string', 'max:60'],
         ]);
 
@@ -79,6 +82,10 @@ class SettingsController extends Controller
         } else {
             // Don't overwrite the existing logo when no new file is uploaded.
             unset($data['logo']);
+        }
+
+        if (($data['payout_method'] ?? null) === 'trust_account' && ! $agency->trustAccountVerified()) {
+            return back()->withErrors(['payout_method' => 'Your trust account must be captured and verified by the platform before you can pay agents from it.']);
         }
 
         $agency->fill($data)->save();

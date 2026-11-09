@@ -703,7 +703,7 @@ const STAGE_LABEL: Record<BankLinkInfo['status'], string> = {
     paused: 'Paused',
 };
 const STAGE_NEXT: Record<BankLinkInfo['status'], string> = {
-    requested: 'Ask your FNB relationship banker for a host-to-host (H2H) agreement on your trust account, naming Property Basket as your technical provider. We’ll be in touch to help.',
+    requested: 'Your request was emailed to your FNB banker (or to you to forward). Follow up with them on the host-to-host agreement. We’ll be in touch to help.',
     agreement: 'FNB is preparing the agreement. Once signed, FNB issues the connection details (SFTP) and its file specification.',
     credentials: 'We’re setting up the secure connection with FNB’s details.',
     testing: 'We’re exchanging test files with FNB. Payouts sent now go to FNB’s test environment.',
@@ -779,6 +779,7 @@ function BankLinkPanel({ link, agencyEmail }: { link: BankLinkInfo | null; agenc
                             <input type="email" value={f.banker_email} onChange={(e) => setF({ ...f, banker_email: e.target.value })} className={field} />
                         </label>
                     </div>
+                    <p className="text-[12px] text-ink-500">“Send request” emails your request for a host-to-host agreement to your banker, copying your contact person. No banker email? We email it to your contact person to forward.</p>
                     <label className="block text-[12px] font-semibold text-ink-700">Anything we should know
                         <textarea value={f.notes} onChange={(e) => setF({ ...f, notes: e.target.value })} rows={2} className={field} />
                     </label>

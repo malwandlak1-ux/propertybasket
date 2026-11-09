@@ -9,10 +9,12 @@ use App\Http\Controllers\Controller;
 use App\Models\Agency;
 use App\Models\BankLink;
 use App\Models\User;
+use App\Notifications\BankLinkBankerRequest;
 use App\Notifications\BankLinkRequested;
 use App\Services\Banking\H2H\BankProfile;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Validation\Rule;
 
 /** Agency side: ask for a direct (host-to-host) bank link, or withdraw the request. */
@@ -47,7 +49,25 @@ class BankLinkController extends Controller
             }
         }
 
-        return back()->with('success', 'Request sent. Next step: ask your ' . $link->bankName() . ' relationship banker for a host-to-host agreement for your trust account. We will guide you through each stage.');
+        // The request itself goes to the banker (contact copied), or to the contact to forward.
+        $toBanker = filled($link->banker_email);
+        try {
+            Notification::route('mail', $toBanker ? [$link->banker_email => $link->banker_name ?: $link->banker_email] : [$link->contact_email => $link->contact_name])
+                ->notify(new BankLinkBankerRequest($link, $toBanker));
+            $sent = true;
+        } catch (\Throwable $e) {
+            report($e);
+            $sent = false;
+        }
+
+        $bank = $link->bankName();
+        $msg = match (true) {
+            ! $sent   => "Request saved, but we couldn't email it. We'll follow up with you and your {$bank} banker.",
+            $toBanker => "Request sent to {$link->banker_email} (copied to {$link->contact_email}). Next: your banker prepares the host-to-host agreement. We'll guide you through each stage.",
+            default   => "Request saved and emailed to {$link->contact_email}. Forward it to your {$bank} relationship banker to start the host-to-host agreement.",
+        };
+
+        return back()->with('success', $msg);
     }
 
     /** DELETE /agency/payouts/bank-link — withdraw a request that isn't live yet. */

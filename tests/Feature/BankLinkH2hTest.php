@@ -11,6 +11,7 @@ use App\Models\BankLink;
 use App\Models\Commission;
 use App\Models\PayoutBatch;
 use App\Models\User;
+use App\Notifications\BankLinkBankerRequest;
 use App\Notifications\BankLinkRequested;
 use App\Notifications\BankLinkStatusChanged;
 use App\Notifications\CommissionPaid;
@@ -22,6 +23,7 @@ use Carbon\CarbonImmutable;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Notifications\AnonymousNotifiable;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -107,11 +109,33 @@ class BankLinkH2hTest extends TestCase
     }
 
     #[Test]
+    public function without_a_banker_email_the_request_goes_to_the_contact_to_forward(): void
+    {
+        Notification::fake();
+        $this->actingAs($this->owner)->post('/agency/payouts/bank-link', ['bank' => 'fnb', 'contact_name' => 'Lerato M', 'contact_email' => 'lerato@basket.test'])
+            ->assertSessionHas('success', fn ($m) => str_contains($m, 'Forward it'));
+        Notification::assertSentOnDemand(BankLinkBankerRequest::class, fn ($n, $c, $notifiable) => ! $n->toBanker
+            && array_key_exists('lerato@basket.test', $notifiable->routes['mail'])
+            && $n->toMail($notifiable)->cc === []);
+    }
+
+    #[Test]
     public function an_agency_requests_a_link_and_admins_take_it_through_the_stages(): void
     {
         Notification::fake();
-        $this->actingAs($this->owner)->post('/agency/payouts/bank-link', ['bank' => 'fnb', 'contact_name' => 'Lerato M', 'contact_email' => 'lerato@basket.test', 'banker_name' => 'Thabo (FNB)'])
-            ->assertSessionHas('success');
+        $this->actingAs($this->owner)->post('/agency/payouts/bank-link', ['bank' => 'fnb', 'contact_name' => 'Lerato M', 'contact_email' => 'lerato@basket.test', 'banker_name' => 'Thabo (FNB)', 'banker_email' => 'thabo@fnb.test'])
+            ->assertSessionHas('success', fn ($m) => str_contains($m, 'thabo@fnb.test'));
+        Notification::assertSentOnDemand(BankLinkBankerRequest::class, function ($n, $channels, $notifiable) {
+            $mail = $n->toMail($notifiable);
+            $text = implode(' ', $mail->introLines);
+
+            return $n->toBanker
+                && array_key_exists('thabo@fnb.test', $notifiable->routes['mail'])
+                && $mail->cc[0][0] === 'lerato@basket.test'
+                && $mail->replyTo[0][0] === 'lerato@basket.test'
+                && str_contains($text, 'pain.001.001.03')
+                && str_contains($text, BankLinkBankerRequest::SERVER_IP);
+        });
         $link = BankLink::firstOrFail();
         $this->assertSame('requested', $link->status);
         Notification::assertSentTo($this->admin, BankLinkRequested::class);

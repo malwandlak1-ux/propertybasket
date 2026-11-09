@@ -53,6 +53,15 @@ Route::middleware(\App\Http\Middleware\EnsurePublicSite::class)->group(function 
     })->name('how-to');
 });
 
+// Self-service rental application (link sent by an agent; no account needed).
+Route::middleware('throttle:60,1')->group(function () {
+    Route::get('/apply/{token}', [\App\Http\Controllers\Public\RentalApplicationController::class, 'show'])->name('apply.show');
+    Route::post('/apply/{token}/save', [\App\Http\Controllers\Public\RentalApplicationController::class, 'save'])->name('apply.save');
+    Route::post('/apply/{token}/documents', [\App\Http\Controllers\Public\RentalApplicationController::class, 'upload'])->name('apply.upload');
+    Route::delete('/apply/{token}/documents/{document}', [\App\Http\Controllers\Public\RentalApplicationController::class, 'removeDocument'])->name('apply.documents.destroy');
+    Route::post('/apply/{token}/submit', [\App\Http\Controllers\Public\RentalApplicationController::class, 'submit'])->name('apply.submit');
+});
+
 Route::get('/privacy-policy',         [LegalController::class, 'privacyPolicy'])->name('legal.privacy');
 Route::get('/privacy-portal',         [LegalController::class, 'privacyPortal'])->name('legal.privacyPortal');
 Route::post('/privacy-portal',        [LegalController::class, 'submitPrivacyRequest'])->name('legal.privacyPortal.submit');
@@ -114,6 +123,12 @@ Route::middleware('auth')->group(function () {
         Route::post('agents/invite', [\App\Http\Controllers\Agency\AgentsController::class, 'invite'])->name('agents.invite');
 
         Route::get('tenants', [\App\Http\Controllers\Agency\TenantsController::class, 'index'])->name('tenants.index');
+        // Tenants → Applications: self-service rental application links.
+        Route::post('tenants/applications', [\App\Http\Controllers\RentalApplicationsController::class, 'store'])->name('applications.store');
+        Route::post('tenants/applications/{application}/send', [\App\Http\Controllers\RentalApplicationsController::class, 'send'])->name('applications.send');
+        Route::patch('tenants/applications/{application}', [\App\Http\Controllers\RentalApplicationsController::class, 'decide'])->name('applications.decide');
+        Route::delete('tenants/applications/{application}', [\App\Http\Controllers\RentalApplicationsController::class, 'destroy'])->name('applications.destroy');
+        Route::get('tenants/applications/{application}/documents/{document}', [\App\Http\Controllers\RentalApplicationsController::class, 'document'])->name('applications.document');
         Route::post('tenants/{lease}/deposit-received', [\App\Http\Controllers\Agency\TenantsController::class, 'markDepositReceived'])->name('tenants.deposit-received');
 
         Route::get('contractors',  [\App\Http\Controllers\Agency\ContractorsController::class, 'index'])->name('contractors.index');
@@ -272,6 +287,12 @@ Route::middleware('auth')->group(function () {
         Route::get('commission',  [Agent\CommissionController::class, 'index'])->name('commission.index');
         Route::get('analytics',   [Agent\AnalyticsController::class, 'index'])->name('analytics.index');
         Route::get('tenants',     [Agent\TenantsController::class,   'index'])->name('tenants.index');
+        // Tenants → Applications: self-service rental application links.
+        Route::post('tenants/applications', [\App\Http\Controllers\RentalApplicationsController::class, 'store'])->name('applications.store');
+        Route::post('tenants/applications/{application}/send', [\App\Http\Controllers\RentalApplicationsController::class, 'send'])->name('applications.send');
+        Route::patch('tenants/applications/{application}', [\App\Http\Controllers\RentalApplicationsController::class, 'decide'])->name('applications.decide');
+        Route::delete('tenants/applications/{application}', [\App\Http\Controllers\RentalApplicationsController::class, 'destroy'])->name('applications.destroy');
+        Route::get('tenants/applications/{application}/documents/{document}', [\App\Http\Controllers\RentalApplicationsController::class, 'document'])->name('applications.document');
         Route::get('settings',    [Agent\SettingsController::class,  'index'])->name('settings.index');
         Route::post('settings/profile',       [Agent\SettingsController::class, 'updateProfile'])->name('settings.profile');
         Route::post('settings/password',      [Agent\SettingsController::class, 'updatePassword'])->name('settings.password');

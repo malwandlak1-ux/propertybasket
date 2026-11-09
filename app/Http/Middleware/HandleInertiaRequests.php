@@ -266,6 +266,12 @@ class HandleInertiaRequests extends Middleware
                 'href'  => '/agency/trust-account',
                 'tone'  => 'success',
             ],
+            \App\Notifications\RentalApplicationSubmitted::class => [
+                'title' => 'Rental application received',
+                'body'  => ($data['applicant'] ?? 'Someone') . ' applied' . (! empty($data['listing']) ? ' for ' . $data['listing'] : '') . '.',
+                'href'  => $data['href'] ?? '/agent/tenants?tab=applications',
+                'tone'  => 'brand',
+            ],
             \App\Notifications\ReminderDue::class => [
                 'title' => 'Reminder',
                 'body'  => ($data['title'] ?? 'A reminder') . ' · ' . ($data['time'] ?? ''),

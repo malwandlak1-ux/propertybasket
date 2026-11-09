@@ -42,6 +42,14 @@ class SettingsController extends Controller
                 'paystack_stub' => app(\App\Services\PaystackService::class)->isStub(),
                 'trust_holder' => $agency->trust_account_holder,
                 'trust_status' => $agency->trust_verified_at ? 'verified' : (filled($agency->trust_account_number) ? 'review' : 'none'),
+                'investec' => ($c = $agency->investecConnection) ? [
+                    'environment'  => $c->environment,
+                    'account_name' => $c->account_name,
+                    'account'      => '•••• ' . substr(\App\Models\Agency::digits($c->account_number), -4),
+                    'connected_at' => $c->connected_at?->format('d M Y H:i'),
+                    'last_error'   => $c->last_error,
+                    'problem'      => app(\App\Services\Banking\InvestecPayouts::class)->connectionProblem($agency, $c),
+                ] : null,
             ],
         ]);
     }
@@ -86,6 +94,10 @@ class SettingsController extends Controller
 
         if (($data['payout_method'] ?? null) === 'trust_account' && ! $agency->trustAccountVerified()) {
             return back()->withErrors(['payout_method' => 'Your trust account must be captured and verified by the platform before you can pay agents from it.']);
+        }
+        if (($data['payout_method'] ?? null) === 'investec'
+            && ($problem = app(\App\Services\Banking\InvestecPayouts::class)->connectionProblem($agency, $agency->investecConnection))) {
+            return back()->withErrors(['payout_method' => $problem]);
         }
 
         $agency->fill($data)->save();

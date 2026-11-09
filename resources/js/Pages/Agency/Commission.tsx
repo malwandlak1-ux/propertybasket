@@ -20,8 +20,9 @@ type Commission = {
 };
 
 type Props = {
-    agency: { id: number; name: string; payout_day: number; vat_rate: number; sale_commission_percent: number; rental_commission_percent: number; payout_method: 'paystack' | 'trust_account' };
-    payout: { method: 'paystack' | 'trust_account'; paystack_stub: boolean; trust_verified: boolean; trust_bank: string | null; trust_account: string | null };
+    agency: { id: number; name: string; payout_day: number; vat_rate: number; sale_commission_percent: number; rental_commission_percent: number; payout_method: PayoutMethod };
+    payout: { method: PayoutMethod; paystack_stub: boolean; trust_verified: boolean; trust_bank: string | null; trust_account: string | null;
+        investec: { environment: string; account: string; problem: string | null } | null };
     eft_batch: EftBatch | null;
     commissions: Commission[];
     totals: { gross: number; vat: number; agent_net: number; count_eligible: number; count_total: number };
@@ -38,16 +39,22 @@ type Props = {
     paid_ytd: number;
     agency_retained_ytd: number;
     vat_ytd: number;
-    recent_transfers: { id: number; batch_date: string; total_agent_net: number; commissions_count: number; method: 'paystack' | 'trust_account'; paid_reference: string | null }[];
+    recent_transfers: { id: number; batch_date: string; total_agent_net: number; commissions_count: number; method: PayoutMethod; paid_reference: string | null }[];
     contractor_invoices: { queue: ContractorInvoice[]; paid: ContractorInvoice[] };
 };
 
+type PayoutMethod = 'paystack' | 'trust_account' | 'investec';
+
 type EftBatch = {
     id: number;
+    method: 'trust_account' | 'investec';
+    status: 'processing' | 'failed';
+    failure: string | null;
+    paid_count: number;
     batch_date: string;
     total: number;
     payees: { agent: string | null; bank: string | null; account: string | null; amount: number; deals: number }[];
-    file_url: string;
+    file_url: string | null;
 };
 
 type ContractorInvoice = {
@@ -120,6 +127,7 @@ function reasonChips(reason: string): { text: string; tone: string }[] {
 
 export default function Commission({ agency, payout, eft_batch, commissions, totals, next_batch, paid_ytd, agency_retained_ytd, vat_ytd, recent_transfers, contractor_invoices }: Props) {
     const viaTrust = payout.method === 'trust_account';
+    const viaInvestec = payout.method === 'investec';
     const { flash } = usePage<SharedProps>().props;
     const [selected, setSelected] = useState<Set<number>>(new Set());
     const [payInvoiceModal, setPayInvoiceModal] = useState<ContractorInvoice | null>(null);
@@ -151,7 +159,9 @@ export default function Commission({ agency, payout, eft_batch, commissions, tot
     }
     function runPayoutBatch() {
         if (paying) return;
-        const msg = viaTrust
+        const msg = viaInvestec
+            ? `Pay the approved commissions now from your Investec trust account (${payout.investec?.account ?? ''})?${payout.investec?.environment === 'sandbox' ? ' (Investec sandbox: test data, no real money.)' : ' Real money leaves your account.'}`
+            : viaTrust
             ? `Prepare an EFT payout from your trust account (${payout.trust_bank ?? 'bank'} ${payout.trust_account ?? ''})? You'll get a bank payment file; commissions are marked paid once you confirm the EFT went through.`
             : payout.paystack_stub
                 ? 'Run the payout batch via Paystack? Paystack is in test mode: no real money moves, and commissions are marked paid.'
@@ -176,7 +186,9 @@ export default function Commission({ agency, payout, eft_batch, commissions, tot
                         <h1 className="text-[28px] sm:text-[32px] leading-tight tracking-tight">Commission &amp; Payouts</h1>
                         <p className="text-[14px] text-ink-500 mt-1">
                             Monthly payout day: <span className="font-semibold text-ink-900">{agency.payout_day}th of each month</span> ·{' '}
-                            {viaTrust
+                            {viaInvestec
+                                ? <>Paid directly from your Investec trust account <span className="font-semibold text-ink-900">{payout.investec?.account}</span>{payout.investec?.environment === 'sandbox' ? ' (sandbox)' : ''}</>
+                                : viaTrust
                                 ? <>Paid by EFT from your trust account <span className="font-semibold text-ink-900">{payout.trust_bank} {payout.trust_account}</span></>
                                 : <>Paid via Paystack{payout.paystack_stub ? ' (test mode)' : ''}</>}
                             {' '}· <a href="/agency/settings" className="font-semibold text-brand-700 hover:underline">Change</a>
@@ -201,7 +213,7 @@ export default function Commission({ agency, payout, eft_batch, commissions, tot
                                     <path d="M8 12h8M12 8v8" />
                                 </svg>
                             )}
-                            {paying ? 'Running…' : viaTrust ? 'Prepare EFT Payout' : 'Run Payout Batch'}
+                            {paying ? 'Running…' : viaInvestec ? 'Pay via Investec' : viaTrust ? 'Prepare EFT Payout' : 'Run Payout Batch'}
                         </button>
                     </div>
                 </div>
@@ -217,6 +229,11 @@ export default function Commission({ agency, payout, eft_batch, commissions, tot
                     </div>
                 )}
 
+                {viaInvestec && payout.investec?.problem && (
+                    <div className="mb-4 rounded-lg bg-warning/10 border border-warning/30 text-ink-800 px-4 py-3 text-[13px]">
+                        Investec can’t pay yet: {payout.investec.problem} <a href="/agency/settings" className="font-semibold text-brand-700 hover:underline">Settings →</a>
+                    </div>
+                )}
                 {eft_batch && <EftBatchCard batch={eft_batch} trust={`${payout.trust_bank ?? ''} ${payout.trust_account ?? ''}`.trim()} />}
 
                 {/* Stat strip */}
@@ -469,19 +486,25 @@ export default function Commission({ agency, payout, eft_batch, commissions, tot
                                         <path d="M2 10h20" />
                                     </svg>
                                 </div>
-                                <h3 className="text-base font-semibold">{viaTrust ? 'Trust account (EFT)' : 'Paystack'}</h3>
+                                <h3 className="text-base font-semibold">{viaInvestec ? 'Investec (direct)' : viaTrust ? 'Trust account (EFT)' : 'Paystack'}</h3>
                             </div>
-                            {viaTrust
+                            {viaInvestec
+                                ? <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${payout.investec?.problem ? 'bg-warning/15 text-warning' : 'bg-success/15 text-success'}`}>{payout.investec?.problem ? 'ATTENTION' : payout.investec?.environment === 'sandbox' ? 'SANDBOX' : 'LINKED'}</span>
+                                : viaTrust
                                 ? <span className="text-[10px] px-2 py-0.5 rounded-full bg-success/15 text-success font-bold">VERIFIED</span>
                                 : <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${payout.paystack_stub ? 'bg-warning/15 text-warning' : 'bg-success/15 text-success'}`}>{payout.paystack_stub ? 'TEST MODE' : 'LIVE'}</span>}
                         </div>
                         <p className="text-[12px] text-ink-500 mb-3">
-                            {viaTrust
+                            {viaInvestec
+                                ? 'One click pays agents straight from your Investec trust account to their saved beneficiaries.'
+                                : viaTrust
                                 ? 'You pay agents from your trust account with the bank file we prepare, then mark the batch paid.'
                                 : 'Agents are paid automatically by Paystack transfer when you run the batch.'}
                         </p>
                         <div className="bg-ink-50 rounded-lg p-3 text-[11px] font-mono text-ink-700 space-y-1">
-                            {viaTrust ? (
+                            {viaInvestec ? (
+                                <p>Account: <span className="font-semibold text-ink-900">Investec {payout.investec?.account}</span></p>
+                            ) : viaTrust ? (
                                 <>
                                     <p>Account: <span className="font-semibold text-ink-900">{payout.trust_bank} {payout.trust_account}</span></p>
                                     <p>Waiting: <span className="text-ink-900">{eft_batch ? `${fmtMoney(eft_batch.total)} to pay` : 'nothing'}</span></p>
@@ -503,7 +526,7 @@ export default function Commission({ agency, payout, eft_batch, commissions, tot
                                 {recent_transfers.map((t) => (
                                     <div key={t.id} className="flex items-center justify-between py-1.5 border-b border-ink-100 last:border-0">
                                         <span className="text-ink-700">
-                                            {t.method === 'trust_account' ? 'EFT' : 'Batch'} ·{' '}
+                                            {t.method === 'trust_account' ? 'EFT' : t.method === 'investec' ? 'Investec' : 'Batch'} ·{' '}
                                             {new Date(t.batch_date).toLocaleDateString('en-ZA', { day: 'numeric', month: 'short' })} ·{' '}
                                             {t.commissions_count} agent{t.commissions_count === 1 ? '' : 's'}
                                         </span>
@@ -528,7 +551,7 @@ export default function Commission({ agency, payout, eft_batch, commissions, tot
                             </div>
                             <div className="flex items-center justify-between py-1.5 border-b border-ink-100">
                                 <span className="text-ink-500">Method</span>
-                                <span className="font-semibold">{viaTrust ? 'Trust account (EFT)' : 'Paystack'}</span>
+                                <span className="font-semibold">{viaInvestec ? 'Investec (direct)' : viaTrust ? 'Trust account (EFT)' : 'Paystack'}</span>
                             </div>
                             <div className="flex items-center justify-between py-1.5 border-b border-ink-100">
                                 <span className="text-ink-500">VAT rate</span>
@@ -754,6 +777,11 @@ function EftBatchCard({ batch, trust }: { batch: EftBatch; trust: string }) {
     const [reference, setReference] = useState('');
     const [saving, setSaving] = useState(false);
 
+    function release() {
+        if (!confirm(`Release the unpaid commissions from payout #${batch.id}? Only do this if the money did NOT leave your account. They go back to the queue to pay again.`)) return;
+        router.post(`/agency/commissions/batches/${batch.id}/release`, {}, { preserveScroll: true });
+    }
+
     function markPaid() {
         setSaving(true);
         router.post(`/agency/commissions/batches/${batch.id}/paid`, { reference }, {
@@ -764,19 +792,28 @@ function EftBatchCard({ batch, trust }: { batch: EftBatch; trust: string }) {
     }
 
     return (
-        <div className="mb-6 rounded-2xl border border-warning/40 bg-warning/5 p-5">
+        <div className={`mb-6 rounded-2xl border p-5 ${batch.status === 'failed' ? 'border-danger/40 bg-danger/5' : 'border-warning/40 bg-warning/5'}`}>
             <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
-                    <p className="text-[11px] font-bold uppercase tracking-wider text-warning">EFT payout ready · #{batch.id}</p>
+                    <p className={`text-[11px] font-bold uppercase tracking-wider ${batch.status === 'failed' ? 'text-danger' : 'text-warning'}`}>
+                        {batch.status === 'failed' ? 'Payout didn’t complete' : batch.method === 'investec' ? 'Waiting for approval in Investec' : 'EFT payout ready'} · #{batch.id}
+                    </p>
                     <p className="text-[20px] font-bold mt-1">{fmtMoney(batch.total)} to {batch.payees.length} agent{batch.payees.length === 1 ? '' : 's'}</p>
                     <p className="text-[12.5px] text-ink-600 mt-1">
-                        1. Download the payment file and import it as a bulk payment from your trust account{trust ? ` (${trust})` : ''}.
-                        {' '}2. Approve the payment in your banking. 3. Mark it paid here and agents are notified.
+                        {batch.status === 'failed' ? (
+                            <>{batch.failure} {batch.paid_count > 0 && `${batch.paid_count} commission(s) did go through. `}Check Investec Online: if the money went out, mark it paid; if not, release the unpaid commissions to try again.</>
+                        ) : batch.method === 'investec' ? (
+                            <>Investec accepted the payments but needs them approved. Approve them in Investec Online (or the app), then mark the payout paid here.</>
+                        ) : (
+                            <>1. Download the payment file and import it as a bulk payment from your trust account{trust ? ` (${trust})` : ''}.
+                            {' '}2. Approve the payment in your banking. 3. Mark it paid here and agents are notified.</>
+                        )}
                     </p>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                    <a href={batch.file_url} className="px-3.5 py-2 text-[13px] font-semibold border border-ink-300 bg-white rounded-lg hover:bg-ink-50">Download payment file (CSV)</a>
+                    {batch.file_url && <a href={batch.file_url} className="px-3.5 py-2 text-[13px] font-semibold border border-ink-300 bg-white rounded-lg hover:bg-ink-50">Download payment file (CSV)</a>}
                     <button type="button" onClick={() => setOpen(true)} className="px-3.5 py-2 text-[13px] font-semibold bg-success text-white rounded-lg hover:bg-success/90">Mark as paid</button>
+                    <button type="button" onClick={release} className="px-3.5 py-2 text-[13px] font-semibold text-ink-600 hover:bg-ink-100 rounded-lg">Release</button>
                 </div>
             </div>
             <div className="mt-4 overflow-x-auto">
@@ -799,7 +836,7 @@ function EftBatchCard({ batch, trust }: { batch: EftBatch; trust: string }) {
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink-900/40" onMouseDown={(e) => { if (e.target === e.currentTarget) setOpen(false); }}>
                     <div role="dialog" aria-modal="true" aria-label="Mark EFT payout paid" className="w-full max-w-sm bg-white rounded-2xl shadow-lift p-6">
                         <h2 className="text-lg font-bold">Mark payout #{batch.id} paid?</h2>
-                        <p className="text-[12.5px] text-ink-600 mt-1">Only do this once the EFT of {fmtMoney(batch.total)} has gone out from your trust account. The commissions are marked paid and each agent gets a payment notice.</p>
+                        <p className="text-[12.5px] text-ink-600 mt-1">Only do this once {fmtMoney(batch.total)} has actually gone out from your trust account. The commissions are marked paid and each agent gets a payment notice.</p>
                         <label className="block text-[12px] font-semibold text-ink-700 mt-4 mb-1.5">Bank payment reference (optional)</label>
                         <input value={reference} onChange={(e) => setReference(e.target.value)} maxLength={80} placeholder="e.g. FNB batch 20261109-01"
                             className="w-full bg-white border border-ink-200 rounded-xl px-3.5 py-2.5 text-[13.5px] focus:outline-none focus:border-brand-300 focus:ring-4 focus:ring-brand-100" />

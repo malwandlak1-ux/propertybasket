@@ -84,7 +84,7 @@ class Agency extends Model
     }
 
     /** Payout methods an agency can choose for agents' commission. */
-    public const PAYOUT_METHODS = ['paystack', 'trust_account'];
+    public const PAYOUT_METHODS = ['paystack', 'trust_account', 'investec'];
 
     public function trustAccountVerified(): bool
     {
@@ -94,5 +94,16 @@ class Agency extends Model
     public function paysFromTrustAccount(): bool
     {
         return ($this->payout_method ?? 'paystack') === 'trust_account';
+    }
+
+    public function investecConnection(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(InvestecConnection::class);
+    }
+
+    /** Digits only, for comparing bank account numbers typed in different formats. */
+    public static function digits(?string $v): string
+    {
+        return preg_replace('/\D+/', '', (string) $v);
     }
 }

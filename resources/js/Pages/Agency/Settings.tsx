@@ -1,5 +1,5 @@
 import { FormEvent, useState } from 'react';
-import { Head, Link, useForm, usePage } from '@inertiajs/react';
+import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
 import AgencyLayout from '@/Layouts/AgencyLayout';
 import AppearanceSettings from '@/Components/Dashboard/AppearanceSettings';
 import { FlashBanners, PageHeader, btnOutline, btnPrimary } from '@/Components/Dashboard/Charts';
@@ -28,9 +28,11 @@ type AgencyProps = {
     paystack_stub: boolean;
     trust_holder: string | null;
     trust_status: 'none' | 'review' | 'verified';
+    investec: Investec | null;
 };
 
-type PayoutMethod = 'paystack' | 'trust_account';
+type PayoutMethod = 'paystack' | 'trust_account' | 'investec';
+type Investec = { environment: 'production' | 'sandbox'; account_name: string | null; account: string; connected_at: string | null; last_error: string | null; problem: string | null };
 
 type Props = { agency: AgencyProps };
 
@@ -274,17 +276,19 @@ export default function Settings({ agency }: Props) {
                             <Panel
                                 title="Payouts"
                                 subtitle="Choose how your agents’ commission is paid"
-                                statusBadge={data.payout_method === 'trust_account'
-                                    ? { label: 'TRUST ACCOUNT', tone: 'success' }
+                                statusBadge={data.payout_method === 'investec'
+                                    ? { label: 'INVESTEC', tone: 'success' }
+                                    : data.payout_method === 'trust_account'
+                                    ? { label: 'TRUST ACCOUNT · EFT', tone: 'success' }
                                     : agency.paystack_stub ? { label: 'PAYSTACK · TEST MODE', tone: 'warning' } : { label: 'PAYSTACK', tone: 'success' }}
                             >
-                                <div role="radiogroup" aria-label="Payout method" className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div role="radiogroup" aria-label="Payout method" className="grid grid-cols-1 md:grid-cols-3 gap-3">
                                     <MethodCard
                                         selected={data.payout_method === 'paystack'}
                                         onSelect={() => setData('payout_method', 'paystack')}
                                         title="Paystack"
                                         tag={agency.paystack_stub ? 'Test mode' : 'Automatic'}
-                                        description="Run the payout and agents are paid automatically by Paystack transfer. Agents need a Paystack payout account."
+                                        description="Agents are paid by Paystack transfer. They need a Paystack payout account."
                                     />
                                     <MethodCard
                                         selected={data.payout_method === 'trust_account'}
@@ -292,7 +296,15 @@ export default function Settings({ agency }: Props) {
                                         disabled={agency.trust_status !== 'verified'}
                                         title="Trust account (EFT)"
                                         tag={agency.trust_status === 'verified' ? `${agency.trust_bank ?? 'Bank'} •••• ${agency.trust_account_number?.slice(-4) ?? ''}` : agency.trust_status === 'review' ? 'Awaiting verification' : 'Not linked'}
-                                        description="Pay agents from your own trust account. We prepare the bank payment file; you upload it in your banking, pay, then mark the batch paid."
+                                        description="We prepare the bank payment file; you pay it in your banking, then mark the batch paid."
+                                    />
+                                    <MethodCard
+                                        selected={data.payout_method === 'investec'}
+                                        onSelect={() => setData('payout_method', 'investec')}
+                                        disabled={!agency.investec || !!agency.investec.problem}
+                                        title="Investec (direct)"
+                                        tag={agency.investec ? `Linked ${agency.investec.account}${agency.investec.environment === 'sandbox' ? ' · sandbox' : ''}` : 'Not linked'}
+                                        description="One click: Investec pays your agents straight from your trust account."
                                     />
                                 </div>
                                 {agency.trust_status !== 'verified' && (
@@ -304,6 +316,7 @@ export default function Settings({ agency }: Props) {
                                     </p>
                                 )}
                                 {errors.payout_method && <p className="text-[12px] text-danger">{errors.payout_method}</p>}
+                                <InvestecLink investec={agency.investec} trustStatus={agency.trust_status} trustAccount={agency.trust_account_number} />
                                 <Row>
                                     <Field label="Payout Cycle">
                                         <Select value="Monthly" onChange={() => {}} options={['Monthly']} disabled />
@@ -556,5 +569,112 @@ function MethodCard({ selected, onSelect, disabled, title, tag, description }: {
             <span className="block text-[11px] font-semibold text-ink-500 mt-1.5 ml-6">{tag}</span>
             <span className="block text-[12px] text-ink-600 mt-2 leading-relaxed">{description}</span>
         </button>
+    );
+}
+
+/** Link the agency's Investec trust account (Private Bank API keys). Not a <form>: it sits inside the settings form. */
+function InvestecLink({ investec, trustStatus, trustAccount }: { investec: Investec | null; trustStatus: 'none' | 'review' | 'verified'; trustAccount: string | null }) {
+    const [open, setOpen] = useState(false);
+    const [keys, setKeys] = useState({ environment: 'production', client_id: '', client_secret: '', api_key: '' });
+    const [busy, setBusy] = useState(false);
+    const [check, setCheck] = useState<{ loading: boolean; error?: string; agents?: { agent_id: number; agent: string; account: string | null; beneficiary: string | null }[] }>({ loading: false });
+    const field = 'w-full bg-white border border-ink-200 rounded-xl px-3.5 py-2.5 text-[13px] font-mono focus:outline-none focus:border-brand-300 focus:ring-4 focus:ring-brand-100';
+
+    function connect() {
+        setBusy(true);
+        router.post('/agency/payouts/investec', keys, {
+            preserveScroll: true,
+            onFinish: () => setBusy(false),
+            onSuccess: (page) => { if (!(page.props as { flash?: { error?: string } }).flash?.error) { setOpen(false); setKeys({ ...keys, client_id: '', client_secret: '', api_key: '' }); } },
+        });
+    }
+    function disconnect() {
+        if (!confirm('Disconnect Investec? Your API keys are removed and payouts go back to the EFT file.')) return;
+        router.delete('/agency/payouts/investec', { preserveScroll: true });
+    }
+    async function checkAgents() {
+        setCheck({ loading: true });
+        try {
+            const res = await fetch('/agency/payouts/investec/agents', { headers: { Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' }, credentials: 'same-origin' });
+            const json = await res.json();
+            setCheck(res.ok ? { loading: false, agents: json.agents } : { loading: false, error: json.error ?? 'Couldn’t check with Investec.' });
+        } catch {
+            setCheck({ loading: false, error: 'Couldn’t reach the server.' });
+        }
+    }
+
+    return (
+        <div className="rounded-xl border border-ink-200 p-4 space-y-3">
+            <div className="flex flex-wrap items-start justify-between gap-2">
+                <div>
+                    <p className="text-[13.5px] font-semibold">Investec bank link</p>
+                    <p className="text-[12px] text-ink-500">For agencies whose trust account is at Investec (Private Bank API).</p>
+                </div>
+                {investec && <span className={`text-[10px] px-2 py-1 rounded-full font-bold ${investec.problem ? 'bg-warning/15 text-warning' : 'bg-success/15 text-success'}`}>{investec.problem ? 'NEEDS ATTENTION' : 'LINKED'}{investec.environment === 'sandbox' ? ' · SANDBOX' : ''}</span>}
+            </div>
+
+            {investec ? (
+                <>
+                    <p className="text-[12.5px] text-ink-700"><span className="font-semibold">{investec.account_name ?? 'Trust account'}</span> {investec.account}{investec.connected_at ? ` · linked ${investec.connected_at}` : ''}</p>
+                    {investec.problem && <p className="text-[12px] text-warning">{investec.problem}</p>}
+                    {investec.last_error && !investec.problem && <p className="text-[12px] text-danger">Last Investec error: {investec.last_error}</p>}
+                    <div className="flex flex-wrap gap-2">
+                        <button type="button" onClick={checkAgents} disabled={check.loading} className={btnOutline}>{check.loading ? 'Checking…' : 'Check which agents can be paid'}</button>
+                        <button type="button" onClick={() => setOpen(!open)} className={btnOutline}>Replace API keys</button>
+                        <button type="button" onClick={disconnect} className="px-3.5 py-2 text-[12.5px] font-semibold text-danger hover:bg-danger/10 rounded-full">Disconnect</button>
+                    </div>
+                    {check.error && <p className="text-[12px] text-danger">{check.error}</p>}
+                    {check.agents && (
+                        <ul className="divide-y divide-ink-100 border border-ink-100 rounded-lg text-[12.5px]">
+                            {check.agents.length === 0 && <li className="px-3 py-2 text-ink-500">No agents in your agency yet.</li>}
+                            {check.agents.map((a) => (
+                                <li key={a.agent_id} className="px-3 py-2 flex flex-wrap justify-between gap-2">
+                                    <span className="font-semibold">{a.agent} <span className="font-mono font-normal text-ink-500">{a.account ?? 'no bank account on profile'}</span></span>
+                                    {a.beneficiary
+                                        ? <span className="text-success font-semibold">✓ Investec beneficiary: {a.beneficiary}</span>
+                                        : <span className="text-warning font-semibold">Add as a beneficiary in Investec Online</span>}
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+                </>
+            ) : trustStatus === 'none' ? (
+                <p className="text-[12.5px] text-ink-600">Capture your trust account first, then link it here.</p>
+            ) : (
+                !open && <button type="button" onClick={() => setOpen(true)} className={btnPrimary}>Link Investec trust account</button>
+            )}
+
+            {open && (
+                <div className="space-y-3 pt-1">
+                    <ol className="list-decimal ml-5 text-[12px] text-ink-600 space-y-1">
+                        <li>In Investec Online, go to <b>Programmable Banking → API keys</b> and create a key with <b>Accounts</b> and <b>Beneficiary payments</b> permission.</li>
+                        <li>Save each agent as a beneficiary, using the same account number as on their profile, and pay each one once from Investec Online.</li>
+                        <li>Paste the client ID, secret and API key below. We only use them to pay commission you approve, and you can disconnect any time.</li>
+                    </ol>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <label className="block text-[12px] font-semibold text-ink-700">Client ID
+                            <input value={keys.client_id} onChange={(e) => setKeys({ ...keys, client_id: e.target.value })} autoComplete="off" className={`${field} mt-1`} />
+                        </label>
+                        <label className="block text-[12px] font-semibold text-ink-700">Client secret
+                            <input type="password" value={keys.client_secret} onChange={(e) => setKeys({ ...keys, client_secret: e.target.value })} autoComplete="new-password" className={`${field} mt-1`} />
+                        </label>
+                        <label className="block text-[12px] font-semibold text-ink-700 sm:col-span-2">API key
+                            <input type="password" value={keys.api_key} onChange={(e) => setKeys({ ...keys, api_key: e.target.value })} autoComplete="new-password" className={`${field} mt-1`} />
+                        </label>
+                        <label className="block text-[12px] font-semibold text-ink-700">Environment
+                            <select value={keys.environment} onChange={(e) => setKeys({ ...keys, environment: e.target.value })} className={`${field} mt-1 font-sans`}>
+                                <option value="production">Live (real payments)</option>
+                                <option value="sandbox">Sandbox (Investec test data)</option>
+                            </select>
+                        </label>
+                    </div>
+                    <p className="text-[11.5px] text-ink-500">We check the keys with Investec and link the account matching your trust account{trustAccount ? ` (•••• ${trustAccount.slice(-4)})` : ''}.</p>
+                    <div className="flex gap-2">
+                        <button type="button" onClick={connect} disabled={busy || !keys.client_id || !keys.client_secret || !keys.api_key} className={btnPrimary}>{busy ? 'Checking with Investec…' : 'Link account'}</button>
+                        <button type="button" onClick={() => setOpen(false)} className={btnOutline}>Cancel</button>
+                    </div>
+                </div>
+            )}
+        </div>
     );
 }

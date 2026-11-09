@@ -142,6 +142,10 @@ Route::middleware('auth')->group(function () {
         Route::post('commissions/payout', [\App\Http\Controllers\Agency\CommissionController::class, 'runPayout'])->name('commissions.payout');
         Route::get('commissions/batches/{batch}/eft.csv', [\App\Http\Controllers\Agency\CommissionController::class, 'eftFile'])->name('commissions.batches.eft');
         Route::post('commissions/batches/{batch}/paid', [\App\Http\Controllers\Agency\CommissionController::class, 'markBatchPaid'])->name('commissions.batches.paid');
+        Route::post('commissions/batches/{batch}/release', [\App\Http\Controllers\Agency\CommissionController::class, 'releaseBatch'])->name('commissions.batches.release');
+        Route::post('payouts/investec', [\App\Http\Controllers\Agency\InvestecController::class, 'connect'])->name('payouts.investec.connect');
+        Route::delete('payouts/investec', [\App\Http\Controllers\Agency\InvestecController::class, 'disconnect'])->name('payouts.investec.disconnect');
+        Route::get('payouts/investec/agents', [\App\Http\Controllers\Agency\InvestecController::class, 'agents'])->name('payouts.investec.agents');
         Route::post('commissions/invoices/{invoice}/pay', [\App\Http\Controllers\Agency\CommissionController::class, 'payInvoice'])->name('commissions.invoices.pay');
         Route::post('commissions/rates', [\App\Http\Controllers\Agency\CommissionController::class, 'updateRates'])->name('commissions.rates');
 

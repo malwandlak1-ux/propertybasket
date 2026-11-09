@@ -12,7 +12,7 @@ class Commission extends Model
         'listing_id', 'lease_id', 'deal_value', 'gross_commission',
         'agent_split_percent', 'agent_amount', 'agency_amount',
         'vat_amount', 'agent_net',
-        'paystack_transfer_id', 'status', 'blocked_reason',
+        'paystack_transfer_id', 'payment_reference', 'status', 'blocked_reason',
         'payout_batch_id', 'payout_batch_date', 'paid_at',
     ];
 

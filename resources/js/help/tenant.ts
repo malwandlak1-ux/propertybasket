@@ -88,12 +88,16 @@ export const TENANT_GUIDES: Guide[] = [
     {
         id: 'lease',
         category: 'Statements & documents',
-        title: 'View your lease and documents',
-        summary: 'See your lease terms and download the signed agreement.',
+        title: 'Sign and view your lease',
+        summary: 'Sign your lease agreement online and keep a copy.',
         steps: [
-            'Go to My Lease to see your rent, dates, deposit and how far into the lease you are.',
-            'Download the signed agreement from My Lease or from Documents (once your landlord has uploaded it).',
+            'Go to My Lease. If your lease isn’t signed yet, you’ll see “Your lease agreement is ready to sign”.',
+            'Click Read agreement and read it carefully.',
+            'Click Sign now, tick that you agree, and type your full name exactly as on your account. Then sign.',
+            'The signed agreement stays on My Lease and under Documents, where you can view or download it at any time.',
+            'My Lease also shows your rent, dates, deposit and how far into the lease you are.',
         ],
+        tips: ['Your signature is recorded with the date and time. Ask your agent or landlord if anything in the agreement is unclear before you sign.'],
         link: { label: 'Open My Lease', href: '/tenant/lease' },
     },
     {

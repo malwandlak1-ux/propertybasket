@@ -65,10 +65,10 @@ export default function Home({ featured, cities, totals }: Props) {
                 <div className="max-w-7xl mx-auto px-6 pt-14 pb-24 lg:pt-16 lg:pb-32 grid lg:grid-cols-[1fr_1.1fr] gap-10 lg:gap-14 items-center">
                     {/* Copy */}
                     <div className="min-w-0">
-                        <span className="inline-flex items-center gap-3 text-brand-600 text-[11.5px] font-semibold uppercase" style={{ fontFamily: '"Space Grotesk", sans-serif', letterSpacing: '0.2em' }}>
+                        <span className="inline-flex items-center gap-3 text-brand-600 text-[11.5px] font-semibold uppercase" style={{ letterSpacing: '0.2em' }}>
                             <span className="w-7 h-px bg-brand-500" /> The all-in-one property platform
                         </span>
-                        <div aria-hidden="true" className="select-none font-bold overflow-hidden" style={{ fontFamily: '"Space Grotesk", sans-serif', WebkitTextStroke: '1.4px #F26A1B', color: 'transparent', opacity: 0.16, lineHeight: 0.86, letterSpacing: '-0.04em', fontSize: 'clamp(44px,7vw,92px)', marginTop: '14px' }}>
+                        <div aria-hidden="true" className="select-none font-bold overflow-hidden" style={{ WebkitTextStroke: '1.4px #F26A1B', color: 'transparent', opacity: 0.16, lineHeight: 0.86, letterSpacing: '-0.04em', fontSize: 'clamp(44px,7vw,92px)', marginTop: '14px' }}>
                             PROPERTY.
                         </div>
                         <h1 className="text-4xl lg:text-[58px] font-bold tracking-tight leading-[1.04] mt-1">
@@ -113,7 +113,7 @@ export default function Home({ featured, cities, totals }: Props) {
                         <div className="rounded-2xl border-[1.5px] border-ink-900 overflow-hidden bg-white" style={{ boxShadow: '0 18px 50px rgba(20,18,15,0.14)' }}>
                             <img src="/images/hero-sketch.webp" alt="Architectural sketch of a modern home with an orange pathway" className="w-full block" />
                         </div>
-                        <div className="absolute bottom-4 left-4 bg-white border border-ink-200 rounded-lg px-3 py-2 text-[11px] uppercase font-semibold text-ink-700" style={{ fontFamily: '"Space Grotesk", sans-serif', letterSpacing: '0.12em' }}>
+                        <div className="absolute bottom-4 left-4 bg-white border border-ink-200 rounded-lg px-3 py-2 text-[11px] uppercase font-semibold text-ink-700" style={{ letterSpacing: '0.12em' }}>
                             Listing → Lease → Payout
                         </div>
                     </div>

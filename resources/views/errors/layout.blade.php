@@ -18,7 +18,7 @@
         * { box-sizing: border-box; }
         html, body { margin: 0; padding: 0; height: 100%; }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Plus Jakarta Sans", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, Montserrat, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background: var(--ink-50);
             color: var(--ink-900);
             display: flex;

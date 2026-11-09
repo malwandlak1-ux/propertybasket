@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
-import { Head, router } from '@inertiajs/react';
+import { Head, router, usePage } from '@inertiajs/react';
 import AgentLayout from '@/Layouts/AgentLayout';
 import { Spinner } from '@/Components/Skeleton';
+import MessagesTabs from '@/Components/MessagesTabs';
 
 type ConvItem = {
     id: number;
@@ -47,6 +48,7 @@ function avatarColor(id: number): string {
 }
 
 export default function AgentMessages({ agent, conversations, active, messages }: Props) {
+    const unread_email = (usePage().props as { unread_email?: number }).unread_email ?? 0;
     const [body, setBody] = useState('');
     const [sending, setSending] = useState(false);
     const endRef = useRef<HTMLDivElement>(null);
@@ -74,7 +76,7 @@ export default function AgentMessages({ agent, conversations, active, messages }
                 {/* Conversation list */}
                 <div className="w-72 shrink-0 bg-white border-r border-ink-200 flex flex-col">
                     <div className="p-4 border-b border-ink-200">
-                        <h2 className="text-sm font-semibold mb-3">Messages</h2>
+                        <MessagesTabs base="/agent/messages" active="chats" unreadEmail={unread_email} className="mb-3" />
                         <div className="relative">
                             <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-ink-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
                                 <circle cx="11" cy="11" r="8" /><path d="M21 21l-4.35-4.35" />

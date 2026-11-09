@@ -53,6 +53,9 @@ Route::middleware(\App\Http\Middleware\EnsurePublicSite::class)->group(function 
     })->name('how-to');
 });
 
+// Agency listing packs shared by agents (always the current version).
+Route::get('/docs/{token}/{category}', [\App\Http\Controllers\AgencyDocumentsController::class, 'shared'])->middleware('throttle:60,1')->name('documents.shared');
+
 // Self-service rental application (link sent by an agent; no account needed).
 Route::middleware('throttle:60,1')->group(function () {
     Route::get('/apply/{token}', [\App\Http\Controllers\Public\RentalApplicationController::class, 'show'])->name('apply.show');
@@ -207,6 +210,12 @@ Route::middleware('auth')->group(function () {
         Route::get('messages', [\App\Http\Controllers\Agency\MessagesController::class, 'index'])->name('messages.index');
         Route::post('messages/{conversation}', [\App\Http\Controllers\Agency\MessagesController::class, 'store'])->name('messages.store');
         Route::post('messages-broadcast', [\App\Http\Controllers\Agency\MessagesController::class, 'broadcast'])->name('messages.broadcast');
+        // Documentation: lease agreement + listing packs (versioned).
+        Route::get('documents', [\App\Http\Controllers\AgencyDocumentsController::class, 'index'])->name('documents.index');
+        Route::post('documents', [\App\Http\Controllers\AgencyDocumentsController::class, 'store'])->name('documents.store');
+        Route::get('documents/{document}', [\App\Http\Controllers\AgencyDocumentsController::class, 'show'])->name('documents.show');
+        Route::post('documents/{document}/restore', [\App\Http\Controllers\AgencyDocumentsController::class, 'restore'])->name('documents.restore');
+        Route::delete('documents/{document}', [\App\Http\Controllers\AgencyDocumentsController::class, 'destroy'])->name('documents.destroy');
     });
 
     Route::prefix('agent')->name('agent.')->middleware([EnsureRoleEnabled::class . ':agent', 'ffc'])->group(function () {
@@ -284,6 +293,8 @@ Route::middleware('auth')->group(function () {
         Route::post('messages/email/send', [\App\Http\Controllers\EmailController::class, 'send'])->name('email.send');
         Route::get('messages',    [Agent\MessagesController::class,  'index'])->name('messages.index');
         Route::post('messages/{conversation}', [Agent\MessagesController::class, 'store'])->name('messages.store');
+        Route::get('documents', [\App\Http\Controllers\AgencyDocumentsController::class, 'index'])->name('documents.index');
+        Route::get('documents/{document}', [\App\Http\Controllers\AgencyDocumentsController::class, 'show'])->name('documents.show');
         Route::get('commission',  [Agent\CommissionController::class, 'index'])->name('commission.index');
         Route::get('analytics',   [Agent\AnalyticsController::class, 'index'])->name('analytics.index');
         Route::get('tenants',     [Agent\TenantsController::class,   'index'])->name('tenants.index');

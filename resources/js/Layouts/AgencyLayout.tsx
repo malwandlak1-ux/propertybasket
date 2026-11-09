@@ -33,6 +33,12 @@ const ICON_DASHBOARD = (
         <rect x="14" y="14" width="7" height="7" rx="1.5" />
     </svg>
 );
+const ICON_DOCS = (
+    <svg className="nav-icon w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+        <path d="M14 2v6h6M8 13h8M8 17h5" />
+    </svg>
+);
 const ICON_PIPELINE = (
     <svg className="nav-icon w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
         <path d="M3 7h4v13H3zM10 4h4v16h-4zM17 11h4v9h-4z" />
@@ -123,6 +129,7 @@ export default function AgencyLayout({ children, crumb = 'Dashboard', agencyName
         { label: 'CRM', href: '/agency/crm', icon: ICON_PIPELINE },
         { label: 'Listings & Leads', href: '/agency/listings', icon: ICON_LISTINGS },
         { label: 'Team Messages', href: '/agency/messages', icon: ICON_MESSAGES },
+        { label: 'Documentation', href: '/agency/documents', icon: ICON_DOCS },
         { label: 'Maintenance', href: '/agency/maintenance', icon: ICON_MAINTENANCE },
     ];
     const team: NavItem[] = [

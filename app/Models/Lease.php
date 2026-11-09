@@ -18,6 +18,7 @@ class Lease extends Model
         'tenant_signed_at', 'tenant_signature',
         'late_fee_enabled', 'late_fee_type', 'late_fee_value', 'late_fee_day', 'late_fee_since',
         'payment_reference',
+        'agency_document_id', 'tenant_signed_ip', 'tenant_signed_user_agent', 'signed_document_sha256',
     ];
 
     protected function casts(): array
@@ -61,6 +62,22 @@ class Lease extends Model
     public function agency(): BelongsTo
     {
         return $this->belongsTo(Agency::class);
+    }
+
+    /** The agency lease-agreement version this lease was signed on (frozen copy in document_path). */
+    public function agencyDocument(): BelongsTo
+    {
+        return $this->belongsTo(AgencyDocument::class);
+    }
+
+    /** The agreement the tenant should read/sign: the agency's current template when the lease has no file of its own. */
+    public function agencyLeaseTemplate(): ?AgencyDocument
+    {
+        if ($this->document_path || ! $this->agency_id) {
+            return null;
+        }
+
+        return AgencyDocument::currentFor($this->agency_id, 'lease_agreement');
     }
 
     public function agent(): BelongsTo

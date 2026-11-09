@@ -27,3 +27,6 @@ Schedule::command('reminders:send')->everyMinute()->withoutOverlapping();
 
 // Host-to-host bank links: pick up the bank's payment status files.
 Schedule::command('bank:poll')->everyFiveMinutes()->withoutOverlapping();
+
+// Messages → Email: download new mail for connected mailboxes.
+Schedule::command('email:sync')->everyFiveMinutes()->withoutOverlapping();

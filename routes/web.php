@@ -183,6 +183,12 @@ Route::middleware('auth')->group(function () {
 
         Route::get('reports', [\App\Http\Controllers\Agency\ReportsController::class, 'index'])->name('reports.index');
 
+        // Messages → Email: the user's own mailbox (POP3/IMAP + SMTP).
+        Route::get('messages/email', [\App\Http\Controllers\EmailController::class, 'index'])->name('email.index');
+        Route::post('messages/email/account', [\App\Http\Controllers\EmailController::class, 'connect'])->name('email.connect');
+        Route::delete('messages/email/account', [\App\Http\Controllers\EmailController::class, 'disconnect'])->name('email.disconnect');
+        Route::post('messages/email/sync', [\App\Http\Controllers\EmailController::class, 'sync'])->name('email.sync');
+        Route::post('messages/email/send', [\App\Http\Controllers\EmailController::class, 'send'])->name('email.send');
         Route::get('messages', [\App\Http\Controllers\Agency\MessagesController::class, 'index'])->name('messages.index');
         Route::post('messages/{conversation}', [\App\Http\Controllers\Agency\MessagesController::class, 'store'])->name('messages.store');
         Route::post('messages-broadcast', [\App\Http\Controllers\Agency\MessagesController::class, 'broadcast'])->name('messages.broadcast');
@@ -255,6 +261,12 @@ Route::middleware('auth')->group(function () {
         Route::post('inspections', [Agent\InspectionsController::class, 'store'])->name('inspections.store');
         Route::get('inspections/{inspection}', [Agent\InspectionsController::class, 'show'])->name('inspections.show');
         Route::get('inspections/{inspection}/pdf', [Agent\InspectionsController::class, 'download'])->name('inspections.download');
+        // Messages → Email: the user's own mailbox (POP3/IMAP + SMTP).
+        Route::get('messages/email', [\App\Http\Controllers\EmailController::class, 'index'])->name('email.index');
+        Route::post('messages/email/account', [\App\Http\Controllers\EmailController::class, 'connect'])->name('email.connect');
+        Route::delete('messages/email/account', [\App\Http\Controllers\EmailController::class, 'disconnect'])->name('email.disconnect');
+        Route::post('messages/email/sync', [\App\Http\Controllers\EmailController::class, 'sync'])->name('email.sync');
+        Route::post('messages/email/send', [\App\Http\Controllers\EmailController::class, 'send'])->name('email.send');
         Route::get('messages',    [Agent\MessagesController::class,  'index'])->name('messages.index');
         Route::post('messages/{conversation}', [Agent\MessagesController::class, 'store'])->name('messages.store');
         Route::get('commission',  [Agent\CommissionController::class, 'index'])->name('commission.index');

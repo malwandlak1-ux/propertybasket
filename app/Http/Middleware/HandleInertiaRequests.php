@@ -44,6 +44,10 @@ class HandleInertiaRequests extends Middleware
             'subscription' => fn () => $this->subscriptionStatus($request),
             'notifications' => fn () => $this->notifications($request),
             'unread_messages' => fn () => $this->unreadMessagesCount($request),
+            'unread_email' => fn () => $request->user()
+                ? \App\Models\EmailMessage::where('folder', 'inbox')->whereNull('read_at')
+                    ->whereHas('account', fn ($q) => $q->where('user_id', $request->user()->id))->count()
+                : 0,
             'appearance' => fn () => $this->appearance($request),
             'edition' => [
                 'disabled_roles' => \App\Support\Edition::disabledRoles(),

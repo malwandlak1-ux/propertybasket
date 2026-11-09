@@ -29,9 +29,12 @@ type AgencyProps = {
     trust_holder: string | null;
     trust_status: 'none' | 'review' | 'verified';
     investec: Investec | null;
+    bank_link: BankLinkInfo | null;
 };
 
-type PayoutMethod = 'paystack' | 'trust_account' | 'investec';
+type BankLinkInfo = { bank: string; bank_name: string; status: 'requested' | 'agreement' | 'credentials' | 'testing' | 'live' | 'paused'; requested_at: string | null; live_at: string | null; problem: string | null };
+
+type PayoutMethod = 'paystack' | 'trust_account' | 'investec' | 'bank_h2h';
 type Investec = { environment: 'production' | 'sandbox'; account_name: string | null; account: string; connected_at: string | null; last_error: string | null; problem: string | null };
 
 type Props = { agency: AgencyProps };
@@ -276,13 +279,15 @@ export default function Settings({ agency }: Props) {
                             <Panel
                                 title="Payouts"
                                 subtitle="Choose how your agents’ commission is paid"
-                                statusBadge={data.payout_method === 'investec'
+                                statusBadge={data.payout_method === 'bank_h2h'
+                                    ? { label: `${agency.bank_link?.bank_name ?? 'BANK'} DIRECT`, tone: 'success' }
+                                    : data.payout_method === 'investec'
                                     ? { label: 'INVESTEC', tone: 'success' }
                                     : data.payout_method === 'trust_account'
                                     ? { label: 'TRUST ACCOUNT · EFT', tone: 'success' }
                                     : agency.paystack_stub ? { label: 'PAYSTACK · TEST MODE', tone: 'warning' } : { label: 'PAYSTACK', tone: 'success' }}
                             >
-                                <div role="radiogroup" aria-label="Payout method" className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                <div role="radiogroup" aria-label="Payout method" className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                     <MethodCard
                                         selected={data.payout_method === 'paystack'}
                                         onSelect={() => setData('payout_method', 'paystack')}
@@ -306,6 +311,14 @@ export default function Settings({ agency }: Props) {
                                         tag={agency.investec ? `Linked ${agency.investec.account}${agency.investec.environment === 'sandbox' ? ' · sandbox' : ''}` : 'Not linked'}
                                         description="One click: Investec pays your agents straight from your trust account."
                                     />
+                                    <MethodCard
+                                        selected={data.payout_method === 'bank_h2h'}
+                                        onSelect={() => setData('payout_method', 'bank_h2h')}
+                                        disabled={!agency.bank_link || !!agency.bank_link.problem}
+                                        title={`${agency.bank_link?.bank_name ?? 'FNB'} direct (host-to-host)`}
+                                        tag={agency.bank_link ? (agency.bank_link.problem ? STAGE_LABEL[agency.bank_link.status] : 'Ready') : 'Needs a bank agreement'}
+                                        description="One click sends the payout to your bank; your approvers release it in online banking."
+                                    />
                                 </div>
                                 {agency.trust_status !== 'verified' && (
                                     <p className="text-[12px] text-ink-600 bg-ink-50 rounded-lg px-3.5 py-2.5">
@@ -317,6 +330,7 @@ export default function Settings({ agency }: Props) {
                                 )}
                                 {errors.payout_method && <p className="text-[12px] text-danger">{errors.payout_method}</p>}
                                 <InvestecLink investec={agency.investec} trustStatus={agency.trust_status} trustAccount={agency.trust_account_number} />
+                                <BankLinkPanel link={agency.bank_link} agencyEmail={agency.email} />
                                 <Row>
                                     <Field label="Payout Cycle">
                                         <Select value="Monthly" onChange={() => {}} options={['Monthly']} disabled />
@@ -671,6 +685,105 @@ function InvestecLink({ investec, trustStatus, trustAccount }: { investec: Inves
                     <p className="text-[11.5px] text-ink-500">We check the keys with Investec and link the account matching your trust account{trustAccount ? ` (•••• ${trustAccount.slice(-4)})` : ''}.</p>
                     <div className="flex gap-2">
                         <button type="button" onClick={connect} disabled={busy || !keys.client_id || !keys.client_secret || !keys.api_key} className={btnPrimary}>{busy ? 'Checking with Investec…' : 'Link account'}</button>
+                        <button type="button" onClick={() => setOpen(false)} className={btnOutline}>Cancel</button>
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+}
+
+const STAGES = ['requested', 'agreement', 'credentials', 'testing', 'live'] as const;
+const STAGE_LABEL: Record<BankLinkInfo['status'], string> = {
+    requested: 'Request received',
+    agreement: 'Bank agreement',
+    credentials: 'Connection set-up',
+    testing: 'Testing with the bank',
+    live: 'Live',
+    paused: 'Paused',
+};
+const STAGE_NEXT: Record<BankLinkInfo['status'], string> = {
+    requested: 'Ask your FNB relationship banker for a host-to-host (H2H) agreement on your trust account, naming Property Basket as your technical provider. We’ll be in touch to help.',
+    agreement: 'FNB is preparing the agreement. Once signed, FNB issues the connection details (SFTP) and its file specification.',
+    credentials: 'We’re setting up the secure connection with FNB’s details.',
+    testing: 'We’re exchanging test files with FNB. Payouts sent now go to FNB’s test environment.',
+    live: 'Choose this payout method and save. Payouts go straight to FNB for your approvers to release.',
+    paused: 'The link is paused. Contact support to resume it.',
+};
+
+/** Direct bank link (host-to-host): request it, then follow the onboarding stages. Not a <form>: it sits inside the settings form. */
+function BankLinkPanel({ link, agencyEmail }: { link: BankLinkInfo | null; agencyEmail: string | null }) {
+    const [open, setOpen] = useState(false);
+    const [busy, setBusy] = useState(false);
+    const [f, setF] = useState({ bank: 'fnb', contact_name: '', contact_email: agencyEmail ?? '', contact_phone: '', banker_name: '', banker_email: '', notes: '' });
+    const field = 'w-full bg-white border border-ink-200 rounded-xl px-3.5 py-2.5 text-[13px] focus:outline-none focus:border-brand-300 focus:ring-4 focus:ring-brand-100 mt-1';
+
+    function submit() {
+        setBusy(true);
+        router.post('/agency/payouts/bank-link', f, { preserveScroll: true, onFinish: () => setBusy(false), onSuccess: () => setOpen(false) });
+    }
+    function withdraw() {
+        if (!confirm('Withdraw your bank link request?')) return;
+        router.delete('/agency/payouts/bank-link', { preserveScroll: true });
+    }
+
+    const at = link ? STAGES.indexOf(link.status as (typeof STAGES)[number]) : -1;
+
+    return (
+        <div className="rounded-xl border border-ink-200 p-4 space-y-3">
+            <div className="flex flex-wrap items-start justify-between gap-2">
+                <div>
+                    <p className="text-[13.5px] font-semibold">Direct bank link (host-to-host)</p>
+                    <p className="text-[12px] text-ink-500">For agencies with a corporate agreement with their bank. FNB first; more banks to follow.</p>
+                </div>
+                {link && <span className={`text-[10px] px-2 py-1 rounded-full font-bold ${link.status === 'live' ? 'bg-success/15 text-success' : 'bg-warning/15 text-warning'}`}>{link.bank_name.toUpperCase()} · {STAGE_LABEL[link.status].toUpperCase()}</span>}
+            </div>
+
+            {link ? (
+                <>
+                    <ol className="flex flex-wrap gap-1.5" aria-label="Onboarding stages">
+                        {STAGES.map((st, i) => (
+                            <li key={st} className={`text-[11px] font-semibold px-2.5 py-1 rounded-full ${i < at ? 'bg-success/15 text-success' : i === at ? 'bg-brand-500 text-white' : 'bg-ink-100 text-ink-500'}`}>
+                                {i < at ? '✓ ' : ''}{STAGE_LABEL[st]}
+                            </li>
+                        ))}
+                    </ol>
+                    <p className="text-[12.5px] text-ink-700"><span className="font-semibold">Next: </span>{STAGE_NEXT[link.status]}</p>
+                    {link.problem && link.status === 'live' && <p className="text-[12px] text-warning">{link.problem}</p>}
+                    {link.status !== 'live' && <button type="button" onClick={withdraw} className="text-[12px] font-semibold text-danger hover:underline">Withdraw request</button>}
+                </>
+            ) : !open ? (
+                <div className="space-y-2">
+                    <p className="text-[12.5px] text-ink-600">With an FNB host-to-host agreement, “Run payout” sends the payments straight to FNB from your trust account. Your approvers release them in FNB online banking, and each agent is updated automatically as FNB confirms. Setting it up takes a few weeks with FNB and may carry bank fees.</p>
+                    <button type="button" onClick={() => setOpen(true)} className={btnPrimary}>Request FNB direct link</button>
+                </div>
+            ) : (
+                <div className="space-y-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <label className="block text-[12px] font-semibold text-ink-700">Bank
+                            <select value={f.bank} onChange={(e) => setF({ ...f, bank: e.target.value })} className={field}><option value="fnb">FNB</option></select>
+                        </label>
+                        <label className="block text-[12px] font-semibold text-ink-700">Your contact person
+                            <input value={f.contact_name} onChange={(e) => setF({ ...f, contact_name: e.target.value })} className={field} />
+                        </label>
+                        <label className="block text-[12px] font-semibold text-ink-700">Contact email
+                            <input type="email" value={f.contact_email} onChange={(e) => setF({ ...f, contact_email: e.target.value })} className={field} />
+                        </label>
+                        <label className="block text-[12px] font-semibold text-ink-700">Contact phone
+                            <input value={f.contact_phone} onChange={(e) => setF({ ...f, contact_phone: e.target.value })} className={field} />
+                        </label>
+                        <label className="block text-[12px] font-semibold text-ink-700">FNB relationship banker (if known)
+                            <input value={f.banker_name} onChange={(e) => setF({ ...f, banker_name: e.target.value })} className={field} />
+                        </label>
+                        <label className="block text-[12px] font-semibold text-ink-700">Banker email
+                            <input type="email" value={f.banker_email} onChange={(e) => setF({ ...f, banker_email: e.target.value })} className={field} />
+                        </label>
+                    </div>
+                    <label className="block text-[12px] font-semibold text-ink-700">Anything we should know
+                        <textarea value={f.notes} onChange={(e) => setF({ ...f, notes: e.target.value })} rows={2} className={field} />
+                    </label>
+                    <div className="flex gap-2">
+                        <button type="button" onClick={submit} disabled={busy || !f.contact_name || !f.contact_email} className={btnPrimary}>{busy ? 'Sending…' : 'Send request'}</button>
                         <button type="button" onClick={() => setOpen(false)} className={btnOutline}>Cancel</button>
                     </div>
                 </div>

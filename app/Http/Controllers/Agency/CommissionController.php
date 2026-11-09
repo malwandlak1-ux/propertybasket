@@ -137,6 +137,11 @@ class CommissionController extends Controller
                 'trust_verified' => $agency->trustAccountVerified(),
                 'trust_bank'     => $agency->trust_bank,
                 'trust_account'  => $agency->trust_account_number ? '•••• ' . substr($agency->trust_account_number, -4) : null,
+                'bank_link'      => ($bl = $agency->bankLink) ? [
+                    'bank'    => $bl->bankName(),
+                    'status'  => $bl->status,
+                    'problem' => app(\App\Services\Banking\H2H\H2hPayouts::class)->problem($agency, $bl),
+                ] : null,
                 'investec'       => $investec ? [
                     'environment' => $investec->environment,
                     'account'     => '•••• ' . substr(Agency::digits($investec->account_number), -4),
@@ -307,6 +312,9 @@ class CommissionController extends Controller
         if (($agency->payout_method ?? 'paystack') === 'investec') {
             return $this->payViaInvestec($agency);
         }
+        if (($agency->payout_method ?? 'paystack') === 'bank_h2h') {
+            return $this->sendToBank($agency);
+        }
 
         $batch = PayoutBatch::query()
             ->where('agency_id', $agency->id)
@@ -435,12 +443,43 @@ class CommissionController extends Controller
         };
     }
 
+    /** Host-to-host: drop the payment file on the bank's server; status files settle it later. */
+    private function sendToBank(Agency $agency): RedirectResponse
+    {
+        if ($this->openBankBatch($agency)) {
+            return back()->with('error', 'You already have a payout waiting. Settle it (mark it paid or release it) first.');
+        }
+        $lock = \Illuminate\Support\Facades\Cache::lock("agency-payout:{$agency->id}", 300);
+        if (! $lock->get()) {
+            return back()->with('error', 'A payout is already running for your agency. Give it a moment.');
+        }
+        try {
+            $batch = PayoutBatch::query()->where('agency_id', $agency->id)->whereIn('status', ['pending', 'approved'])->orderBy('batch_date')->first();
+            if (! $batch) {
+                if (! Commission::where('agency_id', $agency->id)->where('status', 'approved')->whereNull('payout_batch_id')->exists()) {
+                    return back()->with('error', 'No approved commissions ready for payout.');
+                }
+                $batch = $this->commissionService->runMonthlyBatch($agency);
+            }
+            try {
+                $batch = app(\App\Services\Banking\H2H\H2hPayouts::class)->send($agency, $batch);
+            } catch (\App\Services\Banking\H2H\BankLinkException $e) {
+                return back()->with('error', $e->getMessage());
+            }
+        } finally {
+            $lock->release();
+        }
+        $bank = $agency->bankLink?->bankName() ?? 'the bank';
+
+        return back()->with('success', "Payout #{$batch->id} sent to {$bank}. Approve the payments in {$bank} online banking; we update each agent as the bank confirms.");
+    }
+
     /** POST /agency/commissions/batches/{batch}/release — give up on an unpaid bank batch; its commissions can be paid again. */
     public function releaseBatch(Request $request, PayoutBatch $batch): RedirectResponse
     {
         $this->authorizeAgencyAdmin($request);
         $agency = $this->resolveAgency($request);
-        abort_unless($batch->agency_id === $agency->id && in_array($batch->method, ['trust_account', 'investec'], true), 404);
+        abort_unless($batch->agency_id === $agency->id && in_array($batch->method, ['trust_account', 'investec', 'bank_h2h'], true), 404);
         if (! in_array($batch->status, ['processing', 'failed'], true)) {
             return back()->with('error', 'This payout is already settled.');
         }
@@ -458,7 +497,7 @@ class CommissionController extends Controller
     {
         return PayoutBatch::query()
             ->where('agency_id', $agency->id)
-            ->whereIn('method', ['trust_account', 'investec'])
+            ->whereIn('method', ['trust_account', 'investec', 'bank_h2h'])
             ->where(fn ($q) => $q->where('status', 'processing')
                 ->orWhere(fn ($q) => $q->where('status', 'failed')->whereHas('commissions', fn ($c) => $c->where('status', 'approved'))))
             ->latest('id')
@@ -490,7 +529,7 @@ class CommissionController extends Controller
     {
         $this->authorizeAgencyAdmin($request);
         $agency = $this->resolveAgency($request);
-        abort_unless($batch->agency_id === $agency->id && in_array($batch->method, ['trust_account', 'investec'], true), 404);
+        abort_unless($batch->agency_id === $agency->id && in_array($batch->method, ['trust_account', 'investec', 'bank_h2h'], true), 404);
         if (! in_array($batch->status, ['processing', 'failed'], true)) {
             return back()->with('error', 'This payout has already been marked paid.');
         }
@@ -548,6 +587,7 @@ class CommissionController extends Controller
             'status'     => $batch->status,
             'failure'    => $batch->failure_reason,
             'paid_count' => $batch->commissions()->where('status', 'paid')->count(),
+            'bank'       => $batch->method === 'bank_h2h' ? \App\Models\BankLink::where('agency_id', $batch->agency_id)->first()?->bankName() : null,
             'batch_date' => $batch->batch_date->toDateString(),
             'total'      => round(array_sum(array_column($rows, 'amount')), 2),
             'payees'     => array_map(fn ($r) => [

@@ -22,7 +22,8 @@ type Commission = {
 type Props = {
     agency: { id: number; name: string; payout_day: number; vat_rate: number; sale_commission_percent: number; rental_commission_percent: number; payout_method: PayoutMethod };
     payout: { method: PayoutMethod; paystack_stub: boolean; trust_verified: boolean; trust_bank: string | null; trust_account: string | null;
-        investec: { environment: string; account: string; problem: string | null } | null };
+        investec: { environment: string; account: string; problem: string | null } | null;
+        bank_link: { bank: string; status: string; problem: string | null } | null };
     eft_batch: EftBatch | null;
     commissions: Commission[];
     totals: { gross: number; vat: number; agent_net: number; count_eligible: number; count_total: number };
@@ -43,11 +44,12 @@ type Props = {
     contractor_invoices: { queue: ContractorInvoice[]; paid: ContractorInvoice[] };
 };
 
-type PayoutMethod = 'paystack' | 'trust_account' | 'investec';
+type PayoutMethod = 'paystack' | 'trust_account' | 'investec' | 'bank_h2h';
 
 type EftBatch = {
     id: number;
-    method: 'trust_account' | 'investec';
+    method: 'trust_account' | 'investec' | 'bank_h2h';
+    bank: string | null;
     status: 'processing' | 'failed';
     failure: string | null;
     paid_count: number;
@@ -128,6 +130,8 @@ function reasonChips(reason: string): { text: string; tone: string }[] {
 export default function Commission({ agency, payout, eft_batch, commissions, totals, next_batch, paid_ytd, agency_retained_ytd, vat_ytd, recent_transfers, contractor_invoices }: Props) {
     const viaTrust = payout.method === 'trust_account';
     const viaInvestec = payout.method === 'investec';
+    const viaBank = payout.method === 'bank_h2h';
+    const bankName = payout.bank_link?.bank ?? 'your bank';
     const { flash } = usePage<SharedProps>().props;
     const [selected, setSelected] = useState<Set<number>>(new Set());
     const [payInvoiceModal, setPayInvoiceModal] = useState<ContractorInvoice | null>(null);
@@ -159,7 +163,9 @@ export default function Commission({ agency, payout, eft_batch, commissions, tot
     }
     function runPayoutBatch() {
         if (paying) return;
-        const msg = viaInvestec
+        const msg = viaBank
+            ? `Send this payout to ${bankName} from your trust account (${payout.trust_account ?? ''})?${payout.bank_link?.status === 'testing' ? ` The link is in testing: the file goes to ${bankName}'s test environment.` : ` Your approvers then release it in ${bankName} online banking.`}`
+            : viaInvestec
             ? `Pay the approved commissions now from your Investec trust account (${payout.investec?.account ?? ''})?${payout.investec?.environment === 'sandbox' ? ' (Investec sandbox: test data, no real money.)' : ' Real money leaves your account.'}`
             : viaTrust
             ? `Prepare an EFT payout from your trust account (${payout.trust_bank ?? 'bank'} ${payout.trust_account ?? ''})? You'll get a bank payment file; commissions are marked paid once you confirm the EFT went through.`
@@ -186,7 +192,9 @@ export default function Commission({ agency, payout, eft_batch, commissions, tot
                         <h1 className="text-[28px] sm:text-[32px] leading-tight tracking-tight">Commission &amp; Payouts</h1>
                         <p className="text-[14px] text-ink-500 mt-1">
                             Monthly payout day: <span className="font-semibold text-ink-900">{agency.payout_day}th of each month</span> ·{' '}
-                            {viaInvestec
+                            {viaBank
+                                ? <>Sent straight to {bankName} from your trust account <span className="font-semibold text-ink-900">{payout.trust_account}</span>{payout.bank_link?.status === 'testing' ? ' (testing)' : ''}</>
+                                : viaInvestec
                                 ? <>Paid directly from your Investec trust account <span className="font-semibold text-ink-900">{payout.investec?.account}</span>{payout.investec?.environment === 'sandbox' ? ' (sandbox)' : ''}</>
                                 : viaTrust
                                 ? <>Paid by EFT from your trust account <span className="font-semibold text-ink-900">{payout.trust_bank} {payout.trust_account}</span></>
@@ -213,7 +221,7 @@ export default function Commission({ agency, payout, eft_batch, commissions, tot
                                     <path d="M8 12h8M12 8v8" />
                                 </svg>
                             )}
-                            {paying ? 'Running…' : viaInvestec ? 'Pay via Investec' : viaTrust ? 'Prepare EFT Payout' : 'Run Payout Batch'}
+                            {paying ? 'Running…' : viaBank ? `Send to ${bankName}` : viaInvestec ? 'Pay via Investec' : viaTrust ? 'Prepare EFT Payout' : 'Run Payout Batch'}
                         </button>
                     </div>
                 </div>
@@ -229,6 +237,11 @@ export default function Commission({ agency, payout, eft_batch, commissions, tot
                     </div>
                 )}
 
+                {viaBank && payout.bank_link?.problem && (
+                    <div className="mb-4 rounded-lg bg-warning/10 border border-warning/30 text-ink-800 px-4 py-3 text-[13px]">
+                        {bankName} link can’t send yet: {payout.bank_link.problem} <a href="/agency/settings" className="font-semibold text-brand-700 hover:underline">Settings →</a>
+                    </div>
+                )}
                 {viaInvestec && payout.investec?.problem && (
                     <div className="mb-4 rounded-lg bg-warning/10 border border-warning/30 text-ink-800 px-4 py-3 text-[13px]">
                         Investec can’t pay yet: {payout.investec.problem} <a href="/agency/settings" className="font-semibold text-brand-700 hover:underline">Settings →</a>
@@ -486,23 +499,29 @@ export default function Commission({ agency, payout, eft_batch, commissions, tot
                                         <path d="M2 10h20" />
                                     </svg>
                                 </div>
-                                <h3 className="text-base font-semibold">{viaInvestec ? 'Investec (direct)' : viaTrust ? 'Trust account (EFT)' : 'Paystack'}</h3>
+                                <h3 className="text-base font-semibold">{viaBank ? `${bankName} direct` : viaInvestec ? 'Investec (direct)' : viaTrust ? 'Trust account (EFT)' : 'Paystack'}</h3>
                             </div>
-                            {viaInvestec
+                            {viaBank
+                                ? <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${payout.bank_link?.problem ? 'bg-warning/15 text-warning' : 'bg-success/15 text-success'}`}>{(payout.bank_link?.status ?? '').toUpperCase()}</span>
+                                : viaInvestec
                                 ? <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${payout.investec?.problem ? 'bg-warning/15 text-warning' : 'bg-success/15 text-success'}`}>{payout.investec?.problem ? 'ATTENTION' : payout.investec?.environment === 'sandbox' ? 'SANDBOX' : 'LINKED'}</span>
                                 : viaTrust
                                 ? <span className="text-[10px] px-2 py-0.5 rounded-full bg-success/15 text-success font-bold">VERIFIED</span>
                                 : <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${payout.paystack_stub ? 'bg-warning/15 text-warning' : 'bg-success/15 text-success'}`}>{payout.paystack_stub ? 'TEST MODE' : 'LIVE'}</span>}
                         </div>
                         <p className="text-[12px] text-ink-500 mb-3">
-                            {viaInvestec
+                            {viaBank
+                                ? `One click sends the payout to ${bankName}; your approvers release it and agents update as the bank confirms.`
+                                : viaInvestec
                                 ? 'One click pays agents straight from your Investec trust account to their saved beneficiaries.'
                                 : viaTrust
                                 ? 'You pay agents from your trust account with the bank file we prepare, then mark the batch paid.'
                                 : 'Agents are paid automatically by Paystack transfer when you run the batch.'}
                         </p>
                         <div className="bg-ink-50 rounded-lg p-3 text-[11px] font-mono text-ink-700 space-y-1">
-                            {viaInvestec ? (
+                            {viaBank ? (
+                                <p>Account: <span className="font-semibold text-ink-900">{bankName} {payout.trust_account}</span></p>
+                            ) : viaInvestec ? (
                                 <p>Account: <span className="font-semibold text-ink-900">Investec {payout.investec?.account}</span></p>
                             ) : viaTrust ? (
                                 <>
@@ -526,7 +545,7 @@ export default function Commission({ agency, payout, eft_batch, commissions, tot
                                 {recent_transfers.map((t) => (
                                     <div key={t.id} className="flex items-center justify-between py-1.5 border-b border-ink-100 last:border-0">
                                         <span className="text-ink-700">
-                                            {t.method === 'trust_account' ? 'EFT' : t.method === 'investec' ? 'Investec' : 'Batch'} ·{' '}
+                                            {t.method === 'trust_account' ? 'EFT' : t.method === 'investec' ? 'Investec' : t.method === 'bank_h2h' ? 'Bank direct' : 'Batch'} ·{' '}
                                             {new Date(t.batch_date).toLocaleDateString('en-ZA', { day: 'numeric', month: 'short' })} ·{' '}
                                             {t.commissions_count} agent{t.commissions_count === 1 ? '' : 's'}
                                         </span>
@@ -551,7 +570,7 @@ export default function Commission({ agency, payout, eft_batch, commissions, tot
                             </div>
                             <div className="flex items-center justify-between py-1.5 border-b border-ink-100">
                                 <span className="text-ink-500">Method</span>
-                                <span className="font-semibold">{viaInvestec ? 'Investec (direct)' : viaTrust ? 'Trust account (EFT)' : 'Paystack'}</span>
+                                <span className="font-semibold">{viaBank ? `${bankName} direct` : viaInvestec ? 'Investec (direct)' : viaTrust ? 'Trust account (EFT)' : 'Paystack'}</span>
                             </div>
                             <div className="flex items-center justify-between py-1.5 border-b border-ink-100">
                                 <span className="text-ink-500">VAT rate</span>
@@ -796,12 +815,14 @@ function EftBatchCard({ batch, trust }: { batch: EftBatch; trust: string }) {
             <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
                     <p className={`text-[11px] font-bold uppercase tracking-wider ${batch.status === 'failed' ? 'text-danger' : 'text-warning'}`}>
-                        {batch.status === 'failed' ? 'Payout didn’t complete' : batch.method === 'investec' ? 'Waiting for approval in Investec' : 'EFT payout ready'} · #{batch.id}
+                        {batch.status === 'failed' ? 'Payout didn’t complete' : batch.method === 'investec' ? 'Waiting for approval in Investec' : batch.method === 'bank_h2h' ? `With ${batch.bank ?? 'the bank'}` : 'EFT payout ready'} · #{batch.id}
                     </p>
                     <p className="text-[20px] font-bold mt-1">{fmtMoney(batch.total)} to {batch.payees.length} agent{batch.payees.length === 1 ? '' : 's'}</p>
                     <p className="text-[12.5px] text-ink-600 mt-1">
                         {batch.status === 'failed' ? (
-                            <>{batch.failure} {batch.paid_count > 0 && `${batch.paid_count} commission(s) did go through. `}Check Investec Online: if the money went out, mark it paid; if not, release the unpaid commissions to try again.</>
+                            <>{batch.failure} {batch.paid_count > 0 && `${batch.paid_count} commission(s) did go through. `}Check your online banking: if the money went out, mark it paid; if not, fix the details and release the unpaid commissions to try again.</>
+                        ) : batch.method === 'bank_h2h' ? (
+                            <>The payment file is with {batch.bank ?? 'the bank'}. Approve the payments in {batch.bank ?? 'your'} online banking; each agent is marked paid automatically when the bank confirms{batch.paid_count > 0 ? ` (${batch.paid_count} confirmed so far)` : ''}.</>
                         ) : batch.method === 'investec' ? (
                             <>Investec accepted the payments but needs them approved. Approve them in Investec Online (or the app), then mark the payout paid here.</>
                         ) : (

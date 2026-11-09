@@ -42,6 +42,14 @@ class SettingsController extends Controller
                 'paystack_stub' => app(\App\Services\PaystackService::class)->isStub(),
                 'trust_holder' => $agency->trust_account_holder,
                 'trust_status' => $agency->trust_verified_at ? 'verified' : (filled($agency->trust_account_number) ? 'review' : 'none'),
+                'bank_link' => ($bl = $agency->bankLink) ? [
+                    'bank'         => $bl->bank,
+                    'bank_name'    => $bl->bankName(),
+                    'status'       => $bl->status,
+                    'requested_at' => $bl->requested_at?->format('d M Y'),
+                    'live_at'      => $bl->live_at?->format('d M Y'),
+                    'problem'      => app(\App\Services\Banking\H2H\H2hPayouts::class)->problem($agency, $bl),
+                ] : null,
                 'investec' => ($c = $agency->investecConnection) ? [
                     'environment'  => $c->environment,
                     'account_name' => $c->account_name,
@@ -94,6 +102,10 @@ class SettingsController extends Controller
 
         if (($data['payout_method'] ?? null) === 'trust_account' && ! $agency->trustAccountVerified()) {
             return back()->withErrors(['payout_method' => 'Your trust account must be captured and verified by the platform before you can pay agents from it.']);
+        }
+        if (($data['payout_method'] ?? null) === 'bank_h2h'
+            && ($problem = app(\App\Services\Banking\H2H\H2hPayouts::class)->problem($agency, $agency->bankLink))) {
+            return back()->withErrors(['payout_method' => $problem]);
         }
         if (($data['payout_method'] ?? null) === 'investec'
             && ($problem = app(\App\Services\Banking\InvestecPayouts::class)->connectionProblem($agency, $agency->investecConnection))) {

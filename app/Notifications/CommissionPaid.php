@@ -36,6 +36,7 @@ class CommissionPaid extends Notification
             ->line(match ($this->batch->method) {
                 'trust_account' => 'Your agency has paid your commission by EFT from its trust account.',
                 'investec'      => 'Your agency has paid your commission from its Investec trust account.',
+                'bank_h2h'      => 'Your agency has paid your commission from its trust account (bank transfer).',
                 default         => 'Your commission payout has been processed via Paystack.',
             })
             ->line('Amount: **R ' . number_format($netTotal, 2) . '** for ' . $count . ' ' . ($count === 1 ? 'deal' : 'deals'))

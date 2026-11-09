@@ -244,6 +244,18 @@ class HandleInertiaRequests extends Middleware
                 'href'  => '/admin/agencies?trust=' . ($data['agency_id'] ?? ''),
                 'tone'  => 'warning',
             ],
+            \App\Notifications\BankLinkRequested::class => [
+                'title' => 'Bank link requested',
+                'body'  => ($data['agency_name'] ?? 'An agency') . ' wants a direct ' . ($data['bank'] ?? 'bank') . ' link for payouts.',
+                'href'  => '/admin/bank-links',
+                'tone'  => 'warning',
+            ],
+            \App\Notifications\BankLinkStatusChanged::class => [
+                'title' => ($data['bank'] ?? 'Bank') . ' link: ' . (\App\Notifications\BankLinkStatusChanged::LABELS[$data['status'] ?? ''] ?? ($data['status'] ?? 'updated')),
+                'body'  => ($data['status'] ?? '') === 'live' ? 'You can now pay commission straight from your trust account.' : 'Your direct bank link moved to the next stage.',
+                'href'  => '/agency/settings',
+                'tone'  => ($data['status'] ?? '') === 'live' ? 'success' : 'brand',
+            ],
             \App\Notifications\TrustAccountVerified::class => [
                 'title' => 'Trust account verified',
                 'body'  => 'The platform verified your trust account' . (! empty($data['bank']) ? " at {$data['bank']}" : '') . '.',

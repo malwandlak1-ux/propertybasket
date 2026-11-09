@@ -60,6 +60,7 @@ export default function AdminLayout({ children, crumb = 'Overview', section = 'P
         { label: 'Subscriptions', href: '/admin/subscriptions', icon: I.subscriptions },
         { label: 'Promo Codes',   href: '/admin/promo-codes',   icon: I.promo },
         { label: 'Transactions',  href: '/admin/transactions',  icon: I.transactions },
+        { label: 'Bank Links',    href: '/admin/bank-links',    icon: I.transactions },
     ];
 
     const system: NavItem[] = [

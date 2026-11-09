@@ -146,6 +146,8 @@ Route::middleware('auth')->group(function () {
         Route::post('payouts/investec', [\App\Http\Controllers\Agency\InvestecController::class, 'connect'])->name('payouts.investec.connect');
         Route::delete('payouts/investec', [\App\Http\Controllers\Agency\InvestecController::class, 'disconnect'])->name('payouts.investec.disconnect');
         Route::get('payouts/investec/agents', [\App\Http\Controllers\Agency\InvestecController::class, 'agents'])->name('payouts.investec.agents');
+        Route::post('payouts/bank-link', [\App\Http\Controllers\Agency\BankLinkController::class, 'request'])->name('payouts.bank-link.request');
+        Route::delete('payouts/bank-link', [\App\Http\Controllers\Agency\BankLinkController::class, 'cancel'])->name('payouts.bank-link.cancel');
         Route::post('commissions/invoices/{invoice}/pay', [\App\Http\Controllers\Agency\CommissionController::class, 'payInvoice'])->name('commissions.invoices.pay');
         Route::post('commissions/rates', [\App\Http\Controllers\Agency\CommissionController::class, 'updateRates'])->name('commissions.rates');
 
@@ -299,6 +301,10 @@ Route::middleware('auth')->group(function () {
         Route::patch('promo-codes/{promoCode}/toggle', [Admin\PromoCodesController::class, 'toggle'])->name('promo-codes.toggle');
         Route::delete('promo-codes/{promoCode}',  [Admin\PromoCodesController::class, 'destroy'])->name('promo-codes.destroy');
         Route::get('transactions',         [Admin\TransactionsController::class, 'index'])->name('transactions.index');
+        Route::get('bank-links',                [Admin\BankLinksController::class, 'index'])->name('bank-links.index');
+        Route::patch('bank-links/{link}',       [Admin\BankLinksController::class, 'update'])->name('bank-links.update');
+        Route::post('bank-links/{link}/test',   [Admin\BankLinksController::class, 'test'])->name('bank-links.test');
+        Route::post('bank-links/{link}/poll',   [Admin\BankLinksController::class, 'poll'])->name('bank-links.poll');
         Route::get('transactions/export',  [Admin\TransactionsController::class, 'export'])->name('transactions.export');
         Route::get('announcements',  [Admin\AnnouncementsController::class, 'index'])->name('announcements.index');
         Route::post('announcements', [Admin\AnnouncementsController::class, 'store'])->name('announcements.store');

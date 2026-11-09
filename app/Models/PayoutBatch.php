@@ -12,7 +12,7 @@ class PayoutBatch extends Model
         'agency_id', 'batch_date',
         'total_gross', 'total_vat', 'total_agent_net',
         'paystack_bulk_transfer_id', 'status',
-        'method', 'paid_reference', 'paid_at', 'failure_reason',
+        'method', 'paid_reference', 'paid_at', 'failure_reason', 'bank_message_id',
     ];
 
     protected function casts(): array

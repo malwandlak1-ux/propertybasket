@@ -24,3 +24,6 @@ Schedule::command('whatsapp:dispatch')->everyMinute()->withoutOverlapping();
 
 // Every minute: ring the bell for agents' calendar reminders that are due.
 Schedule::command('reminders:send')->everyMinute()->withoutOverlapping();
+
+// Host-to-host bank links: pick up the bank's payment status files.
+Schedule::command('bank:poll')->everyFiveMinutes()->withoutOverlapping();

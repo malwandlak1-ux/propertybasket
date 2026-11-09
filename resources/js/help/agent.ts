@@ -66,7 +66,7 @@ export const AGENT_GUIDES: Guide[] = [
             'You get a notification when they submit. Open the application to see their answers and documents and the rent-to-income check.',
             'Click Approve or Decline (tick “Email the applicant” to tell them), Mark as reviewing, or Reopen for changes.',
         ],
-        tips: ['Then invite the approved tenant from Listings as usual to create the lease.'],
+        tips: ['Click Create lease from this application to create the lease pre-filled from their answers. The tenant is invited to sign it and the listing comes off the public site.'],
         link: { label: 'Open Applications', href: '/agent/tenants?tab=applications' },
     },
     {

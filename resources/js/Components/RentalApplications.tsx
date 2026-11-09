@@ -23,6 +23,10 @@ export type AppRow = {
     missing: string[];
     documents: { id: number; kind: string; name: string; size: number; url: string }[];
     base: string;
+    lease: { id: number; created: string | null } | null;
+    can_lease: boolean;
+    listing_leased: boolean;
+    lease_defaults: { tenant_name: string; tenant_email: string; tenant_phone: string; start_date: string; end_date: string; monthly_rent: number | null; deposit_amount: number | null };
 };
 
 type Props = {
@@ -313,6 +317,8 @@ function Details({ app, documentKinds, onClose }: { app: AppRow; documentKinds: 
 
                         {app.data.consent?.signature_name && <p className="mt-3 text-[11.5px] text-ink-500">Signed “{String(app.data.consent.signature_name)}”, consenting to credit and reference checks (POPIA).</p>}
 
+                        <LeaseSection app={app} />
+
                         {/* Decision */}
                         <section className="mt-5 rounded-xl bg-ink-50 p-4 space-y-3">
                             <h3 className="text-[14px]">Decision</h3>
@@ -336,6 +342,88 @@ function Details({ app, documentKinds, onClose }: { app: AppRow; documentKinds: 
                 </div>
             </div>
         </Modal>
+    );
+}
+
+function LeaseSection({ app }: { app: AppRow }) {
+    const [open, setOpen] = useState(false);
+    const d = app.lease_defaults;
+    const { data, setData, post, processing, errors } = useForm({
+        tenant_name: d.tenant_name,
+        tenant_email: d.tenant_email,
+        tenant_phone: d.tenant_phone,
+        start_date: d.start_date,
+        end_date: d.end_date,
+        monthly_rent: d.monthly_rent ?? '',
+        deposit_amount: d.deposit_amount ?? '',
+    });
+    const tenantsUrl = app.base.replace(/\/applications\/\d+$/, '');
+
+    if (app.lease) {
+        return (
+            <section className="mt-5 rounded-xl border border-success/30 bg-success/5 p-4">
+                <p className="text-[14px] font-semibold text-success">✓ Lease created{app.lease.created ? ` on ${app.lease.created}` : ''}</p>
+                <p className="text-[12.5px] text-ink-600 mt-0.5">The tenant was invited to the platform to sign it. Track it under Active tenants.</p>
+                <a href={tenantsUrl} className="inline-block mt-2 text-[12.5px] font-semibold text-brand-700 hover:underline">Open Active tenants →</a>
+            </section>
+        );
+    }
+    if (app.listing_leased) {
+        return <p className="mt-5 rounded-xl bg-warning/10 text-[12.5px] text-ink-700 px-4 py-3">This property is already leased, so a lease can’t be created from this application. Reactivate the listing first if the previous lease has ended.</p>;
+    }
+    if (!app.can_lease) return null;
+
+    return (
+        <section className="mt-5 rounded-xl border border-brand-200 bg-brand-50/60 p-4">
+            {!open ? (
+                <div className="flex flex-wrap items-center gap-3">
+                    <div className="flex-1 min-w-[220px]">
+                        <p className="text-[14px] font-semibold text-ink-900">Ready to rent to {app.name.split(' ')[0]}?</p>
+                        <p className="text-[12.5px] text-ink-600">Creates the lease from this application, invites them to the platform to sign it, and takes the listing off the public site.</p>
+                    </div>
+                    <button type="button" onClick={() => setOpen(true)} className={`${btn} bg-brand-700 text-white hover:bg-brand-800`}>Create lease from this application</button>
+                </div>
+            ) : (
+                <form onSubmit={(e) => { e.preventDefault(); post(`${app.base}/lease`, { preserveScroll: true }); }} className="space-y-3">
+                    <h3 className="text-[15px]">Create lease</h3>
+                    <p className="text-[12px] text-ink-500">Filled in from the application. Check the dates, rent and deposit.</p>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <label className="block text-[12px] font-semibold text-ink-700">Tenant name
+                            <input value={data.tenant_name} onChange={(e) => setData('tenant_name', e.target.value)} className={field} required />
+                            {errors.tenant_name && <span className="text-danger text-[11px]">{errors.tenant_name}</span>}
+                        </label>
+                        <label className="block text-[12px] font-semibold text-ink-700">Email
+                            <input type="email" value={data.tenant_email} onChange={(e) => setData('tenant_email', e.target.value)} className={field} required />
+                            {errors.tenant_email && <span className="text-danger text-[11px]">{errors.tenant_email}</span>}
+                        </label>
+                        <label className="block text-[12px] font-semibold text-ink-700">Mobile
+                            <input value={data.tenant_phone} onChange={(e) => setData('tenant_phone', e.target.value)} className={field} />
+                        </label>
+                        <label className="block text-[12px] font-semibold text-ink-700">Lease start
+                            <input type="date" value={data.start_date} onChange={(e) => setData('start_date', e.target.value)} className={field} required />
+                            {errors.start_date && <span className="text-danger text-[11px]">{errors.start_date}</span>}
+                        </label>
+                        <label className="block text-[12px] font-semibold text-ink-700">Lease end
+                            <input type="date" value={data.end_date} onChange={(e) => setData('end_date', e.target.value)} className={field} required />
+                            {errors.end_date && <span className="text-danger text-[11px]">{errors.end_date}</span>}
+                        </label>
+                        <div />
+                        <label className="block text-[12px] font-semibold text-ink-700">Monthly rent (R)
+                            <input type="number" min={0} value={data.monthly_rent} onChange={(e) => setData('monthly_rent', e.target.value)} className={field} required />
+                            {errors.monthly_rent && <span className="text-danger text-[11px]">{errors.monthly_rent}</span>}
+                        </label>
+                        <label className="block text-[12px] font-semibold text-ink-700">Deposit (R)
+                            <input type="number" min={0} value={data.deposit_amount} onChange={(e) => setData('deposit_amount', e.target.value)} className={field} />
+                        </label>
+                    </div>
+                    <div className="flex flex-wrap gap-2 pt-1">
+                        <button type="submit" disabled={processing} className={`${btn} bg-brand-700 text-white hover:bg-brand-800`}>{processing ? <><Spinner size={14} />Creating…</> : 'Create lease & invite tenant'}</button>
+                        <button type="button" onClick={() => setOpen(false)} className={`${btn} border border-ink-300 text-ink-800`}>Cancel</button>
+                    </div>
+                    <p className="text-[11.5px] text-ink-500">The application is marked approved. The tenant gets an email to set up their login, then sees your lease agreement on their dashboard to sign.</p>
+                </form>
+            )}
+        </section>
     );
 }
 

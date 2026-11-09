@@ -27,7 +27,7 @@ class RentalApplication extends Model
     ];
 
     protected $fillable = [
-        'token', 'agency_id', 'listing_id', 'agent_id', 'created_by', 'status', 'invitee_name', 'invitee_email', 'invitee_phone',
+        'token', 'agency_id', 'listing_id', 'lease_id', 'agent_id', 'created_by', 'status', 'invitee_name', 'invitee_email', 'invitee_phone',
         'employment_type', 'data', 'step', 'opened_at', 'submitted_at', 'consent_ip', 'decided_by', 'decided_at', 'decision_note',
     ];
 
@@ -57,6 +57,11 @@ class RentalApplication extends Model
     public function listing(): BelongsTo
     {
         return $this->belongsTo(Listing::class);
+    }
+
+    public function lease(): BelongsTo
+    {
+        return $this->belongsTo(Lease::class);
     }
 
     public function agent(): BelongsTo

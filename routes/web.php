@@ -130,6 +130,7 @@ Route::middleware('auth')->group(function () {
         Route::post('tenants/applications', [\App\Http\Controllers\RentalApplicationsController::class, 'store'])->name('applications.store');
         Route::post('tenants/applications/{application}/send', [\App\Http\Controllers\RentalApplicationsController::class, 'send'])->name('applications.send');
         Route::patch('tenants/applications/{application}', [\App\Http\Controllers\RentalApplicationsController::class, 'decide'])->name('applications.decide');
+        Route::post('tenants/applications/{application}/lease', [\App\Http\Controllers\RentalApplicationsController::class, 'createLease'])->middleware('agency_ffc')->name('applications.lease');
         Route::delete('tenants/applications/{application}', [\App\Http\Controllers\RentalApplicationsController::class, 'destroy'])->name('applications.destroy');
         Route::get('tenants/applications/{application}/documents/{document}', [\App\Http\Controllers\RentalApplicationsController::class, 'document'])->name('applications.document');
         Route::post('tenants/{lease}/deposit-received', [\App\Http\Controllers\Agency\TenantsController::class, 'markDepositReceived'])->name('tenants.deposit-received');
@@ -302,6 +303,7 @@ Route::middleware('auth')->group(function () {
         Route::post('tenants/applications', [\App\Http\Controllers\RentalApplicationsController::class, 'store'])->name('applications.store');
         Route::post('tenants/applications/{application}/send', [\App\Http\Controllers\RentalApplicationsController::class, 'send'])->name('applications.send');
         Route::patch('tenants/applications/{application}', [\App\Http\Controllers\RentalApplicationsController::class, 'decide'])->name('applications.decide');
+        Route::post('tenants/applications/{application}/lease', [\App\Http\Controllers\RentalApplicationsController::class, 'createLease'])->middleware('agency_ffc')->name('applications.lease');
         Route::delete('tenants/applications/{application}', [\App\Http\Controllers\RentalApplicationsController::class, 'destroy'])->name('applications.destroy');
         Route::get('tenants/applications/{application}/documents/{document}', [\App\Http\Controllers\RentalApplicationsController::class, 'document'])->name('applications.document');
         Route::get('settings',    [Agent\SettingsController::class,  'index'])->name('settings.index');

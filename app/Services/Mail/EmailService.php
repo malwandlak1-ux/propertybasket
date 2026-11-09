@@ -24,7 +24,7 @@ class EmailService
 
     public function openMailbox(EmailAccount $account): Mailbox
     {
-        return new ImapMailbox($account);
+        return new SocketMailbox($account);
     }
 
     public function transport(EmailAccount $account): TransportInterface

@@ -55,7 +55,7 @@ class TenantsController extends Controller
                 'active'   => count($active),
                 'archived' => count($archived),
             ],
-        ]);
+        ] + \App\Http\Controllers\RentalApplicationsController::props($request));
     }
 
     private function row(Lease $lease, CarbonImmutable $now): array

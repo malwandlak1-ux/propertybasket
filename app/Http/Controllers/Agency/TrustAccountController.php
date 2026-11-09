@@ -4,6 +4,10 @@ namespace App\Http\Controllers\Agency;
 
 use App\Http\Controllers\Agency\Concerns\ResolvesAgency;
 use App\Http\Controllers\Controller;
+use App\Enums\Role;
+use App\Enums\UserStatus;
+use App\Models\User;
+use App\Notifications\TrustAccountSubmitted;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -86,14 +90,33 @@ class TrustAccountController extends Controller
             || $agency->trust_branch_code !== $data['trust_branch_code']
             || $agency->trust_account_holder !== $data['trust_account_holder'];
 
+        $firstTime = blank($agency->trust_account_number);
         $agency->fill($data);
         if ($bankFieldsChanged) {
             $agency->trust_verified_at = null;
         }
+        $changed = $agency->isDirty();
         $agency->save();
+
+        // Unverified details that changed need a platform admin to check them.
+        if ($changed && $agency->trust_verified_at === null) {
+            $this->notifyPlatformAdmins($agency, ! $firstTime);
+        }
 
         return redirect()
             ->route('agency.trust-account.show')
             ->with('success', 'Trust account details saved.');
+    }
+
+    private function notifyPlatformAdmins($agency, bool $changed): void
+    {
+        $admins = User::where('role', Role::SuperAdmin)->where('status', UserStatus::Active)->get();
+        foreach ($admins as $admin) {
+            try {
+                $admin->notify(new TrustAccountSubmitted($agency, $changed));
+            } catch (\Throwable $e) {
+                report($e); // a mail hiccup must not lose the agency's saved details
+            }
+        }
     }
 }

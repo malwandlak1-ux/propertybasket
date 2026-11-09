@@ -268,6 +268,7 @@ Route::middleware('auth')->group(function () {
         Route::post('agencies/{agency}/suspend',      [Admin\AgenciesController::class, 'suspend'])->name('agencies.suspend');
         Route::post('agencies/{agency}/reactivate',   [Admin\AgenciesController::class, 'reactivate'])->name('agencies.reactivate');
         Route::post('agencies/{agency}/verify-eaab',  [Admin\AgenciesController::class, 'verifyEaab'])->name('agencies.verifyEaab');
+        Route::post('agencies/{agency}/verify-trust', [Admin\AgenciesController::class, 'verifyTrust'])->name('agencies.verifyTrust');
         Route::get('landlords',      [Admin\LandlordsController::class,     'index'])->name('landlords.index');
         Route::post('landlords/{landlord}/verify-fica', [Admin\LandlordsController::class, 'verifyFica'])->name('landlords.verifyFica');
         Route::post('landlords/{landlord}/activate',    [Admin\LandlordsController::class, 'activate'])->name('landlords.activate');

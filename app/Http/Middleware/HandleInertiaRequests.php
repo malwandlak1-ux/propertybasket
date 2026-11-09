@@ -238,6 +238,18 @@ class HandleInertiaRequests extends Middleware
                 'href'  => '/agency/compliance',
                 'tone'  => ($data['days_left'] ?? 99) <= 7 ? 'danger' : 'warning',
             ],
+            \App\Notifications\TrustAccountSubmitted::class => [
+                'title' => 'Trust account to verify',
+                'body'  => ($data['agency_name'] ?? 'An agency') . (($data['changed'] ?? false) ? ' changed' : ' captured') . ' its trust account' . (! empty($data['bank']) ? " ({$data['bank']})" : '') . '.',
+                'href'  => '/admin/agencies?trust=' . ($data['agency_id'] ?? ''),
+                'tone'  => 'warning',
+            ],
+            \App\Notifications\TrustAccountVerified::class => [
+                'title' => 'Trust account verified',
+                'body'  => 'The platform verified your trust account' . (! empty($data['bank']) ? " at {$data['bank']}" : '') . '.',
+                'href'  => '/agency/trust-account',
+                'tone'  => 'success',
+            ],
             \App\Notifications\ReminderDue::class => [
                 'title' => 'Reminder',
                 'body'  => ($data['title'] ?? 'A reminder') . ' · ' . ($data['time'] ?? ''),

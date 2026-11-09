@@ -37,6 +37,18 @@ class AgenciesController extends Controller
                     'eaab_ffc_number' => $a->eaab_ffc_number,
                     'eaab_verified'   => $a->eaab_verified_at !== null,
                     'vat_registered'  => $a->vat_registered,
+                    'trust'           => [
+                        'status'          => $a->trust_verified_at ? 'verified' : (filled($a->trust_account_number) ? 'review' : 'none'),
+                        'bank'            => $a->trust_bank,
+                        'holder'          => $a->trust_account_holder,
+                        'account_number'  => $a->trust_account_number,
+                        'branch_code'     => $a->trust_branch_code,
+                        'account_type'    => $a->trust_account_type,
+                        'auditor'         => $a->trust_auditor_name,
+                        'auditor_number'  => $a->trust_auditor_practice_number,
+                        'verified_at'     => $a->trust_verified_at?->format('d M Y H:i'),
+                        'updated_at'      => $a->updated_at?->format('d M Y H:i'),
+                    ],
                     'status'          => $a->status ?? 'active',
                     'initials'        => collect(explode(' ', $a->name))->map(fn($s) => $s[0])->slice(0, 2)->implode(''),
                 ];
@@ -47,6 +59,7 @@ class AgenciesController extends Controller
             'pending'   => $agencies->where('status', 'pending')->count(),
             'suspended' => $agencies->where('status', 'suspended')->count(),
             'total_agents' => $agencies->sum('agents_count'),
+            'trust_review' => $agencies->where('trust.status', 'review')->count(),
         ];
 
         return Inertia::render('Admin/Agencies', [
@@ -93,6 +106,32 @@ class AgenciesController extends Controller
         $agency->update(['status' => 'active']);
 
         return back()->with('success', "{$agency->name} reactivated.");
+    }
+
+    /** POST /admin/agencies/{agency}/verify-trust — verify (or revoke) the agency's trust account. */
+    public function verifyTrust(Request $request, Agency $agency): RedirectResponse
+    {
+        $this->ensureSuperAdmin($request);
+
+        if ($agency->trust_verified_at !== null) {
+            $agency->update(['trust_verified_at' => null]);
+
+            return back()->with('success', "{$agency->name}: trust account verification revoked.");
+        }
+
+        $required = ['trust_bank', 'trust_account_holder', 'trust_account_number', 'trust_branch_code', 'trust_account_type', 'trust_auditor_name', 'trust_auditor_practice_number'];
+        if (collect($required)->contains(fn ($f) => blank($agency->{$f}))) {
+            return back()->with('error', "{$agency->name} hasn't captured all its trust account details yet.");
+        }
+
+        $agency->update(['trust_verified_at' => now()]);
+        try {
+            $agency->owner?->notify(new \App\Notifications\TrustAccountVerified($agency));
+        } catch (\Throwable $e) {
+            report($e);
+        }
+
+        return back()->with('success', "{$agency->name}: trust account verified.");
     }
 
     public function verifyEaab(Request $request, Agency $agency): RedirectResponse

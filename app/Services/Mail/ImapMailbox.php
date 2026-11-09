@@ -23,7 +23,8 @@ class ImapMailbox implements Mailbox
         }
         imap_timeout(IMAP_OPENTIMEOUT, 20);
         imap_timeout(IMAP_READTIMEOUT, 30);
-        $conn = @imap_open(self::mailboxString($account), $account->username, $account->password, OP_READONLY, 1);
+        // POP3 can't be opened read-only; it is safe anyway as nothing is ever flagged for deletion or expunged.
+        $conn = @imap_open(self::mailboxString($account), $account->username, $account->password, $account->protocol === 'imap' ? OP_READONLY : 0, 1);
         if (! $conn) {
             $err = imap_last_error() ?: 'unknown error';
             imap_errors();

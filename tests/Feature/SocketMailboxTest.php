@@ -50,7 +50,7 @@ class SocketMailboxTest extends TestCase
     {
         $box = new SocketMailbox($this->account($mode, $this->serve($mode), 'p@ss "w0rd"'));
         $known = [];
-        $got = $box->fetchNew(10, function ($uid) use (&$known) { $known[] = $uid; return str_ends_with($uid, $mode = '') && false; });
+        $got = $box->fetchNew(10, function ($uid) use (&$known) { $known[] = $uid; return false; });
         $box->close();
 
         $this->assertCount(2, $got);

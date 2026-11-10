@@ -1,194 +1,306 @@
 import { FormEvent, useState } from 'react';
-import { Head, Link, router } from '@inertiajs/react';
-import SiteLayout, { Eyebrow, useSite, useTemplate } from '@/Layouts/SiteLayout';
+import { Head, Link, router, useForm } from '@inertiajs/react';
+import SiteLayout, { SectionTitle, useSite, useTemplate } from '@/Layouts/SiteLayout';
 import PropertyCard, { SiteListing } from '@/Components/Site/PropertyCard';
 import { AgentAvatar, SiteAgent } from '@/Components/Site/AgentCard';
+
+type Tile = { type: string; label: string; count: number; image: string | null };
+type Area = { suburb: string; city: string | null; count: number; image: string | null };
 
 type Props = {
     hero: { heading: string; image: string | null };
     featured: { for_sale: SiteListing[]; long_term_rent: SiteListing[] };
     counts: { for_sale: number; long_term_rent: number; short_term_stay: number };
     agents: SiteAgent[];
+    types: Tile[];
+    areas: Area[];
 };
 
-const BUDGETS = {
-    for_sale: [
-        { label: 'Any price', min: '', max: '' },
-        { label: 'Under R1.5m', min: '', max: '1500000' },
-        { label: 'R1.5m – R3m', min: '1500000', max: '3000000' },
-        { label: 'R3m – R5m', min: '3000000', max: '5000000' },
-        { label: 'R5m – R10m', min: '5000000', max: '10000000' },
-        { label: 'R10m+', min: '10000000', max: '' },
-    ],
-    long_term_rent: [
-        { label: 'Any price', min: '', max: '' },
-        { label: 'Under R8 000 pm', min: '', max: '8000' },
-        { label: 'R8 000 – R15 000 pm', min: '8000', max: '15000' },
-        { label: 'R15 000 – R25 000 pm', min: '15000', max: '25000' },
-        { label: 'R25 000+ pm', min: '25000', max: '' },
-    ],
+type Status = '' | 'for_sale' | 'long_term_rent';
+
+const MAX_PRICE: Record<Status, { label: string; value: string }[]> = {
+    '': [],
+    for_sale: ['1000000', '1500000', '2000000', '3000000', '5000000', '10000000'].map((v) => ({ value: v, label: `R ${Number(v) / 1e6}m` })),
+    long_term_rent: ['6000', '10000', '15000', '20000', '30000', '50000'].map((v) => ({ value: v, label: `R ${Number(v).toLocaleString('en-ZA').replace(/,/g, ' ')} pm` })),
 };
 
-type Mode = keyof typeof BUDGETS;
+const sel = 'w-full appearance-none bg-white border border-ink-200 rounded-md px-3 py-2.5 text-[14px] text-ink-800 outline-none focus:border-brand-500';
 
-export default function SiteHome({ hero, featured, counts, agents }: Props) {
+export default function SiteHome({ hero, featured, counts, agents, types, areas }: Props) {
     const site = useSite();
     const t = useTemplate();
-    const [mode, setMode] = useState<Mode>('for_sale');
-    const [q, setQ] = useState('');
-    const [budget, setBudget] = useState(0);
-    const [tab, setTab] = useState<Mode>(featured.for_sale.length || ! featured.long_term_rent.length ? 'for_sale' : 'long_term_rent');
+    const portal = t.key === 'portal';
+
+    // ── Search bar state ──
+    const [status, setStatus] = useState<Status>('');
+    const [ptype, setPtype] = useState('');
+    const [area, setArea] = useState('');
+    const [beds, setBeds] = useState('');
+    const [max, setMax] = useState('');
 
     function search(e: FormEvent) {
         e.preventDefault();
-        const b = BUDGETS[mode][budget] ?? BUDGETS[mode][0];
-        router.get('/properties', Object.fromEntries(Object.entries({ listing_type: mode, q, price_min: b.min, price_max: b.max }).filter(([, v]) => v)));
+        const q = { listing_type: status, property_type: ptype, q: area, bedrooms: beds, price_max: status ? max : '' };
+        router.get('/properties', Object.fromEntries(Object.entries(q).filter(([, v]) => v)));
     }
 
-    const shown = featured[tab];
-    // A photo collage only works with real headshots; otherwise use the hero photo.
-    const withPhotos = agents.filter((a) => a.avatar);
+    // Featured: interleave sale + rent so both show.
+    const mixed: SiteListing[] = [];
+    for (let i = 0; i < 6; i++) {
+        if (featured.for_sale[i]) mixed.push(featured.for_sale[i]);
+        if (featured.long_term_rent[i]) mixed.push(featured.long_term_rent[i]);
+    }
+    const shown = mixed.slice(0, 6);
+
+    const tabs: { value: Status; label: string }[] = [
+        { value: '', label: 'All status' },
+        { value: 'for_sale', label: 'For sale' },
+        { value: 'long_term_rent', label: 'To rent' },
+    ];
 
     return (
         <SiteLayout>
             <Head title="" />
 
-            {/* ── Hero ─────────────────────────────────────────────── */}
-            <section className="relative isolate">
-                {hero.image ? (
-                    <img src={hero.image} alt="" className="absolute inset-0 -z-10 w-full h-full object-cover" />
-                ) : (
-                    <div className="absolute inset-0 -z-10 bg-[#1b1b1b]" />
+            {/* ── Hero + tabbed search ─────────────────────────────── */}
+            <section className={`relative isolate ${portal ? 'text-white' : 'text-ink-900 bg-white border-b border-ink-200'}`}>
+                {portal && (
+                    <>
+                        {hero.image ? (
+                            <img src={hero.image} alt="" className="absolute inset-0 -z-10 w-full h-full object-cover" />
+                        ) : (
+                            <div className="absolute inset-0 -z-10 bg-[var(--site-accent)]" />
+                        )}
+                        <div className="absolute inset-0 -z-10 bg-[color-mix(in_srgb,var(--site-accent)_55%,transparent)]" />
+                    </>
                 )}
-                <div className="absolute inset-0 -z-10 bg-gradient-to-r from-black/75 via-black/45 to-black/10" />
+                <div className={`max-w-6xl mx-auto px-4 sm:px-6 ${portal ? 'pt-24 sm:pt-36 pb-0 text-center' : 'pt-16 sm:pt-24 pb-14'}`}>
+                    <h1 className={`text-[38px] sm:text-[54px] leading-[1.1] ${t.heading} ${portal ? 'max-w-3xl mx-auto' : 'max-w-3xl'}`}>{hero.heading}</h1>
+                    {site.tagline && <p className={`mt-4 text-[17px] sm:text-[19px] leading-relaxed ${portal ? 'text-white/90 max-w-2xl mx-auto' : 'text-ink-500 max-w-xl'}`}>{site.tagline}</p>}
 
-                <div className="max-w-7xl mx-auto px-4 sm:px-8 pt-20 sm:pt-28 pb-10 text-white">
-                    <Eyebrow light>{site.name} · Buy · Sell · Rent</Eyebrow>
-                    <h1 className={`mt-6 text-[44px] sm:text-[68px] leading-[1.02] max-w-3xl ${t.heading}`}>{hero.heading}</h1>
-                    {site.tagline && <p className="mt-5 text-[17px] sm:text-[19px] leading-relaxed text-white/85 max-w-xl">{site.tagline}</p>}
-
-                    {/* Search card */}
-                    <form onSubmit={search} className="mt-10 bg-white text-ink-900 rounded-2xl shadow-[0_24px_60px_-20px_rgba(0,0,0,0.45)] p-4 sm:p-5 max-w-5xl">
-                        <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-ink-100">
-                            <div className="flex items-center gap-3">
-                                <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-ink-500 hidden sm:inline">Find your place</span>
-                                <div className="flex gap-1">
-                                    {(['for_sale', 'long_term_rent'] as Mode[]).map((m) => (
-                                        <button
-                                            key={m}
-                                            type="button"
-                                            onClick={() => { setMode(m); setBudget(0); }}
-                                            className={`px-4 py-1.5 rounded-full text-[13px] font-medium transition ${mode === m ? 'bg-ink-900 text-white' : 'text-ink-600 hover:bg-ink-100'}`}
-                                        >
-                                            {m === 'for_sale' ? 'Buy' : 'Rent'}
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-                            <span className="text-[12px] text-ink-400 hidden md:inline">
-                                {counts.for_sale} for sale · {counts.long_term_rent} to rent
-                            </span>
+                    <form onSubmit={search} className={`${portal ? 'mt-12 sm:mt-20 translate-y-1/2 sm:translate-y-[45%]' : 'mt-10'} text-left`}>
+                        <div className={`flex ${portal ? 'justify-center' : ''}`}>
+                            {tabs.map((tb) => (
+                                <button
+                                    key={tb.label}
+                                    type="button"
+                                    onClick={() => { setStatus(tb.value); setMax(''); }}
+                                    className={`px-4 sm:px-6 py-2.5 text-[14px] font-medium transition ${t.key === 'portal' ? 'rounded-t-md' : ''} ${
+                                        status === tb.value ? 'bg-white text-brand-600' : portal ? 'bg-brand-500/90 text-white hover:bg-brand-500 ml-px' : 'bg-ink-100 text-ink-700 hover:bg-ink-200'
+                                    }`}
+                                >
+                                    {tb.label}
+                                </button>
+                            ))}
                         </div>
-                        <div className="pt-4 grid gap-3 md:grid-cols-[1.6fr_1fr_auto]">
-                            <label className="block border border-ink-200 rounded-xl px-4 py-2.5 focus-within:border-ink-900">
-                                <span className="block text-[10px] font-semibold uppercase tracking-[0.18em] text-ink-500">Location</span>
-                                <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Suburb, area or city" className="w-full border-0 p-0 mt-0.5 text-[15px] focus:ring-0 placeholder:text-ink-400" />
-                            </label>
-                            <label className="block border border-ink-200 rounded-xl px-4 py-2.5 focus-within:border-ink-900">
-                                <span className="block text-[10px] font-semibold uppercase tracking-[0.18em] text-ink-500">Budget</span>
-                                <select value={budget} onChange={(e) => setBudget(Number(e.target.value))} className="w-full border-0 p-0 mt-0.5 text-[15px] focus:ring-0 bg-transparent">
-                                    {BUDGETS[mode].map((b, i) => <option key={b.label} value={i}>{b.label}</option>)}
+                        <div className={`bg-white text-ink-900 shadow-[0_18px_50px_-18px_rgba(0,0,0,0.35)] p-4 sm:p-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_1fr_1fr_auto] lg:items-end ${portal ? 'rounded-md' : 'border border-ink-200'}`}>
+                            <Labelled label="Looking for">
+                                <select value={ptype} onChange={(e) => setPtype(e.target.value)} className={sel}>
+                                    <option value="">Property type</option>
+                                    {['house', 'apartment', 'townhouse', 'commercial', 'land'].map((p) => <option key={p} value={p}>{p.charAt(0).toUpperCase() + p.slice(1)}</option>)}
                                 </select>
-                            </label>
-                            <button className="px-6 py-4 md:py-0 rounded-xl bg-ink-900 hover:bg-brand-600 text-white text-[14px] font-semibold inline-flex items-center justify-center gap-2 transition">
-                                Search homes <span aria-hidden>↗</span>
+                            </Labelled>
+                            <Labelled label="Location">
+                                <select value={area} onChange={(e) => setArea(e.target.value)} className={sel}>
+                                    <option value="">All areas</option>
+                                    {areas.map((a) => <option key={a.suburb} value={a.suburb}>{a.suburb}</option>)}
+                                </select>
+                            </Labelled>
+                            <Labelled label="Bedrooms">
+                                <select value={beds} onChange={(e) => setBeds(e.target.value)} className={sel}>
+                                    <option value="">Any</option>
+                                    {[1, 2, 3, 4, 5].map((b) => <option key={b} value={b}>{b}+</option>)}
+                                </select>
+                            </Labelled>
+                            <Labelled label="Your budget">
+                                <select value={max} onChange={(e) => setMax(e.target.value)} disabled={! status} className={`${sel} disabled:bg-ink-50 disabled:text-ink-400`}>
+                                    <option value="">{status ? 'Max. price' : 'Pick sale or rent'}</option>
+                                    {MAX_PRICE[status].map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+                                </select>
+                            </Labelled>
+                            <button className={`h-[46px] px-8 bg-brand-500 hover:bg-brand-600 text-white text-[15px] font-medium transition ${t.button}`}>
+                                Search
                             </button>
                         </div>
                     </form>
                 </div>
-                <div className="h-16 sm:h-24" />
             </section>
 
-            {/* ── Featured properties ─────────────────────────────── */}
-            <section className="max-w-7xl mx-auto px-4 sm:px-8 py-20">
-                <div className="flex flex-wrap items-end justify-between gap-5 mb-10">
-                    <div>
-                        <Eyebrow>Featured</Eyebrow>
-                        <h2 className={`mt-4 text-[36px] sm:text-[46px] leading-none ${t.heading}`}>Featured properties</h2>
-                    </div>
-                    <div className="flex items-center gap-5">
-                        <div className="flex gap-1 bg-white border border-ink-200 rounded-full p-1">
-                            {(['for_sale', 'long_term_rent'] as Mode[]).map((m) => (
-                                <button
-                                    key={m}
-                                    type="button"
-                                    onClick={() => setTab(m)}
-                                    className={`px-4 py-1.5 rounded-full text-[13px] font-medium transition ${tab === m ? 'bg-ink-900 text-white' : 'text-ink-600 hover:text-ink-900'}`}
-                                >
-                                    {m === 'for_sale' ? 'For sale' : 'To rent'}
-                                </button>
-                            ))}
-                        </div>
-                        <Link href={`/properties?listing_type=${tab}`} className="hidden sm:inline text-[14px] font-medium text-ink-800 hover:text-brand-600">
-                            View all properties →
-                        </Link>
-                    </div>
-                </div>
-
+            {/* ── Featured listings ───────────────────────────────── */}
+            <section className={`max-w-7xl mx-auto px-4 sm:px-6 ${portal ? 'pt-44 sm:pt-36' : 'pt-16'} pb-16`}>
+                <SectionTitle title="Discover our featured listings" subtitle={`${counts.for_sale} for sale and ${counts.long_term_rent} to rent with ${site.name}`} />
                 {shown.length === 0 ? (
-                    <p className="text-ink-500">New listings are on the way — <Link href="/contact" className="underline">get in touch</Link> and we'll let you know first.</p>
+                    <p className="text-center text-ink-500">New listings are on the way. <Link href="/contact" className="text-brand-600 underline">Get in touch</Link> and we'll let you know first.</p>
                 ) : (
                     <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                         {shown.map((l) => <PropertyCard key={l.id} listing={l} />)}
                     </div>
                 )}
-                <Link href={`/properties?listing_type=${tab}`} className="sm:hidden inline-block mt-8 text-[14px] font-medium">View all properties →</Link>
+                <div className="mt-10 text-center">
+                    <Link href="/properties" className={`inline-flex px-7 py-3 border border-brand-500 text-brand-600 hover:bg-brand-500 hover:text-white text-[14px] font-medium transition ${t.button}`}>
+                        View all properties
+                    </Link>
+                </div>
             </section>
 
-            {/* ── Our people (split panel) ─────────────────────────── */}
-            {site.show_agents && (
-                <section className="grid lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
-                    <div className={`${t.dark} px-6 sm:px-12 py-16 sm:py-24 flex flex-col justify-center`}>
-                        <Eyebrow light>Our people</Eyebrow>
-                        <h2 className={`mt-5 text-[38px] sm:text-[50px] leading-[1.02] ${t.heading}`}>Local knowledge.<br />Personal service.</h2>
-                        <p className="mt-5 text-[16px] text-white/70 max-w-md leading-relaxed">
-                            Thoughtful advice and a personal approach, from your first viewing to the day you get the keys.
-                        </p>
-                        <Link href="/agents" className="mt-8 text-[15px] font-medium text-white hover:text-brand-300">Meet our people →</Link>
-                    </div>
-                    <div className="relative min-h-[320px] bg-ink-200">
-                        {withPhotos.length >= 3 ? (
-                            <div className="absolute inset-0 grid grid-cols-2 sm:grid-cols-3 gap-px bg-black/10">
-                                {withPhotos.slice(0, withPhotos.length >= 6 ? 6 : 3).map((a) => (
-                                    <Link key={a.id} href={`/agents/${a.slug}`} className="relative group overflow-hidden">
-                                        <AgentAvatar agent={a} className="w-full h-full" />
-                                        <span className="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black/70 to-transparent text-white text-[13px] font-medium opacity-0 group-hover:opacity-100 transition">
-                                            {a.name}
-                                        </span>
-                                    </Link>
-                                ))}
-                            </div>
-                        ) : hero.image ? (
-                            <img src={hero.image} alt="" className="absolute inset-0 w-full h-full object-cover" />
-                        ) : withPhotos[0] ? (
-                            <AgentAvatar agent={withPhotos[0]} className="absolute inset-0 w-full h-full" />
-                        ) : null}
+            {/* ── Browse by type ──────────────────────────────────── */}
+            {types.length > 0 && (
+                <section className="bg-white">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-16 grid gap-8 lg:grid-cols-[280px_1fr] lg:items-center">
+                        <div>
+                            <h2 className={`text-[30px] sm:text-[36px] leading-tight ${t.heading}`}>Browse by property type</h2>
+                            <p className="mt-3 text-[15px] text-ink-500">Houses, apartments, townhouses and more across the areas we cover.</p>
+                            <span className="block mt-6 h-0.5 w-14 bg-brand-500" />
+                        </div>
+                        <div className="grid gap-4 grid-cols-2 md:grid-cols-3">
+                            {types.slice(0, 6).map((tile) => (
+                                <ImageTile
+                                    key={tile.type}
+                                    href={`/properties?property_type=${tile.type}`}
+                                    image={tile.image}
+                                    kicker={`${tile.count} propert${tile.count === 1 ? 'y' : 'ies'}`}
+                                    title={tile.label}
+                                />
+                            ))}
+                        </div>
                     </div>
                 </section>
             )}
 
-            {/* ── Sell band ────────────────────────────────────────── */}
-            <section className="max-w-7xl mx-auto px-4 sm:px-8 py-20">
-                <div className={`${t.dark} ${t.card} px-6 sm:px-12 py-10 sm:py-12 grid gap-6 md:grid-cols-[1fr_1.2fr_auto] md:items-center`}>
-                    <h2 className={`text-[32px] sm:text-[40px] leading-none ${t.heading}`}>Thinking of selling?</h2>
-                    <p className="text-[15px] text-white/70 leading-relaxed">
-                        Get a professional valuation and honest advice from a team that knows your area.
-                    </p>
-                    <Link href="/contact?intent=sell" className={`justify-self-start px-6 py-3 bg-white text-ink-900 hover:bg-brand-500 hover:text-white text-[14px] font-semibold transition ${t.button}`}>
-                        Book a valuation
-                    </Link>
-                </div>
-            </section>
+            {/* ── Why us + lead form ──────────────────────────────── */}
+            <WhyUsBand image={hero.image} />
+
+            {/* ── Explore areas ───────────────────────────────────── */}
+            {areas.length > 0 && (
+                <section className="max-w-7xl mx-auto px-4 sm:px-6 py-16">
+                    <SectionTitle title="Explore areas" subtitle="Where our listings are right now" />
+                    <div className="grid gap-4 grid-cols-2 lg:grid-cols-3">
+                        {areas.map((a) => (
+                            <ImageTile
+                                key={a.suburb}
+                                href={`/properties?q=${encodeURIComponent(a.suburb)}`}
+                                image={a.image}
+                                kicker={`${a.count} propert${a.count === 1 ? 'y' : 'ies'}`}
+                                title={a.suburb}
+                            />
+                        ))}
+                    </div>
+                </section>
+            )}
+
+            {/* ── Meet our agents ─────────────────────────────────── */}
+            {agents.length > 0 && (
+                <section className="bg-white">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-16">
+                        <SectionTitle title="Meet our agents" subtitle="Local experts who know these streets" />
+                        <div className="flex flex-wrap justify-center gap-6">
+                            {agents.slice(0, 4).map((a) => (
+                                <div key={a.id} className={`w-full sm:w-[calc(50%-12px)] lg:w-[calc(25%-18px)] text-center border border-ink-100 bg-white p-6 ${t.card}`}>
+                                    <div className="w-24 h-24 mx-auto rounded-full overflow-hidden">
+                                        <AgentAvatar agent={a} className="w-full h-full text-[24px]" />
+                                    </div>
+                                    <p className="mt-4 text-[17px] font-medium">{a.name}</p>
+                                    <p className="text-[13px] text-ink-500">Agent, {site.name}</p>
+                                    {a.bio && <p className="mt-3 text-[13px] text-ink-600 line-clamp-3">{a.bio}</p>}
+                                    <Link href={`/agents/${a.slug}`} className="inline-block mt-4 text-[13px] font-medium text-brand-600 hover:text-brand-700">
+                                        View profile
+                                    </Link>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+            )}
         </SiteLayout>
+    );
+}
+
+function Labelled({ label, children }: { label: string; children: React.ReactNode }) {
+    return (
+        <label className="block">
+            <span className="block text-[11px] font-bold uppercase tracking-wide text-ink-800 mb-1.5">{label}</span>
+            {children}
+        </label>
+    );
+}
+
+function ImageTile({ href, image, kicker, title }: { href: string; image: string | null; kicker: string; title: string }) {
+    const t = useTemplate();
+    return (
+        <Link href={href} className={`group relative block overflow-hidden bg-[var(--site-accent)] aspect-[4/3] ${t.card}`}>
+            {image && <img src={image} alt="" loading="lazy" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-black/20" />
+            <div className="absolute top-3 left-4 text-white">
+                <p className="text-[12px] text-white/85">{kicker}</p>
+                <p className="text-[19px] font-medium leading-tight">{title}</p>
+            </div>
+            <span className="absolute bottom-3 left-4 right-4 flex items-center justify-between text-white text-[11px] font-semibold uppercase tracking-wider">
+                More details <span aria-hidden>▷</span>
+            </span>
+        </Link>
+    );
+}
+
+function WhyUsBand({ image }: { image: string | null }) {
+    const site = useSite();
+    const t = useTemplate();
+    const [sent, setSent] = useState(false);
+    const form = useForm({ intent: 'general', name: '', email: '', phone: '', address: '', message: '' });
+
+    function submit(e: FormEvent) {
+        e.preventDefault();
+        form.post('/contact', { preserveScroll: true, onSuccess: () => { setSent(true); form.reset('name', 'email', 'phone', 'address', 'message'); } });
+    }
+
+    const points = [
+        { n: '01.', title: 'Local market knowledge', text: 'Accurate pricing and advice from agents who work these suburbs every day.' },
+        { n: '02.', title: 'Every listing, everywhere', text: 'Your property goes live on our website and the Property Basket portal at once.' },
+        { n: '03.', title: 'Personal service', text: 'One agent from first viewing to registration. No call centres, no hand-offs.' },
+    ];
+    const field = 'w-full bg-white border border-ink-200 rounded-md px-3 py-2.5 text-[14px] text-ink-900 outline-none focus:border-brand-500';
+
+    return (
+        <section className={`relative isolate overflow-hidden ${t.dark}`}>
+            {image && t.key === 'portal' && <img src={image} alt="" className="absolute inset-0 -z-10 w-full h-full object-cover opacity-15" />}
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 py-16 grid gap-12 lg:grid-cols-[1fr_400px] lg:items-center">
+                <div className="grid gap-10 sm:grid-cols-2">
+                    <h2 className={`text-[32px] sm:text-[38px] leading-tight sm:col-span-2 lg:col-span-1 ${t.heading}`}>Why {site.name} is the right choice</h2>
+                    {points.map((p) => (
+                        <div key={p.n}>
+                            <p className="text-[34px] font-light">{p.n}</p>
+                            <p className="mt-1 text-[20px] font-light leading-snug">{p.title}</p>
+                            <p className="mt-3 text-[13.5px] text-white/65 leading-relaxed">{p.text}</p>
+                            <span className="block mt-5 h-px w-12 bg-white/40" />
+                        </div>
+                    ))}
+                </div>
+
+                <form onSubmit={submit} className={`bg-white text-ink-900 p-6 sm:p-7 shadow-2xl ${t.card}`}>
+                    <h3 className="text-[22px] font-normal">Real estate enquiry</h3>
+                    <p className="text-[13.5px] text-ink-500 mt-1 mb-5">Tell us what you need and an agent will call you back.</p>
+                    {sent && <p className="mb-4 rounded-md bg-success/10 text-success text-[13px] px-3 py-2">Thanks — we'll be in touch shortly.</p>}
+                    <div className="grid gap-3">
+                        <select value={form.data.intent} onChange={(e) => form.setData('intent', e.target.value)} className={field}>
+                            <option value="general">I want to buy or rent</option>
+                            <option value="sell">I want to sell</option>
+                            <option value="let">I want to let my property</option>
+                        </select>
+                        <input required placeholder="Full name" value={form.data.name} onChange={(e) => form.setData('name', e.target.value)} className={field} />
+                        <div className="grid grid-cols-2 gap-3">
+                            <input required type="email" placeholder="Email" value={form.data.email} onChange={(e) => form.setData('email', e.target.value)} className={field} />
+                            <input placeholder="Phone" value={form.data.phone} onChange={(e) => form.setData('phone', e.target.value)} className={field} />
+                        </div>
+                        {form.data.intent !== 'general' && (
+                            <input placeholder="Property address" value={form.data.address} onChange={(e) => form.setData('address', e.target.value)} className={field} />
+                        )}
+                        <textarea rows={3} placeholder="Message (optional)" value={form.data.message} onChange={(e) => form.setData('message', e.target.value)} className={field} />
+                        {(form.errors.name || form.errors.email) && <p className="text-danger text-[12px]">{form.errors.name ?? form.errors.email}</p>}
+                        <button disabled={form.processing} className={`w-full py-3 bg-brand-500 hover:bg-brand-600 disabled:opacity-60 text-white text-[15px] font-medium transition ${t.button}`}>
+                            {form.processing ? 'Sending…' : 'Submit'}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </section>
     );
 }

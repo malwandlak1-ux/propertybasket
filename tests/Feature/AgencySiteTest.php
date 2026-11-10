@@ -66,7 +66,7 @@ class AgencySiteTest extends TestCase
 
         $this->site = AgencyWebsite::create([
             'agency_id' => $this->agency->id, 'subdomain' => 'sandton',
-            'template' => 'editorial', 'status' => 'published', 'published_at' => now(),
+            'template' => 'portal', 'status' => 'published', 'published_at' => now(),
         ]);
 
         $this->rental = $this->listing('Rosebank flat', 'long_term_rent');
@@ -284,6 +284,26 @@ class AgencySiteTest extends TestCase
     }
 
     #[Test]
+    public function removed_templates_are_rejected(): void
+    {
+        foreach (['editorial', 'modern', 'nope'] as $tpl) {
+            $this->actingAs($this->owner)->post(self::MAIN.'/agency/website', ['subdomain' => 'sandton', 'template' => $tpl])
+                ->assertSessionHasErrors('template');
+        }
+    }
+
+    #[Test]
+    public function portal_home_has_type_and_area_tiles(): void
+    {
+        $this->get(self::SITE.'/')->assertInertia(fn (Assert $p) => $p
+            ->where('site.template', 'portal')
+            ->has('types', 1)
+            ->where('types.0.count', 2)
+            ->has('areas', 1)
+            ->where('areas.0.suburb', 'Rosebank'));
+    }
+
+    #[Test]
     public function reserved_and_taken_subdomains_are_rejected(): void
     {
         $otherOwner = User::factory()->create(['role' => Role::AgencyAdmin]);
@@ -291,7 +311,7 @@ class AgencySiteTest extends TestCase
         AgencyWebsite::create(['agency_id' => $other->id, 'subdomain' => 'taken']);
 
         foreach (['www', 'manage', 'admin', 'taken', 'Bad_Name', '-x'] as $sub) {
-            $this->actingAs($this->owner)->post(self::MAIN.'/agency/website', ['subdomain' => $sub, 'template' => 'modern'])
+            $this->actingAs($this->owner)->post(self::MAIN.'/agency/website', ['subdomain' => $sub, 'template' => 'portal'])
                 ->assertSessionHasErrors('subdomain');
         }
     }

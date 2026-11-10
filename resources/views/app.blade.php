@@ -49,7 +49,7 @@
 
     @isset($siteMeta)
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
         <meta name="description" content="{{ $siteMeta['description'] }}">
         <meta name="theme-color" content="{{ $siteMeta['color'] }}">
         <link rel="canonical" href="{{ $siteMeta['url'] }}">

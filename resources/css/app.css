@@ -98,10 +98,13 @@ a:is(.font-semibold):is(.rounded-full, .rounded-xl, .rounded-lg) { font-weight: 
 
 /* Agency websites (Layouts/SiteLayout.tsx) — per-template display face. The
    rule above is unlayered, so a utility class can't override it; scope here. */
-[data-site-template="editorial"] :is(h1, h2, h3) {
-    font-family: 'Instrument Serif', Georgia, 'Times New Roman', serif;
-    font-weight: 400;
-    letter-spacing: -0.015em;
+[data-site-template="portal"],
+[data-site-template="portal"] :is(h1, h2, h3) {
+    font-family: 'Roboto', 'Plus Jakarta Sans', system-ui, sans-serif;
+}
+[data-site-template="portal"] :is(h1, h2, h3) {
+    font-weight: 300;
+    letter-spacing: 0;
 }
 [data-site-template="minimal"] :is(h1, h2, h3) {
     font-family: 'Plus Jakarta Sans', system-ui, sans-serif;

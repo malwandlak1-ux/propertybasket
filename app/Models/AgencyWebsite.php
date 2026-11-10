@@ -8,7 +8,8 @@ use Illuminate\Support\Facades\Storage;
 
 class AgencyWebsite extends Model
 {
-    public const TEMPLATES = ['editorial', 'modern', 'minimal'];
+    /** 'portal' (default, search-led) and 'minimal'. Unknown/legacy values render as portal. */
+    public const TEMPLATES = ['portal', 'minimal'];
 
     /** Subdomains that can never be claimed by an agency. */
     public const RESERVED_SUBDOMAINS = [

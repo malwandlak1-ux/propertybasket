@@ -9,7 +9,7 @@ import { Card, FlashBanners, PageHeader, Segmented, btnOutline, btnPrimary } fro
  * and anything marked sold / rented drops off the site and the portal.
  */
 
-type Template = 'editorial' | 'modern' | 'minimal';
+type Template = 'portal' | 'minimal';
 
 type Website = {
     subdomain: string;
@@ -47,10 +47,9 @@ type Props = {
 
 type Tab = 'setup' | 'content' | 'agents' | 'domain';
 
-const TEMPLATE_INFO: Record<Template, { name: string; blurb: string; heading: string; bg: string; dark: string }> = {
-    editorial: { name: 'Editorial', blurb: 'Serif headlines, warm tones, dark photo hero. Premium and personal.', heading: "font-['Instrument_Serif',Georgia,serif]", bg: '#F7F4EF', dark: '#121212' },
-    modern: { name: 'Modern', blurb: 'Clean geometric type with your accent colour on feature bands.', heading: 'font-display font-semibold', bg: '#FFFFFF', dark: 'var(--accent)' },
-    minimal: { name: 'Minimal', blurb: 'Text-led, square edges, lots of white space.', heading: 'font-sans font-semibold', bg: '#FFFFFF', dark: '#18181B' },
+const TEMPLATE_INFO: Record<Template, { name: string; blurb: string }> = {
+    portal: { name: 'Portal', blurb: 'Search-led property portal: photo hero with tabbed search, property-type and area tiles, enquiry form.' },
+    minimal: { name: 'Minimal', blurb: 'Text-led, white, square edges and lots of space.' },
 };
 
 const SOCIALS = [
@@ -152,7 +151,7 @@ export default function AgencyWebsite({ agency, website, agents, live_listings, 
                         </Card>
 
                         <Card title="Template" subtitle="Every template uses your logo, colours, photos and listings.">
-                            <div className="grid gap-4 md:grid-cols-3">
+                            <div className="grid gap-4 sm:grid-cols-2 max-w-3xl">
                                 {templates.map((key) => {
                                     const info = TEMPLATE_INFO[key];
                                     const active = form.data.template === key;
@@ -163,7 +162,7 @@ export default function AgencyWebsite({ agency, website, agents, live_listings, 
                                             onClick={() => form.setData('template', key)}
                                             className={`text-left rounded-2xl border-2 overflow-hidden transition ${active ? 'border-brand-500 shadow-lift' : 'border-ink-200 hover:border-ink-300'}`}
                                         >
-                                            <TemplateThumb info={info} primary={form.data.primary_color} accent={form.data.accent_color} name={agency.name} />
+                                            <TemplateThumb template={key} primary={form.data.primary_color} accent={form.data.accent_color} name={agency.name} />
                                             <div className="p-4">
                                                 <p className="font-semibold text-[14px] flex items-center gap-2">
                                                     {info.name}
@@ -186,7 +185,7 @@ export default function AgencyWebsite({ agency, website, agents, live_listings, 
                         <Card title="Brand" subtitle={agency.logo ? 'Your logo comes from Settings → General Profile.' : 'Add a logo under Settings → General Profile — until then your name is shown.'}>
                             <div className="grid gap-5 sm:grid-cols-2">
                                 <ColorField label="Primary colour" hint="Buttons, accents, highlights" value={form.data.primary_color} onChange={(v) => form.setData('primary_color', v)} error={form.errors.primary_color} />
-                                <ColorField label="Secondary colour" hint="Feature bands on the Modern template" value={form.data.accent_color} onChange={(v) => form.setData('accent_color', v)} error={form.errors.accent_color} />
+                                <ColorField label="Secondary colour" hint="Header, feature bands and footer" value={form.data.accent_color} onChange={(v) => form.setData('accent_color', v)} error={form.errors.accent_color} />
                             </div>
                         </Card>
 
@@ -329,21 +328,41 @@ function SaveBar({ processing, dirty }: { processing: boolean; dirty: boolean })
 }
 
 /** Miniature of the template using the agency's current colours. */
-function TemplateThumb({ info, primary, accent, name }: { info: (typeof TEMPLATE_INFO)[Template]; primary: string; accent: string; name: string }) {
-    const dark = info.dark === 'var(--accent)' ? accent : info.dark;
-    return (
-        <div className="aspect-[16/10] p-2.5 flex flex-col gap-1.5" style={{ background: info.bg }}>
-            <div className="flex items-center justify-between">
-                <span className={`text-[9px] text-ink-900 ${info.heading}`}>{name}</span>
-                <span className="flex gap-1">{[0, 1, 2].map((i) => <span key={i} className="w-4 h-1 rounded bg-ink-300" />)}</span>
+function TemplateThumb({ template, primary, accent, name }: { template: Template; primary: string; accent: string; name: string }) {
+    if (template === 'portal') {
+        return (
+            <div className="aspect-[16/10] flex flex-col bg-[#F7F8F9]">
+                <div className="flex items-center justify-between px-2.5 py-1.5" style={{ background: accent }}>
+                    <span className="text-[9px] font-semibold text-white">{name}</span>
+                    <span className="flex gap-1 items-center">
+                        {[0, 1, 2].map((i) => <span key={i} className="w-3 h-0.5 rounded bg-white/60" />)}
+                        <span className="w-5 h-2 rounded-sm" style={{ background: primary }} />
+                    </span>
+                </div>
+                <div className="relative flex-1 flex flex-col items-center justify-center gap-1" style={{ background: `color-mix(in srgb, ${accent} 75%, #94a3b8)` }}>
+                    <span className="text-white text-[10px] font-light">Find your place</span>
+                    <span className="w-4/5 h-3 rounded-sm bg-white flex items-center justify-end pr-0.5">
+                        <span className="w-6 h-2 rounded-sm" style={{ background: primary }} />
+                    </span>
+                </div>
+                <div className="grid grid-cols-3 gap-1 p-1.5">
+                    {[0, 1, 2].map((i) => <span key={i} className="h-4 rounded-sm bg-white border border-black/5" />)}
+                </div>
             </div>
-            <div className="flex-1 rounded-md p-2 flex flex-col justify-end" style={{ background: dark }}>
-                <span className="h-px w-3 mb-1" style={{ background: primary }} />
-                <span className={`text-white text-[11px] leading-tight ${info.heading}`}>Exceptional homes.</span>
-                <span className="mt-1.5 h-2.5 w-3/4 rounded bg-white/95" />
+        );
+    }
+    return (
+        <div className="aspect-[16/10] p-2.5 flex flex-col gap-1.5 bg-white">
+            <div className="flex items-center justify-between border-b border-ink-200 pb-1">
+                <span className="text-[9px] font-semibold text-ink-900">{name}</span>
+                <span className="flex gap-1">{[0, 1, 2].map((i) => <span key={i} className="w-3 h-0.5 bg-ink-300" />)}</span>
+            </div>
+            <div className="flex-1 flex flex-col justify-center gap-1">
+                <span className="text-[11px] font-semibold text-ink-900 leading-tight">Find your place</span>
+                <span className="w-4/5 h-3 border border-ink-300 flex justify-end"><span className="w-6 h-full" style={{ background: primary }} /></span>
             </div>
             <div className="grid grid-cols-3 gap-1">
-                {[0, 1, 2].map((i) => <span key={i} className="h-4 rounded-sm bg-white border border-black/5" />)}
+                {[0, 1, 2].map((i) => <span key={i} className="h-4 bg-ink-50 border border-ink-200" />)}
             </div>
         </div>
     );

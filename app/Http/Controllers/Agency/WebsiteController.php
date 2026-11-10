@@ -40,7 +40,7 @@ class WebsiteController extends Controller
         return $agency->agencyWebsite ?? AgencyWebsite::create([
             'agency_id' => $agency->id,
             'subdomain' => $this->suggestSubdomain($agency),
-            'template'  => 'editorial',
+            'template'  => 'portal',
             'status'    => 'draft',
             'tagline'   => null,
         ]);

@@ -22,7 +22,7 @@ return new class extends Migration
             $table->string('custom_domain', 253)->nullable()->unique();
             $table->string('domain_status', 16)->default('none'); // none|pending|verified|live
             $table->timestamp('domain_verified_at')->nullable();
-            $table->string('template', 16)->default('editorial'); // editorial|modern|minimal
+            $table->string('template', 16)->default('portal');   // portal|minimal
             $table->string('status', 16)->default('draft');       // draft|published
             $table->string('primary_color', 7)->nullable();
             $table->string('accent_color', 7)->nullable();

@@ -129,7 +129,41 @@ class SiteController extends Controller
                 'short_term_stay' => (int) ($counts['short_term_stay'] ?? 0),
             ],
             'agents' => $agents,
+            'types'  => $this->typeTiles(),
+            'areas'  => $this->areaTiles(),
         ]);
+    }
+
+    /** Property-type tiles (portal template): count + a representative photo. */
+    private function typeTiles(): array
+    {
+        $labels = ['house' => 'Houses', 'apartment' => 'Apartments', 'townhouse' => 'Townhouses', 'commercial' => 'Commercial', 'land' => 'Land', 'other' => 'Other'];
+
+        return $this->listings()
+            ->selectRaw('property_type, COUNT(*) as total, MAX(primary_image) as image')
+            ->groupBy('property_type')
+            ->orderByDesc('total')
+            ->get()
+            ->map(fn ($r) => [
+                'type'  => $r->property_type,
+                'label' => $labels[$r->property_type] ?? ucfirst((string) $r->property_type),
+                'count' => (int) $r->total,
+                'image' => $r->image,
+            ])->values()->all();
+    }
+
+    /** Top suburbs the agency has stock in (portal "Explore areas"). */
+    private function areaTiles(): array
+    {
+        return $this->listings()
+            ->whereNotNull('suburb')
+            ->selectRaw('suburb, MAX(city) as city, COUNT(*) as total, MAX(primary_image) as image')
+            ->groupBy('suburb')
+            ->orderByDesc('total')
+            ->take(6)
+            ->get()
+            ->map(fn ($r) => ['suburb' => $r->suburb, 'city' => $r->city, 'count' => (int) $r->total, 'image' => $r->image])
+            ->values()->all();
     }
 
     public function listingsIndex(Request $request): Response
@@ -240,7 +274,7 @@ class SiteController extends Controller
     public function contact(Request $request): Response
     {
         return $this->render('Site/Contact', [
-            'intent' => $request->query('intent') === 'sell' ? 'sell' : 'general',
+            'intent' => in_array($request->query('intent'), ['sell', 'let'], true) ? $request->query('intent') : 'general',
         ], ['title' => 'Contact · '.$this->site->agency->name]);
     }
 

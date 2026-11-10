@@ -9,7 +9,7 @@ import { Card, FlashBanners, PageHeader, Segmented, btnOutline, btnPrimary } fro
  * and anything marked sold / rented drops off the site and the portal.
  */
 
-type Template = 'portal' | 'minimal';
+type Template = 'portal' | 'showcase' | 'minimal';
 
 type Website = {
     subdomain: string;
@@ -49,6 +49,7 @@ type Tab = 'setup' | 'content' | 'agents' | 'domain';
 
 const TEMPLATE_INFO: Record<Template, { name: string; blurb: string }> = {
     portal: { name: 'Portal', blurb: 'Search-led property portal: photo hero with tabbed search, property-type and area tiles, enquiry form.' },
+    showcase: { name: 'Showcase', blurb: 'Bright and modern: light photo hero with a highlighted headline, stats, lifestyle and location cards.' },
     minimal: { name: 'Minimal', blurb: 'Text-led, white, square edges and lots of space.' },
 };
 
@@ -151,7 +152,7 @@ export default function AgencyWebsite({ agency, website, agents, live_listings, 
                         </Card>
 
                         <Card title="Template" subtitle="Every template uses your logo, colours, photos and listings.">
-                            <div className="grid gap-4 sm:grid-cols-2 max-w-3xl">
+                            <div className="grid gap-4 md:grid-cols-3">
                                 {templates.map((key) => {
                                     const info = TEMPLATE_INFO[key];
                                     const active = form.data.template === key;
@@ -192,7 +193,7 @@ export default function AgencyWebsite({ agency, website, agents, live_listings, 
                         <Card title="Home page">
                             <div className="grid gap-5 lg:grid-cols-[1fr_280px]">
                                 <div className="space-y-4">
-                                    <Field label="Headline" error={form.errors.hero_heading}>
+                                    <Field label={form.data.template === 'showcase' ? 'Headline — wrap words in *stars* to colour them' : 'Headline'} error={form.errors.hero_heading}>
                                         <input value={form.data.hero_heading} onChange={(e) => form.setData('hero_heading', e.target.value)} placeholder={`Find your next home with ${agency.name}`} className={input} maxLength={160} />
                                     </Field>
                                     <Field label="Tagline" error={form.errors.tagline}>
@@ -348,6 +349,30 @@ function TemplateThumb({ template, primary, accent, name }: { template: Template
                 <div className="grid grid-cols-3 gap-1 p-1.5">
                     {[0, 1, 2].map((i) => <span key={i} className="h-4 rounded-sm bg-white border border-black/5" />)}
                 </div>
+            </div>
+        );
+    }
+    if (template === 'showcase') {
+        return (
+            <div className="aspect-[16/10] flex flex-col bg-[#F7F8F9]">
+                <div className="flex items-center justify-between px-2.5 py-1.5 bg-white border-b border-black/5">
+                    <span className="text-[9px] font-bold text-ink-900">{name}</span>
+                    <span className="flex gap-1 items-center">
+                        {[0, 1, 2].map((i) => <span key={i} className="w-3 h-0.5 rounded bg-ink-300" />)}
+                    </span>
+                    <span className="w-6 h-2 rounded-sm" style={{ background: primary }} />
+                </div>
+                <div className="relative flex-1 px-2.5 py-2 flex flex-col justify-between" style={{ background: 'linear-gradient(90deg,#fff 35%,#dbe7f0)' }}>
+                    <span className="text-[10px] font-bold leading-tight text-ink-900">Where <span style={{ color: primary }}>great homes</span><br />meet you</span>
+                    <span className="flex">
+                        <span className="w-4 h-1.5 rounded-t-sm bg-white" />
+                        <span className="w-4 h-1.5 rounded-t-sm" style={{ background: accent }} />
+                    </span>
+                </div>
+                <div className="grid grid-cols-4 gap-1 p-1.5">
+                    {[0, 1, 2, 3].map((i) => <span key={i} className="h-4 rounded bg-white border border-black/5" />)}
+                </div>
+                <span className="mx-1.5 mb-1.5 h-2 rounded" style={{ background: accent }} />
             </div>
         );
     }

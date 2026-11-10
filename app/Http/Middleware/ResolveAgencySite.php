@@ -101,6 +101,10 @@ class ResolveAgencySite
             'social_links'    => $links,
             'analytics_id'    => $site->analytics_id,
             'portal_url'      => rtrim((string) config('app.url'), '/'),
+            // Footer directory for the showcase template (types + areas with counts).
+            'directory'       => $site->template === 'showcase'
+                ? ['types' => $site->typeTiles(8), 'areas' => $site->areaTiles(8)]
+                : null,
         ];
     }
 }

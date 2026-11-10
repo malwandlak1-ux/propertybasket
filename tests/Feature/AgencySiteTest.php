@@ -304,6 +304,26 @@ class AgencySiteTest extends TestCase
     }
 
     #[Test]
+    public function showcase_template_shares_footer_directory_and_stats(): void
+    {
+        $this->site->update(['template' => 'showcase']);
+
+        $this->get(self::SITE.'/')->assertOk()->assertInertia(fn (Assert $p) => $p
+            ->where('site.template', 'showcase')
+            ->where('site.directory.areas.0.suburb', 'Rosebank')
+            ->where('stats.listings', 2)
+            ->where('stats.agents', 1));
+
+        // Directory is also there on inner pages (footer), and sold stock drops out of it.
+        $this->sale->update(['status' => 'sold']);
+        $this->get(self::SITE.'/about')->assertInertia(fn (Assert $p) => $p
+            ->where('site.directory.areas.0.count', 1));
+
+        $this->site->update(['template' => 'portal']);
+        $this->get(self::SITE.'/')->assertInertia(fn (Assert $p) => $p->where('site.directory', null));
+    }
+
+    #[Test]
     public function reserved_and_taken_subdomains_are_rejected(): void
     {
         $otherOwner = User::factory()->create(['role' => Role::AgencyAdmin]);

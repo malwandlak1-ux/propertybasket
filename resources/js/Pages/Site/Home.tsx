@@ -3,6 +3,7 @@ import { Head, Link, router, useForm } from '@inertiajs/react';
 import SiteLayout, { SectionTitle, useSite, useTemplate } from '@/Layouts/SiteLayout';
 import PropertyCard, { SiteListing } from '@/Components/Site/PropertyCard';
 import { AgentAvatar, SiteAgent } from '@/Components/Site/AgentCard';
+import ShowcaseHome from '@/Components/Site/ShowcaseHome';
 
 type Tile = { type: string; label: string; count: number; image: string | null };
 type Area = { suburb: string; city: string | null; count: number; image: string | null };
@@ -14,6 +15,8 @@ type Props = {
     agents: SiteAgent[];
     types: Tile[];
     areas: Area[];
+    stats: { listings: number; agents: number; areas: number; types: number };
+    about: string | null;
 };
 
 type Status = '' | 'for_sale' | 'long_term_rent';
@@ -26,7 +29,21 @@ const MAX_PRICE: Record<Status, { label: string; value: string }[]> = {
 
 const sel = 'w-full appearance-none bg-white border border-ink-200 rounded-md px-3 py-2.5 text-[14px] text-ink-800 outline-none focus:border-brand-500';
 
-export default function SiteHome({ hero, featured, counts, agents, types, areas }: Props) {
+export default function SiteHome(props: Props) {
+    const t = useTemplate();
+    if (t.key === 'showcase') {
+        return (
+            <SiteLayout>
+                <Head title="" />
+                <ShowcaseHome {...props} />
+            </SiteLayout>
+        );
+    }
+    return <PortalHome {...props} />;
+}
+
+/** Portal (default) and Minimal home. */
+function PortalHome({ hero, featured, counts, agents, types, areas }: Props) {
     const site = useSite();
     const t = useTemplate();
     const portal = t.key === 'portal';

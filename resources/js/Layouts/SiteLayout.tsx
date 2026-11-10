@@ -12,10 +12,13 @@ import { Link, usePage } from '@inertiajs/react';
  *  - portal (default): search-led property portal — solid header, photo
  *    hero with tabbed search bar, centred section titles, property-type and
  *    area tiles, "why us" band with lead form, multi-column footer.
+ *  - showcase: bright editorial portal — white header with centred
+ *    uppercase nav, light photo hero with highlighted headline, rounded
+ *    cards, navy stat/CTA bands, footer directory of types and areas.
  *  - minimal: text-led, white, square edges.
  */
 
-export type SiteTemplate = 'portal' | 'minimal';
+export type SiteTemplate = 'portal' | 'showcase' | 'minimal';
 
 export type SiteProps = {
     name: string;
@@ -29,6 +32,10 @@ export type SiteProps = {
     contact: { email: string | null; phone: string | null; address: string | null };
     social_links: Partial<Record<'facebook' | 'instagram' | 'linkedin' | 'x' | 'youtube' | 'tiktok' | 'whatsapp', string>>;
     portal_url: string;
+    directory: {
+        types: { type: string; label: string; count: number }[];
+        areas: { suburb: string; count: number }[];
+    } | null;
 };
 
 type Shared = { site: SiteProps; flash?: { success?: string | null; error?: string | null } };
@@ -50,6 +57,18 @@ export const TEMPLATE = {
         dark: 'bg-[var(--site-accent)] text-white',
         card: 'rounded-md',
         button: 'rounded-md',
+    },
+    showcase: {
+        key: 'showcase' as const,
+        heading: 'font-bold tracking-tight',
+        page: 'bg-[#F7F8F9]',
+        header: 'bg-white/95 backdrop-blur border-b border-black/5',
+        navLink: 'text-ink-600 hover:text-brand-600',
+        navActive: 'text-brand-600',
+        lightLogo: false,
+        dark: 'bg-[var(--site-accent)] text-white',
+        card: 'rounded-xl',
+        button: 'rounded-lg',
     },
     minimal: {
         key: 'minimal' as const,
@@ -113,14 +132,48 @@ const SOCIAL_LABELS: Record<string, string> = {
     facebook: 'Facebook', instagram: 'Instagram', linkedin: 'LinkedIn', x: 'X', youtube: 'YouTube', tiktok: 'TikTok',
 };
 
+/**
+ * Is this logo predominantly light (e.g. white on transparent)? Measured once
+ * from the image's opaque pixels; same-origin uploads only (cross-origin
+ * images can't be read and are left as-is).
+ */
+function isLightImage(img: HTMLImageElement): boolean {
+    try {
+        const c = document.createElement('canvas');
+        c.width = c.height = 32;
+        const ctx = c.getContext('2d');
+        if (! ctx) return false;
+        ctx.drawImage(img, 0, 0, 32, 32);
+        const d = ctx.getImageData(0, 0, 32, 32).data;
+        let lum = 0, weight = 0;
+        for (let i = 0; i < d.length; i += 4) {
+            const a = d[i + 3] / 255;
+            if (a < 0.2) continue;
+            lum += a * (0.2126 * d[i] + 0.7152 * d[i + 1] + 0.0722 * d[i + 2]) / 255;
+            weight += a;
+        }
+        return weight > 0 && lum / weight > 0.8;
+    } catch {
+        return false;
+    }
+}
+
+/**
+ * Agency logo. On dark surfaces (`light`) it is forced white; on light
+ * surfaces a light logo (white on transparent) is darkened so it never
+ * disappears against a white header.
+ */
 export function SiteLogo({ light = false }: { light?: boolean }) {
     const site = useSite();
+    const [lightLogo, setLightLogo] = useState(false);
     if (site.logo) {
+        const tone = light ? 'brightness-0 invert' : lightLogo ? 'brightness-0' : '';
         return (
             <img
                 src={site.logo}
                 alt={site.name}
-                className={`h-10 sm:h-11 w-auto max-w-[190px] object-contain ${light ? 'brightness-0 invert' : ''}`}
+                onLoad={(e) => { if (! light) setLightLogo(isLightImage(e.currentTarget)); }}
+                className={`h-10 sm:h-11 w-auto max-w-[190px] object-contain ${tone}`}
             />
         );
     }
@@ -160,16 +213,27 @@ export default function SiteLayout({ children }: PropsWithChildren) {
                         <SiteLogo light={t.lightLogo} />
                     </Link>
 
-                    <nav className="hidden lg:flex items-center gap-6 ml-auto">
+                    <nav className={`hidden lg:flex items-center gap-6 ${t.key === 'showcase' ? 'flex-1 justify-center' : 'ml-auto'}`}>
                         {nav.map((n) => (
-                            <Link key={n.label} href={n.href} className={`text-[14px] font-medium transition ${isActive(n.href) ? t.navActive : t.navLink}`}>
+                            <Link
+                                key={n.label}
+                                href={n.href}
+                                className={`transition ${t.key === 'showcase' ? 'text-[12.5px] font-semibold uppercase tracking-wider' : 'text-[14px] font-medium'} ${isActive(n.href) ? t.navActive : t.navLink}`}
+                            >
                                 {n.label}
                             </Link>
                         ))}
-                        <Link href="/contact" className={`ml-2 px-5 py-2.5 text-[14px] font-medium text-white bg-brand-500 hover:bg-brand-600 transition ${t.button}`}>
-                            Contact us
-                        </Link>
+                        {t.key !== 'showcase' && (
+                            <Link href="/contact" className={`ml-2 px-5 py-2.5 text-[14px] font-medium text-white bg-brand-500 hover:bg-brand-600 transition ${t.button}`}>
+                                Contact us
+                            </Link>
+                        )}
                     </nav>
+                    {t.key === 'showcase' && (
+                        <Link href="/contact" className={`hidden lg:inline-flex items-center gap-2 px-5 py-2.5 text-[14px] font-semibold text-white bg-brand-500 hover:bg-brand-600 transition ${t.button}`}>
+                            Contact us <span aria-hidden>→</span>
+                        </Link>
+                    )}
 
                     <button
                         type="button"
@@ -204,6 +268,7 @@ export default function SiteLayout({ children }: PropsWithChildren) {
 
             <main className="flex-1">{children}</main>
 
+            {t.key === 'showcase' ? <ShowcaseFooter /> : (
             <footer className={t.dark}>
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-14 pb-10 grid gap-10 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
                     <div>
@@ -242,9 +307,71 @@ export default function SiteLayout({ children }: PropsWithChildren) {
                     </div>
                 </div>
             </footer>
+            )}
         </div>
     );
 }
+
+/** Showcase footer: brand + contact, property types and areas with live counts, follow links. */
+function ShowcaseFooter() {
+    const site = useSite();
+    const dir = site.directory;
+    const whatsapp = site.social_links.whatsapp?.replace(/[^\d]/g, '').replace(/^0/, '27');
+    const socials = Object.entries(site.social_links).filter(([k, v]) => k !== 'whatsapp' && v);
+
+    return (
+        <footer className="bg-[var(--site-accent)] text-white">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-14 pb-10 grid gap-10 sm:grid-cols-2 lg:grid-cols-[1.3fr_1fr_1fr_1fr]">
+                <div>
+                    <SiteLogo light />
+                    <div className="mt-6 space-y-2.5 text-[14px] text-white/75">
+                        {site.contact.phone && <a href={`tel:${site.contact.phone}`} className="flex items-center gap-2.5 hover:text-white"><Dot />{site.contact.phone}</a>}
+                        {site.contact.email && <a href={`mailto:${site.contact.email}`} className="flex items-center gap-2.5 hover:text-white break-all"><Dot />{site.contact.email}</a>}
+                        {site.contact.address && <p className="flex items-center gap-2.5"><Dot />{site.contact.address}</p>}
+                    </div>
+                </div>
+                <FooterCol title="Property types">
+                    {(dir?.types ?? []).map((ty) => (
+                        <Link key={ty.type} href={`/properties?property_type=${ty.type}`} className="text-white/75 hover:text-white">
+                            → {ty.label} <span className="text-white/45">({ty.count})</span>
+                        </Link>
+                    ))}
+                    {! dir?.types.length && <FooterLink href="/properties">All properties</FooterLink>}
+                </FooterCol>
+                <FooterCol title="Explore">
+                    {(dir?.areas ?? []).map((a) => (
+                        <Link key={a.suburb} href={`/properties?q=${encodeURIComponent(a.suburb)}`} className="text-white/75 hover:text-white">
+                            → {a.suburb} <span className="text-white/45">({a.count})</span>
+                        </Link>
+                    ))}
+                    {! dir?.areas.length && <FooterLink href="/properties">All areas</FooterLink>}
+                </FooterCol>
+                <FooterCol title={site.name}>
+                    <FooterLink href="/about">About us</FooterLink>
+                    {site.show_agents && <FooterLink href="/agents">Our agents</FooterLink>}
+                    <FooterLink href="/contact?intent=sell">Get a valuation</FooterLink>
+                    <FooterLink href="/contact">Contact</FooterLink>
+                </FooterCol>
+            </div>
+            <div className="border-t border-white/10">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 py-5 flex flex-wrap items-center justify-between gap-3 text-[12px] text-white/55">
+                    <span>© {new Date().getFullYear()} {site.name}. All rights reserved. · <a href={site.portal_url} target="_blank" rel="noopener" className="hover:text-white/85">Powered by Property Basket</a></span>
+                    {(socials.length > 0 || whatsapp) && (
+                        <span className="flex items-center gap-3">
+                            Follow us
+                            {socials.map(([k, v]) => (
+                                <a key={k} href={v as string} target="_blank" rel="noopener noreferrer" className="px-2 py-1 rounded-md bg-white/10 hover:bg-white/20 text-white/85">{SOCIAL_LABELS[k] ?? k}</a>
+                            ))}
+                            {whatsapp && <a href={`https://wa.me/${whatsapp}`} target="_blank" rel="noopener noreferrer" className="px-2 py-1 rounded-md bg-white/10 hover:bg-white/20 text-white/85">WhatsApp</a>}
+                        </span>
+                    )}
+                </div>
+            </div>
+        </footer>
+    );
+}
+
+const Dot = () => <span className="w-1.5 h-1.5 rounded-full bg-brand-400 shrink-0" />;
 
 function FooterCol({ title, children }: { title: string; children: ReactNode }) {
     return (

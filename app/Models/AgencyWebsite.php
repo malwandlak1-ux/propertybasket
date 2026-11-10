@@ -8,8 +8,8 @@ use Illuminate\Support\Facades\Storage;
 
 class AgencyWebsite extends Model
 {
-    /** 'portal' (default, search-led) and 'minimal'. Unknown/legacy values render as portal. */
-    public const TEMPLATES = ['portal', 'minimal'];
+    /** 'portal' (default, search-led), 'showcase' (bright, editorial portal) and 'minimal'. Unknown/legacy values render as portal. */
+    public const TEMPLATES = ['portal', 'showcase', 'minimal'];
 
     /** Subdomains that can never be claimed by an agency. */
     public const RESERVED_SUBDOMAINS = [
@@ -33,6 +33,48 @@ class AgencyWebsite extends Model
             'published_at' => 'datetime',
             'domain_verified_at' => 'datetime',
         ];
+    }
+
+    public const TYPE_LABELS = [
+        'house' => 'Houses', 'apartment' => 'Apartments', 'townhouse' => 'Townhouses',
+        'commercial' => 'Commercial', 'land' => 'Land', 'other' => 'Other',
+    ];
+
+    /** This agency's publicly visible listings — the same rule as the main portal. */
+    public function visibleListings()
+    {
+        return Listing::query()->publiclyVisible()->forAgency($this->agency_id);
+    }
+
+    /** Property types with stock: label, count and a representative photo. */
+    public function typeTiles(int $limit = 6): array
+    {
+        return $this->visibleListings()
+            ->selectRaw('property_type, COUNT(*) as total, MAX(primary_image) as image')
+            ->groupBy('property_type')
+            ->orderByDesc('total')
+            ->take($limit)
+            ->get()
+            ->map(fn ($r) => [
+                'type'  => $r->property_type,
+                'label' => self::TYPE_LABELS[$r->property_type] ?? ucfirst((string) $r->property_type),
+                'count' => (int) $r->total,
+                'image' => $r->image,
+            ])->values()->all();
+    }
+
+    /** Suburbs the agency has stock in, busiest first. */
+    public function areaTiles(int $limit = 6): array
+    {
+        return $this->visibleListings()
+            ->whereNotNull('suburb')
+            ->selectRaw('suburb, MAX(city) as city, COUNT(*) as total, MAX(primary_image) as image')
+            ->groupBy('suburb')
+            ->orderByDesc('total')
+            ->take($limit)
+            ->get()
+            ->map(fn ($r) => ['suburb' => $r->suburb, 'city' => $r->city, 'count' => (int) $r->total, 'image' => $r->image])
+            ->values()->all();
     }
 
     public function agency(): BelongsTo

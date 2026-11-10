@@ -106,6 +106,10 @@ a:is(.font-semibold):is(.rounded-full, .rounded-xl, .rounded-lg) { font-weight: 
     font-weight: 300;
     letter-spacing: 0;
 }
+[data-site-template="showcase"] :is(h1, h2, h3) {
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    letter-spacing: -0.02em;
+}
 [data-site-template="minimal"] :is(h1, h2, h3) {
     font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
     letter-spacing: -0.02em;

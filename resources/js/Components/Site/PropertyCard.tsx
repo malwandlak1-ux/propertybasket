@@ -44,7 +44,8 @@ function Stats({ listing }: { listing: SiteListing }) {
 
 export default function PropertyCard({ listing }: { listing: SiteListing }) {
     const t = useTemplate();
-    const portal = t.key === 'portal';
+    // Portal and Showcase put the price over the photo; Minimal lists it first below.
+    const portal = t.key !== 'minimal';
     const place = [listing.suburb, listing.city].filter(Boolean).join(', ');
 
     return (
@@ -71,7 +72,7 @@ export default function PropertyCard({ listing }: { listing: SiteListing }) {
             <div className="p-5">
                 {portal ? (
                     <>
-                        <p className="text-[16px] font-medium leading-snug line-clamp-1 group-hover:text-brand-600">{listing.title}</p>
+                        <p className={`text-[16px] leading-snug line-clamp-1 group-hover:text-brand-600 ${t.key === 'showcase' ? 'font-bold text-ink-900' : 'font-medium'}`}>{listing.title}</p>
                         <p className="mt-1 text-[13px] text-ink-500 line-clamp-1">{place || '—'}</p>
                         <div className="mt-4"><Stats listing={listing} /></div>
                         <div className="mt-4 pt-3 border-t border-ink-100 text-[11px] font-bold uppercase tracking-wider text-ink-500">

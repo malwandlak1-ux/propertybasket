@@ -185,6 +185,8 @@ Route::middleware('auth')->group(function () {
         // Generated agency website ({subdomain}.propertybasket.co.za) — served by routes/sites.php.
         Route::get('website',                 [\App\Http\Controllers\Agency\WebsiteController::class, 'show'])->name('website.show');
         Route::post('website',                [\App\Http\Controllers\Agency\WebsiteController::class, 'update'])->name('website.update');
+        Route::post('website/images',         [\App\Http\Controllers\Agency\WebsiteController::class, 'uploadImage'])->name('website.images.upload');
+        Route::post('website/images/remove',  [\App\Http\Controllers\Agency\WebsiteController::class, 'removeImage'])->name('website.images.remove');
         Route::post('website/publish',        [\App\Http\Controllers\Agency\WebsiteController::class, 'publish'])->name('website.publish');
         Route::post('website/domain',         [\App\Http\Controllers\Agency\WebsiteController::class, 'saveDomain'])->name('website.domain');
         Route::post('website/domain/verify',  [\App\Http\Controllers\Agency\WebsiteController::class, 'verifyDomain'])->name('website.domain.verify');

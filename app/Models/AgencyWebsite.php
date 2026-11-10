@@ -20,7 +20,7 @@ class AgencyWebsite extends Model
 
     protected $fillable = [
         'agency_id', 'subdomain', 'custom_domain', 'domain_status', 'domain_verified_at',
-        'template', 'status', 'primary_color', 'accent_color', 'hero_image', 'hero_heading',
+        'template', 'status', 'primary_color', 'accent_color', 'hero_image', 'images', 'hero_heading',
         'tagline', 'about', 'social_links', 'seo_title', 'seo_description', 'show_agents',
         'analytics_id', 'published_at',
     ];
@@ -29,6 +29,7 @@ class AgencyWebsite extends Model
     {
         return [
             'social_links' => 'array',
+            'images' => 'array',
             'show_agents' => 'boolean',
             'published_at' => 'datetime',
             'domain_verified_at' => 'datetime',
@@ -46,7 +47,33 @@ class AgencyWebsite extends Model
         return Listing::query()->publiclyVisible()->forAgency($this->agency_id);
     }
 
-    /** Property types with stock: label, count and a representative photo. */
+    /** Single-image sections an agency can override (hero lives in hero_image). */
+    public const IMAGE_SLOTS = ['hero', 'about', 'cta', 'why'];
+
+    /** The agency's own upload for a slot (or a type/area tile), else null. */
+    public function customImage(string $slot, ?string $key = null): ?string
+    {
+        if ($slot === 'hero') {
+            return $this->hero_image;
+        }
+        $images = $this->images ?? [];
+
+        return $key === null
+            ? ($images[$slot] ?? null)
+            : ($images[$slot.'s'][$key] ?? null);
+    }
+
+    /** Custom section images for the home page; null = use the automatic photo. */
+    public function sectionImages(): array
+    {
+        return [
+            'about' => self::publicUrl($this->customImage('about')),
+            'cta'   => self::publicUrl($this->customImage('cta')),
+            'why'   => self::publicUrl($this->customImage('why')),
+        ];
+    }
+
+    /** Property types with stock: label, count and a photo (custom upload, else a listing photo). */
     public function typeTiles(int $limit = 6): array
     {
         return $this->visibleListings()
@@ -59,7 +86,9 @@ class AgencyWebsite extends Model
                 'type'  => $r->property_type,
                 'label' => self::TYPE_LABELS[$r->property_type] ?? ucfirst((string) $r->property_type),
                 'count' => (int) $r->total,
-                'image' => $r->image,
+                'image' => self::publicUrl($this->customImage('type', $r->property_type)) ?? $r->image,
+                'auto_image' => $r->image,
+                'custom' => (bool) $this->customImage('type', $r->property_type),
             ])->values()->all();
     }
 
@@ -73,7 +102,12 @@ class AgencyWebsite extends Model
             ->orderByDesc('total')
             ->take($limit)
             ->get()
-            ->map(fn ($r) => ['suburb' => $r->suburb, 'city' => $r->city, 'count' => (int) $r->total, 'image' => $r->image])
+            ->map(fn ($r) => [
+                'suburb' => $r->suburb, 'city' => $r->city, 'count' => (int) $r->total,
+                'image' => self::publicUrl($this->customImage('area', $r->suburb)) ?? $r->image,
+                'auto_image' => $r->image,
+                'custom' => (bool) $this->customImage('area', $r->suburb),
+            ])
             ->values()->all();
     }
 

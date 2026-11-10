@@ -36,16 +36,28 @@ type Website = {
 
 type AgentRow = { id: number; name: string; email: string; avatar: string | null; bio: string | null; show_on_website: boolean };
 
+type TileImage = { image: string | null; auto_image: string | null; custom: boolean; count: number };
+type SiteImages = {
+    hero: string | null;
+    about: string | null;
+    cta: string | null;
+    why: string | null;
+    auto: string | null;
+    types: (TileImage & { type: string; label: string })[];
+    areas: (TileImage & { suburb: string })[];
+};
+
 type Props = {
     agency: { name: string; logo: string | null; email: string | null; phone: string | null };
     website: Website;
     agents: AgentRow[];
+    images: SiteImages;
     live_listings: number;
     templates: Template[];
     dns: { cname_target: string; server_ip: string | null };
 };
 
-type Tab = 'setup' | 'content' | 'agents' | 'domain';
+type Tab = 'setup' | 'content' | 'images' | 'agents' | 'domain';
 
 const TEMPLATE_INFO: Record<Template, { name: string; blurb: string }> = {
     portal: { name: 'Portal', blurb: 'Search-led property portal: photo hero with tabbed search, property-type and area tiles, enquiry form.' },
@@ -61,7 +73,7 @@ const SOCIALS = [
 // Matches Components/FormField.tsx
 const input = 'w-full bg-ink-50 border border-ink-200 rounded-lg px-3.5 py-2.5 text-[14px] focus:ring-2 focus:ring-brand/20 focus:border-brand transition outline-none';
 
-export default function AgencyWebsite({ agency, website, agents, live_listings, templates, dns }: Props) {
+export default function AgencyWebsite({ agency, website, agents, images, live_listings, templates, dns }: Props) {
     const { flash } = usePage<{ flash?: { success?: string | null; error?: string | null } }>().props;
     const [tab, setTab] = useState<Tab>('setup');
     const live = website.status === 'published';
@@ -79,13 +91,11 @@ export default function AgencyWebsite({ agency, website, agents, live_listings, 
         seo_description: website.seo_description ?? '',
         show_agents: website.show_agents,
         analytics_id: website.analytics_id ?? '',
-        hero_image: null as File | null,
-        remove_hero: false,
     });
 
     function save(e?: FormEvent) {
         e?.preventDefault();
-        form.post('/agency/website', { preserveScroll: true, forceFormData: true, onSuccess: () => form.setData('hero_image', null) });
+        form.post('/agency/website', { preserveScroll: true });
     }
 
     function togglePublish() {
@@ -93,7 +103,6 @@ export default function AgencyWebsite({ agency, website, agents, live_listings, 
         router.post('/agency/website/publish', { publish: ! live }, { preserveScroll: true });
     }
 
-    const [heroPreview, setHeroPreview] = useState<string | null>(website.hero_image);
 
     return (
         <AgencyLayout agencyName={agency.name} crumb="Website">
@@ -129,6 +138,7 @@ export default function AgencyWebsite({ agency, website, agents, live_listings, 
                         options={[
                             { value: 'setup', label: 'Address & template' },
                             { value: 'content', label: 'Branding & content' },
+                            { value: 'images', label: 'Images' },
                             { value: 'agents', label: 'Agents' },
                             { value: 'domain', label: 'Custom domain' },
                         ]}
@@ -191,7 +201,7 @@ export default function AgencyWebsite({ agency, website, agents, live_listings, 
                         </Card>
 
                         <Card title="Home page">
-                            <div className="grid gap-5 lg:grid-cols-[1fr_280px]">
+                            <div className="grid gap-5">
                                 <div className="space-y-4">
                                     <Field label={form.data.template === 'showcase' ? 'Headline — wrap words in *stars* to colour them' : 'Headline'} error={form.errors.hero_heading}>
                                         <input value={form.data.hero_heading} onChange={(e) => form.setData('hero_heading', e.target.value)} placeholder={`Find your next home with ${agency.name}`} className={input} maxLength={160} />
@@ -203,29 +213,10 @@ export default function AgencyWebsite({ agency, website, agents, live_listings, 
                                         <input type="checkbox" checked={form.data.show_agents} onChange={(e) => form.setData('show_agents', e.target.checked)} className="rounded border-ink-300 text-brand-600" />
                                         Show the "Our people" section and agent pages
                                     </label>
-                                </div>
-                                <div>
-                                    <p className="text-[12px] font-semibold text-ink-700 mb-1.5">Hero photo</p>
-                                    <div className="aspect-[4/3] rounded-xl overflow-hidden bg-ink-100 grid place-items-center">
-                                        {heroPreview ? <img src={heroPreview} alt="" className="w-full h-full object-cover" /> : <span className="text-[12px] text-ink-400">No photo — dark background</span>}
-                                    </div>
-                                    <div className="mt-2 flex gap-2">
-                                        <label className={`${btnOutline} cursor-pointer !py-1.5`}>
-                                            Upload
-                                            <input type="file" accept="image/png,image/jpeg,image/webp" className="hidden" onChange={(e) => {
-                                                const f = e.target.files?.[0] ?? null;
-                                                form.setData((d) => ({ ...d, hero_image: f, remove_hero: false }));
-                                                if (f) setHeroPreview(URL.createObjectURL(f));
-                                            }} />
-                                        </label>
-                                        {heroPreview && (
-                                            <button type="button" className={`${btnOutline} !py-1.5`} onClick={() => { form.setData((d) => ({ ...d, hero_image: null, remove_hero: true })); setHeroPreview(null); }}>
-                                                Remove
-                                            </button>
-                                        )}
-                                    </div>
-                                    <p className="text-[11px] text-ink-400 mt-1.5">Landscape JPG/PNG/WebP, max 4 MB.</p>
-                                    {form.errors.hero_image && <p className="text-danger text-[12px] mt-1">{form.errors.hero_image}</p>}
+                                    <p className="text-[12px] text-ink-500">
+                                        Photos for the hero and every other section are under the{' '}
+                                        <button type="button" onClick={() => setTab('images')} className="text-brand-700 font-semibold underline">Images</button> tab.
+                                    </p>
                                 </div>
                             </div>
                         </Card>
@@ -267,6 +258,8 @@ export default function AgencyWebsite({ agency, website, agents, live_listings, 
                         <SaveBar processing={form.processing} dirty={form.isDirty} />
                     </form>
                 )}
+
+                {tab === 'images' && <ImagesPanel images={images} template={website.template} />}
 
                 {tab === 'agents' && (
                     <Card title="Agent profiles" subtitle="Each agent gets a profile page on your site showing their own listings. Agents can also write their bio themselves.">
@@ -502,6 +495,156 @@ function DomainPanel({ website, dns }: { website: Website; dns: Props['dns'] }) 
                     </button>
                 </Card>
             )}
+        </div>
+    );
+}
+
+/* ── Images tab ─────────────────────────────────────────────────────── */
+
+type Slot = 'hero' | 'about' | 'cta' | 'why' | 'type' | 'area';
+
+/** Which templates show each section, so agencies know where a photo appears. */
+const USED_ON: Record<Slot, Template[]> = {
+    hero: ['portal', 'showcase'],
+    about: ['showcase'],
+    cta: ['showcase'],
+    why: ['portal'],
+    type: ['portal', 'showcase'],
+    area: ['portal', 'showcase'],
+};
+
+function ImagesPanel({ images, template }: { images: SiteImages; template: Template }) {
+    const sections: { slot: Slot; title: string; hint: string; current: string | null }[] = [
+        { slot: 'hero', title: 'Hero', hint: 'The big photo at the top of the home page. Landscape, at least 1600px wide.', current: images.hero },
+        { slot: 'about', title: 'About section', hint: 'The photo beside "Making property simpler", with the listings stat card on it.', current: images.about },
+        { slot: 'cta', title: 'Call-to-action banner', hint: 'Background of the "Ready to find your dream home?" banner near the bottom.', current: images.cta },
+        { slot: 'why', title: '"Why choose us" band', hint: 'Faint background behind the numbered points and enquiry form.', current: images.why },
+    ];
+
+    return (
+        <div className="space-y-5">
+            <Card title="Section photos" subtitle="Upload your own photo for any section. Empty slots use an automatic photo: your hero image, or one of your listing photos.">
+                <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
+                    {sections.map((sec) => (
+                        <ImageSlot
+                            key={sec.slot}
+                            slot={sec.slot}
+                            title={sec.title}
+                            hint={sec.hint}
+                            current={sec.current}
+                            fallback={sec.slot === 'hero' ? null : images.hero ?? images.auto}
+                            template={template}
+                        />
+                    ))}
+                </div>
+            </Card>
+
+            <Card title="Property type tiles" subtitle='Shown under "Browse by property type" (Portal) and "Find a home that fits your lifestyle" (Showcase), and in the Showcase footer.'>
+                {images.types.length === 0 ? (
+                    <p className="text-[13px] text-ink-500">No live listings yet. Tiles appear once you have listings.</p>
+                ) : (
+                    <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
+                        {images.types.map((ty) => (
+                            <ImageSlot
+                                key={ty.type}
+                                slot="type"
+                                tileKey={ty.type}
+                                title={ty.label}
+                                hint={`${ty.count} listing${ty.count === 1 ? '' : 's'}`}
+                                current={ty.custom ? ty.image : null}
+                                fallback={ty.auto_image}
+                                template={template}
+                            />
+                        ))}
+                    </div>
+                )}
+            </Card>
+
+            <Card title="Area tiles" subtitle='Shown under "Explore areas" and "Top locations": your busiest suburbs. The list follows your live listings.'>
+                {images.areas.length === 0 ? (
+                    <p className="text-[13px] text-ink-500">No live listings with a suburb yet.</p>
+                ) : (
+                    <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
+                        {images.areas.map((a) => (
+                            <ImageSlot
+                                key={a.suburb}
+                                slot="area"
+                                tileKey={a.suburb}
+                                title={a.suburb}
+                                hint={`${a.count} listing${a.count === 1 ? '' : 's'}`}
+                                current={a.custom ? a.image : null}
+                                fallback={a.auto_image}
+                                template={template}
+                            />
+                        ))}
+                    </div>
+                )}
+            </Card>
+        </div>
+    );
+}
+
+function ImageSlot({ slot, tileKey, title, hint, current, fallback, template }: {
+    slot: Slot; tileKey?: string; title: string; hint: string;
+    current: string | null; fallback: string | null; template: Template;
+}) {
+    const [busy, setBusy] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const shown = current ?? fallback;
+    const usedHere = USED_ON[slot].includes(template);
+
+    function upload(file: File) {
+        setBusy(true);
+        setError(null);
+        router.post('/agency/website/images', { slot, key: tileKey ?? '', image: file }, {
+            forceFormData: true,
+            preserveScroll: true,
+            onError: (e) => setError(e.image ?? e.slot ?? e.key ?? 'Upload failed.'),
+            onFinish: () => setBusy(false),
+        });
+    }
+
+    function reset() {
+        setBusy(true);
+        router.post('/agency/website/images/remove', { slot, key: tileKey ?? '' }, { preserveScroll: true, onFinish: () => setBusy(false) });
+    }
+
+    return (
+        <div className={busy ? 'opacity-60 pointer-events-none' : ''}>
+            <div className="relative aspect-[4/3] rounded-xl overflow-hidden bg-ink-100 grid place-items-center">
+                {shown ? (
+                    <img src={shown} alt="" className="w-full h-full object-cover" />
+                ) : (
+                    <span className="text-[12px] text-ink-400 px-3 text-center">No photo yet</span>
+                )}
+                <span className={`absolute top-2 left-2 text-[10px] font-bold uppercase tracking-wider rounded-full px-2 py-0.5 ${current ? 'bg-success text-white' : 'bg-white/90 text-ink-600'}`}>
+                    {current ? 'Your photo' : 'Automatic'}
+                </span>
+                {! usedHere && (
+                    <span className="absolute bottom-2 left-2 right-2 text-[10.5px] bg-black/60 text-white rounded px-2 py-1">
+                        Not shown on your current template
+                    </span>
+                )}
+            </div>
+            <p className="mt-2 text-[13px] font-semibold text-ink-900">{title}</p>
+            <p className="text-[11.5px] text-ink-500 leading-snug">{hint}</p>
+            <div className="mt-2 flex gap-2">
+                <label className={`${btnOutline} cursor-pointer !py-1.5 !px-3`}>
+                    {busy ? 'Saving…' : current ? 'Replace' : 'Upload'}
+                    <input
+                        type="file"
+                        accept="image/png,image/jpeg,image/webp"
+                        className="hidden"
+                        onChange={(e) => { const f = e.target.files?.[0]; if (f) upload(f); e.target.value = ''; }}
+                    />
+                </label>
+                {current && (
+                    <button type="button" onClick={reset} className={`${btnOutline} !py-1.5 !px-3`}>
+                        Use automatic
+                    </button>
+                )}
+            </div>
+            {error && <p className="text-danger text-[12px] mt-1">{error}</p>}
         </div>
     );
 }

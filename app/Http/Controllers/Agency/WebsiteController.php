@@ -113,6 +113,16 @@ class WebsiteController extends Controller
                 'preview_url'        => $site->url('/?preview='.ResolveAgencySite::previewToken($site)),
             ],
             'agents'        => $agents,
+            'images'        => [
+                'hero'  => AgencyWebsite::publicUrl($site->hero_image),
+                'about' => AgencyWebsite::publicUrl($site->customImage('about')),
+                'cta'   => AgencyWebsite::publicUrl($site->customImage('cta')),
+                'why'   => AgencyWebsite::publicUrl($site->customImage('why')),
+                // Automatic fallback shown when a slot has no upload.
+                'auto'  => \App\Models\Listing::publiclyVisible()->forAgency($agency)->whereNotNull('primary_image')->latest()->value('primary_image'),
+                'types' => $site->typeTiles(12),
+                'areas' => $site->areaTiles(12),
+            ],
             'live_listings' => $liveListings,
             'templates'     => AgencyWebsite::TEMPLATES,
             'dns'           => [
@@ -179,6 +189,71 @@ class WebsiteController extends Controller
         $site->update($data);
 
         return back()->with('success', 'Website saved.');
+    }
+
+    /**
+     * POST /agency/website/images — upload the photo for one section:
+     * slot hero|about|cta|why, or type/area with a key (property type / suburb).
+     */
+    public function uploadImage(Request $request): RedirectResponse
+    {
+        $agency = $this->ownedAgency($request);
+        $site = $this->websiteFor($agency);
+        $data = $this->validateSlot($request, $site, true);
+
+        $url = Storage::url($request->file('image')->store("agencies/{$agency->id}/website", 'public'));
+        $this->putImage($site, $data['slot'], $data['key'] ?? null, $url);
+
+        return back()->with('success', 'Image updated.');
+    }
+
+    /** POST /agency/website/images/remove — back to the automatic photo. */
+    public function removeImage(Request $request): RedirectResponse
+    {
+        $site = $this->websiteFor($this->ownedAgency($request));
+        $data = $this->validateSlot($request, $site, false);
+        $this->putImage($site, $data['slot'], $data['key'] ?? null, null);
+
+        return back()->with('success', 'Image reset — the automatic photo is used again.');
+    }
+
+    private function validateSlot(Request $request, AgencyWebsite $site, bool $withFile): array
+    {
+        $data = $request->validate([
+            'slot'  => ['required', Rule::in([...AgencyWebsite::IMAGE_SLOTS, 'type', 'area'])],
+            'key'   => ['required_if:slot,type,area', 'nullable', 'string', 'max:120'],
+            'image' => $withFile ? ['required', 'image', 'mimes:png,jpg,jpeg,webp', 'max:4096'] : ['nullable'],
+        ]);
+
+        // A tile key must be a type / suburb the agency actually has listings in.
+        if ($data['slot'] === 'type') {
+            abort_unless(array_key_exists($data['key'], AgencyWebsite::TYPE_LABELS), 422, 'Unknown property type.');
+        }
+        if ($data['slot'] === 'area') {
+            abort_unless($site->visibleListings()->where('suburb', $data['key'])->exists(), 422, 'That area has no listings.');
+        }
+
+        return $data;
+    }
+
+    private function putImage(AgencyWebsite $site, string $slot, ?string $key, ?string $url): void
+    {
+        $this->deleteStored($site->customImage($slot, $key));
+
+        if ($slot === 'hero') {
+            $site->update(['hero_image' => $url]);
+
+            return;
+        }
+
+        $images = $site->images ?? [];
+        if ($key === null) {
+            $images[$slot] = $url;
+        } else {
+            $images[$slot.'s'][$key] = $url;
+            $images[$slot.'s'] = array_filter($images[$slot.'s']);
+        }
+        $site->update(['images' => array_filter($images)]);
     }
 
     public function publish(Request $request): RedirectResponse

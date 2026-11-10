@@ -138,6 +138,7 @@ class SiteController extends Controller
                 'types'    => $this->listings()->distinct()->count('property_type'),
             ],
             'about' => $this->site->about,
+            'images' => $this->site->sectionImages(),
         ]);
     }
 

@@ -17,6 +17,7 @@ type Props = {
     areas: Area[];
     stats: { listings: number; agents: number; areas: number; types: number };
     about: string | null;
+    images: { about: string | null; cta: string | null; why: string | null };
 };
 
 type Status = '' | 'for_sale' | 'long_term_rent';
@@ -43,7 +44,7 @@ export default function SiteHome(props: Props) {
 }
 
 /** Portal (default) and Minimal home. */
-function PortalHome({ hero, featured, counts, agents, types, areas }: Props) {
+function PortalHome({ hero, featured, counts, agents, types, areas, images }: Props) {
     const site = useSite();
     const t = useTemplate();
     const portal = t.key === 'portal';
@@ -185,7 +186,7 @@ function PortalHome({ hero, featured, counts, agents, types, areas }: Props) {
             )}
 
             {/* ── Why us + lead form ──────────────────────────────── */}
-            <WhyUsBand image={hero.image} />
+            <WhyUsBand image={images.why ?? hero.image} />
 
             {/* ── Explore areas ───────────────────────────────────── */}
             {areas.length > 0 && (

@@ -22,6 +22,7 @@ export type ShowcaseProps = {
     areas: Area[];
     stats: { listings: number; agents: number; areas: number; types: number };
     about: string | null;
+    images: { about: string | null; cta: string | null; why: string | null };
 };
 
 type Status = '' | 'for_sale' | 'long_term_rent';
@@ -66,7 +67,7 @@ function Ico({ d, className = 'w-6 h-6' }: { d: string; className?: string }) {
 
 const sel = 'w-full appearance-none bg-white border border-ink-200 rounded-lg px-3 py-2.5 text-[14px] text-ink-800 outline-none focus:border-brand-500';
 
-export default function ShowcaseHome({ hero, featured, counts, types, areas, stats, about }: ShowcaseProps) {
+export default function ShowcaseHome({ hero, featured, counts, types, areas, stats, about, images }: ShowcaseProps) {
     const site = useSite();
     const t = useTemplate();
 
@@ -88,7 +89,10 @@ export default function ShowcaseHome({ hero, featured, counts, types, areas, sta
         if (featured.long_term_rent[i]) mixed.push(featured.long_term_rent[i]);
     }
     const shown = mixed.slice(0, 8);
-    const sidePhoto = hero.image ?? shown[0]?.primary_image ?? null;
+    // Each section uses the agency's own upload (Website → Images), else an automatic photo.
+    const autoPhoto = hero.image ?? shown[0]?.primary_image ?? null;
+    const aboutPhoto = images.about ?? autoPhoto;
+    const ctaPhoto = images.cta ?? autoPhoto;
     const aboutText = (about ?? '').split(/\n\s*\n/)[0]
         || `${site.name} helps buyers, sellers, landlords and tenants with every step of their property journey.`;
 
@@ -221,7 +225,7 @@ export default function ShowcaseHome({ hero, featured, counts, types, areas, sta
                     </div>
                     <div className="relative">
                         <div className="aspect-[5/4] rounded-2xl overflow-hidden bg-ink-100">
-                            {sidePhoto && <img src={sidePhoto} alt="" loading="lazy" className="w-full h-full object-cover" />}
+                            {aboutPhoto && <img src={aboutPhoto} alt="" loading="lazy" className="w-full h-full object-cover" />}
                         </div>
                         <div className="absolute -bottom-6 right-4 sm:right-8 bg-[var(--site-accent)] text-white rounded-2xl p-6 w-56 shadow-xl">
                             <Ico d={I.home} className="w-8 h-8 text-brand-300" />
@@ -328,7 +332,7 @@ export default function ShowcaseHome({ hero, featured, counts, types, areas, sta
             {/* ── CTA band ─────────────────────────────────────────── */}
             <section className="max-w-7xl mx-auto px-4 sm:px-6 py-20">
                 <div className="relative isolate overflow-hidden rounded-2xl bg-[var(--site-accent)] text-white px-8 sm:px-14 py-14">
-                    {sidePhoto && <img src={sidePhoto} alt="" className="absolute inset-y-0 right-0 -z-10 w-full lg:w-2/3 h-full object-cover opacity-35 [mask-image:linear-gradient(to_right,transparent,black_45%)]" />}
+                    {ctaPhoto && <img src={ctaPhoto} alt="" className="absolute inset-y-0 right-0 -z-10 w-full lg:w-2/3 h-full object-cover opacity-35 [mask-image:linear-gradient(to_right,transparent,black_45%)]" />}
                     <h2 className={`text-[32px] sm:text-[44px] leading-tight max-w-md ${t.heading}`}>Ready to find your dream home?</h2>
                     <p className="mt-4 text-[16px] text-white/80 max-w-md">
                         Browse {counts.for_sale + counts.long_term_rent} homes with {site.name}, or ask us to value and list yours.

@@ -14,7 +14,9 @@ use App\Models\User;
 use Carbon\CarbonImmutable;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Inertia\Testing\AssertableInertia as Assert;
 use PHPUnit\Framework\Attributes\Test;
@@ -321,6 +323,46 @@ class AgencySiteTest extends TestCase
 
         $this->site->update(['template' => 'portal']);
         $this->get(self::SITE.'/')->assertInertia(fn (Assert $p) => $p->where('site.directory', null));
+    }
+
+    #[Test]
+    public function owner_can_replace_and_reset_each_section_image(): void
+    {
+        Storage::fake('public');
+        $post = fn (array $data) => $this->actingAs($this->owner)->post(self::MAIN.'/agency/website/images', $data);
+
+        $post(['slot' => 'about', 'image' => UploadedFile::fake()->image('about.jpg', 1200, 800)])->assertSessionHasNoErrors();
+        $post(['slot' => 'type', 'key' => 'house', 'image' => UploadedFile::fake()->image('h.jpg')])->assertSessionHasNoErrors();
+        $post(['slot' => 'area', 'key' => 'Rosebank', 'image' => UploadedFile::fake()->image('r.jpg')])->assertSessionHasNoErrors();
+
+        $site = $this->site->fresh();
+        $about = $site->customImage('about');
+        $this->assertNotNull($about);
+        Storage::disk('public')->assertExists(substr($about, strlen('/storage/')));
+
+        $this->get(self::SITE.'/')->assertInertia(fn (Assert $p) => $p
+            ->where('images.about', fn ($v) => str_contains((string) $v, 'agencies/'))
+            ->where('types.0.custom', true)
+            ->where('areas.0.custom', true));
+
+        // Reset deletes the file and falls back to the automatic photo.
+        $this->actingAs($this->owner)->post(self::MAIN.'/agency/website/images/remove', ['slot' => 'about'])->assertSessionHasNoErrors();
+        Storage::disk('public')->assertMissing(substr($about, strlen('/storage/')));
+        $this->assertNull($this->site->fresh()->customImage('about'));
+        $this->assertNotNull($this->site->fresh()->customImage('type', 'house'));
+    }
+
+    #[Test]
+    public function section_images_reject_bad_slots_and_unknown_tiles(): void
+    {
+        Storage::fake('public');
+        $img = fn () => UploadedFile::fake()->image('x.jpg');
+
+        $this->actingAs($this->owner)->post(self::MAIN.'/agency/website/images', ['slot' => 'nope', 'image' => $img()])->assertSessionHasErrors('slot');
+        $this->actingAs($this->owner)->post(self::MAIN.'/agency/website/images', ['slot' => 'type', 'image' => $img()])->assertSessionHasErrors('key');
+        $this->actingAs($this->owner)->post(self::MAIN.'/agency/website/images', ['slot' => 'type', 'key' => 'castle', 'image' => $img()])->assertStatus(422);
+        $this->actingAs($this->owner)->post(self::MAIN.'/agency/website/images', ['slot' => 'area', 'key' => 'Nowhere', 'image' => $img()])->assertStatus(422);
+        $this->actingAs($this->agent)->post(self::MAIN.'/agency/website/images', ['slot' => 'about', 'image' => $img()])->assertForbidden();
     }
 
     #[Test]

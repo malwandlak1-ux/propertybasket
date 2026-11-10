@@ -23,6 +23,10 @@ use App\Http\Controllers\Public\LegalController;
 use App\Http\Controllers\Public\ListingController;
 use Illuminate\Support\Facades\Route;
 
+// Agency websites ({subdomain}.propertybasket.co.za / custom domains). Must be
+// registered first: their host-constrained routes reuse portal paths like /properties.
+require __DIR__.'/sites.php';
+
 // Public property portal — switched off per site with PUBLIC_SITE=false (careline),
 // which redirects these pages to the login screen.
 Route::middleware(\App\Http\Middleware\EnsurePublicSite::class)->group(function () {
@@ -178,6 +182,14 @@ Route::middleware('auth')->group(function () {
         Route::post('landlords/properties/{listing}/unlink', [\App\Http\Controllers\Agency\LandlordsController::class, 'unlinkProperty'])->name('landlords.unlink');
         Route::post('landlords/run-payout',           [\App\Http\Controllers\Agency\LandlordsController::class, 'runMonthlyPayout'])->name('landlords.payout');
 
+        // Generated agency website ({subdomain}.propertybasket.co.za) — served by routes/sites.php.
+        Route::get('website',                 [\App\Http\Controllers\Agency\WebsiteController::class, 'show'])->name('website.show');
+        Route::post('website',                [\App\Http\Controllers\Agency\WebsiteController::class, 'update'])->name('website.update');
+        Route::post('website/publish',        [\App\Http\Controllers\Agency\WebsiteController::class, 'publish'])->name('website.publish');
+        Route::post('website/domain',         [\App\Http\Controllers\Agency\WebsiteController::class, 'saveDomain'])->name('website.domain');
+        Route::post('website/domain/verify',  [\App\Http\Controllers\Agency\WebsiteController::class, 'verifyDomain'])->name('website.domain.verify');
+        Route::patch('website/agents/{agencyAgent}', [\App\Http\Controllers\Agency\WebsiteController::class, 'updateAgent'])->name('website.agents.update');
+
         Route::get('settings', [\App\Http\Controllers\Agency\SettingsController::class, 'show'])->name('settings.show');
         Route::match(['post', 'patch'], 'settings', [\App\Http\Controllers\Agency\SettingsController::class, 'update'])->name('settings.update');
 
@@ -277,6 +289,7 @@ Route::middleware('auth')->group(function () {
             Route::post('listings/{listing}/invite-tenant',  [Agent\ListingsController::class, 'inviteTenant'])->name('listings.invite-tenant');
             Route::post('listings/{listing}/reactivate',     [Agent\ListingsController::class, 'reactivate'])->name('listings.reactivate');
             Route::post('listings/{listing}/mark-sold',      [Agent\ListingsController::class, 'markSold'])->name('listings.mark-sold');
+            Route::post('listings/{listing}/mark-leased',    [Agent\ListingsController::class, 'markLeased'])->name('listings.mark-leased');
         });
         Route::get('viewings',    [Agent\ViewingsController::class,  'index'])->name('viewings.index');
         Route::post('viewings',   [Agent\ViewingsController::class,  'store'])->name('viewings.store');
@@ -322,6 +335,9 @@ Route::middleware('auth')->group(function () {
         Route::get('help',           [\App\Http\Controllers\HelpController::class, 'admin'])->name('help');
         Route::get('overview.pdf',   [Admin\OverviewController::class,      'exportPdf'])->name('overview.pdf');
         Route::get('agencies',       [Admin\AgenciesController::class,      'index'])->name('agencies.index')->middleware(EnsureRoleEnabled::class . ':agency_admin');
+        Route::get('websites',                        [Admin\WebsitesController::class, 'index'])->name('websites.index');
+        Route::post('websites/{website}/mark-live',   [Admin\WebsitesController::class, 'markLive'])->name('websites.mark-live');
+        Route::post('websites/{website}/disconnect',  [Admin\WebsitesController::class, 'disconnect'])->name('websites.disconnect');
         Route::post('agencies/{agency}/approve',      [Admin\AgenciesController::class, 'approve'])->name('agencies.approve');
         Route::post('agencies/{agency}/suspend',      [Admin\AgenciesController::class, 'suspend'])->name('agencies.suspend');
         Route::post('agencies/{agency}/reactivate',   [Admin\AgenciesController::class, 'reactivate'])->name('agencies.reactivate');

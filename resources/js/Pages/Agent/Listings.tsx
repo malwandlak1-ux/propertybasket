@@ -24,6 +24,7 @@ type Listing = {
     can_reactivate: boolean;
     can_mark_sold: boolean;
     can_delete: boolean;
+    can_mark_leased: boolean;
     sale_price: number | null;
 };
 
@@ -94,6 +95,16 @@ export default function AgentListings({ agent, listings, counts, type_filter, in
         setSellingId(l.id);
         router.post(`/agent/listings/${l.id}/mark-sold`, { sale_price: price }, {
             onFinish: () => setSellingId(null),
+        });
+    }
+
+    const [leasingId, setLeasingId] = useState<number | null>(null);
+
+    function markLeased(l: Listing) {
+        if (! confirm(`Mark "${l.title}" as rented? It comes off the public site and your agency website. (Use "Invite tenant" instead to onboard the tenant and record commission.)`)) return;
+        setLeasingId(l.id);
+        router.post(`/agent/listings/${l.id}/mark-leased`, {}, {
+            onFinish: () => setLeasingId(null),
         });
     }
 
@@ -213,8 +224,8 @@ export default function AgentListings({ agent, listings, counts, type_filter, in
                                     </div>
                                 </Link>
 
-                                {(l.can_invite_tenant || l.can_reactivate || l.can_mark_sold) && (
-                                    <div className="px-4 pb-4 -mt-1">
+                                {(l.can_invite_tenant || l.can_reactivate || l.can_mark_sold || l.can_mark_leased) && (
+                                    <div className="px-4 pb-4 -mt-1 space-y-1.5">
                                         {l.can_mark_sold && (
                                             <button
                                                 type="button"
@@ -240,6 +251,19 @@ export default function AgentListings({ agent, listings, counts, type_filter, in
                                                     <path d="M20 8v6M23 11h-6" />
                                                 </svg>
                                                 Invite tenant
+                                            </button>
+                                        )}
+                                        {l.can_mark_leased && (
+                                            <button
+                                                type="button"
+                                                disabled={leasingId === l.id}
+                                                onClick={() => markLeased(l)}
+                                                className="w-full text-[12px] font-semibold px-3 py-2 bg-white border border-ink-200 text-ink-700 hover:bg-ink-100 disabled:opacity-60 rounded-lg transition inline-flex items-center justify-center gap-1.5"
+                                            >
+                                                <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+                                                    <path d="M20 6L9 17l-5-5" />
+                                                </svg>
+                                                {leasingId === l.id ? 'Saving…' : 'Mark as rented'}
                                             </button>
                                         )}
                                         {l.can_reactivate && (

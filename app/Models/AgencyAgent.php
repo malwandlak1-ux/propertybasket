@@ -12,6 +12,7 @@ class AgencyAgent extends Model
         'commission_split_percent', 'area_speciality', 'property_type_speciality',
         'ffc_number', 'ffc_expires_at', 'ffc_certificate_path', 'ffc_reminder_sent_at',
         'lead_allocation_position', 'status',
+        'public_slug', 'bio', 'show_on_website',
     ];
 
     protected function casts(): array
@@ -22,6 +23,7 @@ class AgencyAgent extends Model
             'ffc_expires_at' => 'date',
             'ffc_reminder_sent_at' => 'datetime',
             'commission_split_percent' => 'decimal:2',
+            'show_on_website' => 'boolean',
         ];
     }
 

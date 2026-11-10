@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -47,6 +48,25 @@ class Listing extends Model
             'longitude' => 'decimal:7',
             'reactivated_at' => 'datetime',
         ];
+    }
+
+    /**
+     * The single rule for "shown to the public" — used by the main
+     * Property Basket site AND every agency website, so marking a listing
+     * sold/leased/archived removes it from both front ends at once.
+     * (Soft-deleted rows are already excluded by SoftDeletes.)
+     */
+    public function scopePubliclyVisible(Builder $query): Builder
+    {
+        return $query->where($query->qualifyColumn('status'), 'available');
+    }
+
+    /** Listings owned by the given agency. */
+    public function scopeForAgency(Builder $query, Agency|int $agency): Builder
+    {
+        return $query
+            ->where('owner_type', Agency::class)
+            ->where('owner_id', $agency instanceof Agency ? $agency->id : $agency);
     }
 
     public function owner(): MorphTo

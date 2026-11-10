@@ -63,6 +63,7 @@ class ListingsController extends Controller
             'monthly_rent'      => $l->monthly_rent !== null ? (float) $l->monthly_rent : null,
             'can_invite_tenant' => $l->status === 'available' && $l->listing_type === 'long_term_rent',
             'can_reactivate'    => $l->status === 'leased',
+            'can_mark_leased'   => $l->status === 'available' && $l->listing_type === 'long_term_rent',
             'can_mark_sold'     => $l->status === 'available' && $l->listing_type === 'for_sale' && $l->owner_type === Agency::class,
             'can_delete'        => in_array($l->status, ['draft', 'available', 'archived'], true),
             'sale_price'        => $l->sale_price !== null ? (float) $l->sale_price : null,
@@ -486,6 +487,36 @@ class ListingsController extends Controller
         return redirect()
             ->route('agent.listings.index')
             ->with('success', "Sale recorded for \"{$listing->title}\" — your commission is in the agency payout queue.");
+    }
+
+    /**
+     * POST /agent/listings/{listing}/mark-leased
+     * Marks a rental as let when the tenant isn't being onboarded through
+     * Property Basket (e.g. signed elsewhere). Takes it off the public site
+     * and every agency website. No lease or commission is created — use
+     * "Invite tenant" for that. Reversible via reactivate().
+     */
+    public function markLeased(Request $request, Listing $listing): RedirectResponse
+    {
+        $user = $request->user();
+        $this->authorizeAgentOwnsListing($listing, $user);
+
+        abort_unless(
+            $listing->listing_type === 'long_term_rent',
+            422,
+            'Only rental listings can be marked as rented.'
+        );
+        abort_unless(
+            $listing->status === 'available',
+            422,
+            'Only an available listing can be marked as rented.'
+        );
+
+        $listing->update(['status' => 'leased']);
+
+        return redirect()
+            ->route('agent.listings.index')
+            ->with('success', "\"{$listing->title}\" marked as rented — it's off the public site and your agency website.");
     }
 
     private function authorizeAgentOwnsListing(Listing $listing, $user): void

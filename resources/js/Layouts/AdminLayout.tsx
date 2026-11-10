@@ -16,6 +16,7 @@ type Props = {
 type NavItem = ShellNavItem;
 
 const I = {
+    websites:      <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>,
     overview:      <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>,
     agencies:      <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M3 21h18M5 21V7l8-4v18M19 21V11l-6-4M9 9v.01M9 12v.01M9 15v.01M9 18v.01"/></svg>,
     landlords:     <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 0 0-16 0"/></svg>,
@@ -47,6 +48,7 @@ export default function AdminLayout({ children, crumb = 'Overview', section = 'P
     const { agenciesEnabled } = useEdition();
     const accounts: NavItem[] = [
         ...(agenciesEnabled ? [{ label: 'Agencies', href: '/admin/agencies', icon: I.agencies, badge: numberBadge(counts?.agencies) }] : []),
+        ...(agenciesEnabled ? [{ label: 'Agency Websites', href: '/admin/websites', icon: I.websites }] : []),
         { label: 'Landlords',   href: '/admin/landlords',   icon: I.landlords,   badge: numberBadge(counts?.landlords) },
         { label: 'Contractors', href: '/admin/contractors', icon: I.contractors, badge: numberBadge(counts?.contractors) },
     ];

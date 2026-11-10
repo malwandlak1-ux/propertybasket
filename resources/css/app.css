@@ -96,6 +96,18 @@ p:is(.text-base, .text-lg, .text-\[15px\], .text-\[16px\], .text-\[17px\]) { lin
 button:is(.font-semibold, .font-medium),
 a:is(.font-semibold):is(.rounded-full, .rounded-xl, .rounded-lg) { font-weight: 700; }
 
+/* Agency websites (Layouts/SiteLayout.tsx) — per-template display face. The
+   rule above is unlayered, so a utility class can't override it; scope here. */
+[data-site-template="editorial"] :is(h1, h2, h3) {
+    font-family: 'Instrument Serif', Georgia, 'Times New Roman', serif;
+    font-weight: 400;
+    letter-spacing: -0.015em;
+}
+[data-site-template="minimal"] :is(h1, h2, h3) {
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    letter-spacing: -0.02em;
+}
+
 /* ── Dashboard accents (Settings → Appearance) ───────────────────────────
    Every brand-* utility reads var(--color-brand-*), so re-pointing the ramp
    on the dashboard shell (data-accent on .pb-dash) re-tints the whole

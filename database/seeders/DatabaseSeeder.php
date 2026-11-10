@@ -23,6 +23,7 @@ class DatabaseSeeder extends Seeder
             // Must run after agencies/landlords exist: seeds promo codes and
             // grandfathers existing accounts with an active subscription.
             PromoCodesSeeder::class,
+            WebsiteDemoSeeder::class,
         ]);
     }
 }

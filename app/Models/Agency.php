@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -64,6 +65,7 @@ class Agency extends Model
             ->withPivot([
                 'commission_split_percent', 'area_speciality', 'property_type_speciality',
                 'ffc_number', 'ffc_expires_at', 'lead_allocation_position', 'status',
+                'public_slug', 'bio', 'show_on_website',
             ])
             ->withTimestamps();
     }
@@ -71,6 +73,11 @@ class Agency extends Model
     public function listings(): MorphMany
     {
         return $this->morphMany(Listing::class, 'owner');
+    }
+
+    public function agencyWebsite(): HasOne
+    {
+        return $this->hasOne(AgencyWebsite::class);
     }
 
     public function leases(): HasMany

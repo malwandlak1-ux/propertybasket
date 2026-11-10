@@ -525,6 +525,18 @@ Key files:
 
 ---
 
+## Agency Websites (generated sites linked to the dashboards)
+
+Every agency can publish a branded website from `/agency/website`, served on `{subdomain}.propertybasket.co.za` and optionally its own domain. **Listings are never copied**: the site reads the shared `listings` table through `Listing::publiclyVisible()` (status `available`), the same scope the main portal uses. So marking a listing **sold** (`markSold`) or **rented** (`markLeased` / `inviteTenant`) removes it from the portal *and* the agency site on the next page load; `reactivate` brings it back on both. Always use `publiclyVisible()` for any public listing query.
+
+- **Routing**: `routes/sites.php` is `require`d at the top of `web.php` (must stay first). It is a `Route::domain('{site_host}')` group whose regex excludes `config('sites.main_hosts')`; `ResolveAgencySite` maps host → `AgencyWebsite` (subdomain, or `custom_domain` once `domain_status=live`), 404s unknown/unpublished hosts and suspended agencies, and shares the `site` prop. A catch-all 404s every other platform path (login, dashboards) on agency hosts. Drafts preview with `?preview={ResolveAgencySite::previewToken()}`.
+- **Config**: `config/sites.php`, env `SITES_BASE_DOMAIN`, `SITES_MAIN_HOSTS`, `SITES_SCHEME`, `SITES_PORT`, `SITES_CNAME_TARGET`, `SITES_SERVER_IP`. Locally `http://sandton-realty.localhost:8002` works with no DNS (`*.localhost` resolves to 127.0.0.1); `php -S` 404s `/sitemap.xml` (dotted path); use `/index.php/sitemap.xml` locally.
+- **Data**: `agency_websites` (one per agency; template `editorial|modern|minimal`, colours, hero, about, socials, SEO, GA id, `domain_status none|pending|verified|live`). `agency_agents.public_slug/bio/show_on_website` drive `/agents/{slug}`. `inquiries.agency_website_id` attributes site leads. The relation is `Agency::agencyWebsite()`, because `agencies.website` is an existing URL column.
+- **Leads**: listing enquiries and tours go through `InquiryService` with `source='website'`; an enquiry from an agent's page goes to that agent (`preferred_agent_id`). `/contact` (general, sell or let valuation) calls `InquiryService::createAgencyEnquiry()` with no listing, round-robin.
+- **Front end**: `Layouts/SiteLayout.tsx` re-points `--color-brand-*` to the agency colour and sets `data-site-template` (app.css scopes the per-template heading font, because the global `h1,h2,h3` rule is unlayered). The pages live in `Pages/Site/*` and the components in `Components/Site/*` (PropertyCard, AgentCard). The default "editorial" design is modelled on kingdomrealestate.co.za: serif headlines, eyebrow + accent rule, dark hero with overlapping search card, and a dark footer. There is deliberately **no "recently sold" section**, because sold listings must not appear.
+- **Custom domains on Hostinger** are semi-manual. The agency saves a domain (`pending`), points a CNAME at `SITES_CNAME_TARGET`, and clicks Verify (`dns_get_record`), which sets `verified`. A super admin then adds the domain in hPanel as a parked domain on `public_html/prod`, issues SSL, and clicks **Mark live** on `/admin/websites`. The wildcard `*.propertybasket.co.za` subdomain and SSL must also point at `prod`.
+- Demo: `WebsiteDemoSeeder` publishes Sandton Realty (`sandton-realty`). Tests: `tests/Feature/AgencySiteTest.php` (15). It uses absolute `http://localhost/...` URLs for main-host requests, because the test URL generator otherwise reuses the previous request's host.
+
 ## Shared NotificationBell
 
 `resources/js/Components/NotificationBell.tsx` is the single source. Mounted by `AgentLayout`, `AgencyLayout`, `LandlordLayout` (extend to Tenant/Contractor/Admin when needed).

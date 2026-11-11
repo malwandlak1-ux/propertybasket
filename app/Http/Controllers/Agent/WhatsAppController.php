@@ -367,6 +367,8 @@ class WhatsAppController extends Controller
             'panel'    => $prospect ? app(CrmService::class)->prospectPanel($prospect) : null,
             'profile'  => ['name' => $user->name, 'agency' => $record->agency->name, 'phone' => $user->phone],
             'window_open_until' => $lastIn && $lastIn->sent_at?->gt(now()->subDay()) ? $lastIn->sent_at->addDay()->format('d M H:i') : null,
+            // The chat list beside the conversation (WhatsApp Web style).
+            'threads'  => $this->threads($account),
             'messages' => $messages->map(fn (WaMessage $m) => [
                 'id'        => $m->id,
                 'direction' => $m->direction,

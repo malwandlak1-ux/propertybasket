@@ -1,7 +1,7 @@
 import { ReactNode } from 'react';
 import { Link } from '@inertiajs/react';
 
-export type WaSection = 'chats' | 'campaigns' | 'templates' | 'hours' | 'connection';
+export type WaSection = 'chats' | 'campaigns' | 'catalogues' | 'templates' | 'hours' | 'connection';
 
 const BASE = '/agent/crm/whatsapp';
 
@@ -13,6 +13,10 @@ const ITEMS: { key: WaSection; label: string; icon: ReactNode }[] = [
     {
         key: 'campaigns', label: 'Campaigns',
         icon: <path d="M3 11v2a1 1 0 0 0 1 1h2l5 4V6L6 10H4a1 1 0 0 0-1 1ZM15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13" />,
+    },
+    {
+        key: 'catalogues', label: 'Catalogues',
+        icon: <path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H10a2 2 0 0 1 2 2v14a1.5 1.5 0 0 0-1.5-1.5h-5A1.5 1.5 0 0 1 4 17V5.5ZM20 5.5A1.5 1.5 0 0 0 18.5 4H14a2 2 0 0 0-2 2v14a1.5 1.5 0 0 1 1.5-1.5h5A1.5 1.5 0 0 0 20 17V5.5Z" />,
     },
     {
         key: 'templates', label: 'Meta templates',

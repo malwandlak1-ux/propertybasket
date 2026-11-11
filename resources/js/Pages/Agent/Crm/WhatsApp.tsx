@@ -6,6 +6,7 @@ import { FlashBanners, PageHeader, SummaryStrip, btnOutline, btnPrimary, thRowCl
 import { Spinner } from '@/Components/Skeleton';
 import { CampaignRow, CampaignStatus, CopyField, Progress, Quality, Schedule, Step } from '@/Components/Crm/waParts';
 import WaShell, { ChatList, NoChatSelected, WaSection, waHref } from '@/Components/Crm/WaShell';
+import CatalogueLibrary, { Catalogue } from '@/Components/Crm/WaCatalogues';
 
 type Account = {
     waba_id: string; phone_number_id: string; display_phone: string | null; verified_name: string | null;
@@ -24,12 +25,13 @@ type Props = {
     templates: Template[];
     campaigns: CampaignRow[];
     threads: Thread[];
+    catalogues: Catalogue[];
 };
 
 const input = 'w-full bg-white border border-ink-200 rounded-xl px-3.5 py-2.5 text-[13.5px] focus:outline-none focus:border-brand-300 focus:ring-4 focus:ring-brand-100';
 const label = 'text-[12px] font-semibold text-ink-700 mb-1.5 block';
 
-export default function AgentCrmWhatsApp({ agent, account, stub, templates, campaigns, threads }: Props) {
+export default function AgentCrmWhatsApp({ agent, account, stub, templates, campaigns, threads, catalogues }: Props) {
     const { flash } = usePage<{ flash?: { success?: string | null; error?: string | null } }>().props;
     const [editing, setEditing] = useState(!account);
     const [newTemplate, setNewTemplate] = useState(false);
@@ -37,7 +39,7 @@ export default function AgentCrmWhatsApp({ agent, account, stub, templates, camp
     const approved = templates.filter((t) => t.status === 'APPROVED' && t.sendable);
     const [section, setSection] = useState<WaSection>(() => {
         const s = typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('section') : null;
-        if (s && ['chats', 'campaigns', 'templates', 'hours', 'connection'].includes(s)) return s as WaSection;
+        if (s && ['chats', 'campaigns', 'catalogues', 'templates', 'hours', 'connection'].includes(s)) return s as WaSection;
         return connected ? 'chats' : 'connection';
     });
     const [query, setQuery] = useState('');
@@ -127,6 +129,12 @@ export default function AgentCrmWhatsApp({ agent, account, stub, templates, camp
                                     </tbody>
                                 </table></div>
                             )}
+                        </Pane>
+                    )}
+
+                    {section === 'catalogues' && (
+                        <Pane title="Catalogues" sub="Brochures and listing catalogues to share in your chats">
+                            <CatalogueLibrary catalogues={catalogues} />
                         </Pane>
                     )}
 

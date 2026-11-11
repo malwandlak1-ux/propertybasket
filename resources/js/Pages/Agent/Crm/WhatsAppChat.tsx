@@ -4,6 +4,7 @@ import AgentLayout from '@/Layouts/AgentLayout';
 import CrmTabs from '@/Components/Crm/CrmTabs';
 import { FlashBanners } from '@/Components/Dashboard/Charts';
 import WaShell, { ChatList, WaThread, initials } from '@/Components/Crm/WaShell';
+import { Catalogue, CatalogueIcon } from '@/Components/Crm/WaCatalogues';
 import { Spinner } from '@/Components/Skeleton';
 import { safeUploadFile } from '@/lib/safeUpload';
 import { canRecordVoice, startVoiceNote, type VoiceSession } from '@/lib/voiceNote';
@@ -29,7 +30,7 @@ function fmtSize(b: number) {
 
 type Panel = { prospect: Prospect; scheme: Scheme; suburb: Suburb; history: Activity[] };
 
-export default function Chat({ agent, phone, display, prospect, window_open_until, messages, panel, profile, threads }: {
+export default function Chat({ agent, phone, display, prospect, window_open_until, messages, panel, profile, threads, catalogues }: {
     agent: { agency_name: string };
     phone: string;
     display: string;
@@ -39,9 +40,12 @@ export default function Chat({ agent, phone, display, prospect, window_open_unti
     panel: Panel | null;
     profile: Profile;
     threads: WaThread[];
+    catalogues: Catalogue[];
 }) {
     const { flash } = usePage<{ flash?: { success?: string | null; error?: string | null } }>().props;
-    const { data, setData, post, processing, reset, errors, progress } = useForm<{ phone: string; body: string; attachment: File | null; voice: boolean }>({ phone, body: '', attachment: null, voice: false });
+    const { data, setData, post, processing, reset, errors, progress } = useForm<{ phone: string; body: string; attachment: File | null; voice: boolean; catalogue_id: number | null }>({ phone, body: '', attachment: null, voice: false, catalogue_id: null });
+    const [catOpen, setCatOpen] = useState(false);
+    const chosen = catalogues.find((c) => c.id === data.catalogue_id) ?? null;
     const end = useRef<HTMLDivElement>(null);
     const fileInput = useRef<HTMLInputElement>(null);
     const [fileError, setFileError] = useState<string | null>(null);
@@ -87,7 +91,7 @@ export default function Chat({ agent, phone, display, prospect, window_open_unti
             const v = await s.stop();
             if (v.file.size > MAX_BYTES) { setFileError('That voice note is too long (16 MB max).'); return; }
             setVoiceSeconds(v.seconds);
-            setData((d) => ({ ...d, attachment: v.file, voice: v.voice }));
+            setData((d) => ({ ...d, attachment: v.file, voice: v.voice, catalogue_id: null }));
             if (fileInput.current) fileInput.current.value = '';
         } catch (e) {
             setFileError((e as Error).message);
@@ -112,10 +116,10 @@ export default function Chat({ agent, phone, display, prospect, window_open_unti
         setFileError(null);
         if (!f) return;
         if (f.size > MAX_BYTES) { setFileError('Attachments can be up to 16 MB.'); return; }
-        setData((d) => ({ ...d, attachment: safeUploadFile(f), voice: false })); // filenames with ' " ; are blocked by the host firewall (403)
+        setData((d) => ({ ...d, attachment: safeUploadFile(f), voice: false, catalogue_id: null })); // filenames with ' " ; are blocked by the host firewall (403)
     }
     function clearFile() {
-        setData((d) => ({ ...d, attachment: null, voice: false }));
+        setData((d) => ({ ...d, attachment: null, voice: false, catalogue_id: null }));
         if (fileInput.current) fileInput.current.value = '';
     }
     useEffect(() => {
@@ -125,14 +129,14 @@ export default function Chat({ agent, phone, display, prospect, window_open_unti
         return () => window.clearTimeout(t);
     }, [messages.length]);
 
-    const canSend = !processing && !recording && !preparing && (!!data.body.trim() || !!data.attachment);
+    const canSend = !processing && !recording && !preparing && (!!data.body.trim() || !!data.attachment || !!data.catalogue_id);
 
     function send(e?: { preventDefault(): void }) {
         e?.preventDefault();
         post('/agent/crm/whatsapp/chat', {
             preserveScroll: true,
             forceFormData: true,
-            onSuccess: () => { reset('body', 'attachment', 'voice'); if (fileInput.current) fileInput.current.value = ''; },
+            onSuccess: () => { reset('body', 'attachment', 'voice', 'catalogue_id'); if (fileInput.current) fileInput.current.value = ''; },
         });
     }
 
@@ -208,6 +212,14 @@ export default function Chat({ agent, phone, display, prospect, window_open_unti
                                             {voiceSeconds > INLINE_VOICE_SECONDS && <span className="basis-full text-[11px] text-ink-500">Over ~2½ min: the owner will tap to download it instead of it playing straight away.</span>}
                                         </div>
                                     )}
+                                    {chosen && (
+                                        <div className="mb-2 inline-flex items-center gap-2 bg-white border border-ink-200 rounded-xl pl-2 pr-1.5 py-1.5 text-[12.5px] max-w-full">
+                                            <CatalogueIcon c={chosen} className="w-7 h-7" />
+                                            <span className="font-semibold truncate max-w-[16rem]">{chosen.title}</span>
+                                            <span className="text-ink-500 hidden sm:inline">catalogue</span>
+                                            <button type="button" onClick={clearFile} className="w-6 h-6 rounded-full hover:bg-ink-200 text-ink-500" aria-label="Remove catalogue">×</button>
+                                        </div>
+                                    )}
                                     {data.attachment && !data.voice && (
                                         <div className="mb-2 inline-flex items-center gap-2 bg-white border border-ink-200 rounded-xl pl-3 pr-1.5 py-1.5 text-[12.5px] max-w-full">
                                             <span aria-hidden>{data.attachment.type.startsWith('image/') ? '🖼️' : data.attachment.type.startsWith('video/') ? '🎬' : data.attachment.type.startsWith('audio/') ? '🎵' : '📄'}</span>
@@ -223,6 +235,42 @@ export default function Chat({ agent, phone, display, prospect, window_open_unti
                                             title="Attach a photo, video, voice note or document" aria-label="Attach a file">
                                             <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" /></svg>
                                         </button>
+                                        <div className="relative shrink-0">
+                                            <button type="button" onClick={() => setCatOpen((o) => !o)} disabled={processing || recording}
+                                                className={`w-10 h-10 rounded-full flex items-center justify-center text-ink-600 ${catOpen ? 'bg-ink-900/10' : 'hover:bg-ink-900/5'}`}
+                                                title="Send a catalogue" aria-label="Send a catalogue" aria-expanded={catOpen}>
+                                                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.9} strokeLinecap="round" strokeLinejoin="round"><path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H10a2 2 0 0 1 2 2v14a1.5 1.5 0 0 0-1.5-1.5h-5A1.5 1.5 0 0 1 4 17V5.5ZM20 5.5A1.5 1.5 0 0 0 18.5 4H14a2 2 0 0 0-2 2v14a1.5 1.5 0 0 1 1.5-1.5h5A1.5 1.5 0 0 0 20 17V5.5Z" /></svg>
+                                            </button>
+                                            {catOpen && (
+                                                <>
+                                                    <div className="fixed inset-0 z-30" onClick={() => setCatOpen(false)} />
+                                                    <div className="absolute bottom-12 left-0 z-40 w-[min(20rem,80vw)] bg-white rounded-2xl shadow-lift border border-ink-200 overflow-hidden">
+                                                        <p className="px-4 pt-3 pb-2 text-[12px] font-semibold text-ink-500">Send a catalogue</p>
+                                                        {catalogues.length === 0 ? (
+                                                            <p className="px-4 pb-4 text-[12.5px] text-ink-500">
+                                                                No catalogues yet. <Link href="/agent/crm/whatsapp?section=catalogues" className="font-semibold text-brand-700 hover:underline">Upload one</Link>
+                                                            </p>
+                                                        ) : (
+                                                            <ul className="max-h-72 overflow-y-auto pb-1.5">
+                                                                {catalogues.map((c) => (
+                                                                    <li key={c.id}>
+                                                                        <button type="button"
+                                                                            onClick={() => { setData((d) => ({ ...d, catalogue_id: c.id, attachment: null, voice: false })); if (fileInput.current) fileInput.current.value = ''; setCatOpen(false); }}
+                                                                            className="w-full flex items-center gap-3 px-4 py-2 text-left hover:bg-ink-50">
+                                                                            <CatalogueIcon c={c} className="w-9 h-9" />
+                                                                            <span className="min-w-0">
+                                                                                <span className="block text-[13px] font-semibold truncate">{c.title}</span>
+                                                                                <span className="block text-[11px] text-ink-500 truncate">{c.name}</span>
+                                                                            </span>
+                                                                        </button>
+                                                                    </li>
+                                                                ))}
+                                                            </ul>
+                                                        )}
+                                                    </div>
+                                                </>
+                                            )}
+                                        </div>
                                         {recording ? (
                                             <div className="flex-1 flex items-center gap-3 bg-white border border-danger/30 rounded-xl px-3.5 py-2 min-h-[2.75rem]" role="status" aria-live="polite">
                                                 <span className="w-2.5 h-2.5 rounded-full bg-danger animate-pulse" aria-hidden />
@@ -235,7 +283,7 @@ export default function Chat({ agent, phone, display, prospect, window_open_unti
                                         ) : (
                                             <textarea value={data.body} onChange={(e) => setData('body', e.target.value)} rows={1} maxLength={4000}
                                                 onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) { e.preventDefault(); if (canSend) send(e); } }}
-                                                placeholder={data.voice ? 'Add a message to send after the voice note (optional)' : data.attachment ? 'Add a caption (optional)' : 'Type a message'}
+                                                placeholder={data.voice ? 'Add a message to send after the voice note (optional)' : data.attachment || data.catalogue_id ? 'Add a caption (optional)' : 'Type a message'}
                                                 className="flex-1 bg-white rounded-xl px-3.5 py-2.5 text-[14px] focus:outline-none resize-none max-h-32 min-h-[2.75rem]" />
                                         )}
                                         {canSend || processing ? (

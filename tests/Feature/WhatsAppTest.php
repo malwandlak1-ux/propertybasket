@@ -774,4 +774,50 @@ class WhatsAppTest extends TestCase
                 ->where('numbers', fn ($n) => collect($n)->firstWhere('agent', 'Sipho Dlamini')['status'] === 'connected'
                     && collect($n)->firstWhere('agent', 'Aisha Patel')['status'] === 'not_connected'));
     }
+
+    #[Test]
+    public function agents_keep_a_catalogue_library_and_send_from_it_in_chats(): void
+    {
+        \Illuminate\Support\Facades\Storage::fake('local');
+        Http::fake([
+            'graph.facebook.com/v23.0/2222222222/media' => Http::response(['id' => 'MEDIACAT']),
+            'graph.facebook.com/v23.0/2222222222/messages' => Http::response(['messages' => [['id' => 'wamid.CAT']]]),
+        ]);
+        $a = $this->account();
+
+        // Upload a brochure to the library.
+        $this->actingAs($this->agent)->post('/agent/crm/whatsapp/catalogues', [
+            'title' => 'Sunnyside rentals', 'file' => \Illuminate\Http\UploadedFile::fake()->create('Sunnyside rentals.pdf', 400, 'application/pdf'),
+        ])->assertSessionHasNoErrors()->assertSessionHas('success');
+        $cat = \App\Models\WaCatalogue::firstOrFail();
+        $this->assertSame($this->agent->id, $cat->agent_id);
+        $this->actingAs($this->agent)->post('/agent/crm/whatsapp/catalogues', [
+            'title' => 'Bad', 'file' => \Illuminate\Http\UploadedFile::fake()->create('setup.exe', 10, 'application/octet-stream'),
+        ])->assertSessionHasErrors('file');
+
+        $this->actingAs($this->agent)->get('/agent/crm/whatsapp')
+            ->assertInertia(fn (Assert $p) => $p->where('catalogues.0.title', 'Sunnyside rentals')->where('catalogues.0.kind', 'document'));
+        $this->actingAs($this->agent)->get("/agent/crm/whatsapp/catalogues/{$cat->id}/file")->assertOk();
+        $this->actingAs($this->other)->get("/agent/crm/whatsapp/catalogues/{$cat->id}/file")->assertForbidden();
+
+        // Send it in an open chat: goes out as a document with its file name, and the chat keeps its own copy.
+        WaMessage::create(['whatsapp_account_id' => $a->id, 'agent_id' => $this->agent->id, 'direction' => 'in', 'type' => 'text',
+            'phone' => '27821112222', 'body' => 'What do you have?', 'status' => 'received', 'sent_at' => now()->subHour()]);
+        $this->actingAs($this->agent)->get('/agent/crm/whatsapp/chat?phone=27821112222')
+            ->assertInertia(fn (Assert $p) => $p->where('catalogues.0.id', $cat->id));
+        $this->actingAs($this->agent)->post('/agent/crm/whatsapp/chat', ['phone' => '27821112222', 'catalogue_id' => $cat->id, 'body' => 'Here you go'])
+            ->assertSessionHasNoErrors();
+        Http::assertSent(fn ($r) => str_ends_with($r->url(), '/messages') && $r['type'] === 'document'
+            && $r['document']['id'] === 'MEDIACAT' && $r['document']['filename'] === 'Sunnyside rentals.pdf' && $r['document']['caption'] === 'Here you go');
+        $msg = WaMessage::where('wamid', 'wamid.CAT')->firstOrFail();
+        $this->assertNotSame($cat->path, $msg->media_path);
+        $this->assertSame(1, $cat->fresh()->sent_count);
+
+        // Removing it from the library leaves the sent copy.
+        $this->actingAs($this->other)->delete("/agent/crm/whatsapp/catalogues/{$cat->id}")->assertForbidden();
+        $this->actingAs($this->agent)->delete("/agent/crm/whatsapp/catalogues/{$cat->id}")->assertSessionHas('success');
+        $this->assertDatabaseMissing('wa_catalogues', ['id' => $cat->id]);
+        \Illuminate\Support\Facades\Storage::disk('local')->assertMissing($cat->path);
+        \Illuminate\Support\Facades\Storage::disk('local')->assertExists($msg->media_path);
+    }
 }

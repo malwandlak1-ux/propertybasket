@@ -259,6 +259,9 @@ Route::middleware('auth')->group(function () {
         Route::get('crm/whatsapp/chat', [Agent\WhatsAppController::class, 'chat'])->name('crm.whatsapp.chat');
         Route::post('crm/whatsapp/chat', [Agent\WhatsAppController::class, 'reply'])->name('crm.whatsapp.reply');
         Route::get('crm/whatsapp/media/{message}', [Agent\WhatsAppController::class, 'media'])->name('crm.whatsapp.media');
+        Route::post('crm/whatsapp/catalogues', [Agent\WhatsAppController::class, 'storeCatalogue'])->name('crm.whatsapp.catalogues.store');
+        Route::delete('crm/whatsapp/catalogues/{catalogue}', [Agent\WhatsAppController::class, 'destroyCatalogue'])->name('crm.whatsapp.catalogues.destroy');
+        Route::get('crm/whatsapp/catalogues/{catalogue}/file', [Agent\WhatsAppController::class, 'catalogueFile'])->name('crm.whatsapp.catalogues.file');
         Route::redirect('pipeline', '/agent/crm/pipeline')->name('pipeline.legacy');
         Route::post('pipeline/leads', [Agent\PipelineController::class, 'storeLead'])->name('pipeline.leads.store');
         Route::patch('pipeline/leads/{inquiry}/status', [Agent\PipelineController::class, 'updateLeadStatus'])->name('pipeline.leads.status');

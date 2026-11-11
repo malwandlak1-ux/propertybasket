@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 import AgentLayout from '@/Layouts/AgentLayout';
 import InviteTenantModal from '@/Components/InviteTenantModal';
 import Icon from '@/Components/Dashboard/Icon';
+import { FlashBanners } from '@/Components/Dashboard/Charts';
 
 type Listing = {
     id: number;
@@ -22,6 +23,7 @@ type Listing = {
     can_invite_tenant: boolean;
     can_reactivate: boolean;
     can_mark_sold: boolean;
+    can_delete: boolean;
     sale_price: number | null;
 };
 
@@ -54,6 +56,7 @@ const TYPE_BADGE: Record<string, string> = {
 };
 
 export default function AgentListings({ agent, listings, counts, type_filter, invitable_listings }: Props) {
+    const { flash } = usePage<{ flash?: { success?: string | null; error?: string | null } }>().props;
     const [inviteOpen, setInviteOpen]               = useState(false);
     const [inviteListingId, setInviteListingId]     = useState<number | undefined>(undefined);
     const [reactivating, setReactivating]           = useState<number | null>(null);
@@ -72,6 +75,13 @@ export default function AgentListings({ agent, listings, counts, type_filter, in
     }
 
     const [sellingId, setSellingId] = useState<number | null>(null);
+    const [deletingId, setDeletingId] = useState<number | null>(null);
+
+    function deleteListing(l: Listing) {
+        if (! confirm(`Delete "${l.title}"? It will be removed from your listings and the public site.`)) return;
+        setDeletingId(l.id);
+        router.delete(`/agent/listings/${l.id}`, { preserveScroll: true, onFinish: () => setDeletingId(null) });
+    }
 
     function markSold(l: Listing) {
         const input = prompt(
@@ -106,6 +116,7 @@ export default function AgentListings({ agent, listings, counts, type_filter, in
             <Head title="My Listings" />
 
             <div className="px-4 sm:px-8 py-6 sm:py-7">
+                <FlashBanners flash={flash} />
                 {/* Header */}
                 <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
                     <div>
@@ -244,6 +255,21 @@ export default function AgentListings({ agent, listings, counts, type_filter, in
                                                 {reactivating === l.id ? 'Reactivating…' : 'Reactivate listing'}
                                             </button>
                                         )}
+                                    </div>
+                                )}
+                                {l.can_delete && (
+                                    <div className="px-4 pb-3 flex justify-end">
+                                        <button
+                                            type="button"
+                                            disabled={deletingId === l.id}
+                                            onClick={() => deleteListing(l)}
+                                            className="text-[11.5px] font-semibold text-ink-400 hover:text-danger disabled:opacity-60 inline-flex items-center gap-1 transition"
+                                        >
+                                            <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+                                                <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
+                                            </svg>
+                                            {deletingId === l.id ? 'Deleting…' : 'Delete listing'}
+                                        </button>
                                     </div>
                                 )}
                             </div>

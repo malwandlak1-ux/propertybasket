@@ -38,7 +38,9 @@ export const AGENT_GUIDES: Guide[] = [
             'Add the title, description, price, rooms, address, amenities and photos.',
             'Click Create Listing. It appears under My Listings and on the public site.',
             'Use Mark as sold when a sale goes through, or Reactivate listing to bring one back.',
+            'To remove a listing, click Delete listing at the bottom of its card and confirm. It disappears from your listings and the public site.',
         ],
+        tips: ['Leased listings can’t be deleted while the lease is current (use Reactivate listing to end it first), and sold listings are kept for your commission records.'],
         link: { label: 'Open Listings', href: '/agent/listings' },
     },
     {

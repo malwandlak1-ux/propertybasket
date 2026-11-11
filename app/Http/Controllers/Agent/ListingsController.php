@@ -64,6 +64,7 @@ class ListingsController extends Controller
             'can_invite_tenant' => $l->status === 'available' && $l->listing_type === 'long_term_rent',
             'can_reactivate'    => $l->status === 'leased',
             'can_mark_sold'     => $l->status === 'available' && $l->listing_type === 'for_sale' && $l->owner_type === Agency::class,
+            'can_delete'        => in_array($l->status, ['draft', 'available', 'archived'], true),
             'sale_price'        => $l->sale_price !== null ? (float) $l->sale_price : null,
         ]);
 
@@ -388,6 +389,28 @@ class ListingsController extends Controller
         return redirect()
             ->route('agent.listings.index')
             ->with('success', "Tenant invited to \"{$listing->title}\" — the listing is no longer public.");
+    }
+
+    /**
+     * DELETE /agent/listings/{listing}
+     * Removes the agent's listing from their list and the public site (soft
+     * delete, so history stays intact). Not for leased listings (end the lease
+     * with Reactivate first) or sold ones (kept for commission records).
+     */
+    public function destroy(Request $request, Listing $listing): RedirectResponse
+    {
+        $this->authorizeAgentOwnsListing($listing, $request->user());
+
+        if ($listing->status === 'leased' || Lease::where('listing_id', $listing->id)->whereIn('status', ['active', 'pending'])->exists()) {
+            return back()->with('error', "\"{$listing->title}\" has a current lease. Reactivate the listing to end the lease before deleting it.");
+        }
+        if ($listing->status === 'sold') {
+            return back()->with('error', 'Sold listings are kept for your commission records and can’t be deleted.');
+        }
+
+        $listing->delete();
+
+        return redirect()->route('agent.listings.index')->with('success', "\"{$listing->title}\" was deleted and is no longer on the public site.");
     }
 
     /**

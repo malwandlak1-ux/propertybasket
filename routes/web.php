@@ -266,6 +266,7 @@ Route::middleware('auth')->group(function () {
         Route::get('listings',    [Agent\ListingsController::class,  'index'])->name('listings.index');
         Route::get('listings/create', [Agent\ListingsController::class, 'create'])->name('listings.create');
         Route::get('listings/{listing}/edit', [Agent\ListingsController::class, 'edit'])->name('listings.edit');
+        Route::delete('listings/{listing}', [Agent\ListingsController::class, 'destroy'])->name('listings.destroy');
 
         Route::middleware('agency_ffc')->group(function () {
             Route::post('listings',                          [Agent\ListingsController::class, 'store'])->name('listings.store');

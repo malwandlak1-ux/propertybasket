@@ -124,7 +124,7 @@ export const AGENT_GUIDES: Guide[] = [
             'Copy the Callback URL and Verify token shown into Meta → WhatsApp → Configuration → Webhook, and subscribe to messages. This brings in delivered/read ticks and replies.',
             'Click + New template (a value-report message is pre-filled) and submit it. Meta must approve it before you can use it.',
             'Click + New campaign: pick schemes and statuses, map each blank (owner name, suburb, your name…), check the preview, then Send or Schedule.',
-            'Replies arrive under Replies. You can answer freely for 24 hours after an owner writes. Owners who reply STOP are never messaged again.',
+            'Replies arrive under Chats (the speech-bubble icon on the WhatsApp side rail; the rail also holds Campaigns, Meta templates, Sending hours and Connection). You can answer freely for 24 hours after an owner writes. Owners who reply STOP are never messaged again.',
         ],
         tips: [
             'Meta bills your own WhatsApp account per delivered message. If the balance runs out, the campaign pauses and tells you; top up in WhatsApp Manager and press Resume.',
@@ -138,7 +138,7 @@ export const AGENT_GUIDES: Guide[] = [
         title: 'Chat with owners on WhatsApp, including voice notes',
         summary: 'Reply to owners, send photos and documents, and record voice notes.',
         steps: [
-            'Open CRM → WhatsApp → Replies and click a conversation.',
+            'Open CRM → WhatsApp → Chats and click a conversation. The chat list stays on the left so you can jump between owners.',
             'Type a reply, or click the paperclip to attach a photo, video, voice note or document.',
             'Click the microphone to record a voice note, then stop, listen back and Send (or discard it).',
             'Owners’ voice notes play right in the chat.',

@@ -48,10 +48,10 @@ export default function Chat({ agent, phone, display, prospect, window_open_unti
     const [query, setQuery] = useState('');
     const [filter, setFilter] = useState<'all' | 'open' | 'closed'>('all');
     // Owner record: a side column on wide screens (open by default), a drawer on smaller ones.
-    const [wide, setWide] = useState(() => typeof window !== 'undefined' && window.matchMedia('(min-width: 1280px)').matches);
+    const [wide, setWide] = useState(() => typeof window !== 'undefined' && window.matchMedia('(min-width: 1536px)').matches);
     const [panelOpen, setPanelOpen] = useState(wide);
     useEffect(() => {
-        const mq = window.matchMedia('(min-width: 1280px)');
+        const mq = window.matchMedia('(min-width: 1536px)');
         const on = () => setWide(mq.matches);
         mq.addEventListener('change', on);
         return () => mq.removeEventListener('change', on);
@@ -119,8 +119,10 @@ export default function Chat({ agent, phone, display, prospect, window_open_unti
         if (fileInput.current) fileInput.current.value = '';
     }
     useEffect(() => {
-        const box = end.current?.parentElement;
-        if (box) box.scrollTop = box.scrollHeight;
+        const toBottom = () => { const box = end.current?.parentElement; if (box) box.scrollTop = box.scrollHeight; };
+        toBottom();
+        const t = window.setTimeout(toBottom, 300); // again once images/side panel have laid out
+        return () => window.clearTimeout(t);
     }, [messages.length]);
 
     const canSend = !processing && !recording && !preparing && (!!data.body.trim() || !!data.attachment);
@@ -145,12 +147,12 @@ export default function Chat({ agent, phone, display, prospect, window_open_unti
 
                 <WaShell active="chats" badges={{ chats: threads.filter((t) => t.open).length }}>
                     <ChatList threads={threads} activePhone={phone} query={query} setQuery={setQuery} filter={filter} setFilter={setFilter}
-                        className="hidden md:flex w-[300px] lg:w-[340px] shrink-0" />
+                        className="hidden lg:flex w-[290px] xl:w-[330px] shrink-0" />
 
                     <section className="flex-1 min-w-0 flex flex-col">
                         {/* Conversation header */}
                         <div className="h-16 shrink-0 px-3 sm:px-4 bg-[#F0F2F5] border-b border-ink-200 flex items-center gap-3">
-                            <Link href="/agent/crm/whatsapp" className="md:hidden w-9 h-9 rounded-full flex items-center justify-center text-ink-600 hover:bg-ink-900/5" aria-label="Back to chats">
+                            <Link href="/agent/crm/whatsapp" className="lg:hidden w-9 h-9 rounded-full flex items-center justify-center text-ink-600 hover:bg-ink-900/5" aria-label="Back to chats">
                                 <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M15 18l-6-6 6-6" /></svg>
                             </Link>
                             <button type="button" onClick={() => setPanelOpen((o) => !o)} className="flex items-center gap-3 min-w-0 flex-1 text-left" title={panel ? 'Owner record' : undefined}>
@@ -269,7 +271,7 @@ export default function Chat({ agent, phone, display, prospect, window_open_unti
 
                     {/* The owner's farming record: log a contact, send to pipeline, edit details. Side column on wide screens. */}
                     {panelOpen && wide && (
-                        <aside className="w-[340px] 2xl:w-[380px] shrink-0 border-l border-ink-200 bg-[#F7F8FA] overflow-y-auto p-3">
+                        <aside className="w-[360px] shrink-0 border-l border-ink-200 bg-[#F7F8FA] overflow-y-auto p-3">
                             <OwnerPanel panel={panel} profile={profile} inline />
                         </aside>
                     )}

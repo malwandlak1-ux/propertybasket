@@ -100,6 +100,12 @@ const ICON_TRUST = (
         <path d="M2 10h20M6 14h.01M10 14h.01" />
     </svg>
 );
+const ICON_WEBSITE = (
+    <svg className="nav-icon w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+        <circle cx="12" cy="12" r="10" />
+        <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+    </svg>
+);
 const ICON_SETTINGS = (
     <svg className="nav-icon w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
         <circle cx="12" cy="12" r="3" />
@@ -154,6 +160,7 @@ export default function AgencyLayout({ children, crumb = 'Dashboard', agencyName
     );
     const account: NavItem[] = [
         { label: 'EAAB & Compliance', href: '/agency/compliance', icon: ICON_COMPLIANCE, badge: complianceBadge },
+        { label: 'Website', href: '/agency/website', icon: ICON_WEBSITE },
         { label: 'Settings', href: '/agency/settings', icon: ICON_SETTINGS },
         { label: 'Billing & Plan', href: '/agency/billing', icon: ICON_BILLING },
         { label: 'Help & Support', href: '/agency/help', icon: ICON_HELP },

@@ -23,17 +23,21 @@ class InquiryReceived extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         $listing = $this->inquiry->listing;
-        $url = url('/properties/'.$listing->slug);
+        // General / valuation enquiries from an agency website have no listing.
+        $subject = $listing ? $listing->title : 'website enquiry';
+        $url = $listing ? url('/properties/'.$listing->slug) : url('/agent/crm/pipeline');
 
         return (new MailMessage)
-            ->subject('New inquiry: '.$listing->title)
+            ->subject('New inquiry: '.$subject)
             ->greeting('Hi '.$notifiable->name.',')
-            ->line($this->inquiry->name.' just inquired about "'.$listing->title.'".')
+            ->line($listing
+                ? $this->inquiry->name.' just inquired about "'.$listing->title.'".'
+                : $this->inquiry->name.' sent an enquiry through your agency website.')
             ->line('Email: '.$this->inquiry->email)
             ->line($this->inquiry->phone ? 'Phone: '.$this->inquiry->phone : 'No phone supplied.')
             ->line('Message:')
             ->line($this->inquiry->message ?: '— no message —')
-            ->action('View listing', $url);
+            ->action($listing ? 'View listing' : 'Open pipeline', $url);
     }
 
     public function toArray(object $notifiable): array

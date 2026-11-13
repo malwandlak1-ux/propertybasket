@@ -23,6 +23,10 @@ use App\Http\Controllers\Public\LegalController;
 use App\Http\Controllers\Public\ListingController;
 use Illuminate\Support\Facades\Route;
 
+// Agency websites ({subdomain}.propertybasket.co.za / custom domains). Must be
+// registered first: their host-constrained routes reuse portal paths like /properties.
+require __DIR__.'/sites.php';
+
 // Public property portal — switched off per site with PUBLIC_SITE=false (careline),
 // which redirects these pages to the login screen.
 Route::middleware(\App\Http\Middleware\EnsurePublicSite::class)->group(function () {
@@ -130,6 +134,7 @@ Route::middleware('auth')->group(function () {
         Route::post('tenants/applications', [\App\Http\Controllers\RentalApplicationsController::class, 'store'])->name('applications.store');
         Route::post('tenants/applications/{application}/send', [\App\Http\Controllers\RentalApplicationsController::class, 'send'])->name('applications.send');
         Route::patch('tenants/applications/{application}', [\App\Http\Controllers\RentalApplicationsController::class, 'decide'])->name('applications.decide');
+        Route::post('tenants/applications/{application}/lease', [\App\Http\Controllers\RentalApplicationsController::class, 'createLease'])->middleware('agency_ffc')->name('applications.lease');
         Route::delete('tenants/applications/{application}', [\App\Http\Controllers\RentalApplicationsController::class, 'destroy'])->name('applications.destroy');
         Route::get('tenants/applications/{application}/documents/{document}', [\App\Http\Controllers\RentalApplicationsController::class, 'document'])->name('applications.document');
         Route::post('tenants/{lease}/deposit-received', [\App\Http\Controllers\Agency\TenantsController::class, 'markDepositReceived'])->name('tenants.deposit-received');
@@ -176,6 +181,16 @@ Route::middleware('auth')->group(function () {
         Route::post('landlords/link-property',        [\App\Http\Controllers\Agency\LandlordsController::class, 'linkProperty'])->name('landlords.link');
         Route::post('landlords/properties/{listing}/unlink', [\App\Http\Controllers\Agency\LandlordsController::class, 'unlinkProperty'])->name('landlords.unlink');
         Route::post('landlords/run-payout',           [\App\Http\Controllers\Agency\LandlordsController::class, 'runMonthlyPayout'])->name('landlords.payout');
+
+        // Generated agency website ({subdomain}.propertybasket.co.za) — served by routes/sites.php.
+        Route::get('website',                 [\App\Http\Controllers\Agency\WebsiteController::class, 'show'])->name('website.show');
+        Route::post('website',                [\App\Http\Controllers\Agency\WebsiteController::class, 'update'])->name('website.update');
+        Route::post('website/images',         [\App\Http\Controllers\Agency\WebsiteController::class, 'uploadImage'])->name('website.images.upload');
+        Route::post('website/images/remove',  [\App\Http\Controllers\Agency\WebsiteController::class, 'removeImage'])->name('website.images.remove');
+        Route::post('website/publish',        [\App\Http\Controllers\Agency\WebsiteController::class, 'publish'])->name('website.publish');
+        Route::post('website/domain',         [\App\Http\Controllers\Agency\WebsiteController::class, 'saveDomain'])->name('website.domain');
+        Route::post('website/domain/verify',  [\App\Http\Controllers\Agency\WebsiteController::class, 'verifyDomain'])->name('website.domain.verify');
+        Route::patch('website/agents/{agencyAgent}', [\App\Http\Controllers\Agency\WebsiteController::class, 'updateAgent'])->name('website.agents.update');
 
         Route::get('settings', [\App\Http\Controllers\Agency\SettingsController::class, 'show'])->name('settings.show');
         Route::match(['post', 'patch'], 'settings', [\App\Http\Controllers\Agency\SettingsController::class, 'update'])->name('settings.update');
@@ -258,6 +273,9 @@ Route::middleware('auth')->group(function () {
         Route::get('crm/whatsapp/chat', [Agent\WhatsAppController::class, 'chat'])->name('crm.whatsapp.chat');
         Route::post('crm/whatsapp/chat', [Agent\WhatsAppController::class, 'reply'])->name('crm.whatsapp.reply');
         Route::get('crm/whatsapp/media/{message}', [Agent\WhatsAppController::class, 'media'])->name('crm.whatsapp.media');
+        Route::post('crm/whatsapp/catalogues', [Agent\WhatsAppController::class, 'storeCatalogue'])->name('crm.whatsapp.catalogues.store');
+        Route::delete('crm/whatsapp/catalogues/{catalogue}', [Agent\WhatsAppController::class, 'destroyCatalogue'])->name('crm.whatsapp.catalogues.destroy');
+        Route::get('crm/whatsapp/catalogues/{catalogue}/file', [Agent\WhatsAppController::class, 'catalogueFile'])->name('crm.whatsapp.catalogues.file');
         Route::redirect('pipeline', '/agent/crm/pipeline')->name('pipeline.legacy');
         Route::post('pipeline/leads', [Agent\PipelineController::class, 'storeLead'])->name('pipeline.leads.store');
         Route::patch('pipeline/leads/{inquiry}/status', [Agent\PipelineController::class, 'updateLeadStatus'])->name('pipeline.leads.status');
@@ -265,6 +283,7 @@ Route::middleware('auth')->group(function () {
         Route::get('listings',    [Agent\ListingsController::class,  'index'])->name('listings.index');
         Route::get('listings/create', [Agent\ListingsController::class, 'create'])->name('listings.create');
         Route::get('listings/{listing}/edit', [Agent\ListingsController::class, 'edit'])->name('listings.edit');
+        Route::delete('listings/{listing}', [Agent\ListingsController::class, 'destroy'])->name('listings.destroy');
 
         Route::middleware('agency_ffc')->group(function () {
             Route::post('listings',                          [Agent\ListingsController::class, 'store'])->name('listings.store');
@@ -272,6 +291,7 @@ Route::middleware('auth')->group(function () {
             Route::post('listings/{listing}/invite-tenant',  [Agent\ListingsController::class, 'inviteTenant'])->name('listings.invite-tenant');
             Route::post('listings/{listing}/reactivate',     [Agent\ListingsController::class, 'reactivate'])->name('listings.reactivate');
             Route::post('listings/{listing}/mark-sold',      [Agent\ListingsController::class, 'markSold'])->name('listings.mark-sold');
+            Route::post('listings/{listing}/mark-leased',    [Agent\ListingsController::class, 'markLeased'])->name('listings.mark-leased');
         });
         Route::get('viewings',    [Agent\ViewingsController::class,  'index'])->name('viewings.index');
         Route::post('viewings',   [Agent\ViewingsController::class,  'store'])->name('viewings.store');
@@ -302,6 +322,7 @@ Route::middleware('auth')->group(function () {
         Route::post('tenants/applications', [\App\Http\Controllers\RentalApplicationsController::class, 'store'])->name('applications.store');
         Route::post('tenants/applications/{application}/send', [\App\Http\Controllers\RentalApplicationsController::class, 'send'])->name('applications.send');
         Route::patch('tenants/applications/{application}', [\App\Http\Controllers\RentalApplicationsController::class, 'decide'])->name('applications.decide');
+        Route::post('tenants/applications/{application}/lease', [\App\Http\Controllers\RentalApplicationsController::class, 'createLease'])->middleware('agency_ffc')->name('applications.lease');
         Route::delete('tenants/applications/{application}', [\App\Http\Controllers\RentalApplicationsController::class, 'destroy'])->name('applications.destroy');
         Route::get('tenants/applications/{application}/documents/{document}', [\App\Http\Controllers\RentalApplicationsController::class, 'document'])->name('applications.document');
         Route::get('settings',    [Agent\SettingsController::class,  'index'])->name('settings.index');
@@ -316,6 +337,9 @@ Route::middleware('auth')->group(function () {
         Route::get('help',           [\App\Http\Controllers\HelpController::class, 'admin'])->name('help');
         Route::get('overview.pdf',   [Admin\OverviewController::class,      'exportPdf'])->name('overview.pdf');
         Route::get('agencies',       [Admin\AgenciesController::class,      'index'])->name('agencies.index')->middleware(EnsureRoleEnabled::class . ':agency_admin');
+        Route::get('websites',                        [Admin\WebsitesController::class, 'index'])->name('websites.index');
+        Route::post('websites/{website}/mark-live',   [Admin\WebsitesController::class, 'markLive'])->name('websites.mark-live');
+        Route::post('websites/{website}/disconnect',  [Admin\WebsitesController::class, 'disconnect'])->name('websites.disconnect');
         Route::post('agencies/{agency}/approve',      [Admin\AgenciesController::class, 'approve'])->name('agencies.approve');
         Route::post('agencies/{agency}/suspend',      [Admin\AgenciesController::class, 'suspend'])->name('agencies.suspend');
         Route::post('agencies/{agency}/reactivate',   [Admin\AgenciesController::class, 'reactivate'])->name('agencies.reactivate');

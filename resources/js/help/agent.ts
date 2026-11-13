@@ -38,7 +38,9 @@ export const AGENT_GUIDES: Guide[] = [
             'Add the title, description, price, rooms, address, amenities and photos.',
             'Click Create Listing. It appears under My Listings and on the public site.',
             'Use Mark as sold when a sale goes through, or Reactivate listing to bring one back.',
+            'To remove a listing, click Delete listing at the bottom of its card and confirm. It disappears from your listings and the public site.',
         ],
+        tips: ['Leased listings can’t be deleted while the lease is current (use Reactivate listing to end it first), and sold listings are kept for your commission records.'],
         link: { label: 'Open Listings', href: '/agent/listings' },
     },
     {
@@ -66,7 +68,7 @@ export const AGENT_GUIDES: Guide[] = [
             'You get a notification when they submit. Open the application to see their answers and documents and the rent-to-income check.',
             'Click Approve or Decline (tick “Email the applicant” to tell them), Mark as reviewing, or Reopen for changes.',
         ],
-        tips: ['Then invite the approved tenant from Listings as usual to create the lease.'],
+        tips: ['Click Create lease from this application to create the lease pre-filled from their answers. The tenant is invited to sign it and the listing comes off the public site.'],
         link: { label: 'Open Applications', href: '/agent/tenants?tab=applications' },
     },
     {
@@ -122,7 +124,7 @@ export const AGENT_GUIDES: Guide[] = [
             'Copy the Callback URL and Verify token shown into Meta → WhatsApp → Configuration → Webhook, and subscribe to messages. This brings in delivered/read ticks and replies.',
             'Click + New template (a value-report message is pre-filled) and submit it. Meta must approve it before you can use it.',
             'Click + New campaign: pick schemes and statuses, map each blank (owner name, suburb, your name…), check the preview, then Send or Schedule.',
-            'Replies arrive under Replies. You can answer freely for 24 hours after an owner writes. Owners who reply STOP are never messaged again.',
+            'Replies arrive under Chats (the speech-bubble icon on the WhatsApp side rail; the rail also holds Campaigns, Meta templates, Sending hours and Connection). You can answer freely for 24 hours after an owner writes. Owners who reply STOP are never messaged again.',
         ],
         tips: [
             'Meta bills your own WhatsApp account per delivered message. If the balance runs out, the campaign pauses and tells you; top up in WhatsApp Manager and press Resume.',
@@ -136,14 +138,29 @@ export const AGENT_GUIDES: Guide[] = [
         title: 'Chat with owners on WhatsApp, including voice notes',
         summary: 'Reply to owners, send photos and documents, and record voice notes.',
         steps: [
-            'Open CRM → WhatsApp → Replies and click a conversation.',
+            'Open CRM → WhatsApp → Chats and click a conversation. The chat list stays on the left so you can jump between owners.',
             'Type a reply, or click the paperclip to attach a photo, video, voice note or document.',
             'Click the microphone to record a voice note, then stop, listen back and Send (or discard it).',
+            'Click the book icon next to the paperclip to send one of your catalogues. Upload brochures and listing catalogues once under WhatsApp → Catalogues on the side rail.',
             'Owners’ voice notes play right in the chat.',
             'Use Send to pipeline on the owner’s record beside the chat to add a warm owner as a seller lead in the New column.',
         ],
         tips: ['You can reply freely for 24 hours after an owner writes. After that, start again with an approved template.'],
         link: { label: 'Open WhatsApp', href: '/agent/crm/whatsapp' },
+    },
+    {
+        id: 'whatsapp-catalogues',
+        category: 'CRM',
+        title: 'Upload catalogues to share on WhatsApp',
+        summary: 'Keep brochures, listing catalogues and price lists ready to send in any chat.',
+        steps: [
+            'Open CRM → WhatsApp and click Catalogues on the side rail (the book icon, under Campaigns).',
+            'Click + Upload catalogue, choose a PDF, Office file, JPG/PNG photo or MP4 video (up to 16 MB) and give it a title.',
+            'In any chat, click the book icon next to the paperclip, pick the catalogue, add a caption if you like and Send.',
+            'Each catalogue shows how many times you’ve sent it. Upload a new version and remove the old one when it changes.',
+        ],
+        tips: ['Removing a catalogue doesn’t affect chats where you already sent it.', 'Catalogues go out in open chats (within 24 hours of the owner’s last message).'],
+        link: { label: 'Open Catalogues', href: '/agent/crm/whatsapp?section=catalogues' },
     },
     {
         id: 'pipeline',

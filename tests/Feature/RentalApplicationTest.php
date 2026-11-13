@@ -12,6 +12,9 @@ use App\Models\User;
 use App\Notifications\RentalApplicationDecision;
 use App\Notifications\RentalApplicationLink;
 use App\Notifications\RentalApplicationSubmitted;
+use App\Notifications\UserInvited;
+use App\Models\Commission;
+use App\Models\Lease;
 use Carbon\CarbonImmutable;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -48,6 +51,7 @@ class RentalApplicationTest extends TestCase
         $this->owner->assignRole('agency_admin');
         $this->agency = Agency::create(['user_id' => $this->owner->id, 'name' => 'Basket Realty', 'slug' => 'br-' . Str::random(6), 'email' => $this->owner->email, 'status' => 'active']);
         $this->agency->activateSubscription('promo', now()->addYear());
+        $this->agency->forceFill(['eaab_ffc_number' => 'FFC-AGENCY', 'eaab_ffc_expires_at' => now()->addYear()])->save();
 
         $this->agent = $this->makeAgent('Sipho Dlamini');
         $this->other = $this->makeAgent('Aisha Khan');
@@ -187,5 +191,63 @@ class RentalApplicationTest extends TestCase
 
         $this->post("/apply/{$app->token}/submit")->assertSessionHasErrors(['employment.business_name', 'employment.years_trading', 'documents.business_docs'])
             ->assertSessionDoesntHaveErrors('documents.payslip');
+    }
+    #[Test]
+    public function create_lease_from_an_application_invites_the_tenant_and_leases_the_listing(): void
+    {
+        Notification::fake();
+        $app = RentalApplication::create(['agency_id' => $this->agency->id, 'listing_id' => $this->listing->id, 'agent_id' => $this->agent->id,
+            'created_by' => $this->agent->id, 'status' => 'submitted', 'employment_type' => 'salary', 'data' => $this->answers()]);
+
+        // Not before submission.
+        $draft = RentalApplication::create(['agency_id' => $this->agency->id, 'listing_id' => $this->listing->id, 'agent_id' => $this->agent->id, 'status' => 'in_progress']);
+        $this->actingAs($this->agent)->post("/agent/tenants/applications/{$draft->id}/lease", [])->assertSessionHas('error');
+
+        // Pre-filled from the answers (newest first: the draft is index 0).
+        $this->actingAs($this->agent)->get('/agent/tenants')->assertInertia(fn (Assert $p) => $p
+            ->where('applications.1.can_lease', true)
+            ->where('applications.1.lease_defaults.tenant_name', 'Thandi Mokoena')
+            ->where('applications.1.lease_defaults.tenant_email', 'thandi@example.com')
+            ->where('applications.1.lease_defaults.start_date', now()->addMonth()->toDateString())
+            ->where('applications.1.lease_defaults.monthly_rent', 12000));
+
+        $this->actingAs($this->agent)->post("/agent/tenants/applications/{$app->id}/lease", [
+            'tenant_name' => 'Thandi Mokoena', 'tenant_email' => 'thandi@example.com', 'tenant_phone' => '082 123 4567',
+            'start_date' => now()->addMonth()->toDateString(), 'end_date' => now()->addMonths(13)->toDateString(),
+            'monthly_rent' => 12000, 'deposit_amount' => 12000,
+        ])->assertSessionHas('success');
+
+        $app->refresh();
+        $lease = Lease::findOrFail($app->lease_id);
+        $this->assertSame('approved', $app->status);
+        $this->assertSame('pending', $lease->status);
+        $this->assertSame($this->agency->id, $lease->agency_id);
+        $this->assertSame($this->agent->id, $lease->agent_id);
+        $this->assertSame('thandi@example.com', $lease->tenant->email);
+        $this->assertSame('leased', $this->listing->fresh()->status);
+        $this->assertTrue(Commission::where('lease_id', $lease->id)->where('deal_type', 'rental')->exists());
+        Notification::assertSentOnDemand(UserInvited::class);
+
+        // Only once; the agency admin sees it as done, and other applications for the property can't lease it.
+        $this->actingAs($this->agent)->post("/agent/tenants/applications/{$app->id}/lease", [])->assertSessionHas('error');
+        $this->assertSame(1, Lease::count());
+        $this->actingAs($this->owner)->get('/agency/tenants')->assertInertia(fn (Assert $p) => $p
+            ->where('applications.1.lease.id', $lease->id)->where('applications.1.can_lease', false)->where('applications.0.listing_leased', true));
+    }
+    #[Test]
+    public function invite_tenant_on_a_listing_still_creates_the_lease(): void
+    {
+        Notification::fake();
+        $this->actingAs($this->agent)->post("/agent/listings/{$this->listing->id}/invite-tenant", [
+            'tenant_name' => 'Sizwe Nkosi', 'tenant_email' => 'sizwe@example.com', 'start_date' => now()->toDateString(),
+            'end_date' => now()->addYear()->toDateString(), 'monthly_rent' => 12000, 'deposit_amount' => 12000,
+        ])->assertRedirect('/agent/listings')->assertSessionHas('success');
+
+        $lease = Lease::firstOrFail();
+        $this->assertSame('sizwe@example.com', $lease->tenant->email);
+        $this->assertSame($this->agent->id, $lease->agent_id);
+        $this->assertSame('leased', $this->listing->fresh()->status);
+        $this->assertTrue(Commission::where('lease_id', $lease->id)->exists());
+        Notification::assertSentOnDemand(UserInvited::class);
     }
 }

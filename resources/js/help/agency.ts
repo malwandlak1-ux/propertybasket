@@ -182,7 +182,7 @@ export const AGENCY_GUIDES: Guide[] = [
         tips: [
             'You see every application in the agency, with the agent handling it. Agents see only their own.',
             'Rent above about a third of gross income is flagged in orange.',
-            'Approving does not create the lease: invite the tenant from the listing as usual.',
+            'Once approved, click Create lease from this application: the lease is pre-filled from their answers (move-in date, lease length, rent), they are invited to the platform to sign it, and the listing comes off the public site.',
         ],
         link: { label: 'Open Applications', href: '/agency/tenants?tab=applications' },
     },

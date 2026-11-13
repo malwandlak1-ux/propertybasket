@@ -9,6 +9,9 @@ use App\Models\Listing;
 use App\Models\RentalApplication;
 use App\Notifications\RentalApplicationDecision;
 use App\Notifications\RentalApplicationLink;
+use App\Services\TenantInviter;
+use App\Models\User;
+use Illuminate\Support\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -32,8 +35,8 @@ class RentalApplicationsController extends Controller
         $self = new self;
         [$agency, $agentOnly] = $self->context($request);
 
-        $apps = $self->scoped($request)->with(['listing:id,title,suburb,city,monthly_rent,primary_image', 'agent:id,name', 'documents'])
-            ->latest()->limit(300)->get();
+        $apps = $self->scoped($request)->with(['listing:id,title,suburb,city,monthly_rent,primary_image,listing_type,status', 'agent:id,name', 'documents', 'lease:id,created_at'])
+            ->latest()->orderByDesc('id')->limit(300)->get();
 
         $listings = Listing::query()
             ->where('listing_type', 'long_term_rent')
@@ -136,6 +139,54 @@ class RentalApplicationsController extends Controller
         return back()->with('success', $msg);
     }
 
+    /**
+     * Create the lease from an application: same as Invite Tenant on the
+     * listing, pre-filled from the applicant's answers. Approves it too.
+     */
+    public function createLease(Request $request, RentalApplication $application): RedirectResponse
+    {
+        $this->authorizeFor($request, $application);
+        $application->loadMissing(['listing', 'agent']);
+        $listing = $application->listing;
+
+        if ($application->lease_id) {
+            return back()->with('error', 'A lease was already created from this application.');
+        }
+        if (! in_array($application->status, ['submitted', 'reviewing', 'approved'], true)) {
+            return back()->with('error', $application->status === 'declined' ? 'This application was declined.' : 'The applicant hasn’t submitted yet.');
+        }
+        if (! $listing || $listing->listing_type !== 'long_term_rent') {
+            return back()->with('error', 'This application has no rental listing to lease.');
+        }
+        if ($listing->status === 'leased') {
+            return back()->with('error', 'This property is already leased. Reactivate the listing first if the previous lease has ended.');
+        }
+
+        $data = $request->validate([
+            'tenant_name' => ['required', 'string', 'max:120'],
+            'tenant_email' => ['required', 'email', 'max:180'],
+            'tenant_phone' => ['nullable', 'string', 'max:30'],
+            'start_date' => ['required', 'date'],
+            'end_date' => ['required', 'date', 'after:start_date'],
+            'monthly_rent' => ['required', 'numeric', 'min:0'],
+            'deposit_amount' => ['nullable', 'numeric', 'min:0'],
+        ]);
+
+        // The agent who handles the lease: the application's agent, else the
+        // listing's agent (the one who earns the rental commission).
+        $agent = $application->agent ?? ($listing->agent_id ? User::find($listing->agent_id) : null);
+        $lease = app(TenantInviter::class)->invite($listing, $application->agency_id, $agent, $request->user(), $data);
+
+        $application->update([
+            'lease_id' => $lease->id,
+            'status' => 'approved',
+            'decided_by' => $application->decided_by ?? $request->user()->id,
+            'decided_at' => $application->decided_at ?? now(),
+        ]);
+
+        return back()->with('success', "Lease created for {$data['tenant_name']}. They’ve been invited to the platform to sign it, and the listing is no longer public.");
+    }
+
     public function destroy(Request $request, RentalApplication $application): RedirectResponse
     {
         $this->authorizeFor($request, $application);
@@ -186,6 +237,32 @@ class RentalApplicationsController extends Controller
         abort_unless($this->scoped($request)->whereKey($application->id)->exists(), 404);
     }
 
+    /** Pre-fill for "Create lease" from the applicant's answers. */
+    private function leaseDefaults(RentalApplication $a, float $rent): array
+    {
+        $p = $a->data['personal'] ?? [];
+        $l = $a->data['lease'] ?? [];
+        try {
+            $start = ! empty($l['move_in_date']) ? Carbon::parse($l['move_in_date']) : now()->addMonthNoOverflow()->startOfMonth();
+        } catch (\Throwable) {
+            $start = now()->addMonthNoOverflow()->startOfMonth();
+        }
+        if ($start->isPast()) {
+            $start = now()->startOfDay();
+        }
+        $months = is_numeric($l['lease_term'] ?? null) ? (int) $l['lease_term'] : 12;
+
+        return [
+            'tenant_name' => $a->applicantName() !== 'New applicant' ? $a->applicantName() : '',
+            'tenant_email' => (string) $a->applicantEmail(),
+            'tenant_phone' => (string) (($p['phone'] ?? null) ?: $a->invitee_phone),
+            'start_date' => $start->toDateString(),
+            'end_date' => $start->copy()->addMonthsNoOverflow($months)->subDay()->toDateString(),
+            'monthly_rent' => $rent ?: null,
+            'deposit_amount' => $rent ?: null,
+        ];
+    }
+
     private function emailLink(RentalApplication $a): bool
     {
         try {
@@ -229,6 +306,11 @@ class RentalApplicationsController extends Controller
                 'url' => "{$base}/{$a->id}/documents/{$d->id}",
             ])->values(),
             'base' => "{$base}/{$a->id}",
+            'lease' => $a->lease_id ? ['id' => $a->lease_id, 'created' => $a->lease?->created_at?->timezone('Africa/Johannesburg')->format('d M Y')] : null,
+            'can_lease' => ! $a->lease_id && in_array($a->status, ['submitted', 'reviewing', 'approved'], true)
+                && $a->listing && $a->listing->listing_type === 'long_term_rent' && $a->listing->status !== 'leased',
+            'listing_leased' => $a->listing?->status === 'leased' && ! $a->lease_id,
+            'lease_defaults' => $this->leaseDefaults($a, $rent),
         ];
     }
 }

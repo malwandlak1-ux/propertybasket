@@ -22,7 +22,8 @@ const initialPage = (() => {
         return null;
     }
 })();
-const appName: string = initialPage?.props?.edition?.brand?.name ?? import.meta.env.VITE_APP_NAME ?? 'Property Basket';
+// On an agency website (routes/sites.php) the agency's name wins.
+const appName: string = initialPage?.props?.site?.name ?? initialPage?.props?.edition?.brand?.name ?? import.meta.env.VITE_APP_NAME ?? 'Property Basket';
 
 createInertiaApp({
     title: (title) => (title ? `${title} · ${appName}` : appName),
@@ -40,6 +41,6 @@ createInertiaApp({
         );
     },
     progress: {
-        color: initialPage?.props?.edition?.brand?.color ?? '#F26A1B',
+        color: initialPage?.props?.site?.primary_color ?? initialPage?.props?.edition?.brand?.color ?? '#F26A1B',
     },
 });

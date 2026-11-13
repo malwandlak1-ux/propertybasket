@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\CrmProspect;
 use App\Models\CrmScheme;
 use App\Models\WaCampaign;
+use App\Models\WaCatalogue;
 use App\Models\WaMessage;
 use App\Models\WaTemplate;
 use App\Models\WhatsAppAccount;
@@ -21,6 +22,7 @@ use Carbon\CarbonImmutable;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
@@ -57,6 +59,7 @@ class WhatsAppController extends Controller
                 ->map(fn (WaTemplate $t) => $this->templateRow($t)) : [],
             'campaigns' => $campaigns->map(fn (WaCampaign $c) => $this->campaignRow($c, $stats[$c->id] ?? [])),
             'threads'   => $account ? $this->threads($account) : [],
+            'catalogues' => $this->catalogues($request),
         ]);
     }
 
@@ -367,6 +370,9 @@ class WhatsAppController extends Controller
             'panel'    => $prospect ? app(CrmService::class)->prospectPanel($prospect) : null,
             'profile'  => ['name' => $user->name, 'agency' => $record->agency->name, 'phone' => $user->phone],
             'window_open_until' => $lastIn && $lastIn->sent_at?->gt(now()->subDay()) ? $lastIn->sent_at->addDay()->format('d M H:i') : null,
+            // The chat list beside the conversation (WhatsApp Web style).
+            'threads'  => $this->threads($account),
+            'catalogues' => $this->catalogues($request),
             'messages' => $messages->map(fn (WaMessage $m) => [
                 'id'        => $m->id,
                 'direction' => $m->direction,
@@ -392,11 +398,12 @@ class WhatsAppController extends Controller
         $account = $this->connected($request);
         $data = $request->validate([
             'phone'      => ['required', 'string'],
-            'body'       => ['nullable', 'required_without:attachment', 'string', 'max:4000'],
+            'body'       => ['nullable', 'required_without_all:attachment,catalogue_id', 'string', 'max:4000'],
+            'catalogue_id' => ['nullable', 'integer'],
             'attachment' => ['nullable', 'file', 'max:16384', 'mimes:' . self::ATTACH_EXT],
             'voice'      => ['nullable', 'boolean'], // recorded in the chat with the mic button
         ], [
-            'body.required_without' => 'Type a message or attach a file.',
+            'body.required_without_all' => 'Type a message or attach a file.',
             'attachment.max'        => 'Attachments can be up to 16 MB.',
             'attachment.mimes'      => 'WhatsApp accepts photos (JPG/PNG), videos (MP4), voice notes/audio and documents (PDF, Word, Excel, PowerPoint, TXT, CSV).',
         ]);
@@ -419,7 +426,10 @@ class WhatsAppController extends Controller
         ];
 
         $file = $request->file('attachment');
-        if (! $file) {
+        $catalogue = (! $file && ! empty($data['catalogue_id']))
+            ? WaCatalogue::where('agent_id', $request->user()->id)->find($data['catalogue_id']) ?? abort(404)
+            : null;
+        if (! $file && ! $catalogue) {
             try {
                 $wamid = $this->api->sendText($account, $phone, $body);
             } catch (WhatsAppApiException $e) {
@@ -430,6 +440,15 @@ class WhatsAppController extends Controller
             return back();
         }
 
+        if ($catalogue) {
+            // A catalogue from the agent's library: send a copy, so deleting it later leaves the chat intact.
+            $mime = $catalogue->mime;
+            $name = $catalogue->original_name;
+            $path = "wa-media/{$account->id}/" . Str::random(40) . '.' . (pathinfo($catalogue->original_name, PATHINFO_EXTENSION) ?: 'bin');
+            Storage::disk('local')->copy($catalogue->path, $path);
+            $kind = $this->mediaKind($mime, $catalogue->size);
+            $asVoice = false;
+        } else {
         $mime = $file->getMimeType() ?: 'application/octet-stream';
         $name = mb_substr(preg_replace('/[^\w.\- ()]+/u', '_', $file->getClientOriginalName()) ?: 'attachment', 0, 200);
         $recorded = $request->boolean('voice');
@@ -445,6 +464,7 @@ class WhatsAppController extends Controller
         // WhatsApp only shows a voice-note bubble (mic icon, plays inline) for Ogg/Opus sent with voice=true.
         $asVoice = $recorded && $kind === 'audio' && $mime === 'audio/ogg';
         $path = $file->store("wa-media/{$account->id}", 'local');
+        }
 
         try {
             $mediaId = $this->api->uploadMedia($account, Storage::disk('local')->path($path), $mime, $name);
@@ -464,8 +484,79 @@ class WhatsAppController extends Controller
         if ($textWamid) {
             WaMessage::create($base + ['type' => 'text', 'body' => $body, 'wamid' => $textWamid]);
         }
+        $catalogue?->forceFill(['sent_count' => $catalogue->sent_count + 1, 'last_sent_at' => now()])->save();
 
         return back();
+    }
+
+    // ── Catalogues ───────────────────────────────────────────────────────
+
+    /** Catalogue types WhatsApp can deliver: documents, photos, videos. */
+    private const CATALOGUE_EXT = 'pdf,jpg,jpeg,png,mp4,doc,docx,ppt,pptx,xls,xlsx';
+
+    /** POST /agent/crm/whatsapp/catalogues — add a brochure/catalogue to the agent's library. */
+    public function storeCatalogue(Request $request): RedirectResponse
+    {
+        $this->resolveAgentRecord($request);
+        $data = $request->validate([
+            'title'       => ['required', 'string', 'max:120'],
+            'description' => ['nullable', 'string', 'max:500'],
+            'file'        => ['required', 'file', 'max:16384', 'mimes:' . self::CATALOGUE_EXT],
+        ], [
+            'file.max'   => 'Catalogues can be up to 16 MB (WhatsApp’s limit for videos).',
+            'file.mimes' => 'Upload a PDF, Word/PowerPoint/Excel file, a JPG/PNG photo or an MP4 video.',
+        ]);
+        $file = $request->file('file');
+        $name = mb_substr(preg_replace('/[^\w.\- ()]+/u', '_', $file->getClientOriginalName()) ?: 'catalogue', 0, 200);
+
+        WaCatalogue::create([
+            'agent_id'      => $request->user()->id,
+            'title'         => $data['title'],
+            'description'   => $data['description'] ?? null,
+            'path'          => $file->store("wa-catalogues/{$request->user()->id}", 'local'),
+            'original_name' => $name,
+            'mime'          => $file->getMimeType() ?: 'application/octet-stream',
+            'size'          => $file->getSize(),
+        ]);
+
+        return back()->with('success', "“{$data['title']}” added to your catalogues.");
+    }
+
+    /** DELETE /agent/crm/whatsapp/catalogues/{catalogue} — chats that already have it keep their copy. */
+    public function destroyCatalogue(Request $request, WaCatalogue $catalogue): RedirectResponse
+    {
+        abort_unless((int) $catalogue->agent_id === (int) $request->user()->id, 403);
+        Storage::disk('local')->delete($catalogue->path);
+        $catalogue->delete();
+
+        return back()->with('success', "“{$catalogue->title}” removed from your catalogues.");
+    }
+
+    /** GET /agent/crm/whatsapp/catalogues/{catalogue}/file — view or download it. */
+    public function catalogueFile(Request $request, WaCatalogue $catalogue): StreamedResponse
+    {
+        abort_unless((int) $catalogue->agent_id === (int) $request->user()->id, 403);
+        abort_unless(Storage::disk('local')->exists($catalogue->path), 404);
+
+        return Storage::disk('local')->response($catalogue->path, $catalogue->original_name, ['Content-Type' => $catalogue->mime],
+            $request->boolean('download') ? 'attachment' : 'inline');
+    }
+
+    private function catalogues(Request $request): array
+    {
+        return WaCatalogue::where('agent_id', $request->user()->id)->latest()->orderByDesc('id')->get()
+            ->map(fn (WaCatalogue $c) => [
+                'id'          => $c->id,
+                'title'       => $c->title,
+                'description' => $c->description,
+                'name'        => $c->original_name,
+                'kind'        => $c->kind(),
+                'size'        => $c->size,
+                'url'         => route('agent.crm.whatsapp.catalogues.file', $c),
+                'sent_count'  => $c->sent_count,
+                'last_sent'   => $c->last_sent_at?->diffForHumans(),
+                'added'       => $c->created_at?->format('d M Y'),
+            ])->all();
     }
 
     /** GET /agent/crm/whatsapp/media/{message} — the agent's own copy of an attachment they sent. */

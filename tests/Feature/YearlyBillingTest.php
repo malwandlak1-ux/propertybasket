@@ -83,4 +83,39 @@ class YearlyBillingTest extends TestCase
         $this->assertSame('failed', $txn->fresh()->status);
         $this->assertSame('starter', $this->agency->fresh()->subscription_plan);
     }
+
+    #[Test]
+    public function the_chosen_payment_method_is_the_only_one_paystack_shows(): void
+    {
+        config(['services.paystack.secret_key' => 'sk_test_X', 'services.paystack.stub' => false,
+            'services.paystack.subscription_channels' => ['card', 'eft', 'capitec_pay']]);
+        Http::fake([
+            'api.paystack.co/transaction/initialize' => Http::response(['status' => true, 'data' => ['authorization_url' => 'https://checkout.paystack.com/x', 'access_code' => 'a', 'reference' => 'R1']]),
+        ]);
+
+        $this->actingAs($this->owner)->get('/agency/billing')->assertInertia(fn (Assert $p) => $p->where('payment_methods', ['card', 'eft', 'capitec_pay']));
+
+        // Monthly is charged too, through the method picked.
+        $this->actingAs($this->owner)->post('/billing/checkout', ['plan_key' => 'growth', 'period' => 'monthly', 'channel' => 'eft'])
+            ->assertRedirect('https://checkout.paystack.com/x');
+        Http::assertSent(fn ($r) => str_ends_with($r->url(), '/transaction/initialize') && $r['channels'] === ['eft']
+            && $r['amount'] === PlatformPlans::priceFor('growth') * 100);
+        $this->assertSame('growth', PlatformTransaction::firstOrFail()->description);
+
+        // A method that isn't offered is refused before anything reaches Paystack.
+        $this->actingAs($this->owner)->post('/billing/checkout', ['plan_key' => 'growth', 'period' => 'yearly', 'channel' => 'ussd'])
+            ->assertSessionHasErrors('channel');
+        $this->assertSame(1, PlatformTransaction::count());
+    }
+
+    #[Test]
+    public function a_failed_paystack_start_comes_back_with_a_message(): void
+    {
+        config(['services.paystack.secret_key' => 'sk_test_X', 'services.paystack.stub' => false]);
+        Http::fake(['api.paystack.co/transaction/initialize' => Http::response(['status' => false, 'message' => 'Channel not enabled'], 400)]);
+
+        $this->actingAs($this->owner)->from('/agency/billing')->post('/billing/checkout', ['plan_key' => 'growth', 'period' => 'yearly', 'channel' => 'apple_pay'])
+            ->assertRedirect('/agency/billing')->assertSessionHas('error');
+        $this->assertSame('starter', $this->agency->fresh()->subscription_plan);
+    }
 }

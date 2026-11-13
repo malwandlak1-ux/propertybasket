@@ -80,7 +80,8 @@ class SubscriptionController extends Controller
         $data = $request->validate([
             'plan_key' => ['required', 'string'],
             'period'   => ['nullable', 'in:monthly,yearly'],
-        ]);
+            'channel'  => ['nullable', 'string', \Illuminate\Validation\Rule::in(config('services.paystack.subscription_channels', []))],
+        ], ['channel.in' => 'That payment method isn’t available. Pick another one.']);
         $yearly = ($data['period'] ?? 'monthly') === 'yearly';
 
         $plan = $plans->get($data['plan_key']);
@@ -93,10 +94,17 @@ class SubscriptionController extends Controller
         // along on the transaction (description "growth:yearly") for the callback.
         $request->session()->put('billing.plan_key', $plan['key'] . ($yearly ? ':yearly' : ''));
 
-        $init = $this->paystack->initializeSubscriptionPayment(
-            $user, $owner, $plan['key'] . ($yearly ? ':yearly' : ''),
-            $yearly ? PlatformPlans::yearlyTotal((int) $plan['price']) : (int) $plan['price']
-        );
+        try {
+            $init = $this->paystack->initializeSubscriptionPayment(
+                $user, $owner, $plan['key'] . ($yearly ? ':yearly' : ''),
+                $yearly ? PlatformPlans::yearlyTotal((int) $plan['price']) : (int) $plan['price'],
+                $data['channel'] ?? null
+            );
+        } catch (\Throwable $e) {
+            report($e);
+
+            return back()->with('error', 'We couldn’t start the payment with that method. Try another payment method, or try again in a moment.');
+        }
 
         // The page POSTs via Inertia (XHR), so a plain external redirect won't
         // navigate the browser. Inertia::location sends a 409 + X-Inertia-Location

@@ -55,6 +55,7 @@ class BillingController extends Controller
             ] : null,
             'plans' => $plans,
             'yearly_discount' => PlatformPlans::YEARLY_DISCOUNT_PERCENT,
+            'payment_methods' => array_values(config('services.paystack.subscription_channels', ['card'])),
         ]);
     }
 

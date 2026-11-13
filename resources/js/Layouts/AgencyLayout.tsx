@@ -162,7 +162,8 @@ export default function AgencyLayout({ children, crumb = 'Dashboard', agencyName
     );
     const account: NavItem[] = [
         { label: 'EAAB & Compliance', href: '/agency/compliance', icon: ICON_COMPLIANCE, badge: complianceBadge },
-        ...(agencySitesEnabled ? [{ label: 'Website', href: '/agency/website', icon: ICON_WEBSITE }] : []),
+        // SITES_ENABLED=false (prod until release): shown greyed out, not clickable.
+        { label: 'Website', href: agencySitesEnabled ? '/agency/website' : undefined, icon: ICON_WEBSITE },
         { label: 'Settings', href: '/agency/settings', icon: ICON_SETTINGS },
         { label: 'Billing & Plan', href: '/agency/billing', icon: ICON_BILLING },
         { label: 'Help & Support', href: '/agency/help', icon: ICON_HELP },

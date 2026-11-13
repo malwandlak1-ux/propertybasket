@@ -286,6 +286,19 @@ class AgencySiteTest extends TestCase
     }
 
     #[Test]
+    public function website_tab_is_off_when_sites_are_disabled(): void
+    {
+        config(['sites.enabled' => false]); // SITES_ENABLED=false (production until release)
+
+        $this->actingAs($this->owner)->get(self::MAIN.'/agency/website')->assertNotFound();
+        $this->actingAs($this->owner)->post(self::MAIN.'/agency/website', ['subdomain' => 'x', 'template' => 'minimal'])->assertNotFound();
+        $this->assertSame('sandton', $this->site->fresh()->subdomain);
+
+        $this->actingAs($this->owner)->get(self::MAIN.'/agency/settings')->assertOk()
+            ->assertInertia(fn (Assert $p) => $p->where('edition.agency_sites', false));
+    }
+
+    #[Test]
     public function removed_templates_are_rejected(): void
     {
         foreach (['editorial', 'modern', 'nope'] as $tpl) {

@@ -45,10 +45,10 @@ export default function AdminLayout({ children, crumb = 'Overview', section = 'P
     const numberBadge = (n?: number): NavItem['badge'] =>
         n != null && n > 0 ? { text: n.toLocaleString('en-ZA'), tone: 'muted' } : undefined;
 
-    const { agenciesEnabled } = useEdition();
+    const { agenciesEnabled, agencySitesEnabled } = useEdition();
     const accounts: NavItem[] = [
         ...(agenciesEnabled ? [{ label: 'Agencies', href: '/admin/agencies', icon: I.agencies, badge: numberBadge(counts?.agencies) }] : []),
-        ...(agenciesEnabled ? [{ label: 'Agency Websites', href: '/admin/websites', icon: I.websites }] : []),
+        ...(agenciesEnabled && agencySitesEnabled ? [{ label: 'Agency Websites', href: '/admin/websites', icon: I.websites }] : []),
         { label: 'Landlords',   href: '/admin/landlords',   icon: I.landlords,   badge: numberBadge(counts?.landlords) },
         { label: 'Contractors', href: '/admin/contractors', icon: I.contractors, badge: numberBadge(counts?.contractors) },
     ];

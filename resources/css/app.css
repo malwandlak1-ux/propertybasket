@@ -198,6 +198,23 @@ a:is(.font-semibold):is(.rounded-full, .rounded-xl, .rounded-lg) { font-weight: 
     .pb-rise, .pb-grow { animation: none; }
 }
 
+/* Plan names on the billing page: a soft light sweeps across the text. */
+@keyframes pb-shimmer { from { background-position: 150% 0; } to { background-position: -50% 0; } }
+.pb-shimmer {
+    background-image: linear-gradient(100deg, var(--shimmer-base, var(--color-ink-900)) 40%, var(--shimmer-light, var(--color-brand-500)) 50%, var(--shimmer-base, var(--color-ink-900)) 60%);
+    background-size: 250% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: pb-shimmer 2.4s linear infinite;
+}
+/* Savings chip that pops in when switching to yearly billing. */
+.pb-pop { transition: transform 420ms cubic-bezier(.34, 1.56, .64, 1), opacity 200ms ease; }
+@media (prefers-reduced-motion: reduce) {
+    .pb-shimmer { animation: none; background-position: 100% 0; }
+    .pb-pop, .pb-roll { transition: none !important; }
+}
+
 /* ── Animations used by Components/NetworkErrorToast.tsx ─────────────── */
 @keyframes pb-fade-in {
     from { opacity: 0; transform: translateY(8px); }

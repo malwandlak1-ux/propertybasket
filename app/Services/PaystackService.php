@@ -136,7 +136,7 @@ class PaystackService
             return null;
         }
 
-        if ($this->isStub() || request()->boolean('stub')) {
+        if ($this->isStub()) { // never trust a ?stub=1 query param: with live keys it would mark unpaid payments paid
             $payment->update([
                 'paid_at'        => now(),
                 'status'         => 'paid',
@@ -240,7 +240,7 @@ class PaystackService
             return null;
         }
 
-        if ($this->isStub() || request()->boolean('stub')) {
+        if ($this->isStub()) { // never trust a ?stub=1 query param: with live keys it would mark unpaid payments paid
             $txn->update(['status' => 'paid']);
             return $txn->fresh();
         }

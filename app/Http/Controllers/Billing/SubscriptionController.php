@@ -79,7 +79,9 @@ class SubscriptionController extends Controller
 
         $data = $request->validate([
             'plan_key' => ['required', 'string'],
+            'period'   => ['nullable', 'in:monthly,yearly'],
         ]);
+        $yearly = ($data['period'] ?? 'monthly') === 'yearly';
 
         $plan = $plans->get($data['plan_key']);
         if (! $plan) {
@@ -87,10 +89,13 @@ class SubscriptionController extends Controller
         }
 
         // Remember the chosen plan so the callback can activate the right tier.
-        $request->session()->put('billing.plan_key', $plan['key']);
+        // A yearly plan is paid upfront at the yearly discount; the period rides
+        // along on the transaction (description "growth:yearly") for the callback.
+        $request->session()->put('billing.plan_key', $plan['key'] . ($yearly ? ':yearly' : ''));
 
         $init = $this->paystack->initializeSubscriptionPayment(
-            $user, $owner, $plan['key'], (int) $plan['price']
+            $user, $owner, $plan['key'] . ($yearly ? ':yearly' : ''),
+            $yearly ? PlatformPlans::yearlyTotal((int) $plan['price']) : (int) $plan['price']
         );
 
         // The page POSTs via Inertia (XHR), so a plain external redirect won't
@@ -184,15 +189,21 @@ class SubscriptionController extends Controller
             return redirect()->route('billing.select')->with('error', 'Could not match the payment to your account.');
         }
 
-        $planKey = $txn->description ?: $request->session()->pull('billing.plan_key');
-        $owner->activateSubscription($planKey, now()->addMonth());
+        [$planKey, $period] = array_pad(explode(':', (string) ($txn->description ?: $request->session()->pull('billing.plan_key'))), 2, 'monthly');
+        $yearly = $period === 'yearly';
+        // Paying early extends from the current end date rather than throwing away the days left.
+        $from = $owner->subscription_expires_at && $owner->subscription_expires_at->isFuture() && ! $owner->isPromoSubscription()
+            ? $owner->subscription_expires_at->copy() : now();
+        $owner->activateSubscription($planKey, $yearly ? $from->addYear() : $from->addMonth());
         $request->session()->forget('billing.plan_key');
 
         $planName = PlatformPlans::all()[$planKey]['name'] ?? 'subscription';
 
         return redirect()->route('dashboard')->with(
             'success',
-            "Payment successful — your {$planName} plan is now active."
+            $yearly
+                ? "Payment successful — your {$planName} plan is active for 12 months (" . PlatformPlans::YEARLY_DISCOUNT_PERCENT . '% yearly discount).'
+                : "Payment successful — your {$planName} plan is now active."
         );
     }
 }

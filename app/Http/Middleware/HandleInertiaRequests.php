@@ -52,6 +52,7 @@ class HandleInertiaRequests extends Middleware
             'edition' => [
                 'disabled_roles' => \App\Support\Edition::disabledRoles(),
                 'marketplace'    => \App\Support\Edition::marketplaceEnabled(),
+                'agency_sites'   => (bool) config('sites.enabled'), // SITES_ENABLED: agency websites on/off
                 'brand'          => \App\Support\Edition::brand(),
             ],
         ];

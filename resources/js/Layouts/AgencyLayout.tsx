@@ -3,6 +3,7 @@ import { Link, usePage } from '@inertiajs/react';
 import { NotificationItem } from '@/Components/NotificationBell';
 import Shell, { ShellNavItem } from '@/Components/Dashboard/Shell';
 import SubscriptionBanner from '@/Components/SubscriptionBanner';
+import { useEdition } from '@/Hooks/useEdition';
 
 type SharedProps = {
     auth?: { user?: { id: number; name: string; role: string } | null };
@@ -123,6 +124,7 @@ const ICON_BILLING = (
 
 export default function AgencyLayout({ children, crumb = 'Dashboard', agencyName }: AgencyLayoutProps) {
     const { agency_ffc } = usePage<SharedProps>().props;
+    const { agencySitesEnabled } = useEdition();
     const currentPath = typeof window !== 'undefined' ? window.location.pathname : '';
 
     const isActive = (path: string) => {
@@ -160,7 +162,7 @@ export default function AgencyLayout({ children, crumb = 'Dashboard', agencyName
     );
     const account: NavItem[] = [
         { label: 'EAAB & Compliance', href: '/agency/compliance', icon: ICON_COMPLIANCE, badge: complianceBadge },
-        { label: 'Website', href: '/agency/website', icon: ICON_WEBSITE },
+        ...(agencySitesEnabled ? [{ label: 'Website', href: '/agency/website', icon: ICON_WEBSITE }] : []),
         { label: 'Settings', href: '/agency/settings', icon: ICON_SETTINGS },
         { label: 'Billing & Plan', href: '/agency/billing', icon: ICON_BILLING },
         { label: 'Help & Support', href: '/agency/help', icon: ICON_HELP },

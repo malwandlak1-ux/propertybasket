@@ -145,7 +145,7 @@ export const AGENT_GUIDES: Guide[] = [
             'Owners’ voice notes play right in the chat.',
             'Use Send to pipeline on the owner’s record beside the chat to add a warm owner as a seller lead in the New column.',
         ],
-        tips: ['You can reply freely for 24 hours after an owner writes. After that, start again with an approved template.'],
+        tips: ['You can reply freely for 24 hours after an owner writes. After that the chat shows Send a template: pick an approved template, fill in its blanks (Fill from… uses the owner’s record) and send it to that owner alone, no campaign needed. Templates only go out inside your sending hours, and Meta bills them like campaign messages.'],
         link: { label: 'Open WhatsApp', href: '/agent/crm/whatsapp' },
     },
     {

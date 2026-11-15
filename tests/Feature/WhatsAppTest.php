@@ -820,4 +820,69 @@ class WhatsAppTest extends TestCase
         \Illuminate\Support\Facades\Storage::disk('local')->assertMissing($cat->path);
         \Illuminate\Support\Facades\Storage::disk('local')->assertExists($msg->media_path);
     }
+
+    #[Test]
+    public function after_the_24h_window_an_agent_can_send_one_template_from_the_chat(): void
+    {
+        $this->fakeMeta(Http::response(['messages' => [['id' => 'wamid.TPL1']]]));
+        $a = $this->account();
+        $t = $this->template($a);
+        $p = $this->prospect();
+        // The owner last wrote three days ago, so free replies are closed.
+        WaMessage::create(['whatsapp_account_id' => $a->id, 'agent_id' => $this->agent->id, 'crm_prospect_id' => $p->id, 'direction' => 'in', 'type' => 'text',
+            'phone' => '27821112222', 'body' => 'Maybe later', 'status' => 'received', 'sent_at' => now()->subDays(3)]);
+        // A campaign with this template mapped {{1}} to the owner's name and {{3}} to the suburb.
+        WaCampaign::create(['agency_id' => $this->agency->id, 'agent_id' => $this->agent->id, 'whatsapp_account_id' => $a->id, 'wa_template_id' => $t->id,
+            'name' => 'Oct', 'template_name' => $t->name, 'template_language' => 'en', 'variable_map' => ['1' => 'owner_name', '2' => 'agent_name', '3' => 'suburb'],
+            'status' => 'completed', 'total' => 1]);
+
+        // The chat offers the template, pre-filled for this owner the way the campaign filled it.
+        $this->actingAs($this->agent)->get('/agent/crm/whatsapp/chat?phone=27821112222')->assertOk()
+            ->assertInertia(fn (Assert $pg) => $pg->where('window_open_until', null)
+                ->where('templates.0.id', $t->id)
+                ->where('templates.0.prefill.2', 'Sipho Dlamini')
+                ->where('templates.0.prefill.3', 'Sunnyside')
+                ->where('send_hours.open_now', true)
+                ->where('fields', fn ($f) => collect($f)->firstWhere('key', 'agent_name')['value'] === 'Sipho Dlamini'));
+
+        // A free-text reply is still refused…
+        $this->actingAs($this->agent)->post('/agent/crm/whatsapp/chat', ['phone' => '27821112222', 'body' => 'Hi'])->assertSessionHas('error');
+        // …every blank must be filled…
+        $this->actingAs($this->agent)->post('/agent/crm/whatsapp/chat/template', ['phone' => '27821112222', 'template_id' => $t->id, 'variables' => ['1' => 'Thabo', '2' => '', '3' => 'Sunnyside']])
+            ->assertSessionHasErrors('variables.2');
+
+        // …and the template goes out to this owner alone, without a campaign.
+        $this->actingAs($this->agent)->post('/agent/crm/whatsapp/chat/template', ['phone' => '27821112222', 'template_id' => $t->id, 'variables' => ['1' => 'Thabo', '2' => 'Sipho', '3' => 'Sunnyside']])
+            ->assertSessionHasNoErrors()->assertSessionHas('success');
+        Http::assertSent(fn ($r) => str_ends_with($r->url(), '/messages') && $r['type'] === 'template' && $r['to'] === '27821112222'
+            && $r['template']['name'] === 'home_value_report' && $r['template']['components'][0]['parameters'][0]['text'] === 'Thabo');
+        $msg = WaMessage::where('wamid', 'wamid.TPL1')->firstOrFail();
+        $this->assertNull($msg->wa_campaign_id);
+        $this->assertSame($p->id, $msg->crm_prospect_id);
+        $this->assertSame('Hi Thabo, I am Sipho focused on Sunnyside.', $msg->body);
+        $this->assertSame(1, WaCampaign::count());
+        $this->assertDatabaseHas('crm_activities', ['crm_prospect_id' => $p->id, 'channel' => 'whatsapp', 'outcome' => 'sent']);
+
+        // Another agent can't use this agent's number or template.
+        $this->actingAs($this->other)->post('/agent/crm/whatsapp/chat/template', ['phone' => '27821112222', 'template_id' => $t->id, 'variables' => ['1' => 'a', '2' => 'b', '3' => 'c']]);
+        $this->assertSame(1, WaMessage::where('direction', 'out')->count());
+    }
+
+    #[Test]
+    public function chat_templates_respect_opt_outs_and_sending_hours(): void
+    {
+        $this->fakeMeta();
+        $a = $this->account();
+        $t = $this->template($a);
+        $p = $this->prospect(['wa_opted_out_at' => now()]);
+        $vars = ['phone' => '27821112222', 'template_id' => $t->id, 'variables' => ['1' => 'a', '2' => 'b', '3' => 'c']];
+
+        $this->actingAs($this->agent)->post('/agent/crm/whatsapp/chat/template', $vars)->assertSessionHas('error', fn ($m) => str_contains($m, 'STOP'));
+        $p->update(['wa_opted_out_at' => null]);
+
+        Carbon::setTestNow(Carbon::parse('2026-10-25 10:00', 'Africa/Johannesburg')); // a Sunday
+        $this->actingAs($this->agent)->post('/agent/crm/whatsapp/chat/template', $vars)->assertSessionHas('error', fn ($m) => str_contains($m, 'sending hours'));
+        $this->assertSame(0, WaMessage::where('direction', 'out')->count());
+        Http::assertNotSent(fn ($r) => str_ends_with($r->url(), '/messages'));
+    }
 }

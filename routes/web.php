@@ -272,6 +272,7 @@ Route::middleware('auth')->group(function () {
         Route::post('crm/whatsapp/campaigns/{campaign}/cancel', [Agent\WhatsAppController::class, 'cancelCampaign'])->name('crm.whatsapp.campaigns.cancel');
         Route::get('crm/whatsapp/chat', [Agent\WhatsAppController::class, 'chat'])->name('crm.whatsapp.chat');
         Route::post('crm/whatsapp/chat', [Agent\WhatsAppController::class, 'reply'])->name('crm.whatsapp.reply');
+        Route::post('crm/whatsapp/chat/template', [Agent\WhatsAppController::class, 'sendChatTemplate'])->name('crm.whatsapp.chat.template');
         Route::get('crm/whatsapp/media/{message}', [Agent\WhatsAppController::class, 'media'])->name('crm.whatsapp.media');
         Route::post('crm/whatsapp/catalogues', [Agent\WhatsAppController::class, 'storeCatalogue'])->name('crm.whatsapp.catalogues.store');
         Route::delete('crm/whatsapp/catalogues/{catalogue}', [Agent\WhatsAppController::class, 'destroyCatalogue'])->name('crm.whatsapp.catalogues.destroy');

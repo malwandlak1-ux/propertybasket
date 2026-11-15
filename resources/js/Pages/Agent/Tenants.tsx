@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Head } from '@inertiajs/react';
 import AgentLayout from '@/Layouts/AgentLayout';
+import RentalApplications, { AppRow } from '@/Components/RentalApplications';
 
 type TenantRow = {
     lease_id: number;
@@ -25,6 +26,9 @@ type Props = {
     active: TenantRow[];
     archived: TenantRow[];
     counts: { active: number; archived: number };
+    applications: AppRow[];
+    applicationListings: { id: number; label: string; rent: number }[];
+    documentKinds: Record<string, string>;
 };
 
 function fmtMoney(n: number): string {
@@ -140,12 +144,12 @@ function TenantCard({ row, archived }: { row: TenantRow; archived: boolean }) {
     );
 }
 
-export default function AgentTenants({ agent, active, archived, counts }: Props) {
-    const [tab, setTab]     = useState<'active' | 'archived'>('active');
+export default function AgentTenants({ agent, active, archived, counts, applications, applicationListings, documentKinds }: Props) {
+    const [tab, setTab]     = useState<'active' | 'applications' | 'archived'>(() => (typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('tab') === 'applications' ? 'applications' : 'active'));
     const [query, setQuery] = useState('');
 
     const list = useMemo(() => {
-        const source = tab === 'active' ? active : archived;
+        const source = tab === 'archived' ? archived : active;
         if (! query.trim()) return source;
         const q = query.trim().toLowerCase();
         return source.filter((r) =>
@@ -195,6 +199,17 @@ export default function AgentTenants({ agent, active, archived, counts }: Props)
                         </span>
                     </button>
                     <button
+                        onClick={() => setTab('applications')}
+                        className={`text-[13px] px-4 py-2 rounded-md font-semibold flex items-center gap-2 transition ${
+                            tab === 'applications' ? 'bg-ink-900 text-white' : 'text-ink-500 hover:bg-ink-100'
+                        }`}
+                    >
+                        Applications
+                        <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold ${tab === 'applications' ? 'bg-white/20' : applications.some((a) => a.status === 'submitted') ? 'bg-brand-500 text-white' : 'bg-ink-100 text-ink-700'}`}>
+                            {applications.length}
+                        </span>
+                    </button>
+                    <button
                         onClick={() => setTab('archived')}
                         className={`text-[13px] px-4 py-2 rounded-md font-semibold flex items-center gap-2 transition ${
                             tab === 'archived' ? 'bg-ink-900 text-white' : 'text-ink-500 hover:bg-ink-100'
@@ -219,7 +234,9 @@ export default function AgentTenants({ agent, active, archived, counts }: Props)
                     </div>
                 )}
 
-                {list.length === 0 ? (
+                {tab === 'applications' ? (
+                    <RentalApplications base="/agent/tenants" applications={applications} listings={applicationListings} documentKinds={documentKinds} query={query} />
+                ) : list.length === 0 ? (
                     <div className="bg-white rounded-2xl border border-ink-200/60 p-16 text-center shadow-soft">
                         <div className="w-12 h-12 rounded-xl bg-ink-100 flex items-center justify-center mx-auto mb-4">
                             <svg className="w-6 h-6 text-ink-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>

@@ -130,7 +130,8 @@ resources/js/
                                               + Agent overview "New Lead"
     LeadDetailsModal.tsx                  — Click any kanban card / table row →
                                               contact details + listing context + quick actions
-    NotificationBell.tsx                  — Shared bell + unread dropdown (Agent/Agency/Landlord)
+    NotificationBell.tsx                  — Shared bell + unread dropdown (every dashboard, via Dashboard/Shell)
+    PushNotifications.tsx                 — Web push: per-device switch (in the bell) + one-time prompt
     InviteTenantModal.tsx                 — Shared (Agent + Landlord via submitUrlBase prop)
     LandlordInviteTenantModal.tsx         — Wraps above; resend-vs-new modes
     AddContractorModal.tsx                — Agency private contractor add
@@ -525,14 +526,38 @@ Key files:
 
 ---
 
+## Agency Websites (generated sites linked to the dashboards)
+
+Every agency can publish a branded website from `/agency/website`, served on `{subdomain}.propertybasket.co.za` and optionally its own domain. **Listings are never copied**: the site reads the shared `listings` table through `Listing::publiclyVisible()` (status `available`), the same scope the main portal uses. So marking a listing **sold** (`markSold`) or **rented** (`markLeased` / `inviteTenant`) removes it from the portal *and* the agency site on the next page load; `reactivate` brings it back on both. Always use `publiclyVisible()` for any public listing query.
+
+- **Routing**: `routes/sites.php` is `require`d at the top of `web.php` (must stay first). It is a `Route::domain('{site_host}')` group whose regex excludes `config('sites.main_hosts')`; `ResolveAgencySite` maps host → `AgencyWebsite` (subdomain, or `custom_domain` once `domain_status=live`), 404s unknown/unpublished hosts and suspended agencies, and shares the `site` prop. A catch-all 404s every other platform path (login, dashboards) on agency hosts. Drafts preview with `?preview={ResolveAgencySite::previewToken()}`.
+- **Config**: `config/sites.php`, env `SITES_BASE_DOMAIN`, `SITES_MAIN_HOSTS`, `SITES_SCHEME`, `SITES_PORT`, `SITES_CNAME_TARGET`, `SITES_SERVER_IP`. Locally `http://sandton-realty.localhost:8002` works with no DNS (`*.localhost` resolves to 127.0.0.1); `php -S` 404s `/sitemap.xml` (dotted path); use `/index.php/sitemap.xml` locally.
+- **Data**: `agency_websites` (one per agency; template `portal|showcase|minimal`, colours, hero, about, socials, SEO, GA id, `domain_status none|pending|verified|live`). `agency_agents.public_slug/bio/show_on_website` drive `/agents/{slug}`. `inquiries.agency_website_id` attributes site leads. The relation is `Agency::agencyWebsite()`, because `agencies.website` is an existing URL column.
+- **Leads**: listing enquiries and tours go through `InquiryService` with `source='website'`; an enquiry from an agent's page goes to that agent (`preferred_agent_id`). `/contact` (general, sell or let valuation) calls `InquiryService::createAgencyEnquiry()` with no listing, round-robin.
+- **Front end**: `Layouts/SiteLayout.tsx` re-points `--color-brand-*` to the agency colour and sets `data-site-template` (app.css scopes the per-template heading font, because the global `h1,h2,h3` rule is unlayered). The pages live in `Pages/Site/*` and the components in `Components/Site/*` (PropertyCard, AgentCard). Templates: **portal** (default), with its layout modelled on the Houzez demo01 theme: Roboto light headings, a solid header and footer in the agency's secondary colour, a photo hero with a tabbed (All / For sale / To rent) search bar of labelled selects, centred section titles, cards with the price over the photo, property-type and area image tiles, a "why us" band with an enquiry form, and agent cards. **showcase** has its layout modelled on Houzez demo47: bold Plus Jakarta headings with `*starred*` words highlighted in the brand colour, a white header with centred uppercase nav, a light photo hero with a tabbed search card, a feature strip, handpicked cards, an about split with a stat card, a navy stats bar, lifestyle (property-type) cards, a "why us" card, top locations and a rounded CTA band. Its footer lists types and areas with live counts, via the `site.directory` shared prop, which is only computed for showcase; the tile queries live on `AgencyWebsite::typeTiles()/areaTiles()`. The home page dispatches to `Components/Site/ShowcaseHome.tsx`. **minimal** is text-led, white and square. (The earlier editorial and modern templates were removed; unknown values render as portal.) There is deliberately **no "recently sold" section**, because sold listings must not appear.
+- **Custom domains on Hostinger** are semi-manual. The agency saves a domain (`pending`), points a CNAME at `SITES_CNAME_TARGET`, and clicks Verify (`dns_get_record`), which sets `verified`. A super admin then adds the domain in hPanel as a parked domain on `public_html/prod`, issues SSL, and clicks **Mark live** on `/admin/websites`. The wildcard `*.propertybasket.co.za` subdomain and SSL must also point at `prod`.
+- **Section images**: Website → Images lets the owner replace every site photo. The slots are `hero` (the `hero_image` column), `about` and `cta` (Showcase), `why` (Portal), and per-tile `type`/`area` overrides keyed by property type or suburb. They are stored in the `agency_websites.images` JSON (`{about, cta, why, types:{…}, areas:{…}}`) through `POST /agency/website/images` and `/images/remove`. An empty slot falls back to an automatic photo (the hero, or a listing photo). Helpers: `AgencyWebsite::customImage()`, `sectionImages()`; `typeTiles()/areaTiles()` return `image`, `auto_image` and `custom`. Replacing or resetting a slot deletes the old file.
+- **Uploads (hero, logo) 404 locally?** `public/storage` is gitignored, so each fresh checkout needs `php artisan storage:link` once. The Hostinger deploy scripts recreate the link with `ln -s` on every deploy.
+- Demo: `WebsiteDemoSeeder` publishes Sandton Realty (`sandton-realty`). Tests: `tests/Feature/AgencySiteTest.php` (15). It uses absolute `http://localhost/...` URLs for main-host requests, because the test URL generator otherwise reuses the previous request's host.
+
 ## Shared NotificationBell
 
-`resources/js/Components/NotificationBell.tsx` is the single source. Mounted by `AgentLayout`, `AgencyLayout`, `LandlordLayout` (extend to Tenant/Contractor/Admin when needed).
+`resources/js/Components/NotificationBell.tsx` is the single source. It is rendered by the shared header in `Components/Dashboard/Shell.tsx`, and all six dashboard layouts (`Admin`, `Agency`, `Agent`, `Contractor`, `Landlord`, `Tenant`) render `<Shell>`, so every signed-in role has the bell. Don't mount it again in a layout.
 
-- Reads `notifications` shared prop (formatted via `HandleInertiaRequests::formatNotification()`).
+- Reads `notifications` shared prop (formatted via `HandleInertiaRequests::formatNotification()`, now public so web push can reuse it).
+- Re-checks every 15 s (`usePoll`, partial reload of `notifications` only).
 - Red dot only when `unread_count > 0`.
-- Click → dropdown lists unread first. Each item POSTs to `NotificationsController::markRead`; "Mark all as read" POSTs to `markAllRead`.
-- Shared prop shape: `notifications: { items: [...], unread_count: N }`.
+- Click → dropdown lists the 10 most recent. Each item POSTs to `NotificationsController::markRead`; "Mark all read" POSTs to `markAllRead`.
+- Shared prop shape: `notifications: { recent: NotificationItem[], unread_count: N }`.
+- The dropdown ends with `<PushToggle>` ("Alerts on this device" + Send test), so every role can switch web push on.
+
+### Web push (alerts while the site is closed)
+
+- Every notification stored with the `database` channel (i.e. everything that rings the bell) is also pushed to the user's devices: a `NotificationSent` listener in `AppServiceProvider` formats it with `formatNotification()` and calls `App\Services\WebPush\WebPush::toUser()` after the response.
+- `WebPush` implements VAPID (RFC 8292) + aes128gcm encryption (RFC 8291) with plain openssl, no composer package. Keys come from `VAPID_PUBLIC_KEY`/`VAPID_PRIVATE_KEY`, else are generated once into `storage/app/webpush-vapid.json`. 404/410 from the push service deletes the subscription. On Windows PHP, key generation needs `openssl.cnf`; `WebPush::newKey()` finds it in `php/extras/ssl`.
+- `push_subscriptions` table (one row per browser, unique `endpoint_hash`). `PushController`: `GET push/key`, `POST/DELETE push/subscriptions`, `POST push/test`, plus public `GET /manifest.webmanifest` and `GET /sw.js` (Blade view `pwa/sw.blade.php`, served with `Service-Worker-Allowed: /`). Icons in `public/images/pwa/`.
+- Signing out deletes that device's subscription (`Logout` listener + `push_endpoint_hash` in the session); `resyncPush()` re-links it on the next sign-in if the user had alerts on there.
+- Front end: `resources/js/lib/push.ts`, `Components/PushNotifications.tsx` (`PushPrompt` mounted in `app.tsx`, `PushToggle` in the bell). iPhone/iPad only support it from a Home Screen install. Tests: `tests/Feature/WebPushTest.php`.
 
 ---
 
@@ -554,7 +579,7 @@ Set in `app/Http/Middleware/HandleInertiaRequests.php` — available to every pa
 | `auth.user` | user record + roles | identity |
 | `ffc` | `{ valid, expires_at, days_remaining }` or null | agent FFC banner |
 | `agency_ffc` | same shape | agency FFC banner |
-| `notifications` | `{ items: NotificationItem[], unread_count: number }` | `<NotificationBell>` |
+| `notifications` | `{ recent: NotificationItem[], unread_count: number }` | `<NotificationBell>` (every dashboard) |
 | `unread_messages` | int | sidebar badge |
 | `flash` | `{ success, error }` | toast/banner |
 

@@ -23,6 +23,14 @@ use App\Http\Controllers\Public\LegalController;
 use App\Http\Controllers\Public\ListingController;
 use Illuminate\Support\Facades\Route;
 
+// Agency websites ({subdomain}.propertybasket.co.za / custom domains). Must be
+// registered first: their host-constrained routes reuse portal paths like /properties.
+require __DIR__.'/sites.php';
+
+// Installable app + service worker (web push alerts while the site is closed).
+Route::get('manifest.webmanifest', [\App\Http\Controllers\PushController::class, 'manifest'])->name('pwa.manifest');
+Route::get('sw.js', [\App\Http\Controllers\PushController::class, 'serviceWorker'])->name('pwa.sw');
+
 // Public property portal — switched off per site with PUBLIC_SITE=false (careline),
 // which redirects these pages to the login screen.
 Route::middleware(\App\Http\Middleware\EnsurePublicSite::class)->group(function () {
@@ -51,6 +59,18 @@ Route::middleware(\App\Http\Middleware\EnsurePublicSite::class)->group(function 
         abort_unless(is_file(public_path('how-to.html')), 404);
         return response()->file(public_path('how-to.html'));
     })->name('how-to');
+});
+
+// Agency listing packs shared by agents (always the current version).
+Route::get('/docs/{token}/{category}', [\App\Http\Controllers\AgencyDocumentsController::class, 'shared'])->middleware('throttle:60,1')->name('documents.shared');
+
+// Self-service rental application (link sent by an agent; no account needed).
+Route::middleware('throttle:60,1')->group(function () {
+    Route::get('/apply/{token}', [\App\Http\Controllers\Public\RentalApplicationController::class, 'show'])->name('apply.show');
+    Route::post('/apply/{token}/save', [\App\Http\Controllers\Public\RentalApplicationController::class, 'save'])->name('apply.save');
+    Route::post('/apply/{token}/documents', [\App\Http\Controllers\Public\RentalApplicationController::class, 'upload'])->name('apply.upload');
+    Route::delete('/apply/{token}/documents/{document}', [\App\Http\Controllers\Public\RentalApplicationController::class, 'removeDocument'])->name('apply.documents.destroy');
+    Route::post('/apply/{token}/submit', [\App\Http\Controllers\Public\RentalApplicationController::class, 'submit'])->name('apply.submit');
 });
 
 Route::get('/privacy-policy',         [LegalController::class, 'privacyPolicy'])->name('legal.privacy');
@@ -92,6 +112,11 @@ Route::middleware('auth')->group(function () {
     Route::get('contractors', [ContractorController::class, 'index'])->name('contractors.index');
 
     Route::post('notifications/{id}/read', [\App\Http\Controllers\NotificationsController::class, 'markRead'])->name('notifications.read');
+    // Web push: switch alerts on/off for this browser.
+    Route::get('push/key', [\App\Http\Controllers\PushController::class, 'key'])->name('push.key');
+    Route::post('push/subscriptions', [\App\Http\Controllers\PushController::class, 'store'])->middleware('throttle:30,1')->name('push.subscribe');
+    Route::delete('push/subscriptions', [\App\Http\Controllers\PushController::class, 'destroy'])->name('push.unsubscribe');
+    Route::post('push/test', [\App\Http\Controllers\PushController::class, 'test'])->middleware('throttle:6,1')->name('push.test');
     Route::post('notifications/read-all',  [\App\Http\Controllers\NotificationsController::class, 'markAllRead'])->name('notifications.read-all');
 
     // Settings → Appearance (every dashboard role): accent colour + custom logo.
@@ -114,6 +139,13 @@ Route::middleware('auth')->group(function () {
         Route::post('agents/invite', [\App\Http\Controllers\Agency\AgentsController::class, 'invite'])->name('agents.invite');
 
         Route::get('tenants', [\App\Http\Controllers\Agency\TenantsController::class, 'index'])->name('tenants.index');
+        // Tenants → Applications: self-service rental application links.
+        Route::post('tenants/applications', [\App\Http\Controllers\RentalApplicationsController::class, 'store'])->name('applications.store');
+        Route::post('tenants/applications/{application}/send', [\App\Http\Controllers\RentalApplicationsController::class, 'send'])->name('applications.send');
+        Route::patch('tenants/applications/{application}', [\App\Http\Controllers\RentalApplicationsController::class, 'decide'])->name('applications.decide');
+        Route::post('tenants/applications/{application}/lease', [\App\Http\Controllers\RentalApplicationsController::class, 'createLease'])->middleware('agency_ffc')->name('applications.lease');
+        Route::delete('tenants/applications/{application}', [\App\Http\Controllers\RentalApplicationsController::class, 'destroy'])->name('applications.destroy');
+        Route::get('tenants/applications/{application}/documents/{document}', [\App\Http\Controllers\RentalApplicationsController::class, 'document'])->name('applications.document');
         Route::post('tenants/{lease}/deposit-received', [\App\Http\Controllers\Agency\TenantsController::class, 'markDepositReceived'])->name('tenants.deposit-received');
 
         Route::get('contractors',  [\App\Http\Controllers\Agency\ContractorsController::class, 'index'])->name('contractors.index');
@@ -140,6 +172,14 @@ Route::middleware('auth')->group(function () {
         Route::get('commissions', [\App\Http\Controllers\Agency\CommissionController::class, 'index'])->name('commissions.index');
         Route::post('commissions/approve', [\App\Http\Controllers\Agency\CommissionController::class, 'approve'])->name('commissions.approve');
         Route::post('commissions/payout', [\App\Http\Controllers\Agency\CommissionController::class, 'runPayout'])->name('commissions.payout');
+        Route::get('commissions/batches/{batch}/eft.csv', [\App\Http\Controllers\Agency\CommissionController::class, 'eftFile'])->name('commissions.batches.eft');
+        Route::post('commissions/batches/{batch}/paid', [\App\Http\Controllers\Agency\CommissionController::class, 'markBatchPaid'])->name('commissions.batches.paid');
+        Route::post('commissions/batches/{batch}/release', [\App\Http\Controllers\Agency\CommissionController::class, 'releaseBatch'])->name('commissions.batches.release');
+        Route::post('payouts/investec', [\App\Http\Controllers\Agency\InvestecController::class, 'connect'])->name('payouts.investec.connect');
+        Route::delete('payouts/investec', [\App\Http\Controllers\Agency\InvestecController::class, 'disconnect'])->name('payouts.investec.disconnect');
+        Route::get('payouts/investec/agents', [\App\Http\Controllers\Agency\InvestecController::class, 'agents'])->name('payouts.investec.agents');
+        Route::post('payouts/bank-link', [\App\Http\Controllers\Agency\BankLinkController::class, 'request'])->name('payouts.bank-link.request');
+        Route::delete('payouts/bank-link', [\App\Http\Controllers\Agency\BankLinkController::class, 'cancel'])->name('payouts.bank-link.cancel');
         Route::post('commissions/invoices/{invoice}/pay', [\App\Http\Controllers\Agency\CommissionController::class, 'payInvoice'])->name('commissions.invoices.pay');
         Route::post('commissions/rates', [\App\Http\Controllers\Agency\CommissionController::class, 'updateRates'])->name('commissions.rates');
 
@@ -150,6 +190,18 @@ Route::middleware('auth')->group(function () {
         Route::post('landlords/link-property',        [\App\Http\Controllers\Agency\LandlordsController::class, 'linkProperty'])->name('landlords.link');
         Route::post('landlords/properties/{listing}/unlink', [\App\Http\Controllers\Agency\LandlordsController::class, 'unlinkProperty'])->name('landlords.unlink');
         Route::post('landlords/run-payout',           [\App\Http\Controllers\Agency\LandlordsController::class, 'runMonthlyPayout'])->name('landlords.payout');
+
+        // Generated agency website ({subdomain}.propertybasket.co.za) — served by routes/sites.php.
+        Route::middleware(\App\Http\Middleware\EnsureAgencySitesEnabled::class)->group(function () {
+            Route::get('website',                 [\App\Http\Controllers\Agency\WebsiteController::class, 'show'])->name('website.show');
+            Route::post('website',                [\App\Http\Controllers\Agency\WebsiteController::class, 'update'])->name('website.update');
+            Route::post('website/images',         [\App\Http\Controllers\Agency\WebsiteController::class, 'uploadImage'])->name('website.images.upload');
+            Route::post('website/images/remove',  [\App\Http\Controllers\Agency\WebsiteController::class, 'removeImage'])->name('website.images.remove');
+            Route::post('website/publish',        [\App\Http\Controllers\Agency\WebsiteController::class, 'publish'])->name('website.publish');
+            Route::post('website/domain',         [\App\Http\Controllers\Agency\WebsiteController::class, 'saveDomain'])->name('website.domain');
+            Route::post('website/domain/verify',  [\App\Http\Controllers\Agency\WebsiteController::class, 'verifyDomain'])->name('website.domain.verify');
+            Route::patch('website/agents/{agencyAgent}', [\App\Http\Controllers\Agency\WebsiteController::class, 'updateAgent'])->name('website.agents.update');
+        });
 
         Route::get('settings', [\App\Http\Controllers\Agency\SettingsController::class, 'show'])->name('settings.show');
         Route::match(['post', 'patch'], 'settings', [\App\Http\Controllers\Agency\SettingsController::class, 'update'])->name('settings.update');
@@ -175,9 +227,21 @@ Route::middleware('auth')->group(function () {
 
         Route::get('reports', [\App\Http\Controllers\Agency\ReportsController::class, 'index'])->name('reports.index');
 
+        // Messages → Email: the user's own mailbox (POP3/IMAP + SMTP).
+        Route::get('messages/email', [\App\Http\Controllers\EmailController::class, 'index'])->name('email.index');
+        Route::post('messages/email/account', [\App\Http\Controllers\EmailController::class, 'connect'])->name('email.connect');
+        Route::delete('messages/email/account', [\App\Http\Controllers\EmailController::class, 'disconnect'])->name('email.disconnect');
+        Route::post('messages/email/sync', [\App\Http\Controllers\EmailController::class, 'sync'])->name('email.sync');
+        Route::post('messages/email/send', [\App\Http\Controllers\EmailController::class, 'send'])->name('email.send');
         Route::get('messages', [\App\Http\Controllers\Agency\MessagesController::class, 'index'])->name('messages.index');
         Route::post('messages/{conversation}', [\App\Http\Controllers\Agency\MessagesController::class, 'store'])->name('messages.store');
         Route::post('messages-broadcast', [\App\Http\Controllers\Agency\MessagesController::class, 'broadcast'])->name('messages.broadcast');
+        // Documentation: lease agreement + listing packs (versioned).
+        Route::get('documents', [\App\Http\Controllers\AgencyDocumentsController::class, 'index'])->name('documents.index');
+        Route::post('documents', [\App\Http\Controllers\AgencyDocumentsController::class, 'store'])->name('documents.store');
+        Route::get('documents/{document}', [\App\Http\Controllers\AgencyDocumentsController::class, 'show'])->name('documents.show');
+        Route::post('documents/{document}/restore', [\App\Http\Controllers\AgencyDocumentsController::class, 'restore'])->name('documents.restore');
+        Route::delete('documents/{document}', [\App\Http\Controllers\AgencyDocumentsController::class, 'destroy'])->name('documents.destroy');
     });
 
     Route::prefix('agent')->name('agent.')->middleware([EnsureRoleEnabled::class . ':agent', 'ffc'])->group(function () {
@@ -219,7 +283,11 @@ Route::middleware('auth')->group(function () {
         Route::post('crm/whatsapp/campaigns/{campaign}/cancel', [Agent\WhatsAppController::class, 'cancelCampaign'])->name('crm.whatsapp.campaigns.cancel');
         Route::get('crm/whatsapp/chat', [Agent\WhatsAppController::class, 'chat'])->name('crm.whatsapp.chat');
         Route::post('crm/whatsapp/chat', [Agent\WhatsAppController::class, 'reply'])->name('crm.whatsapp.reply');
+        Route::post('crm/whatsapp/chat/template', [Agent\WhatsAppController::class, 'sendChatTemplate'])->name('crm.whatsapp.chat.template');
         Route::get('crm/whatsapp/media/{message}', [Agent\WhatsAppController::class, 'media'])->name('crm.whatsapp.media');
+        Route::post('crm/whatsapp/catalogues', [Agent\WhatsAppController::class, 'storeCatalogue'])->name('crm.whatsapp.catalogues.store');
+        Route::delete('crm/whatsapp/catalogues/{catalogue}', [Agent\WhatsAppController::class, 'destroyCatalogue'])->name('crm.whatsapp.catalogues.destroy');
+        Route::get('crm/whatsapp/catalogues/{catalogue}/file', [Agent\WhatsAppController::class, 'catalogueFile'])->name('crm.whatsapp.catalogues.file');
         Route::redirect('pipeline', '/agent/crm/pipeline')->name('pipeline.legacy');
         Route::post('pipeline/leads', [Agent\PipelineController::class, 'storeLead'])->name('pipeline.leads.store');
         Route::patch('pipeline/leads/{inquiry}/status', [Agent\PipelineController::class, 'updateLeadStatus'])->name('pipeline.leads.status');
@@ -227,6 +295,7 @@ Route::middleware('auth')->group(function () {
         Route::get('listings',    [Agent\ListingsController::class,  'index'])->name('listings.index');
         Route::get('listings/create', [Agent\ListingsController::class, 'create'])->name('listings.create');
         Route::get('listings/{listing}/edit', [Agent\ListingsController::class, 'edit'])->name('listings.edit');
+        Route::delete('listings/{listing}', [Agent\ListingsController::class, 'destroy'])->name('listings.destroy');
 
         Route::middleware('agency_ffc')->group(function () {
             Route::post('listings',                          [Agent\ListingsController::class, 'store'])->name('listings.store');
@@ -234,6 +303,7 @@ Route::middleware('auth')->group(function () {
             Route::post('listings/{listing}/invite-tenant',  [Agent\ListingsController::class, 'inviteTenant'])->name('listings.invite-tenant');
             Route::post('listings/{listing}/reactivate',     [Agent\ListingsController::class, 'reactivate'])->name('listings.reactivate');
             Route::post('listings/{listing}/mark-sold',      [Agent\ListingsController::class, 'markSold'])->name('listings.mark-sold');
+            Route::post('listings/{listing}/mark-leased',    [Agent\ListingsController::class, 'markLeased'])->name('listings.mark-leased');
         });
         Route::get('viewings',    [Agent\ViewingsController::class,  'index'])->name('viewings.index');
         Route::post('viewings',   [Agent\ViewingsController::class,  'store'])->name('viewings.store');
@@ -247,11 +317,26 @@ Route::middleware('auth')->group(function () {
         Route::post('inspections', [Agent\InspectionsController::class, 'store'])->name('inspections.store');
         Route::get('inspections/{inspection}', [Agent\InspectionsController::class, 'show'])->name('inspections.show');
         Route::get('inspections/{inspection}/pdf', [Agent\InspectionsController::class, 'download'])->name('inspections.download');
+        // Messages → Email: the user's own mailbox (POP3/IMAP + SMTP).
+        Route::get('messages/email', [\App\Http\Controllers\EmailController::class, 'index'])->name('email.index');
+        Route::post('messages/email/account', [\App\Http\Controllers\EmailController::class, 'connect'])->name('email.connect');
+        Route::delete('messages/email/account', [\App\Http\Controllers\EmailController::class, 'disconnect'])->name('email.disconnect');
+        Route::post('messages/email/sync', [\App\Http\Controllers\EmailController::class, 'sync'])->name('email.sync');
+        Route::post('messages/email/send', [\App\Http\Controllers\EmailController::class, 'send'])->name('email.send');
         Route::get('messages',    [Agent\MessagesController::class,  'index'])->name('messages.index');
         Route::post('messages/{conversation}', [Agent\MessagesController::class, 'store'])->name('messages.store');
+        Route::get('documents', [\App\Http\Controllers\AgencyDocumentsController::class, 'index'])->name('documents.index');
+        Route::get('documents/{document}', [\App\Http\Controllers\AgencyDocumentsController::class, 'show'])->name('documents.show');
         Route::get('commission',  [Agent\CommissionController::class, 'index'])->name('commission.index');
         Route::get('analytics',   [Agent\AnalyticsController::class, 'index'])->name('analytics.index');
         Route::get('tenants',     [Agent\TenantsController::class,   'index'])->name('tenants.index');
+        // Tenants → Applications: self-service rental application links.
+        Route::post('tenants/applications', [\App\Http\Controllers\RentalApplicationsController::class, 'store'])->name('applications.store');
+        Route::post('tenants/applications/{application}/send', [\App\Http\Controllers\RentalApplicationsController::class, 'send'])->name('applications.send');
+        Route::patch('tenants/applications/{application}', [\App\Http\Controllers\RentalApplicationsController::class, 'decide'])->name('applications.decide');
+        Route::post('tenants/applications/{application}/lease', [\App\Http\Controllers\RentalApplicationsController::class, 'createLease'])->middleware('agency_ffc')->name('applications.lease');
+        Route::delete('tenants/applications/{application}', [\App\Http\Controllers\RentalApplicationsController::class, 'destroy'])->name('applications.destroy');
+        Route::get('tenants/applications/{application}/documents/{document}', [\App\Http\Controllers\RentalApplicationsController::class, 'document'])->name('applications.document');
         Route::get('settings',    [Agent\SettingsController::class,  'index'])->name('settings.index');
         Route::post('settings/profile',       [Agent\SettingsController::class, 'updateProfile'])->name('settings.profile');
         Route::post('settings/password',      [Agent\SettingsController::class, 'updatePassword'])->name('settings.password');
@@ -264,10 +349,14 @@ Route::middleware('auth')->group(function () {
         Route::get('help',           [\App\Http\Controllers\HelpController::class, 'admin'])->name('help');
         Route::get('overview.pdf',   [Admin\OverviewController::class,      'exportPdf'])->name('overview.pdf');
         Route::get('agencies',       [Admin\AgenciesController::class,      'index'])->name('agencies.index')->middleware(EnsureRoleEnabled::class . ':agency_admin');
+        Route::get('websites',                        [Admin\WebsitesController::class, 'index'])->name('websites.index')->middleware(\App\Http\Middleware\EnsureAgencySitesEnabled::class);
+        Route::post('websites/{website}/mark-live',   [Admin\WebsitesController::class, 'markLive'])->name('websites.mark-live')->middleware(\App\Http\Middleware\EnsureAgencySitesEnabled::class);
+        Route::post('websites/{website}/disconnect',  [Admin\WebsitesController::class, 'disconnect'])->name('websites.disconnect')->middleware(\App\Http\Middleware\EnsureAgencySitesEnabled::class);
         Route::post('agencies/{agency}/approve',      [Admin\AgenciesController::class, 'approve'])->name('agencies.approve');
         Route::post('agencies/{agency}/suspend',      [Admin\AgenciesController::class, 'suspend'])->name('agencies.suspend');
         Route::post('agencies/{agency}/reactivate',   [Admin\AgenciesController::class, 'reactivate'])->name('agencies.reactivate');
         Route::post('agencies/{agency}/verify-eaab',  [Admin\AgenciesController::class, 'verifyEaab'])->name('agencies.verifyEaab');
+        Route::post('agencies/{agency}/verify-trust', [Admin\AgenciesController::class, 'verifyTrust'])->name('agencies.verifyTrust');
         Route::get('landlords',      [Admin\LandlordsController::class,     'index'])->name('landlords.index');
         Route::post('landlords/{landlord}/verify-fica', [Admin\LandlordsController::class, 'verifyFica'])->name('landlords.verifyFica');
         Route::post('landlords/{landlord}/activate',    [Admin\LandlordsController::class, 'activate'])->name('landlords.activate');
@@ -292,6 +381,10 @@ Route::middleware('auth')->group(function () {
         Route::patch('promo-codes/{promoCode}/toggle', [Admin\PromoCodesController::class, 'toggle'])->name('promo-codes.toggle');
         Route::delete('promo-codes/{promoCode}',  [Admin\PromoCodesController::class, 'destroy'])->name('promo-codes.destroy');
         Route::get('transactions',         [Admin\TransactionsController::class, 'index'])->name('transactions.index');
+        Route::get('bank-links',                [Admin\BankLinksController::class, 'index'])->name('bank-links.index');
+        Route::patch('bank-links/{link}',       [Admin\BankLinksController::class, 'update'])->name('bank-links.update');
+        Route::post('bank-links/{link}/test',   [Admin\BankLinksController::class, 'test'])->name('bank-links.test');
+        Route::post('bank-links/{link}/poll',   [Admin\BankLinksController::class, 'poll'])->name('bank-links.poll');
         Route::get('transactions/export',  [Admin\TransactionsController::class, 'export'])->name('transactions.export');
         Route::get('announcements',  [Admin\AnnouncementsController::class, 'index'])->name('announcements.index');
         Route::post('announcements', [Admin\AnnouncementsController::class, 'store'])->name('announcements.store');

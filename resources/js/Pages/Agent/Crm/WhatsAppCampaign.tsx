@@ -1,6 +1,7 @@
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import AgentLayout from '@/Layouts/AgentLayout';
 import CrmTabs from '@/Components/Crm/CrmTabs';
+import WaShell from '@/Components/Crm/WaShell';
 import { FlashBanners, PageHeader, SummaryStrip, btnOutline, btnPrimary, thRowCls } from '@/Components/Dashboard/Charts';
 import { CampaignRow, CampaignStatus, Progress, msgTone } from '@/Components/Crm/waParts';
 
@@ -36,6 +37,8 @@ export default function Campaign({ agent, campaign, messages }: {
                 />
                 <CrmTabs base="/agent/crm" active="whatsapp" />
                 <FlashBanners flash={flash} />
+                <WaShell active="campaigns">
+                <div className="flex-1 min-w-0 overflow-y-auto p-4 sm:p-6 bg-[#FBFBFA]">
                 {c.status === 'paused' && c.pause_reason && (
                     <div className="mb-4 rounded-2xl bg-warning/10 border border-warning/30 px-5 py-3 text-[13px] text-ink-700"><b>Paused:</b> {c.pause_reason}</div>
                 )}
@@ -106,6 +109,8 @@ export default function Campaign({ agent, campaign, messages }: {
                         </div>
                     </section>
                 </div>
+                </div>
+                </WaShell>
             </div>
         </AgentLayout>
     );

@@ -23,8 +23,14 @@ class InquiryService
             $allocationMethod = null;
 
             if ($listing->owner_type === Agency::class) {
-                $owner = $this->allocateRoundRobin($listing);
-                $allocationMethod = $owner ? 'round_robin' : null;
+                // An enquiry sent from an agent's page on the agency website
+                // goes to that agent; everything else is round-robin.
+                $owner = $this->preferredAgent($listing, $data['preferred_agent_id'] ?? null);
+                $allocationMethod = $owner ? 'manual' : null;
+                if (! $owner) {
+                    $owner = $this->allocateRoundRobin($listing);
+                    $allocationMethod = $owner ? 'round_robin' : null;
+                }
             } else {
                 $owner = $listing->owner?->user;
             }
@@ -39,6 +45,7 @@ class InquiryService
                 'user_id' => $data['user_id'] ?? null,
                 'assigned_to' => $owner?->id,
                 'source' => $data['source'] ?? 'website',
+                'agency_website_id' => $data['agency_website_id'] ?? null,
                 'status' => 'new',
                 'allocated_at' => $owner ? now() : null,
                 'allocation_method' => $allocationMethod,
@@ -92,6 +99,7 @@ class InquiryService
                 'user_id' => $data['user_id'] ?? null,
                 'assigned_to' => $owner?->id,
                 'source' => 'website',
+                'agency_website_id' => $data['agency_website_id'] ?? null,
                 'status' => 'new',
                 'allocated_at' => $owner ? now() : null,
                 'allocation_method' => $allocationMethod,
@@ -108,13 +116,68 @@ class InquiryService
         });
     }
 
+    /** The requested agent, but only if they're an active agent of the listing's agency. */
+    private function preferredAgent(Listing $listing, $userId): ?User
+    {
+        if (! $userId) {
+            return null;
+        }
+
+        $linked = AgencyAgent::where('agency_id', $listing->owner_id)
+            ->where('user_id', $userId)
+            ->where('status', 'active')
+            ->exists();
+
+        return $linked ? User::find($userId) : null;
+    }
+
+    /**
+     * A general / valuation enquiry from an agency website (no listing yet).
+     * Round-robins across the agency's agents and lands in their pipeline.
+     */
+    public function createAgencyEnquiry(Agency $agency, array $data): Inquiry
+    {
+        return DB::transaction(function () use ($agency, $data) {
+            $owner = $this->allocateForAgency($agency);
+
+            $inquiry = Inquiry::create([
+                'listing_id' => null,
+                'name' => $data['name'],
+                'email' => $data['email'] ?? null,
+                'phone' => $data['phone'] ?? null,
+                'message' => $data['message'] ?? null,
+                'assigned_to' => $owner?->id,
+                'source' => 'website',
+                'agency_website_id' => $data['agency_website_id'] ?? null,
+                'status' => 'new',
+                'allocated_at' => $owner ? now() : null,
+                'allocation_method' => $owner ? 'round_robin' : null,
+            ]);
+
+            if ($owner) {
+                Notification::send($owner, new InquiryReceived($inquiry));
+            }
+
+            return $inquiry;
+        });
+    }
+
     public function allocateRoundRobin(Listing $listing): ?User
     {
         if ($listing->owner_type !== Agency::class) {
             return null;
         }
 
-        $pivots = AgencyAgent::where('agency_id', $listing->owner_id)
+        return $this->allocateForAgency($listing->owner);
+    }
+
+    public function allocateForAgency(?Agency $agency): ?User
+    {
+        if (! $agency) {
+            return null;
+        }
+
+        $pivots = AgencyAgent::where('agency_id', $agency->id)
             ->where('status', 'active')
             ->orderBy('lead_allocation_position')
             ->orderBy('id')
@@ -122,7 +185,7 @@ class InquiryService
 
         if ($pivots->isEmpty()) {
             // Fall back to the agency owner so leads aren't dropped.
-            return $listing->owner?->owner;
+            return $agency->owner;
         }
 
         $next = $pivots->first();

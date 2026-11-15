@@ -79,7 +79,7 @@ const typeTone = (t: LedgerRow['tone']) => {
 export default function TenantDocuments({ tenant, lease, deposit, ledger, documents, inspections }: Props) {
     const hasDeposit = deposit.amount_deposited > 0;
     const { flash } = usePage<SharedProps>().props;
-    const [signOpen, setSignOpen] = useState(false);
+    const [signOpen, setSignOpen] = useState(() => typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('sign') === '1');
     const leaseSigned = !! lease.tenant_signed_at;
 
     return (

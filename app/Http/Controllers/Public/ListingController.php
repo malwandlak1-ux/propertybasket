@@ -25,9 +25,7 @@ class ListingController extends Controller
             'price_max'     => ['nullable', 'numeric', 'min:0'],
         ]);
 
-        $query = Listing::query()
-            ->where('status', 'available')
-            ->whereNull('deleted_at');
+        $query = Listing::query()->publiclyVisible();
 
         if (! empty($filters['listing_type'])) {
             $query->where('listing_type', $filters['listing_type']);
@@ -85,8 +83,7 @@ class ListingController extends Controller
     {
         $listing = Listing::query()
             ->where('slug', $slug)
-            ->where('status', 'available')
-            ->whereNull('deleted_at')
+            ->publiclyVisible()
             ->with(['owner', 'agent', 'units'])
             ->first();
 

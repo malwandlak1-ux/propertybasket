@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -23,7 +24,7 @@ class Agency extends Model
         'paystack_subaccount_code', 'trust_bank', 'trust_account_number',
         'trust_branch_code', 'trust_account_holder', 'trust_account_type',
         'trust_auditor_name', 'trust_auditor_practice_number', 'trust_verified_at',
-        'payout_day', 'status',
+        'payout_day', 'payout_method', 'status',
         'subscription_plan', 'subscription_expires_at',
     ];
 
@@ -64,6 +65,7 @@ class Agency extends Model
             ->withPivot([
                 'commission_split_percent', 'area_speciality', 'property_type_speciality',
                 'ffc_number', 'ffc_expires_at', 'lead_allocation_position', 'status',
+                'public_slug', 'bio', 'show_on_website',
             ])
             ->withTimestamps();
     }
@@ -71,6 +73,11 @@ class Agency extends Model
     public function listings(): MorphMany
     {
         return $this->morphMany(Listing::class, 'owner');
+    }
+
+    public function agencyWebsite(): HasOne
+    {
+        return $this->hasOne(AgencyWebsite::class);
     }
 
     public function leases(): HasMany
@@ -81,5 +88,34 @@ class Agency extends Model
     public function payoutBatches(): HasMany
     {
         return $this->hasMany(PayoutBatch::class);
+    }
+
+    /** Payout methods an agency can choose for agents' commission. */
+    public const PAYOUT_METHODS = ['paystack', 'trust_account', 'investec', 'bank_h2h'];
+
+    public function trustAccountVerified(): bool
+    {
+        return $this->trust_verified_at !== null && filled($this->trust_account_number);
+    }
+
+    public function paysFromTrustAccount(): bool
+    {
+        return ($this->payout_method ?? 'paystack') === 'trust_account';
+    }
+
+    public function investecConnection(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(InvestecConnection::class);
+    }
+
+    public function bankLink(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(BankLink::class);
+    }
+
+    /** Digits only, for comparing bank account numbers typed in different formats. */
+    public static function digits(?string $v): string
+    {
+        return preg_replace('/\D+/', '', (string) $v);
     }
 }

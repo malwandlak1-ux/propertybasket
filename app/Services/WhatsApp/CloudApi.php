@@ -139,10 +139,14 @@ class CloudApi
     /**
      * Send an uploaded attachment (inside the 24h reply window).
      * $kind is image | video | audio | document; audio can't carry a caption.
+     * $voice sends audio as a voice note (Ogg/Opus only; plays inline with a mic icon).
      */
-    public function sendMedia(WhatsAppAccount $a, string $to, string $kind, string $mediaId, ?string $caption = null, ?string $filename = null): string
+    public function sendMedia(WhatsAppAccount $a, string $to, string $kind, string $mediaId, ?string $caption = null, ?string $filename = null, bool $voice = false): string
     {
         $media = ['id' => $mediaId];
+        if ($voice && $kind === 'audio') {
+            $media['voice'] = true;
+        }
         if ($caption !== null && $caption !== '' && $kind !== 'audio') {
             $media['caption'] = $caption;
         }

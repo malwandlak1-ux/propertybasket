@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 import AgentLayout from '@/Layouts/AgentLayout';
 import InviteTenantModal from '@/Components/InviteTenantModal';
 import Icon from '@/Components/Dashboard/Icon';
+import { FlashBanners } from '@/Components/Dashboard/Charts';
 
 type Listing = {
     id: number;
@@ -22,6 +23,8 @@ type Listing = {
     can_invite_tenant: boolean;
     can_reactivate: boolean;
     can_mark_sold: boolean;
+    can_delete: boolean;
+    can_mark_leased: boolean;
     sale_price: number | null;
 };
 
@@ -54,6 +57,7 @@ const TYPE_BADGE: Record<string, string> = {
 };
 
 export default function AgentListings({ agent, listings, counts, type_filter, invitable_listings }: Props) {
+    const { flash } = usePage<{ flash?: { success?: string | null; error?: string | null } }>().props;
     const [inviteOpen, setInviteOpen]               = useState(false);
     const [inviteListingId, setInviteListingId]     = useState<number | undefined>(undefined);
     const [reactivating, setReactivating]           = useState<number | null>(null);
@@ -72,6 +76,13 @@ export default function AgentListings({ agent, listings, counts, type_filter, in
     }
 
     const [sellingId, setSellingId] = useState<number | null>(null);
+    const [deletingId, setDeletingId] = useState<number | null>(null);
+
+    function deleteListing(l: Listing) {
+        if (! confirm(`Delete "${l.title}"? It will be removed from your listings and the public site.`)) return;
+        setDeletingId(l.id);
+        router.delete(`/agent/listings/${l.id}`, { preserveScroll: true, onFinish: () => setDeletingId(null) });
+    }
 
     function markSold(l: Listing) {
         const input = prompt(
@@ -84,6 +95,16 @@ export default function AgentListings({ agent, listings, counts, type_filter, in
         setSellingId(l.id);
         router.post(`/agent/listings/${l.id}/mark-sold`, { sale_price: price }, {
             onFinish: () => setSellingId(null),
+        });
+    }
+
+    const [leasingId, setLeasingId] = useState<number | null>(null);
+
+    function markLeased(l: Listing) {
+        if (! confirm(`Mark "${l.title}" as rented? It comes off the public site and your agency website. (Use "Invite tenant" instead to onboard the tenant and record commission.)`)) return;
+        setLeasingId(l.id);
+        router.post(`/agent/listings/${l.id}/mark-leased`, {}, {
+            onFinish: () => setLeasingId(null),
         });
     }
 
@@ -106,6 +127,7 @@ export default function AgentListings({ agent, listings, counts, type_filter, in
             <Head title="My Listings" />
 
             <div className="px-4 sm:px-8 py-6 sm:py-7">
+                <FlashBanners flash={flash} />
                 {/* Header */}
                 <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
                     <div>
@@ -202,8 +224,8 @@ export default function AgentListings({ agent, listings, counts, type_filter, in
                                     </div>
                                 </Link>
 
-                                {(l.can_invite_tenant || l.can_reactivate || l.can_mark_sold) && (
-                                    <div className="px-4 pb-4 -mt-1">
+                                {(l.can_invite_tenant || l.can_reactivate || l.can_mark_sold || l.can_mark_leased) && (
+                                    <div className="px-4 pb-4 -mt-1 space-y-1.5">
                                         {l.can_mark_sold && (
                                             <button
                                                 type="button"
@@ -231,6 +253,19 @@ export default function AgentListings({ agent, listings, counts, type_filter, in
                                                 Invite tenant
                                             </button>
                                         )}
+                                        {l.can_mark_leased && (
+                                            <button
+                                                type="button"
+                                                disabled={leasingId === l.id}
+                                                onClick={() => markLeased(l)}
+                                                className="w-full text-[12px] font-semibold px-3 py-2 bg-white border border-ink-200 text-ink-700 hover:bg-ink-100 disabled:opacity-60 rounded-lg transition inline-flex items-center justify-center gap-1.5"
+                                            >
+                                                <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+                                                    <path d="M20 6L9 17l-5-5" />
+                                                </svg>
+                                                {leasingId === l.id ? 'Saving…' : 'Mark as rented'}
+                                            </button>
+                                        )}
                                         {l.can_reactivate && (
                                             <button
                                                 type="button"
@@ -244,6 +279,21 @@ export default function AgentListings({ agent, listings, counts, type_filter, in
                                                 {reactivating === l.id ? 'Reactivating…' : 'Reactivate listing'}
                                             </button>
                                         )}
+                                    </div>
+                                )}
+                                {l.can_delete && (
+                                    <div className="px-4 pb-3 flex justify-end">
+                                        <button
+                                            type="button"
+                                            disabled={deletingId === l.id}
+                                            onClick={() => deleteListing(l)}
+                                            className="text-[11.5px] font-semibold text-ink-400 hover:text-danger disabled:opacity-60 inline-flex items-center gap-1 transition"
+                                        >
+                                            <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+                                                <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
+                                            </svg>
+                                            {deletingId === l.id ? 'Deleting…' : 'Delete listing'}
+                                        </button>
                                     </div>
                                 )}
                             </div>

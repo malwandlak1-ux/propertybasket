@@ -39,4 +39,16 @@ class WaMessage extends Model
     {
         return $this->belongsTo(CrmProspect::class, 'crm_prospect_id');
     }
+
+    /** Inbox / bell label for a message with no text: "🎤 Voice note", "📷 Photo", "📎 file.pdf"… */
+    public static function mediaLabel(self $m): string
+    {
+        return match ($m->type) {
+            'audio'   => '🎤 Voice note',
+            'image'   => '📷 Photo',
+            'video'   => '🎬 Video',
+            'sticker' => 'Sticker',
+            default   => '📎 ' . ($m->media_name ?: ucfirst((string) $m->type)),
+        };
+    }
 }

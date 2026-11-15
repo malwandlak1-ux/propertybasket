@@ -3,6 +3,7 @@ import { Link, usePage } from '@inertiajs/react';
 import { NotificationItem } from '@/Components/NotificationBell';
 import Shell, { ShellNavItem } from '@/Components/Dashboard/Shell';
 import SubscriptionBanner from '@/Components/SubscriptionBanner';
+import { useEdition } from '@/Hooks/useEdition';
 
 type SharedProps = {
     auth?: { user?: { id: number; name: string; role: string } | null };
@@ -31,6 +32,12 @@ const ICON_DASHBOARD = (
         <rect x="14" y="3" width="7" height="7" rx="1.5" />
         <rect x="3" y="14" width="7" height="7" rx="1.5" />
         <rect x="14" y="14" width="7" height="7" rx="1.5" />
+    </svg>
+);
+const ICON_DOCS = (
+    <svg className="nav-icon w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+        <path d="M14 2v6h6M8 13h8M8 17h5" />
     </svg>
 );
 const ICON_PIPELINE = (
@@ -94,6 +101,12 @@ const ICON_TRUST = (
         <path d="M2 10h20M6 14h.01M10 14h.01" />
     </svg>
 );
+const ICON_WEBSITE = (
+    <svg className="nav-icon w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+        <circle cx="12" cy="12" r="10" />
+        <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+    </svg>
+);
 const ICON_SETTINGS = (
     <svg className="nav-icon w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
         <circle cx="12" cy="12" r="3" />
@@ -111,6 +124,7 @@ const ICON_BILLING = (
 
 export default function AgencyLayout({ children, crumb = 'Dashboard', agencyName }: AgencyLayoutProps) {
     const { agency_ffc } = usePage<SharedProps>().props;
+    const { agencySitesEnabled } = useEdition();
     const currentPath = typeof window !== 'undefined' ? window.location.pathname : '';
 
     const isActive = (path: string) => {
@@ -123,6 +137,7 @@ export default function AgencyLayout({ children, crumb = 'Dashboard', agencyName
         { label: 'CRM', href: '/agency/crm', icon: ICON_PIPELINE },
         { label: 'Listings & Leads', href: '/agency/listings', icon: ICON_LISTINGS },
         { label: 'Team Messages', href: '/agency/messages', icon: ICON_MESSAGES },
+        { label: 'Documentation', href: '/agency/documents', icon: ICON_DOCS },
         { label: 'Maintenance', href: '/agency/maintenance', icon: ICON_MAINTENANCE },
     ];
     const team: NavItem[] = [
@@ -147,6 +162,7 @@ export default function AgencyLayout({ children, crumb = 'Dashboard', agencyName
     );
     const account: NavItem[] = [
         { label: 'EAAB & Compliance', href: '/agency/compliance', icon: ICON_COMPLIANCE, badge: complianceBadge },
+        ...(agencySitesEnabled ? [{ label: 'Website', href: '/agency/website', icon: ICON_WEBSITE }] : []),
         { label: 'Settings', href: '/agency/settings', icon: ICON_SETTINGS },
         { label: 'Billing & Plan', href: '/agency/billing', icon: ICON_BILLING },
         { label: 'Help & Support', href: '/agency/help', icon: ICON_HELP },

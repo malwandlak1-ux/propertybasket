@@ -22,8 +22,19 @@ class BillingController extends Controller
         // Only show agency-audience plans to agencies
         $plans = collect(PlatformPlans::all())
             ->filter(fn ($p) => $p['audience'] === 'agency')
+            ->map(fn ($p) => $p + [
+                'yearly_total'   => PlatformPlans::yearlyTotal((int) $p['price']),
+                'yearly_monthly' => PlatformPlans::yearlyMonthly((int) $p['price']),
+            ])
             ->values()
             ->all();
+
+        // Billed yearly if the last paid subscription for this plan was a yearly one.
+        $lastPaid = \App\Models\PlatformTransaction::where('subscriber_type', $agency->getMorphClass())
+            ->where('subscriber_id', $agency->id)->where('type', 'subscription')->where('status', 'paid')
+            ->latest('id')->value('description');
+        $period = $lastPaid && str_ends_with($lastPaid, ':yearly') && str_starts_with($lastPaid, (string) $agency->subscription_plan . ':')
+            ? 'yearly' : 'monthly';
 
         $currentKey = $agency->subscription_plan;
         $current    = $currentKey ? (PlatformPlans::all()[$currentKey] ?? null) : null;
@@ -40,8 +51,11 @@ class BillingController extends Controller
                 'headline'   => $current['headline'],
                 'features'   => $current['features'],
                 'expires_at' => $agency->subscription_expires_at?->format('d M Y'),
+                'period'     => $period,
             ] : null,
             'plans' => $plans,
+            'yearly_discount' => PlatformPlans::YEARLY_DISCOUNT_PERCENT,
+            'payment_methods' => array_values(config('services.paystack.subscription_channels', ['card'])),
         ]);
     }
 

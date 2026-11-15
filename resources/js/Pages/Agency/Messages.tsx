@@ -1,6 +1,7 @@
 import { FormEvent, useEffect, useRef, useState } from 'react';
 import { Head, router, useForm, usePage } from '@inertiajs/react';
 import AgencyLayout from '@/Layouts/AgencyLayout';
+import MessagesTabs from '@/Components/MessagesTabs';
 import Icon from '@/Components/Dashboard/Icon';
 import { FlashBanners, PageHeader, SummaryStrip, btnPrimary } from '@/Components/Dashboard/Charts';
 
@@ -52,7 +53,7 @@ function gradientFor(initials: string): string {
 }
 
 export default function Messages({ agency, me, conversations, active, messages, agents }: Props) {
-    const { flash } = usePage<SharedProps>().props;
+    const { flash, unread_email: unreadEmail = 0 } = usePage<SharedProps & { unread_email?: number }>().props;
     const [filter, setFilter] = useState<FilterKey>('all');
     const [broadcastOpen, setBroadcastOpen] = useState(false);
     const messageScrollRef = useRef<HTMLDivElement>(null);
@@ -81,6 +82,7 @@ export default function Messages({ agency, me, conversations, active, messages, 
             <Head title="Team Messages" />
 
             <section className="px-4 sm:px-7 py-6">
+                <MessagesTabs base="/agency/messages" active="chats" unreadEmail={unreadEmail} className="mb-4" />
                 <PageHeader
                     title="Team Messages"
                     subtitle="Direct chats with your agents · team broadcasts"

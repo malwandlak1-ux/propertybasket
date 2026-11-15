@@ -17,7 +17,9 @@ use App\Services\PaystackService;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -100,17 +102,23 @@ class CommissionController extends Controller
             ->orderBy('batch_date')
             ->first();
 
+        // A bank-paid batch (EFT file or Investec) still waiting to be settled.
+        $eftBatch = $this->openBankBatch($agency);
+        $investec = $agency->investecConnection;
+
         $recentTransfers = PayoutBatch::query()
             ->where('agency_id', $agency->id)
             ->where('status', 'completed')
             ->orderByDesc('batch_date')
             ->take(4)
-            ->get(['id', 'batch_date', 'total_agent_net'])
+            ->get(['id', 'batch_date', 'total_agent_net', 'method', 'paid_reference'])
             ->map(fn ($b) => [
                 'id' => $b->id,
                 'batch_date' => $b->batch_date->toDateString(),
                 'total_agent_net' => (float) $b->total_agent_net,
                 'commissions_count' => $b->commissions()->count(),
+                'method' => $b->method ?? 'paystack',
+                'paid_reference' => $b->paid_reference,
             ]);
 
         return Inertia::render('Agency/Commission', [
@@ -121,7 +129,26 @@ class CommissionController extends Controller
                 'vat_rate' => (float) $agency->vat_rate,
                 'sale_commission_percent' => (float) ($agency->sale_commission_percent ?? 6.0),
                 'rental_commission_percent' => (float) ($agency->rental_commission_percent ?? 7.5),
+                'payout_method' => $agency->payout_method ?? 'paystack',
             ],
+            'payout' => [
+                'method'         => $agency->payout_method ?? 'paystack',
+                'paystack_stub'  => $this->paystackService->isStub(),
+                'trust_verified' => $agency->trustAccountVerified(),
+                'trust_bank'     => $agency->trust_bank,
+                'trust_account'  => $agency->trust_account_number ? '•••• ' . substr($agency->trust_account_number, -4) : null,
+                'bank_link'      => ($bl = $agency->bankLink) ? [
+                    'bank'    => $bl->bankName(),
+                    'status'  => $bl->status,
+                    'problem' => app(\App\Services\Banking\H2H\H2hPayouts::class)->problem($agency, $bl),
+                ] : null,
+                'investec'       => $investec ? [
+                    'environment' => $investec->environment,
+                    'account'     => '•••• ' . substr(Agency::digits($investec->account_number), -4),
+                    'problem'     => app(\App\Services\Banking\InvestecPayouts::class)->connectionProblem($agency, $investec),
+                ] : null,
+            ],
+            'eft_batch' => $eftBatch ? $this->eftBatchPayload($eftBatch) : null,
             'commissions' => $queue->values(),
             'totals' => $totals,
             'next_batch' => $nextBatch ? [
@@ -279,6 +306,16 @@ class CommissionController extends Controller
         $this->authorizeAgencyAdmin($request);
         $agency = $this->resolveAgency($request);
 
+        if ($agency->paysFromTrustAccount()) {
+            return $this->prepareTrustAccountBatch($agency);
+        }
+        if (($agency->payout_method ?? 'paystack') === 'investec') {
+            return $this->payViaInvestec($agency);
+        }
+        if (($agency->payout_method ?? 'paystack') === 'bank_h2h') {
+            return $this->sendToBank($agency);
+        }
+
         $batch = PayoutBatch::query()
             ->where('agency_id', $agency->id)
             ->whereIn('status', ['pending', 'approved'])
@@ -297,9 +334,16 @@ class CommissionController extends Controller
             $batch = $this->commissionService->runMonthlyBatch($agency);
         }
 
-        // Mark the batch approved, then run via Paystack stub
-        $batch->update(['status' => 'approved']);
-        $this->paystackService->runPayoutBatch($batch);
+        // Mark the batch approved, then pay it through Paystack.
+        $batch->update(['status' => 'approved', 'method' => 'paystack']);
+        try {
+            $this->paystackService->runPayoutBatch($batch);
+        } catch (\Throwable $e) {
+            report($e);
+            $batch->update(['status' => 'pending']);
+
+            return back()->with('error', 'Paystack payout failed: ' . $e->getMessage() . ' Nothing was marked paid.');
+        }
 
         // Notify each agent in this batch.
         $byAgent = $batch->commissions()->get()->groupBy('agent_id');
@@ -311,8 +355,250 @@ class CommissionController extends Controller
 
         return back()->with(
             'success',
-            'Payout batch #'.$batch->id.' completed via Paystack stub. '.$batch->commissions()->count().' transfer(s) processed.'
+            'Payout batch #'.$batch->id.' completed via Paystack'.($this->paystackService->isStub() ? ' (test mode)' : '').'. '.$batch->commissions()->count().' transfer(s) processed.'
         );
+    }
+
+    // ── Trust account (EFT) payouts ───────────────────────────────────────
+
+    /**
+     * Trust-account payouts: bundle the approved commissions into a batch the agency
+     * pays itself (EFT from its trust account), using the bank file we generate.
+     */
+    private function prepareTrustAccountBatch(Agency $agency): RedirectResponse
+    {
+        if (! $agency->trustAccountVerified()) {
+            return back()->with('error', 'Your trust account must be captured and verified by the platform before you can pay from it.');
+        }
+        if ($this->openBankBatch($agency)) {
+            return back()->with('error', 'You already have a payout waiting. Settle it (mark it paid or release it) first.');
+        }
+
+        $batch = PayoutBatch::query()
+            ->where('agency_id', $agency->id)
+            ->whereIn('status', ['pending', 'approved'])
+            ->orderBy('batch_date')
+            ->first();
+        if (! $batch) {
+            $ready = Commission::where('agency_id', $agency->id)->where('status', 'approved')->whereNull('payout_batch_id')->count();
+            if ($ready === 0) {
+                return back()->with('error', 'No approved commissions ready for payout.');
+            }
+            $batch = $this->commissionService->runMonthlyBatch($agency);
+        }
+
+        $payable = $batch->commissions()->where('status', 'approved')->with('agent')->get();
+        if ($payable->isEmpty()) {
+            return back()->with('error', 'No approved commissions ready for payout.');
+        }
+        $noBank = $payable->map->agent->filter()->unique('id')
+            ->filter(fn (User $a) => blank($a->bank_account_number) || blank($a->bank_code))
+            ->pluck('name');
+        if ($noBank->isNotEmpty()) {
+            return back()->with('error', 'Can’t pay by EFT yet: ' . $noBank->implode(', ') . ' ' . ($noBank->count() === 1 ? 'has' : 'have') . ' no bank account number and branch code on file.');
+        }
+
+        $batch->update([
+            'status'          => 'processing',
+            'method'          => 'trust_account',
+            'total_agent_net' => (float) $payable->sum('agent_net'),
+        ]);
+
+        return back()->with('success', "EFT payout #{$batch->id} is ready: download the payment file, pay it from your trust account, then mark it paid.");
+    }
+
+    /** One click: pay the approved commissions straight from the linked Investec trust account. */
+    private function payViaInvestec(Agency $agency): RedirectResponse
+    {
+        if ($this->openBankBatch($agency)) {
+            return back()->with('error', 'You already have a payout waiting. Settle it (mark it paid or release it) first.');
+        }
+
+        $lock = \Illuminate\Support\Facades\Cache::lock("agency-payout:{$agency->id}", 300);
+        if (! $lock->get()) {
+            return back()->with('error', 'A payout is already running for your agency. Give it a moment.');
+        }
+        try {
+            $batch = PayoutBatch::query()->where('agency_id', $agency->id)->whereIn('status', ['pending', 'approved'])->orderBy('batch_date')->first();
+            if (! $batch) {
+                if (! Commission::where('agency_id', $agency->id)->where('status', 'approved')->whereNull('payout_batch_id')->exists()) {
+                    return back()->with('error', 'No approved commissions ready for payout.');
+                }
+                $batch = $this->commissionService->runMonthlyBatch($agency);
+            }
+
+            try {
+                $batch = app(\App\Services\Banking\InvestecPayouts::class)->pay($agency, $batch);
+            } catch (\App\Services\Banking\InvestecException $e) {
+                return back()->with('error', $e->getMessage()); // nothing was sent
+            }
+        } finally {
+            $lock->release();
+        }
+
+        return match ($batch->status) {
+            'completed'  => back()->with('success', "Paid from your Investec trust account: payout #{$batch->id}, " . $batch->commissions()->where('status', 'paid')->count() . ' commission(s). Agents have been notified.'),
+            'processing' => back()->with('success', "Payout #{$batch->id} is with Investec and needs approval in Investec Online. Approve it there, then mark it paid here."),
+            default      => back()->with('error', "Payout #{$batch->id} didn’t complete: {$batch->failure_reason} Check Investec Online before doing anything else."),
+        };
+    }
+
+    /** Host-to-host: drop the payment file on the bank's server; status files settle it later. */
+    private function sendToBank(Agency $agency): RedirectResponse
+    {
+        if ($this->openBankBatch($agency)) {
+            return back()->with('error', 'You already have a payout waiting. Settle it (mark it paid or release it) first.');
+        }
+        $lock = \Illuminate\Support\Facades\Cache::lock("agency-payout:{$agency->id}", 300);
+        if (! $lock->get()) {
+            return back()->with('error', 'A payout is already running for your agency. Give it a moment.');
+        }
+        try {
+            $batch = PayoutBatch::query()->where('agency_id', $agency->id)->whereIn('status', ['pending', 'approved'])->orderBy('batch_date')->first();
+            if (! $batch) {
+                if (! Commission::where('agency_id', $agency->id)->where('status', 'approved')->whereNull('payout_batch_id')->exists()) {
+                    return back()->with('error', 'No approved commissions ready for payout.');
+                }
+                $batch = $this->commissionService->runMonthlyBatch($agency);
+            }
+            try {
+                $batch = app(\App\Services\Banking\H2H\H2hPayouts::class)->send($agency, $batch);
+            } catch (\App\Services\Banking\H2H\BankLinkException $e) {
+                return back()->with('error', $e->getMessage());
+            }
+        } finally {
+            $lock->release();
+        }
+        $bank = $agency->bankLink?->bankName() ?? 'the bank';
+
+        return back()->with('success', "Payout #{$batch->id} sent to {$bank}. Approve the payments in {$bank} online banking; we update each agent as the bank confirms.");
+    }
+
+    /** POST /agency/commissions/batches/{batch}/release — give up on an unpaid bank batch; its commissions can be paid again. */
+    public function releaseBatch(Request $request, PayoutBatch $batch): RedirectResponse
+    {
+        $this->authorizeAgencyAdmin($request);
+        $agency = $this->resolveAgency($request);
+        abort_unless($batch->agency_id === $agency->id && in_array($batch->method, ['trust_account', 'investec', 'bank_h2h'], true), 404);
+        if (! in_array($batch->status, ['processing', 'failed'], true)) {
+            return back()->with('error', 'This payout is already settled.');
+        }
+
+        $released = $batch->commissions()->where('status', 'approved')->update(['payout_batch_id' => null, 'payout_batch_date' => null]);
+        $anyPaid = $batch->commissions()->where('status', 'paid')->exists();
+        $batch->update($anyPaid
+            ? ['status' => 'completed', 'paid_at' => now()]
+            : ['status' => 'failed', 'failure_reason' => 'Released by the agency without payment.']);
+
+        return back()->with('success', "{$released} commission(s) released from payout #{$batch->id}. They're back in the queue to pay again.");
+    }
+
+    private function openBankBatch(Agency $agency): ?PayoutBatch
+    {
+        return PayoutBatch::query()
+            ->where('agency_id', $agency->id)
+            ->whereIn('method', ['trust_account', 'investec', 'bank_h2h'])
+            ->where(fn ($q) => $q->where('status', 'processing')
+                ->orWhere(fn ($q) => $q->where('status', 'failed')->whereHas('commissions', fn ($c) => $c->where('status', 'approved'))))
+            ->latest('id')
+            ->first();
+    }
+
+    /** GET /agency/commissions/batches/{batch}/eft.csv — bank bulk-payment file for a trust-account batch. */
+    public function eftFile(Request $request, PayoutBatch $batch): StreamedResponse
+    {
+        $this->authorizeAgencyAdmin($request);
+        $agency = $this->resolveAgency($request);
+        abort_unless($batch->agency_id === $agency->id && $batch->method === 'trust_account', 404);
+
+        $rows = $this->eftRows($batch);
+        $filename = 'commission-payout-' . $batch->id . '-' . $batch->batch_date->format('Y-m-d') . '.csv';
+
+        return response()->streamDownload(function () use ($rows, $agency, $batch) {
+            $out = fopen('php://output', 'w');
+            fputcsv($out, ['Beneficiary name', 'Bank', 'Account number', 'Branch code', 'Account type', 'Amount', 'Beneficiary reference', 'Own reference']);
+            foreach ($rows as $r) {
+                fputcsv($out, [$r['name'], $r['bank'], $r['account_number'], $r['branch_code'], $r['account_type'], number_format($r['amount'], 2, '.', ''), $r['reference'], mb_substr("{$agency->name} COMM #{$batch->id}", 0, 30)]);
+            }
+            fclose($out);
+        }, $filename, ['Content-Type' => 'text/csv; charset=UTF-8']);
+    }
+
+    /** POST /agency/commissions/batches/{batch}/paid — the agency paid the EFT batch from its trust account. */
+    public function markBatchPaid(Request $request, PayoutBatch $batch): RedirectResponse
+    {
+        $this->authorizeAgencyAdmin($request);
+        $agency = $this->resolveAgency($request);
+        abort_unless($batch->agency_id === $agency->id && in_array($batch->method, ['trust_account', 'investec', 'bank_h2h'], true), 404);
+        if (! in_array($batch->status, ['processing', 'failed'], true)) {
+            return back()->with('error', 'This payout has already been marked paid.');
+        }
+        $data = $request->validate(['reference' => ['nullable', 'string', 'max:80']]);
+
+        $paid = $batch->commissions()->where('status', 'approved')->get();
+        DB::transaction(function () use ($batch, $paid, $data) {
+            foreach ($paid as $c) {
+                $c->update(['status' => 'paid', 'paid_at' => now()]);
+            }
+            $batch->update(['status' => 'completed', 'paid_reference' => $data['reference'] ?? null, 'paid_at' => now()]);
+        });
+
+        foreach ($paid->groupBy('agent_id') as $agentId => $rows) {
+            try {
+                User::find($agentId)?->notify(new CommissionPaid($batch, $rows));
+            } catch (\Throwable $e) {
+                report($e);
+            }
+        }
+
+        return back()->with('success', "Payout #{$batch->id} marked paid — {$paid->count()} commission" . ($paid->count() === 1 ? '' : 's') . ' settled and agents notified.');
+    }
+
+    /** One line per agent (their commissions in the batch added together). */
+    private function eftRows(PayoutBatch $batch): array
+    {
+        return $batch->commissions()->where('status', 'approved')->with('agent')->get()
+            ->groupBy('agent_id')
+            ->map(function ($rows) use ($batch) {
+                $a = $rows->first()->agent;
+
+                return [
+                    'agent_id'       => $a?->id,
+                    'name'           => $a?->bank_account_holder ?: $a?->name,
+                    'agent'          => $a?->name,
+                    'bank'           => $a?->bank_name,
+                    'account_number' => $a?->bank_account_number,
+                    'branch_code'    => $a?->bank_code,
+                    'account_type'   => $a?->bank_account_type,
+                    'amount'         => round((float) $rows->sum('agent_net'), 2),
+                    'deals'          => $rows->count(),
+                    'reference'      => mb_substr('COMMISSION ' . $batch->batch_date->format('M Y'), 0, 20),
+                ];
+            })->values()->all();
+    }
+
+    private function eftBatchPayload(PayoutBatch $batch): array
+    {
+        $rows = $this->eftRows($batch);
+
+        return [
+            'id'         => $batch->id,
+            'method'     => $batch->method,
+            'status'     => $batch->status,
+            'failure'    => $batch->failure_reason,
+            'paid_count' => $batch->commissions()->where('status', 'paid')->count(),
+            'bank'       => $batch->method === 'bank_h2h' ? \App\Models\BankLink::where('agency_id', $batch->agency_id)->first()?->bankName() : null,
+            'batch_date' => $batch->batch_date->toDateString(),
+            'total'      => round(array_sum(array_column($rows, 'amount')), 2),
+            'payees'     => array_map(fn ($r) => [
+                'agent'   => $r['agent'],
+                'bank'    => $r['bank'],
+                'account' => $r['account_number'] ? '•••• ' . substr((string) $r['account_number'], -4) : null,
+                'amount'  => $r['amount'],
+                'deals'   => $r['deals'],
+            ], $rows),
+            'file_url'   => $batch->method === 'trust_account' ? route('agency.commissions.batches.eft', $batch) : null,
+        ];
     }
 
     /**

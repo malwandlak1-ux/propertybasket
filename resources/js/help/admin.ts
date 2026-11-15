@@ -27,6 +27,33 @@ export const ADMIN_GUIDES: Guide[] = [
         link: { label: 'Open Agencies', href: '/admin/agencies' },
     },
     {
+        id: 'trust-accounts',
+        category: 'Accounts',
+        title: 'Verify an agency’s trust account',
+        summary: 'Agencies can only pay from a trust account once you verify it.',
+        steps: [
+            'When an agency saves or changes its trust account you get a bell notification and an email.',
+            'Open the link, or go to Agencies and click the agency’s trust account.',
+            'Check the bank, account holder, account number, branch code and auditor, then click Mark trust account verified.',
+            'The agency is notified. If something is wrong, ask the agency to correct it; changed details come back for review. Use Revoke verification to withdraw it later.',
+        ],
+        link: { label: 'Open Agencies', href: '/admin/agencies' },
+    },
+    {
+        id: 'bank-links',
+        category: 'Accounts',
+        title: 'Take an FNB direct link live',
+        summary: 'Onboard an agency onto host-to-host commission payouts.',
+        steps: [
+            'When an agency requests a direct link you get a notification. It appears on Bank Links as Requested.',
+            'Move it through the stages as FNB onboarding progresses: Bank agreement, Credentials, Testing, Live. The agency is notified at each stage.',
+            'At Credentials, enter FNB’s SFTP host, port, username, password or private key, folders and client code. Saved secrets are kept unless you type new ones.',
+            'Click Test connection, then move to Testing and exchange test files with FNB until they sign off.',
+            'Switch to Live with FNB’s production details. Status files are read every 5 minutes, or click Read status files now.',
+        ],
+        link: { label: 'Open Bank Links', href: '/admin/bank-links' },
+    },
+    {
         id: 'landlords',
         category: 'Accounts',
         title: 'Activate and verify a landlord',

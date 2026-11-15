@@ -2,6 +2,7 @@ import { FormEvent, useMemo, useState } from 'react';
 import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
 import AgentLayout from '@/Layouts/AgentLayout';
 import CrmTabs from '@/Components/Crm/CrmTabs';
+import WaShell from '@/Components/Crm/WaShell';
 import { FlashBanners, PageHeader, btnOutline, btnPrimary } from '@/Components/Dashboard/Charts';
 import { Spinner } from '@/Components/Skeleton';
 import { STATUSES, StatusKey } from '@/Components/Crm/constants';
@@ -102,6 +103,8 @@ export default function NewCampaign({ agent, templates, schemes, filters, audien
                 <PageHeader title="New WhatsApp campaign" subtitle={<Link href="/agent/crm/whatsapp" className="font-semibold text-brand-700 hover:underline">← WhatsApp</Link>} />
                 <CrmTabs base="/agent/crm" active="whatsapp" />
                 <FlashBanners flash={flash} />
+                <WaShell active="campaigns">
+                <div className="flex-1 min-w-0 overflow-y-auto p-4 sm:p-6 bg-[#FBFBFA]">
 
                 {templates.length === 0 ? (
                     <div className="bg-white rounded-2xl border border-ink-200/60 shadow-soft p-10 text-center">
@@ -284,6 +287,8 @@ export default function NewCampaign({ agent, templates, schemes, filters, audien
                         </aside>
                     </form>
                 )}
+                </div>
+                </WaShell>
             </div>
         </AgentLayout>
     );

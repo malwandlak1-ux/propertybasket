@@ -62,7 +62,7 @@ class DocumentsController extends Controller
             [
                 'id'        => 'lease',
                 'title'     => 'Lease Agreement',
-                'subtitle'  => $lease->document_path
+                'subtitle'  => $lease->document_path && ! $lease->agency_document_id
                     ? 'Signed copy uploaded by ' . ($managedBy ?? 'your landlord')
                     : ($lease->tenant_signed_at
                         ? 'Signed by ' . ($lease->tenant_signature ?? $user->name)

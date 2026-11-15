@@ -557,6 +557,74 @@ class WhatsAppTest extends TestCase
     }
 
     #[Test]
+    public function an_agent_can_record_and_send_voice_notes(): void
+    {
+        \Illuminate\Support\Facades\Storage::fake('local');
+        Http::fake([
+            'graph.facebook.com/v23.0/2222222222/media' => Http::response(['id' => 'MEDIAV']),
+            'graph.facebook.com/v23.0/2222222222/messages' => Http::sequence()
+                ->push(['messages' => [['id' => 'wamid.V1']]])
+                ->push(['messages' => [['id' => 'wamid.V1TXT']]])
+                ->push(['messages' => [['id' => 'wamid.V2']]])
+                ->push(['messages' => [['id' => 'wamid.V3']]]),
+        ]);
+        $a = $this->account();
+        WaMessage::create(['whatsapp_account_id' => $a->id, 'agent_id' => $this->agent->id, 'direction' => 'in', 'type' => 'text',
+            'phone' => '27821112222', 'body' => 'Can you call me?', 'status' => 'received', 'sent_at' => now()->subHour()]);
+        $reply = fn (array $data) => $this->actingAs($this->agent)->post('/agent/crm/whatsapp/chat', $data + ['phone' => '27821112222']);
+
+        // Recorded in the chat (Chrome/Firefox → Ogg/Opus): goes as a real WhatsApp voice note.
+        $reply(['voice' => '1', 'body' => 'Call me after 5', 'attachment' => \Illuminate\Http\UploadedFile::fake()->create('voice-note.ogg', 40, 'audio/ogg')])
+            ->assertSessionHasNoErrors();
+        Http::assertSent(fn ($r) => str_ends_with($r->url(), '/messages') && $r['type'] === 'audio'
+            && $r['audio']['id'] === 'MEDIAV' && ($r['audio']['voice'] ?? null) === true && ! isset($r['audio']['caption']));
+        $v1 = WaMessage::where('wamid', 'wamid.V1')->firstOrFail();
+        $this->assertSame(['audio', 'audio/ogg', null], [$v1->type, $v1->media_mime, $v1->body]);
+        $this->assertSame('Call me after 5', WaMessage::where('wamid', 'wamid.V1TXT')->value('body'), 'Text typed with a voice note follows it');
+
+        // Recorded in Safari (.m4a that sniffs as video/mp4): sent as audio, not as a video or a voice-flagged note.
+        $reply(['voice' => '1', 'attachment' => \Illuminate\Http\UploadedFile::fake()->create('voice-note.m4a', 40, 'video/mp4')])->assertSessionHasNoErrors();
+        $v2 = WaMessage::where('wamid', 'wamid.V2')->firstOrFail();
+        $this->assertSame(['audio', 'audio/mp4'], [$v2->type, $v2->media_mime]);
+        Http::assertSent(fn ($r) => str_ends_with($r->url(), '/messages') && $r['type'] === 'audio' && $r['audio']['id'] === 'MEDIAV' && ! isset($r['audio']['voice']) && WaMessage::where('wamid', 'wamid.V2')->exists());
+
+        // An .ogg file attached with the paperclip is plain audio (no voice flag) — even when the
+        // server sniffs it as application/ogg, which the allow-list used to refuse.
+        $reply(['attachment' => \Illuminate\Http\UploadedFile::fake()->create('old note.ogg', 40, 'application/ogg')])->assertSessionHasNoErrors();
+        $this->assertSame('audio', WaMessage::where('wamid', 'wamid.V3')->value('type'));
+        $this->assertSame(1, collect(Http::recorded())->filter(fn ($pair) => ($pair[0]['audio']['voice'] ?? false) === true)->count(), 'Only the recorded Ogg note carries voice=true');
+
+        // Playback supports byte ranges (Safari needs them; Chrome uses them to seek).
+        \Illuminate\Support\Facades\Storage::disk('local')->put($v1->media_path, str_repeat('x', 2000));
+        $this->actingAs($this->agent)->get("/agent/crm/whatsapp/media/{$v1->id}", ['Range' => 'bytes=0-99'])
+            ->assertStatus(206)->assertHeader('Content-Range', 'bytes 0-99/2000')->assertHeader('Content-Type', 'audio/ogg');
+        $this->actingAs($this->agent)->get("/agent/crm/whatsapp/media/{$v1->id}?download=1")
+            ->assertOk()->assertHeader('Content-Disposition', 'attachment; filename=voice-note.ogg');
+    }
+
+    #[Test]
+    public function an_owners_voice_note_shows_as_a_voice_note(): void
+    {
+        $a = $this->account();
+        $this->prospect();
+        $raw = json_encode(['object' => 'whatsapp_business_account', 'entry' => [['id' => '1111111111', 'changes' => [['field' => 'messages', 'value' => [
+            'metadata' => ['phone_number_id' => '2222222222'],
+            'messages' => [['from' => '27821112222', 'id' => 'wamid.VOICE', 'timestamp' => (string) now()->timestamp, 'type' => 'audio',
+                'audio' => ['id' => 'MEDIA-IN-1', 'mime_type' => 'audio/ogg; codecs=opus', 'voice' => true]]],
+        ]]]]]]);
+        Http::fake(['graph.facebook.com/*' => Http::response([], 500)]); // media fetch can fail; the message still lands
+        $this->call('POST', "/webhooks/whatsapp/{$a->webhook_key}", [], [], [], [
+            'CONTENT_TYPE' => 'application/json', 'HTTP_X_HUB_SIGNATURE_256' => 'sha256=' . hash_hmac('sha256', $raw, 'app-secret-abcdef123456'),
+        ], $raw)->assertOk();
+
+        $this->actingAs($this->agent)->get('/agent/crm/whatsapp')->assertOk()
+            ->assertInertia(fn (Assert $p) => $p->where('notifications.recent.0.body', fn ($b) => str_contains($b, '🎤 Voice note'))
+                ->where('threads.0.last', '🎤 Voice note'));
+        $this->actingAs($this->agent)->get('/agent/crm/whatsapp/chat?phone=27821112222')->assertOk()
+            ->assertInertia(fn (Assert $p) => $p->where('messages.0.media.kind', 'audio'));
+    }
+
+    #[Test]
     public function the_send_schedule_follows_the_consumer_protection_act(): void
     {
         $at = fn (string $t) => CarbonImmutable::parse($t, 'Africa/Johannesburg');
@@ -705,5 +773,116 @@ class WhatsAppTest extends TestCase
                 ->has('campaigns', 1)->where('campaigns.0.agent', 'Sipho Dlamini')
                 ->where('numbers', fn ($n) => collect($n)->firstWhere('agent', 'Sipho Dlamini')['status'] === 'connected'
                     && collect($n)->firstWhere('agent', 'Aisha Patel')['status'] === 'not_connected'));
+    }
+
+    #[Test]
+    public function agents_keep_a_catalogue_library_and_send_from_it_in_chats(): void
+    {
+        \Illuminate\Support\Facades\Storage::fake('local');
+        Http::fake([
+            'graph.facebook.com/v23.0/2222222222/media' => Http::response(['id' => 'MEDIACAT']),
+            'graph.facebook.com/v23.0/2222222222/messages' => Http::response(['messages' => [['id' => 'wamid.CAT']]]),
+        ]);
+        $a = $this->account();
+
+        // Upload a brochure to the library.
+        $this->actingAs($this->agent)->post('/agent/crm/whatsapp/catalogues', [
+            'title' => 'Sunnyside rentals', 'file' => \Illuminate\Http\UploadedFile::fake()->create('Sunnyside rentals.pdf', 400, 'application/pdf'),
+        ])->assertSessionHasNoErrors()->assertSessionHas('success');
+        $cat = \App\Models\WaCatalogue::firstOrFail();
+        $this->assertSame($this->agent->id, $cat->agent_id);
+        $this->actingAs($this->agent)->post('/agent/crm/whatsapp/catalogues', [
+            'title' => 'Bad', 'file' => \Illuminate\Http\UploadedFile::fake()->create('setup.exe', 10, 'application/octet-stream'),
+        ])->assertSessionHasErrors('file');
+
+        $this->actingAs($this->agent)->get('/agent/crm/whatsapp')
+            ->assertInertia(fn (Assert $p) => $p->where('catalogues.0.title', 'Sunnyside rentals')->where('catalogues.0.kind', 'document'));
+        $this->actingAs($this->agent)->get("/agent/crm/whatsapp/catalogues/{$cat->id}/file")->assertOk();
+        $this->actingAs($this->other)->get("/agent/crm/whatsapp/catalogues/{$cat->id}/file")->assertForbidden();
+
+        // Send it in an open chat: goes out as a document with its file name, and the chat keeps its own copy.
+        WaMessage::create(['whatsapp_account_id' => $a->id, 'agent_id' => $this->agent->id, 'direction' => 'in', 'type' => 'text',
+            'phone' => '27821112222', 'body' => 'What do you have?', 'status' => 'received', 'sent_at' => now()->subHour()]);
+        $this->actingAs($this->agent)->get('/agent/crm/whatsapp/chat?phone=27821112222')
+            ->assertInertia(fn (Assert $p) => $p->where('catalogues.0.id', $cat->id));
+        $this->actingAs($this->agent)->post('/agent/crm/whatsapp/chat', ['phone' => '27821112222', 'catalogue_id' => $cat->id, 'body' => 'Here you go'])
+            ->assertSessionHasNoErrors();
+        Http::assertSent(fn ($r) => str_ends_with($r->url(), '/messages') && $r['type'] === 'document'
+            && $r['document']['id'] === 'MEDIACAT' && $r['document']['filename'] === 'Sunnyside rentals.pdf' && $r['document']['caption'] === 'Here you go');
+        $msg = WaMessage::where('wamid', 'wamid.CAT')->firstOrFail();
+        $this->assertNotSame($cat->path, $msg->media_path);
+        $this->assertSame(1, $cat->fresh()->sent_count);
+
+        // Removing it from the library leaves the sent copy.
+        $this->actingAs($this->other)->delete("/agent/crm/whatsapp/catalogues/{$cat->id}")->assertForbidden();
+        $this->actingAs($this->agent)->delete("/agent/crm/whatsapp/catalogues/{$cat->id}")->assertSessionHas('success');
+        $this->assertDatabaseMissing('wa_catalogues', ['id' => $cat->id]);
+        \Illuminate\Support\Facades\Storage::disk('local')->assertMissing($cat->path);
+        \Illuminate\Support\Facades\Storage::disk('local')->assertExists($msg->media_path);
+    }
+
+    #[Test]
+    public function after_the_24h_window_an_agent_can_send_one_template_from_the_chat(): void
+    {
+        $this->fakeMeta(Http::response(['messages' => [['id' => 'wamid.TPL1']]]));
+        $a = $this->account();
+        $t = $this->template($a);
+        $p = $this->prospect();
+        // The owner last wrote three days ago, so free replies are closed.
+        WaMessage::create(['whatsapp_account_id' => $a->id, 'agent_id' => $this->agent->id, 'crm_prospect_id' => $p->id, 'direction' => 'in', 'type' => 'text',
+            'phone' => '27821112222', 'body' => 'Maybe later', 'status' => 'received', 'sent_at' => now()->subDays(3)]);
+        // A campaign with this template mapped {{1}} to the owner's name and {{3}} to the suburb.
+        WaCampaign::create(['agency_id' => $this->agency->id, 'agent_id' => $this->agent->id, 'whatsapp_account_id' => $a->id, 'wa_template_id' => $t->id,
+            'name' => 'Oct', 'template_name' => $t->name, 'template_language' => 'en', 'variable_map' => ['1' => 'owner_name', '2' => 'agent_name', '3' => 'suburb'],
+            'status' => 'completed', 'total' => 1]);
+
+        // The chat offers the template, pre-filled for this owner the way the campaign filled it.
+        $this->actingAs($this->agent)->get('/agent/crm/whatsapp/chat?phone=27821112222')->assertOk()
+            ->assertInertia(fn (Assert $pg) => $pg->where('window_open_until', null)
+                ->where('templates.0.id', $t->id)
+                ->where('templates.0.prefill.2', 'Sipho Dlamini')
+                ->where('templates.0.prefill.3', 'Sunnyside')
+                ->where('send_hours.open_now', true)
+                ->where('fields', fn ($f) => collect($f)->firstWhere('key', 'agent_name')['value'] === 'Sipho Dlamini'));
+
+        // A free-text reply is still refused…
+        $this->actingAs($this->agent)->post('/agent/crm/whatsapp/chat', ['phone' => '27821112222', 'body' => 'Hi'])->assertSessionHas('error');
+        // …every blank must be filled…
+        $this->actingAs($this->agent)->post('/agent/crm/whatsapp/chat/template', ['phone' => '27821112222', 'template_id' => $t->id, 'variables' => ['1' => 'Thabo', '2' => '', '3' => 'Sunnyside']])
+            ->assertSessionHasErrors('variables.2');
+
+        // …and the template goes out to this owner alone, without a campaign.
+        $this->actingAs($this->agent)->post('/agent/crm/whatsapp/chat/template', ['phone' => '27821112222', 'template_id' => $t->id, 'variables' => ['1' => 'Thabo', '2' => 'Sipho', '3' => 'Sunnyside']])
+            ->assertSessionHasNoErrors()->assertSessionHas('success');
+        Http::assertSent(fn ($r) => str_ends_with($r->url(), '/messages') && $r['type'] === 'template' && $r['to'] === '27821112222'
+            && $r['template']['name'] === 'home_value_report' && $r['template']['components'][0]['parameters'][0]['text'] === 'Thabo');
+        $msg = WaMessage::where('wamid', 'wamid.TPL1')->firstOrFail();
+        $this->assertNull($msg->wa_campaign_id);
+        $this->assertSame($p->id, $msg->crm_prospect_id);
+        $this->assertSame('Hi Thabo, I am Sipho focused on Sunnyside.', $msg->body);
+        $this->assertSame(1, WaCampaign::count());
+        $this->assertDatabaseHas('crm_activities', ['crm_prospect_id' => $p->id, 'channel' => 'whatsapp', 'outcome' => 'sent']);
+
+        // Another agent can't use this agent's number or template.
+        $this->actingAs($this->other)->post('/agent/crm/whatsapp/chat/template', ['phone' => '27821112222', 'template_id' => $t->id, 'variables' => ['1' => 'a', '2' => 'b', '3' => 'c']]);
+        $this->assertSame(1, WaMessage::where('direction', 'out')->count());
+    }
+
+    #[Test]
+    public function chat_templates_respect_opt_outs_and_sending_hours(): void
+    {
+        $this->fakeMeta();
+        $a = $this->account();
+        $t = $this->template($a);
+        $p = $this->prospect(['wa_opted_out_at' => now()]);
+        $vars = ['phone' => '27821112222', 'template_id' => $t->id, 'variables' => ['1' => 'a', '2' => 'b', '3' => 'c']];
+
+        $this->actingAs($this->agent)->post('/agent/crm/whatsapp/chat/template', $vars)->assertSessionHas('error', fn ($m) => str_contains($m, 'STOP'));
+        $p->update(['wa_opted_out_at' => null]);
+
+        Carbon::setTestNow(Carbon::parse('2026-10-25 10:00', 'Africa/Johannesburg')); // a Sunday
+        $this->actingAs($this->agent)->post('/agent/crm/whatsapp/chat/template', $vars)->assertSessionHas('error', fn ($m) => str_contains($m, 'sending hours'));
+        $this->assertSame(0, WaMessage::where('direction', 'out')->count());
+        Http::assertNotSent(fn ($r) => str_ends_with($r->url(), '/messages'));
     }
 }

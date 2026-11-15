@@ -25,6 +25,7 @@ type Lease = {
     is_agency: boolean;
     has_deposit: boolean;
     has_upload: boolean;
+    needs_signature: boolean;
     notice_period_days: number;
     escalation_percent: number;
     status: string;
@@ -87,6 +88,17 @@ export default function TenantLease({ lease, documents, key_dates }: Props) {
                         </>
                     }
                 />
+
+                {lease.needs_signature && (
+                    <div className="mb-4 rounded-2xl border border-brand-200 bg-brand-50 px-5 py-4 flex flex-wrap items-center gap-3">
+                        <div className="flex-1 min-w-[220px]">
+                            <p className="text-[15px] font-semibold text-ink-900">Your lease agreement is ready to sign</p>
+                            <p className="text-[12.5px] text-ink-600 mt-0.5">Read it, then sign electronically by typing your full name. A signed copy is kept here for you.</p>
+                        </div>
+                        <a href="/tenant/lease/agreement.pdf" target="_blank" rel="noopener" className={btnOutline}>Read agreement</a>
+                        <Link href="/tenant/documents?sign=1" className={btnPrimary}>Sign now</Link>
+                    </div>
+                )}
 
                 {/* Hero — accent swirl */}
                 <div className="pb-swirl rounded-2xl p-6 text-white shadow-lift mb-4 pb-rise">

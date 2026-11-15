@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { Head, router } from '@inertiajs/react';
 import AgencyLayout from '@/Layouts/AgencyLayout';
 import { PageHeader, Segmented, SummaryStrip } from '@/Components/Dashboard/Charts';
+import RentalApplications, { AppRow } from '@/Components/RentalApplications';
 
 type TenantRow = {
     lease_id: number;
@@ -33,6 +34,9 @@ type Props = {
     active: TenantRow[];
     archived: TenantRow[];
     counts: { active: number; archived: number };
+    applications: AppRow[];
+    applicationListings: { id: number; label: string; rent: number }[];
+    documentKinds: Record<string, string>;
 };
 
 function fmtMoney(n: number): string {
@@ -213,12 +217,12 @@ function TenantCard({ row, archived }: { row: TenantRow; archived: boolean }) {
     );
 }
 
-export default function AgencyTenants({ agency, active, archived, counts }: Props) {
-    const [tab, setTab]     = useState<'active' | 'archived'>('active');
+export default function AgencyTenants({ agency, active, archived, counts, applications, applicationListings, documentKinds }: Props) {
+    const [tab, setTab]     = useState<'active' | 'applications' | 'archived'>(() => (typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('tab') === 'applications' ? 'applications' : 'active'));
     const [query, setQuery] = useState('');
 
     const list = useMemo(() => {
-        const source = tab === 'active' ? active : archived;
+        const source = tab === 'archived' ? archived : active;
         if (! query.trim()) return source;
         const q = query.trim().toLowerCase();
         return source.filter((r) =>
@@ -271,9 +275,10 @@ export default function AgencyTenants({ agency, active, archived, counts }: Prop
                 />
 
                 <div className="mb-4">
-                    <Segmented<'active' | 'archived'>
+                    <Segmented<'active' | 'applications' | 'archived'>
                         options={[
                             { value: 'active', label: `Active (${counts.active})` },
+                            { value: 'applications', label: `Applications (${applications.length})` },
                             { value: 'archived', label: `Archived (${counts.archived})` },
                         ]}
                         value={tab}
@@ -293,7 +298,9 @@ export default function AgencyTenants({ agency, active, archived, counts }: Prop
                     </div>
                 )}
 
-                {list.length === 0 ? (
+                {tab === 'applications' ? (
+                    <RentalApplications base="/agency/tenants" applications={applications} listings={applicationListings} documentKinds={documentKinds} query={query} showAgent />
+                ) : list.length === 0 ? (
                     <div className="bg-white rounded-2xl border border-ink-200/60 p-16 text-center shadow-soft">
                         <div className="w-12 h-12 rounded-xl bg-ink-100 flex items-center justify-center mx-auto mb-4">
                             <svg className="w-6 h-6 text-ink-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>

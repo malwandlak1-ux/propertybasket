@@ -14,7 +14,7 @@ class AgencyController extends Controller
     {
         $agencies = Agency::query()
             ->where('status', 'active')
-            ->withCount(['listings' => fn ($q) => $q->where('status', 'available')->whereNull('deleted_at')])
+            ->withCount(['listings' => fn ($q) => $q->publiclyVisible()])
             ->orderBy('name')
             ->get(['id', 'name', 'slug', 'email', 'phone', 'head_office_address', 'logo']);
 
@@ -36,8 +36,7 @@ class AgencyController extends Controller
         }
 
         $listings = $agency->listings()
-            ->where('status', 'available')
-            ->whereNull('deleted_at')
+            ->publiclyVisible()
             ->latest()
             ->take(24)
             ->get([

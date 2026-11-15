@@ -41,6 +41,15 @@ return [
         'access_token' => env('EXPO_ACCESS_TOKEN'),
     ],
 
+    // Web push (browser notifications). Leave the keys empty to have them generated
+    // once into storage/app/webpush-vapid.json.
+    'webpush' => [
+        'public_key'  => env('VAPID_PUBLIC_KEY'),
+        'private_key' => env('VAPID_PRIVATE_KEY'),
+        'subject'     => env('VAPID_SUBJECT'),
+        'enabled'     => (bool) env('WEBPUSH_ENABLED', true),
+    ],
+
     'paystack' => [
         'base_url'   => env('PAYSTACK_BASE_URL', 'https://api.paystack.co'),
         'public_key' => env('PAYSTACK_PUBLIC_KEY'),
@@ -50,6 +59,9 @@ return [
         // hitting the network. Set PAYSTACK_STUB=false + real keys for production.
         'stub'       => env('PAYSTACK_STUB', empty(env('PAYSTACK_SECRET_KEY'))),
         'callback_url' => env('PAYSTACK_CALLBACK_URL', null), // null = use route('paystack.callback')
+        // Payment methods offered when paying for a subscription (Paystack checkout channels).
+        // Only list channels enabled on the Paystack account: card, eft, capitec_pay, apple_pay, qr.
+        'subscription_channels' => array_values(array_filter(array_map('trim', explode(',', (string) env('PAYSTACK_SUBSCRIPTION_CHANNELS', 'card,eft,capitec_pay,apple_pay'))))),
     ],
 
     // Rent debit-order collection (App\Services\DebitOrderCollector).

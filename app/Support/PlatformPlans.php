@@ -89,4 +89,19 @@ class PlatformPlans
     {
         return self::all()[$key]['price'] ?? 0;
     }
+
+    /** Discount on a plan paid a year upfront. */
+    public const YEARLY_DISCOUNT_PERCENT = 20;
+
+    /** What a year costs upfront: 12 months less the yearly discount, in whole rand. */
+    public static function yearlyTotal(int $monthly): int
+    {
+        return (int) round($monthly * 12 * (100 - self::YEARLY_DISCOUNT_PERCENT) / 100);
+    }
+
+    /** The yearly price shown per month. */
+    public static function yearlyMonthly(int $monthly): int
+    {
+        return (int) round(self::yearlyTotal($monthly) / 12);
+    }
 }

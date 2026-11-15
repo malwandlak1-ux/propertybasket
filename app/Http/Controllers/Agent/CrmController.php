@@ -359,7 +359,8 @@ class CrmController extends Controller
             'deal_value'        => $prospect->est_value,
             'assigned_to'       => $prospect->agent_id,
             'source'            => 'farming',
-            'status'            => $prospect->status === 'appraisal_booked' ? 'viewing' : 'qualified',
+            // Lands in New for the agent to qualify; a booked appraisal is already a viewing.
+            'status'            => $prospect->status === 'appraisal_booked' ? 'viewing' : 'new',
             'allocated_at'      => now(),
             'allocation_method' => 'manual',
         ]);

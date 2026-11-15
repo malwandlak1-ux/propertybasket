@@ -13,8 +13,7 @@ class HomeController extends Controller
     public function __invoke(): Response
     {
         $featured = Listing::query()
-            ->where('status', 'available')
-            ->whereNull('deleted_at')
+            ->publiclyVisible()
             ->latest()
             ->take(6)
             ->get([
@@ -27,8 +26,7 @@ class HomeController extends Controller
         // and Benoni roll up into Johannesburg) so the Explore Cities tiles
         // show one tile per metro. Listings keep their real city in the DB.
         $cities = Listing::query()
-            ->where('status', 'available')
-            ->whereNull('deleted_at')
+            ->publiclyVisible()
             ->selectRaw('city, COUNT(*) as total')
             ->whereNotNull('city')
             ->groupBy('city')
@@ -46,7 +44,7 @@ class HomeController extends Controller
             'featured' => $featured,
             'cities' => $cities,
             'totals' => [
-                'listings' => Listing::where('status', 'available')->whereNull('deleted_at')->count(),
+                'listings' => Listing::publiclyVisible()->count(),
                 'agencies' => \App\Models\Agency::where('status', 'active')->count(),
                 'contractors' => \App\Models\Contractor::where('status', 'active')->count(),
             ],

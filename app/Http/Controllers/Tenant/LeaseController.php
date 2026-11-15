@@ -37,7 +37,7 @@ class LeaseController extends Controller
             [
                 'id'         => 'lease',
                 'title'      => 'Lease Agreement',
-                'subtitle'   => $lease->document_path ? 'Signed copy uploaded by ' . ($managedBy ?? 'your landlord') : 'Master lease',
+                'subtitle'   => $lease->agency_document_id ? 'Signed agreement from ' . ($managedBy ?? 'your agency') : ($lease->document_path ? 'Signed copy uploaded by ' . ($managedBy ?? 'your landlord') : ($lease->agencyLeaseTemplate() ? 'Lease agreement from ' . $managedBy : 'Master lease')),
                 'meta'       => $lease->tenant_signed_at || $lease->signed_at
                     ? 'Signed ' . ($lease->tenant_signed_at ?? $lease->signed_at)->format('d M Y')
                     : 'Awaiting signature',
@@ -125,6 +125,7 @@ class LeaseController extends Controller
                 'is_agency'       => (bool) $lease->agency_id,
                 'has_deposit'     => $hasDeposit,
                 'has_upload'      => (bool) $lease->document_path,
+                'needs_signature' => ! $lease->tenant_signed_at,
                 'notice_period_days'  => $lease->notice_period_days,
                 'escalation_percent'  => (float) $lease->escalation_percent,
                 'status'              => $lease->status,
@@ -144,6 +145,9 @@ class LeaseController extends Controller
 
         if ($lease->document_path && \Illuminate\Support\Facades\Storage::disk('local')->exists($lease->document_path)) {
             return \App\Http\Controllers\Landlord\TenantsController::streamAgreement($lease, $request->boolean('download'));
+        }
+        if ($template = $lease->agencyLeaseTemplate()) {
+            return \App\Http\Controllers\AgencyDocumentsController::stream($template, $request->boolean('download'));
         }
 
         return $pdf->leaseAgreement($lease, download: $request->boolean('download'));
@@ -170,7 +174,21 @@ class LeaseController extends Controller
             'agreed'    => ['accepted'],
         ]);
 
-        $lease->update([
+        // Freeze the agency's current lease agreement onto this lease, so a
+        // later replacement never changes what the tenant signed.
+        $frozen = [];
+        if ($template = $lease->agencyLeaseTemplate()) {
+            $path = "lease-agreements/{$lease->id}/signed-agency-v{$template->version}-" . now()->format('YmdHis') . '.pdf';
+            \Illuminate\Support\Facades\Storage::disk('local')->copy($template->path, $path);
+            $frozen = ['document_path' => $path, 'agency_document_id' => $template->id];
+        }
+        $file = $frozen['document_path'] ?? $lease->document_path;
+        $disk = \Illuminate\Support\Facades\Storage::disk('local');
+
+        $lease->update($frozen + [
+            'tenant_signed_ip' => $request->ip(),
+            'tenant_signed_user_agent' => mb_substr((string) $request->userAgent(), 0, 300),
+            'signed_document_sha256' => $file && $disk->exists($file) ? hash('sha256', $disk->get($file)) : null,
             'tenant_signed_at' => now(),
             'tenant_signature' => $data['signature'],
             'signed_at'        => $lease->signed_at ?? now(),

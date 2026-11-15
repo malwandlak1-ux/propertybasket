@@ -44,10 +44,15 @@ class HandleInertiaRequests extends Middleware
             'subscription' => fn () => $this->subscriptionStatus($request),
             'notifications' => fn () => $this->notifications($request),
             'unread_messages' => fn () => $this->unreadMessagesCount($request),
+            'unread_email' => fn () => $request->user()
+                ? \App\Models\EmailMessage::where('folder', 'inbox')->whereNull('read_at')
+                    ->whereHas('account', fn ($q) => $q->where('user_id', $request->user()->id))->count()
+                : 0,
             'appearance' => fn () => $this->appearance($request),
             'edition' => [
                 'disabled_roles' => \App\Support\Edition::disabledRoles(),
                 'marketplace'    => \App\Support\Edition::marketplaceEnabled(),
+                'agency_sites'   => (bool) config('sites.enabled'), // SITES_ENABLED: agency websites on/off
                 'brand'          => \App\Support\Edition::brand(),
             ],
         ];
@@ -223,7 +228,7 @@ class HandleInertiaRequests extends Middleware
         };
     }
 
-    private function formatNotification(string $type, array $data): array
+    public function formatNotification(string $type, array $data): array
     {
         return match ($type) {
             \App\Notifications\FfcExpiring::class => [
@@ -237,6 +242,36 @@ class HandleInertiaRequests extends Middleware
                 'body'  => "Your agency's FFC expires in " . ($data['days_left'] ?? '?') . ' days — renew before listings get blocked.',
                 'href'  => '/agency/compliance',
                 'tone'  => ($data['days_left'] ?? 99) <= 7 ? 'danger' : 'warning',
+            ],
+            \App\Notifications\TrustAccountSubmitted::class => [
+                'title' => 'Trust account to verify',
+                'body'  => ($data['agency_name'] ?? 'An agency') . (($data['changed'] ?? false) ? ' changed' : ' captured') . ' its trust account' . (! empty($data['bank']) ? " ({$data['bank']})" : '') . '.',
+                'href'  => '/admin/agencies?trust=' . ($data['agency_id'] ?? ''),
+                'tone'  => 'warning',
+            ],
+            \App\Notifications\BankLinkRequested::class => [
+                'title' => 'Bank link requested',
+                'body'  => ($data['agency_name'] ?? 'An agency') . ' wants a direct ' . ($data['bank'] ?? 'bank') . ' link for payouts.',
+                'href'  => '/admin/bank-links',
+                'tone'  => 'warning',
+            ],
+            \App\Notifications\BankLinkStatusChanged::class => [
+                'title' => ($data['bank'] ?? 'Bank') . ' link: ' . (\App\Notifications\BankLinkStatusChanged::LABELS[$data['status'] ?? ''] ?? ($data['status'] ?? 'updated')),
+                'body'  => ($data['status'] ?? '') === 'live' ? 'You can now pay commission straight from your trust account.' : 'Your direct bank link moved to the next stage.',
+                'href'  => '/agency/settings',
+                'tone'  => ($data['status'] ?? '') === 'live' ? 'success' : 'brand',
+            ],
+            \App\Notifications\TrustAccountVerified::class => [
+                'title' => 'Trust account verified',
+                'body'  => 'The platform verified your trust account' . (! empty($data['bank']) ? " at {$data['bank']}" : '') . '.',
+                'href'  => '/agency/trust-account',
+                'tone'  => 'success',
+            ],
+            \App\Notifications\RentalApplicationSubmitted::class => [
+                'title' => 'Rental application received',
+                'body'  => ($data['applicant'] ?? 'Someone') . ' applied' . (! empty($data['listing']) ? ' for ' . $data['listing'] : '') . '.',
+                'href'  => $data['href'] ?? '/agent/tenants?tab=applications',
+                'tone'  => 'brand',
             ],
             \App\Notifications\ReminderDue::class => [
                 'title' => 'Reminder',

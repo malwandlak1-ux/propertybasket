@@ -63,7 +63,9 @@ class ListingsController extends Controller
             'monthly_rent'      => $l->monthly_rent !== null ? (float) $l->monthly_rent : null,
             'can_invite_tenant' => $l->status === 'available' && $l->listing_type === 'long_term_rent',
             'can_reactivate'    => $l->status === 'leased',
+            'can_mark_leased'   => $l->status === 'available' && $l->listing_type === 'long_term_rent',
             'can_mark_sold'     => $l->status === 'available' && $l->listing_type === 'for_sale' && $l->owner_type === Agency::class,
+            'can_delete'        => in_array($l->status, ['draft', 'available', 'archived'], true),
             'sale_price'        => $l->sale_price !== null ? (float) $l->sale_price : null,
         ]);
 
@@ -383,95 +385,33 @@ class ListingsController extends Controller
             'deposit_amount' => ['nullable', 'numeric', 'min:0'],
         ]);
 
-        $invitation = DB::transaction(function () use ($data, $listing, $user, $pivot, $request) {
-            // Find or create the tenant user. withTrashed: the email may belong
-            // to a user the admin soft-deleted — restore it instead of hitting
-            // the unique-email constraint (500).
-            $tenant = User::withTrashed()->where('email', $data['tenant_email'])->first();
-            if ($tenant && $tenant->trashed()) {
-                $tenant->restore();
-                $tenant->update([
-                    'name'   => $data['tenant_name'],
-                    'phone'  => $data['tenant_phone'] ?? $tenant->phone,
-                    'role'   => Role::Tenant,
-                    'status' => UserStatus::Pending,
-                    'invite_accepted_at' => null,
-                ]);
-                if (! $tenant->hasRole(Role::Tenant->value)) {
-                    $tenant->assignRole(Role::Tenant->value);
-                }
-            }
-            if (! $tenant) {
-                $tenant = User::create([
-                    'name'     => $data['tenant_name'],
-                    'email'    => $data['tenant_email'],
-                    'phone'    => $data['tenant_phone'] ?? null,
-                    'password' => Hash::make(Str::random(40)),
-                    'role'     => Role::Tenant,
-                    'status'   => UserStatus::Pending,
-                ]);
-                $tenant->assignRole(Role::Tenant->value);
-            }
-
-            // Resolve landlord_id if the listing is landlord-owned
-            $landlordId = null;
-            if ($listing->owner_type === \App\Models\Landlord::class) {
-                $landlordId = optional($listing->owner)->user_id;
-            }
-
-            $lease = Lease::create([
-                'listing_id'     => $listing->id,
-                'tenant_id'      => $tenant->id,
-                'landlord_id'    => $landlordId,
-                'agency_id'      => $pivot->agency_id,
-                'agent_id'       => $user->id,
-                'start_date'     => $data['start_date'],
-                'end_date'       => $data['end_date'],
-                'monthly_rent'   => $data['monthly_rent'],
-                'deposit_amount' => $data['deposit_amount'] ?? 0,
-                'status'         => 'pending',
-            ]);
-
-            // Create the invitation (only if tenant hasn't already accepted one)
-            $invitation = null;
-            if (! $tenant->invite_accepted_at) {
-                $invitation = Invitation::create([
-                    'email'          => $data['tenant_email'],
-                    'role'           => 'tenant',
-                    'invited_by'     => $user->id,
-                    'invitable_type' => Lease::class,
-                    'invitable_id'   => $lease->id,
-                    'token'          => (string) Str::uuid(),
-                    'expires_at'     => now()->addDays(14),
-                ]);
-            }
-
-            // Pull the listing off the public site
-            $listing->update(['status' => 'leased']);
-
-            // Renting out an agency listing closes a rental deal — generate the
-            // agent's rental commission into the agency payout queue. Idempotent
-            // per lease, and idempotent against the pipeline-registration path.
-            if ($listing->owner_type === Agency::class) {
-                app(\App\Services\CommissionService::class)->recordRental($lease, $user);
-            }
-
-            return $invitation;
-        });
-
-        // Email outside the transaction: a mail-transport failure must not
-        // roll back (or 500) an otherwise-successful invite.
-        if ($invitation) {
-            try {
-                Notification::route('mail', $invitation->email)->notify(new UserInvited($invitation));
-            } catch (\Throwable $e) {
-                report($e);
-            }
-        }
+        app(\App\Services\TenantInviter::class)->invite($listing, $pivot->agency_id, $user, $user, $data);
 
         return redirect()
             ->route('agent.listings.index')
             ->with('success', "Tenant invited to \"{$listing->title}\" — the listing is no longer public.");
+    }
+
+    /**
+     * DELETE /agent/listings/{listing}
+     * Removes the agent's listing from their list and the public site (soft
+     * delete, so history stays intact). Not for leased listings (end the lease
+     * with Reactivate first) or sold ones (kept for commission records).
+     */
+    public function destroy(Request $request, Listing $listing): RedirectResponse
+    {
+        $this->authorizeAgentOwnsListing($listing, $request->user());
+
+        if ($listing->status === 'leased' || Lease::where('listing_id', $listing->id)->whereIn('status', ['active', 'pending'])->exists()) {
+            return back()->with('error', "\"{$listing->title}\" has a current lease. Reactivate the listing to end the lease before deleting it.");
+        }
+        if ($listing->status === 'sold') {
+            return back()->with('error', 'Sold listings are kept for your commission records and can’t be deleted.');
+        }
+
+        $listing->delete();
+
+        return redirect()->route('agent.listings.index')->with('success', "\"{$listing->title}\" was deleted and is no longer on the public site.");
     }
 
     /**
@@ -547,6 +487,36 @@ class ListingsController extends Controller
         return redirect()
             ->route('agent.listings.index')
             ->with('success', "Sale recorded for \"{$listing->title}\" — your commission is in the agency payout queue.");
+    }
+
+    /**
+     * POST /agent/listings/{listing}/mark-leased
+     * Marks a rental as let when the tenant isn't being onboarded through
+     * Property Basket (e.g. signed elsewhere). Takes it off the public site
+     * and every agency website. No lease or commission is created — use
+     * "Invite tenant" for that. Reversible via reactivate().
+     */
+    public function markLeased(Request $request, Listing $listing): RedirectResponse
+    {
+        $user = $request->user();
+        $this->authorizeAgentOwnsListing($listing, $user);
+
+        abort_unless(
+            $listing->listing_type === 'long_term_rent',
+            422,
+            'Only rental listings can be marked as rented.'
+        );
+        abort_unless(
+            $listing->status === 'available',
+            422,
+            'Only an available listing can be marked as rented.'
+        );
+
+        $listing->update(['status' => 'leased']);
+
+        return redirect()
+            ->route('agent.listings.index')
+            ->with('success', "\"{$listing->title}\" marked as rented — it's off the public site and your agency website.");
     }
 
     private function authorizeAgentOwnsListing(Listing $listing, $user): void

@@ -7,12 +7,15 @@ use App\Http\Controllers\Controller;
 use App\Models\CrmProspect;
 use App\Models\CrmScheme;
 use App\Models\WaCampaign;
+use App\Models\WaCatalogue;
 use App\Models\WaMessage;
 use App\Models\WaTemplate;
+use App\Models\User;
 use App\Models\WhatsAppAccount;
 use App\Services\CrmService;
 use App\Services\WhatsApp\CloudApi;
 use App\Services\WhatsApp\SendSchedule;
+use App\Services\WhatsApp\TemplateParser;
 use App\Services\WhatsApp\WhatsAppApiException;
 use App\Services\WhatsApp\WhatsAppService;
 use App\Support\Crm;
@@ -21,10 +24,12 @@ use Carbon\CarbonImmutable;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
@@ -56,6 +61,7 @@ class WhatsAppController extends Controller
                 ->map(fn (WaTemplate $t) => $this->templateRow($t)) : [],
             'campaigns' => $campaigns->map(fn (WaCampaign $c) => $this->campaignRow($c, $stats[$c->id] ?? [])),
             'threads'   => $account ? $this->threads($account) : [],
+            'catalogues' => $this->catalogues($request),
         ]);
     }
 
@@ -366,6 +372,11 @@ class WhatsAppController extends Controller
             'panel'    => $prospect ? app(CrmService::class)->prospectPanel($prospect) : null,
             'profile'  => ['name' => $user->name, 'agency' => $record->agency->name, 'phone' => $user->phone],
             'window_open_until' => $lastIn && $lastIn->sent_at?->gt(now()->subDay()) ? $lastIn->sent_at->addDay()->format('d M H:i') : null,
+            // The chat list beside the conversation (WhatsApp Web style).
+            'threads'  => $this->threads($account),
+            'catalogues' => $this->catalogues($request),
+            // Outside the 24-hour window: approved templates to send one-to-one, pre-filled for this owner.
+            ...$this->chatTemplates($account, $request->user(), $record->agency->name, $prospect),
             'messages' => $messages->map(fn (WaMessage $m) => [
                 'id'        => $m->id,
                 'direction' => $m->direction,
@@ -383,17 +394,20 @@ class WhatsAppController extends Controller
     }
 
     /** Attachment types WhatsApp accepts on a reply, by our upload extension. */
-    private const ATTACH_EXT = 'jpg,jpeg,png,mp4,3gp,mp3,ogg,aac,m4a,amr,pdf,doc,docx,xls,xlsx,ppt,pptx,txt,csv';
+    // ogx: an Ogg voice note the server sniffs as application/ogg (it's then treated as audio/ogg).
+    private const ATTACH_EXT = 'jpg,jpeg,png,mp4,3gp,mp3,ogg,oga,opus,ogx,aac,m4a,amr,pdf,doc,docx,xls,xlsx,ppt,pptx,txt,csv';
 
     public function reply(Request $request): RedirectResponse
     {
         $account = $this->connected($request);
         $data = $request->validate([
             'phone'      => ['required', 'string'],
-            'body'       => ['nullable', 'required_without:attachment', 'string', 'max:4000'],
+            'body'       => ['nullable', 'required_without_all:attachment,catalogue_id', 'string', 'max:4000'],
+            'catalogue_id' => ['nullable', 'integer'],
             'attachment' => ['nullable', 'file', 'max:16384', 'mimes:' . self::ATTACH_EXT],
+            'voice'      => ['nullable', 'boolean'], // recorded in the chat with the mic button
         ], [
-            'body.required_without' => 'Type a message or attach a file.',
+            'body.required_without_all' => 'Type a message or attach a file.',
             'attachment.max'        => 'Attachments can be up to 16 MB.',
             'attachment.mimes'      => 'WhatsApp accepts photos (JPG/PNG), videos (MP4), voice notes/audio and documents (PDF, Word, Excel, PowerPoint, TXT, CSV).',
         ]);
@@ -416,7 +430,10 @@ class WhatsAppController extends Controller
         ];
 
         $file = $request->file('attachment');
-        if (! $file) {
+        $catalogue = (! $file && ! empty($data['catalogue_id']))
+            ? WaCatalogue::where('agent_id', $request->user()->id)->find($data['catalogue_id']) ?? abort(404)
+            : null;
+        if (! $file && ! $catalogue) {
             try {
                 $wamid = $this->api->sendText($account, $phone, $body);
             } catch (WhatsAppApiException $e) {
@@ -427,14 +444,35 @@ class WhatsAppController extends Controller
             return back();
         }
 
+        if ($catalogue) {
+            // A catalogue from the agent's library: send a copy, so deleting it later leaves the chat intact.
+            $mime = $catalogue->mime;
+            $name = $catalogue->original_name;
+            $path = "wa-media/{$account->id}/" . Str::random(40) . '.' . (pathinfo($catalogue->original_name, PATHINFO_EXTENSION) ?: 'bin');
+            Storage::disk('local')->copy($catalogue->path, $path);
+            $kind = $this->mediaKind($mime, $catalogue->size);
+            $asVoice = false;
+        } else {
         $mime = $file->getMimeType() ?: 'application/octet-stream';
         $name = mb_substr(preg_replace('/[^\w.\- ()]+/u', '_', $file->getClientOriginalName()) ?: 'attachment', 0, 200);
+        $recorded = $request->boolean('voice');
+        // An .ogg/.opus file is Ogg audio whatever PHP sniffs it as (application/ogg, video/ogg);
+        // a voice note recorded in Safari is an audio-only .m4a that can sniff as video/mp4.
+        $ext = strtolower($file->getClientOriginalExtension());
+        if (in_array($ext, ['ogg', 'oga', 'opus'], true) && ! str_starts_with($mime, 'audio/')) {
+            $mime = 'audio/ogg';
+        } elseif ($recorded && $ext === 'm4a') {
+            $mime = 'audio/mp4';
+        }
         $kind = $this->mediaKind($mime, $file->getSize());
+        // WhatsApp only shows a voice-note bubble (mic icon, plays inline) for Ogg/Opus sent with voice=true.
+        $asVoice = $recorded && $kind === 'audio' && $mime === 'audio/ogg';
         $path = $file->store("wa-media/{$account->id}", 'local');
+        }
 
         try {
             $mediaId = $this->api->uploadMedia($account, Storage::disk('local')->path($path), $mime, $name);
-            $wamid = $this->api->sendMedia($account, $phone, $kind, $mediaId, $body ?: null, $name);
+            $wamid = $this->api->sendMedia($account, $phone, $kind, $mediaId, $body ?: null, $name, $asVoice);
             // Audio can't carry a caption — send the text straight after it.
             $textWamid = ($kind === 'audio' && $body !== '') ? $this->api->sendText($account, $phone, $body) : null;
         } catch (WhatsAppApiException $e) {
@@ -450,12 +488,192 @@ class WhatsAppController extends Controller
         if ($textWamid) {
             WaMessage::create($base + ['type' => 'text', 'body' => $body, 'wamid' => $textWamid]);
         }
+        $catalogue?->forceFill(['sent_count' => $catalogue->sent_count + 1, 'last_sent_at' => now()])->save();
 
         return back();
     }
 
+    // ── One-to-one templates (outside the 24-hour window) ────────────────
+
+    /** Approved templates for the chat, each pre-filled for this owner, plus the owner's field values and the send window. */
+    private function chatTemplates(WhatsAppAccount $account, User $agent, string $agencyName, ?CrmProspect $prospect): array
+    {
+        $prospect?->loadMissing('scheme.suburb');
+        $fields = $this->wa->values(array_combine(array_keys(WhatsAppService::FIELDS), array_keys(WhatsAppService::FIELDS)), $prospect, $agent, $agencyName);
+
+        $templates = $account->templates()->where('status', 'APPROVED')->where('sendable', true)->orderBy('name')->get()
+            ->map(function (WaTemplate $t) use ($agent, $agencyName, $prospect) {
+                // Re-use how this template's blanks were filled in the agent's last campaign with it.
+                $map = WaCampaign::where('agent_id', $agent->id)->where('wa_template_id', $t->id)->latest('id')->value('variable_map');
+                $map = is_string($map) ? (json_decode($map, true) ?: []) : ($map ?? []);
+                $prefill = $this->wa->values(array_intersect_key($map, array_flip($t->params ?? [])), $prospect, $agent, $agencyName);
+
+                return [
+                    'id'       => $t->id,
+                    'name'     => $t->name,
+                    'language' => $t->language,
+                    'category' => strtolower((string) $t->category),
+                    'body'     => $t->body,
+                    'footer'   => $t->footer,
+                    'params'   => array_values($t->params ?? []),
+                    'prefill'  => (object) $prefill,
+                ];
+            })->all();
+
+        return [
+            'templates'  => $templates,
+            'fields'     => collect(WhatsAppService::FIELDS)->map(fn ($label, $key) => ['key' => $key, 'label' => $label, 'value' => $fields[$key] ?? ''])->values()->all(),
+            'send_hours' => SendSchedule::describe($account),
+        ];
+    }
+
+    /**
+     * POST /agent/crm/whatsapp/chat/template — send one approved template to one owner,
+     * e.g. to follow up after the 24-hour reply window has closed. No campaign needed.
+     */
+    public function sendChatTemplate(Request $request): RedirectResponse
+    {
+        $this->resolveAgentRecord($request);
+        $account = $this->connected($request);
+        $data = $request->validate([
+            'phone'       => ['required', 'string'],
+            'template_id' => ['required', 'integer'],
+            'variables'   => ['nullable', 'array'],
+            'variables.*' => ['nullable', 'string', 'max:500'],
+        ]);
+        $phone = Phone::waZa($data['phone']) ?? abort(422);
+        $template = $account->templates()->whereKey($data['template_id'])->first() ?? abort(404);
+        if ($template->status !== 'APPROVED' || ! $template->sendable) {
+            return back()->with('error', 'That template isn’t approved for sending yet.');
+        }
+
+        // Every blank must be filled: Meta rejects a template with an empty parameter.
+        $values = [];
+        foreach ($template->params ?? [] as $param) {
+            $v = trim((string) ($data['variables'][$param] ?? ''));
+            if ($v === '') {
+                throw ValidationException::withMessages(["variables.{$param}" => 'Fill in {{' . $param . '}} before sending.']);
+            }
+            $values[$param] = $v;
+        }
+
+        // The owner behind this number (from earlier messages, or the agent's farming lists).
+        $prospectId = WaMessage::where('whatsapp_account_id', $account->id)->where('phone', $phone)->whereNotNull('crm_prospect_id')->latest('id')->value('crm_prospect_id');
+        $prospect = $prospectId ? CrmProspect::find($prospectId) : null;
+        if (! $prospect) {
+            $tail = substr($phone, -4);
+            $prospect = CrmProspect::where('agent_id', $request->user()->id)
+                ->where(fn ($q) => $q->where('phone1', 'like', "%{$tail}%")->orWhere('phone2', 'like', "%{$tail}%"))->get()
+                ->first(fn ($p) => Phone::waZa((string) $p->phone1) === $phone || Phone::waZa((string) $p->phone2) === $phone);
+        }
+        if ($prospect?->wa_opted_out_at) {
+            return back()->with('error', 'This owner replied STOP, so they can’t be sent template messages.');
+        }
+        if (! SendSchedule::isOpen($account)) {
+            return back()->with('error', 'Templates only go out inside your sending hours. Next window: ' . SendSchedule::label(SendSchedule::nextOpen($account)) . '.');
+        }
+        if (in_array(strtoupper((string) $account->quality_rating), ['RED', 'FLAGGED'], true)) {
+            return back()->with('error', 'Meta rated this number’s quality as low, so template sends are paused to protect the number.');
+        }
+
+        try {
+            $wamid = $this->api->sendTemplate($account, $phone, $template->name, $template->language,
+                TemplateParser::components($template->params ?? [], $values));
+        } catch (WhatsAppApiException $e) {
+            return back()->with('error', 'Not sent: ' . $e->friendly());
+        }
+
+        $msg = WaMessage::create([
+            'whatsapp_account_id' => $account->id,
+            'agent_id'            => $account->agent_id,
+            'crm_prospect_id'     => $prospect?->id,
+            'direction'           => 'out',
+            'type'                => 'template',
+            'phone'               => $phone,
+            'body'                => TemplateParser::render((string) $template->body, $values),
+            'variables'           => $values,
+            'status'              => 'sent',
+            'wamid'               => $wamid,
+            'sent_at'             => now(),
+            'repeat_ok'           => true,
+        ]);
+        $this->wa->logToCrm($msg, 'sent', "WhatsApp template: {$template->name}");
+
+        return back()->with('success', 'Template sent. When the owner replies you can chat freely again for 24 hours.');
+    }
+
+    // ── Catalogues ───────────────────────────────────────────────────────
+
+    /** Catalogue types WhatsApp can deliver: documents, photos, videos. */
+    private const CATALOGUE_EXT = 'pdf,jpg,jpeg,png,mp4,doc,docx,ppt,pptx,xls,xlsx';
+
+    /** POST /agent/crm/whatsapp/catalogues — add a brochure/catalogue to the agent's library. */
+    public function storeCatalogue(Request $request): RedirectResponse
+    {
+        $this->resolveAgentRecord($request);
+        $data = $request->validate([
+            'title'       => ['required', 'string', 'max:120'],
+            'description' => ['nullable', 'string', 'max:500'],
+            'file'        => ['required', 'file', 'max:16384', 'mimes:' . self::CATALOGUE_EXT],
+        ], [
+            'file.max'   => 'Catalogues can be up to 16 MB (WhatsApp’s limit for videos).',
+            'file.mimes' => 'Upload a PDF, Word/PowerPoint/Excel file, a JPG/PNG photo or an MP4 video.',
+        ]);
+        $file = $request->file('file');
+        $name = mb_substr(preg_replace('/[^\w.\- ()]+/u', '_', $file->getClientOriginalName()) ?: 'catalogue', 0, 200);
+
+        WaCatalogue::create([
+            'agent_id'      => $request->user()->id,
+            'title'         => $data['title'],
+            'description'   => $data['description'] ?? null,
+            'path'          => $file->store("wa-catalogues/{$request->user()->id}", 'local'),
+            'original_name' => $name,
+            'mime'          => $file->getMimeType() ?: 'application/octet-stream',
+            'size'          => $file->getSize(),
+        ]);
+
+        return back()->with('success', "“{$data['title']}” added to your catalogues.");
+    }
+
+    /** DELETE /agent/crm/whatsapp/catalogues/{catalogue} — chats that already have it keep their copy. */
+    public function destroyCatalogue(Request $request, WaCatalogue $catalogue): RedirectResponse
+    {
+        abort_unless((int) $catalogue->agent_id === (int) $request->user()->id, 403);
+        Storage::disk('local')->delete($catalogue->path);
+        $catalogue->delete();
+
+        return back()->with('success', "“{$catalogue->title}” removed from your catalogues.");
+    }
+
+    /** GET /agent/crm/whatsapp/catalogues/{catalogue}/file — view or download it. */
+    public function catalogueFile(Request $request, WaCatalogue $catalogue): StreamedResponse
+    {
+        abort_unless((int) $catalogue->agent_id === (int) $request->user()->id, 403);
+        abort_unless(Storage::disk('local')->exists($catalogue->path), 404);
+
+        return Storage::disk('local')->response($catalogue->path, $catalogue->original_name, ['Content-Type' => $catalogue->mime],
+            $request->boolean('download') ? 'attachment' : 'inline');
+    }
+
+    private function catalogues(Request $request): array
+    {
+        return WaCatalogue::where('agent_id', $request->user()->id)->latest()->orderByDesc('id')->get()
+            ->map(fn (WaCatalogue $c) => [
+                'id'          => $c->id,
+                'title'       => $c->title,
+                'description' => $c->description,
+                'name'        => $c->original_name,
+                'kind'        => $c->kind(),
+                'size'        => $c->size,
+                'url'         => route('agent.crm.whatsapp.catalogues.file', $c),
+                'sent_count'  => $c->sent_count,
+                'last_sent'   => $c->last_sent_at?->diffForHumans(),
+                'added'       => $c->created_at?->format('d M Y'),
+            ])->all();
+    }
+
     /** GET /agent/crm/whatsapp/media/{message} — the agent's own copy of an attachment they sent. */
-    public function media(Request $request, WaMessage $message): StreamedResponse
+    public function media(Request $request, WaMessage $message): BinaryFileResponse
     {
         abort_unless((int) $message->agent_id === (int) $request->user()->id, 403);
         if (! $message->media_path && $message->wa_media_id) {
@@ -464,10 +682,20 @@ class WhatsAppController extends Controller
         }
         abort_unless($message->media_path && Storage::disk('local')->exists($message->media_path), 404);
 
-        return Storage::disk('local')->response($message->media_path, $message->media_name, [
+        // A real file response (not streamed) so browsers get byte ranges: Safari won't play
+        // audio/video without them, and Chrome can't seek a voice note.
+        $res = response()->file(Storage::disk('local')->path($message->media_path), [
             'Content-Type'  => $message->media_mime ?: 'application/octet-stream',
             'Cache-Control' => 'private, max-age=86400',
-        ], $request->boolean('download') ? 'attachment' : 'inline');
+        ]);
+        $name = $message->media_name ?: basename($message->media_path);
+        $res->setContentDisposition(
+            $request->boolean('download') ? 'attachment' : 'inline',
+            $name,
+            preg_replace('/[^ -~]|[%\/\\\\"]/', '_', \Illuminate\Support\Str::ascii($name)), // plain-ASCII copy for old browsers
+        );
+
+        return $res;
     }
 
     /** WhatsApp message type for a file: images over 5 MB (or not JPG/PNG) go as documents. */
@@ -629,7 +857,7 @@ class WhatsAppController extends Controller
                 'phone'   => $row->phone,
                 'display' => Phone::local($row->phone),
                 'owner'   => $m?->prospect?->owner_name,
-                'last'    => $m?->body ?: ($m?->wa_media_id || $m?->media_path ? '📎 ' . ucfirst((string) $m->type) : null),
+                'last'    => $m?->body ?: ($m?->wa_media_id || $m?->media_path ? WaMessage::mediaLabel($m) : null),
                 'at'      => $m?->sent_at?->diffForHumans(),
                 'open'    => (bool) $m?->sent_at?->gt(now()->subDay()),
             ];

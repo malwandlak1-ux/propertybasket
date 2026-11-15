@@ -136,7 +136,7 @@ class PaystackService
             return null;
         }
 
-        if ($this->isStub() || request()->boolean('stub')) {
+        if ($this->isStub()) { // never trust a ?stub=1 query param: with live keys it would mark unpaid payments paid
             $payment->update([
                 'paid_at'        => now(),
                 'status'         => 'paid',
@@ -186,7 +186,7 @@ class PaystackService
      * @param Model $owner   The Agency or Landlord paying.
      * @param int   $amount  Plan price in Rand.
      */
-    public function initializeSubscriptionPayment(User $user, Model $owner, string $planKey, int $amount): array
+    public function initializeSubscriptionPayment(User $user, Model $owner, string $planKey, int $amount, ?string $channel = null): array
     {
         $reference = 'SUB_' . strtoupper(Str::random(12)) . '_' . $owner->getKey();
 
@@ -213,6 +213,8 @@ class PaystackService
             'reference'    => $reference,
             'currency'     => 'ZAR',
             'callback_url' => url('/billing/callback'),
+            // The method picked on our checkout; Paystack then shows only that option.
+            ...($channel ? ['channels' => [$channel]] : []),
             'metadata'     => [
                 'plan_key'        => $planKey,
                 'subscriber_type' => $owner->getMorphClass(),
@@ -240,7 +242,7 @@ class PaystackService
             return null;
         }
 
-        if ($this->isStub() || request()->boolean('stub')) {
+        if ($this->isStub()) { // never trust a ?stub=1 query param: with live keys it would mark unpaid payments paid
             $txn->update(['status' => 'paid']);
             return $txn->fresh();
         }

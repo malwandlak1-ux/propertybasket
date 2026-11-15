@@ -130,7 +130,8 @@ resources/js/
                                               + Agent overview "New Lead"
     LeadDetailsModal.tsx                  — Click any kanban card / table row →
                                               contact details + listing context + quick actions
-    NotificationBell.tsx                  — Shared bell + unread dropdown (Agent/Agency/Landlord)
+    NotificationBell.tsx                  — Shared bell + unread dropdown (every dashboard, via Dashboard/Shell)
+    PushNotifications.tsx                 — Web push: per-device switch (in the bell) + one-time prompt
     InviteTenantModal.tsx                 — Shared (Agent + Landlord via submitUrlBase prop)
     LandlordInviteTenantModal.tsx         — Wraps above; resend-vs-new modes
     AddContractorModal.tsx                — Agency private contractor add
@@ -541,12 +542,22 @@ Every agency can publish a branded website from `/agency/website`, served on `{s
 
 ## Shared NotificationBell
 
-`resources/js/Components/NotificationBell.tsx` is the single source. Mounted by `AgentLayout`, `AgencyLayout`, `LandlordLayout` (extend to Tenant/Contractor/Admin when needed).
+`resources/js/Components/NotificationBell.tsx` is the single source. It is rendered by the shared header in `Components/Dashboard/Shell.tsx`, and all six dashboard layouts (`Admin`, `Agency`, `Agent`, `Contractor`, `Landlord`, `Tenant`) render `<Shell>`, so every signed-in role has the bell. Don't mount it again in a layout.
 
-- Reads `notifications` shared prop (formatted via `HandleInertiaRequests::formatNotification()`).
+- Reads `notifications` shared prop (formatted via `HandleInertiaRequests::formatNotification()`, now public so web push can reuse it).
+- Re-checks every 15 s (`usePoll`, partial reload of `notifications` only).
 - Red dot only when `unread_count > 0`.
-- Click → dropdown lists unread first. Each item POSTs to `NotificationsController::markRead`; "Mark all as read" POSTs to `markAllRead`.
-- Shared prop shape: `notifications: { items: [...], unread_count: N }`.
+- Click → dropdown lists the 10 most recent. Each item POSTs to `NotificationsController::markRead`; "Mark all read" POSTs to `markAllRead`.
+- Shared prop shape: `notifications: { recent: NotificationItem[], unread_count: N }`.
+- The dropdown ends with `<PushToggle>` ("Alerts on this device" + Send test), so every role can switch web push on.
+
+### Web push (alerts while the site is closed)
+
+- Every notification stored with the `database` channel (i.e. everything that rings the bell) is also pushed to the user's devices: a `NotificationSent` listener in `AppServiceProvider` formats it with `formatNotification()` and calls `App\Services\WebPush\WebPush::toUser()` after the response.
+- `WebPush` implements VAPID (RFC 8292) + aes128gcm encryption (RFC 8291) with plain openssl, no composer package. Keys come from `VAPID_PUBLIC_KEY`/`VAPID_PRIVATE_KEY`, else are generated once into `storage/app/webpush-vapid.json`. 404/410 from the push service deletes the subscription. On Windows PHP, key generation needs `openssl.cnf`; `WebPush::newKey()` finds it in `php/extras/ssl`.
+- `push_subscriptions` table (one row per browser, unique `endpoint_hash`). `PushController`: `GET push/key`, `POST/DELETE push/subscriptions`, `POST push/test`, plus public `GET /manifest.webmanifest` and `GET /sw.js` (Blade view `pwa/sw.blade.php`, served with `Service-Worker-Allowed: /`). Icons in `public/images/pwa/`.
+- Signing out deletes that device's subscription (`Logout` listener + `push_endpoint_hash` in the session); `resyncPush()` re-links it on the next sign-in if the user had alerts on there.
+- Front end: `resources/js/lib/push.ts`, `Components/PushNotifications.tsx` (`PushPrompt` mounted in `app.tsx`, `PushToggle` in the bell). iPhone/iPad only support it from a Home Screen install. Tests: `tests/Feature/WebPushTest.php`.
 
 ---
 
@@ -568,7 +579,7 @@ Set in `app/Http/Middleware/HandleInertiaRequests.php` — available to every pa
 | `auth.user` | user record + roles | identity |
 | `ffc` | `{ valid, expires_at, days_remaining }` or null | agent FFC banner |
 | `agency_ffc` | same shape | agency FFC banner |
-| `notifications` | `{ items: NotificationItem[], unread_count: number }` | `<NotificationBell>` |
+| `notifications` | `{ recent: NotificationItem[], unread_count: number }` | `<NotificationBell>` (every dashboard) |
 | `unread_messages` | int | sidebar badge |
 | `flash` | `{ success, error }` | toast/banner |
 

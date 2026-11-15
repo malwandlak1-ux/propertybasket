@@ -44,6 +44,19 @@ Route::prefix('v1')->group(function () {
             Route::get('listings',  [AgentController::class, 'listings']);
             Route::post('pipeline/leads', [AgentController::class, 'storeLead']);
             Route::patch('pipeline/leads/{inquiry}/status', [AgentController::class, 'updateLeadStatus']);
+            Route::patch('pipeline/leads/{inquiry}/viewing', [AgentController::class, 'scheduleLeadViewing']);
+
+            Route::get('messages',                  [AgentController::class, 'messages']);
+            Route::post('messages/{conversation}',  [AgentController::class, 'sendMessage']);
+
+            Route::get('tenants',     [AgentController::class, 'tenants']);
+            Route::get('maintenance', [AgentController::class, 'maintenance']);
+            Route::get('commission',  [AgentController::class, 'commission']);
+            Route::get('analytics',   [AgentController::class, 'analytics']);
+            Route::get('inspections', [AgentController::class, 'inspections']);
+            Route::get('ffc',         [AgentController::class, 'ffc']);
+            Route::get('settings',    [AgentController::class, 'settings']);
+            Route::get('crm',         [AgentController::class, 'crm']);
 
             Route::get('calendar',                         [AgentCalendarController::class, 'index']);
             Route::post('calendar/viewings',               [AgentCalendarController::class, 'storeViewing']);

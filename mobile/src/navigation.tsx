@@ -11,9 +11,11 @@ import ComingSoonScreen from './screens/ComingSoonScreen';
 import LoginScreen from './screens/LoginScreen';
 import AgentCalendarScreen from './screens/agent/CalendarScreen';
 import AgentListingsScreen from './screens/agent/ListingsScreen';
+import AgentMessagesScreen, { AgentConversationScreen } from './screens/agent/MessagesScreen';
 import MoreScreen, { MORE_ITEMS, MoreStackParams } from './screens/agent/MoreScreen';
 import AgentOverviewScreen from './screens/agent/OverviewScreen';
 import AgentPipelineScreen from './screens/agent/PipelineScreen';
+import AgentTenantsScreen from './screens/agent/TenantsScreen';
 import TenantMaintenanceScreen from './screens/tenant/MaintenanceScreen';
 import TenantOverviewScreen from './screens/tenant/OverviewScreen';
 import TenantPaymentsScreen from './screens/tenant/PaymentsScreen';
@@ -38,6 +40,8 @@ const navTheme = {
 /** Screens behind "More" that already have a real implementation. */
 const BUILT: Partial<Record<keyof MoreStackParams, React.ComponentType<any>>> = {
   Leads: AgentPipelineScreen,
+  Messages: AgentMessagesScreen,
+  Tenants: AgentTenantsScreen,
 };
 
 function AgentMoreStack() {
@@ -58,6 +62,11 @@ function AgentMoreStack() {
       {MORE_ITEMS.map((item) => (
         <MoreStack.Screen key={item.name} name={item.name} component={BUILT[item.name] ?? ComingSoonScreen} />
       ))}
+      <MoreStack.Screen
+        name="Conversation"
+        component={AgentConversationScreen}
+        options={({ route }) => ({ title: route.params.title })}
+      />
     </MoreStack.Navigator>
   );
 }

@@ -21,7 +21,7 @@ export const MORE_ITEMS = [
   { name: 'Help & Support', icon: 'help-buoy-outline' },
 ] as const;
 
-export type MoreStackParams = { More: undefined } & { [K in (typeof MORE_ITEMS)[number]['name']]: undefined };
+export type MoreStackParams = { More: undefined; Conversation: { id: number; title: string } } & { [K in (typeof MORE_ITEMS)[number]['name']]: undefined };
 
 export default function MoreScreen() {
   const nav = useNavigation<NativeStackNavigationProp<MoreStackParams>>();

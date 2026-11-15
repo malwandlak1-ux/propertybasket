@@ -1,6 +1,7 @@
 import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
+  Pressable,
   RefreshControl,
   ScrollView,
   StyleSheet,
@@ -22,6 +23,34 @@ export const UnderHeaderContext = createContext(false);
 export function useTopPadding(): number {
   const insets = useSafeAreaInsets();
   return useContext(UnderHeaderContext) ? spacing(4) : insets.top + spacing(4);
+}
+
+/** Full-screen spinner, or the error with a retry link, while a page loads. */
+export function LoadState({ error, onRetry }: { error: string | null; onRetry: () => void }) {
+  return (
+    <View style={styles.center}>
+      {error ? (
+        <>
+          <Text style={styles.errorTitle}>Something went wrong</Text>
+          <Text style={styles.errorBody}>{error}</Text>
+          <Text style={styles.retry} onPress={onRetry}>
+            Try again
+          </Text>
+        </>
+      ) : (
+        <ActivityIndicator size="large" color={colors.brand} />
+      )}
+    </View>
+  );
+}
+
+/** Round floating "+" button, bottom right. */
+export function Fab({ label, onPress }: { label: string; onPress: () => void }) {
+  return (
+    <Pressable style={styles.fab} onPress={onPress} accessibilityRole="button" accessibilityLabel={label}>
+      <Text style={styles.fabPlus}>+</Text>
+    </Pressable>
+  );
 }
 
 /** White card with the site's shadow-soft. */
@@ -187,6 +216,23 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
   },
   badgeText: { fontFamily: fonts.sansSemiBold, fontSize: 10, letterSpacing: 0.4 },
+  fab: {
+    position: 'absolute',
+    right: spacing(5),
+    bottom: spacing(5),
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: colors.brand,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: colors.brand700,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+    elevation: 6,
+  },
+  fabPlus: { fontFamily: fonts.sans, fontSize: 30, lineHeight: 34, color: colors.white },
   errorTitle: { fontFamily: fonts.display, fontSize: 18, color: colors.ink800 },
   errorBody: {
     fontFamily: fonts.sans,

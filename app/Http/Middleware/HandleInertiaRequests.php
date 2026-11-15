@@ -228,7 +228,7 @@ class HandleInertiaRequests extends Middleware
         };
     }
 
-    private function formatNotification(string $type, array $data): array
+    public function formatNotification(string $type, array $data): array
     {
         return match ($type) {
             \App\Notifications\FfcExpiring::class => [

@@ -10,10 +10,12 @@ use App\Models\WaCampaign;
 use App\Models\WaCatalogue;
 use App\Models\WaMessage;
 use App\Models\WaTemplate;
+use App\Models\User;
 use App\Models\WhatsAppAccount;
 use App\Services\CrmService;
 use App\Services\WhatsApp\CloudApi;
 use App\Services\WhatsApp\SendSchedule;
+use App\Services\WhatsApp\TemplateParser;
 use App\Services\WhatsApp\WhatsAppApiException;
 use App\Services\WhatsApp\WhatsAppService;
 use App\Support\Crm;
@@ -373,6 +375,8 @@ class WhatsAppController extends Controller
             // The chat list beside the conversation (WhatsApp Web style).
             'threads'  => $this->threads($account),
             'catalogues' => $this->catalogues($request),
+            // Outside the 24-hour window: approved templates to send one-to-one, pre-filled for this owner.
+            ...$this->chatTemplates($account, $request->user(), $record->agency->name, $prospect),
             'messages' => $messages->map(fn (WaMessage $m) => [
                 'id'        => $m->id,
                 'direction' => $m->direction,
@@ -487,6 +491,115 @@ class WhatsAppController extends Controller
         $catalogue?->forceFill(['sent_count' => $catalogue->sent_count + 1, 'last_sent_at' => now()])->save();
 
         return back();
+    }
+
+    // ── One-to-one templates (outside the 24-hour window) ────────────────
+
+    /** Approved templates for the chat, each pre-filled for this owner, plus the owner's field values and the send window. */
+    private function chatTemplates(WhatsAppAccount $account, User $agent, string $agencyName, ?CrmProspect $prospect): array
+    {
+        $prospect?->loadMissing('scheme.suburb');
+        $fields = $this->wa->values(array_combine(array_keys(WhatsAppService::FIELDS), array_keys(WhatsAppService::FIELDS)), $prospect, $agent, $agencyName);
+
+        $templates = $account->templates()->where('status', 'APPROVED')->where('sendable', true)->orderBy('name')->get()
+            ->map(function (WaTemplate $t) use ($agent, $agencyName, $prospect) {
+                // Re-use how this template's blanks were filled in the agent's last campaign with it.
+                $map = WaCampaign::where('agent_id', $agent->id)->where('wa_template_id', $t->id)->latest('id')->value('variable_map');
+                $map = is_string($map) ? (json_decode($map, true) ?: []) : ($map ?? []);
+                $prefill = $this->wa->values(array_intersect_key($map, array_flip($t->params ?? [])), $prospect, $agent, $agencyName);
+
+                return [
+                    'id'       => $t->id,
+                    'name'     => $t->name,
+                    'language' => $t->language,
+                    'category' => strtolower((string) $t->category),
+                    'body'     => $t->body,
+                    'footer'   => $t->footer,
+                    'params'   => array_values($t->params ?? []),
+                    'prefill'  => (object) $prefill,
+                ];
+            })->all();
+
+        return [
+            'templates'  => $templates,
+            'fields'     => collect(WhatsAppService::FIELDS)->map(fn ($label, $key) => ['key' => $key, 'label' => $label, 'value' => $fields[$key] ?? ''])->values()->all(),
+            'send_hours' => SendSchedule::describe($account),
+        ];
+    }
+
+    /**
+     * POST /agent/crm/whatsapp/chat/template — send one approved template to one owner,
+     * e.g. to follow up after the 24-hour reply window has closed. No campaign needed.
+     */
+    public function sendChatTemplate(Request $request): RedirectResponse
+    {
+        $this->resolveAgentRecord($request);
+        $account = $this->connected($request);
+        $data = $request->validate([
+            'phone'       => ['required', 'string'],
+            'template_id' => ['required', 'integer'],
+            'variables'   => ['nullable', 'array'],
+            'variables.*' => ['nullable', 'string', 'max:500'],
+        ]);
+        $phone = Phone::waZa($data['phone']) ?? abort(422);
+        $template = $account->templates()->whereKey($data['template_id'])->first() ?? abort(404);
+        if ($template->status !== 'APPROVED' || ! $template->sendable) {
+            return back()->with('error', 'That template isn’t approved for sending yet.');
+        }
+
+        // Every blank must be filled: Meta rejects a template with an empty parameter.
+        $values = [];
+        foreach ($template->params ?? [] as $param) {
+            $v = trim((string) ($data['variables'][$param] ?? ''));
+            if ($v === '') {
+                throw ValidationException::withMessages(["variables.{$param}" => 'Fill in {{' . $param . '}} before sending.']);
+            }
+            $values[$param] = $v;
+        }
+
+        // The owner behind this number (from earlier messages, or the agent's farming lists).
+        $prospectId = WaMessage::where('whatsapp_account_id', $account->id)->where('phone', $phone)->whereNotNull('crm_prospect_id')->latest('id')->value('crm_prospect_id');
+        $prospect = $prospectId ? CrmProspect::find($prospectId) : null;
+        if (! $prospect) {
+            $tail = substr($phone, -4);
+            $prospect = CrmProspect::where('agent_id', $request->user()->id)
+                ->where(fn ($q) => $q->where('phone1', 'like', "%{$tail}%")->orWhere('phone2', 'like', "%{$tail}%"))->get()
+                ->first(fn ($p) => Phone::waZa((string) $p->phone1) === $phone || Phone::waZa((string) $p->phone2) === $phone);
+        }
+        if ($prospect?->wa_opted_out_at) {
+            return back()->with('error', 'This owner replied STOP, so they can’t be sent template messages.');
+        }
+        if (! SendSchedule::isOpen($account)) {
+            return back()->with('error', 'Templates only go out inside your sending hours. Next window: ' . SendSchedule::label(SendSchedule::nextOpen($account)) . '.');
+        }
+        if (in_array(strtoupper((string) $account->quality_rating), ['RED', 'FLAGGED'], true)) {
+            return back()->with('error', 'Meta rated this number’s quality as low, so template sends are paused to protect the number.');
+        }
+
+        try {
+            $wamid = $this->api->sendTemplate($account, $phone, $template->name, $template->language,
+                TemplateParser::components($template->params ?? [], $values));
+        } catch (WhatsAppApiException $e) {
+            return back()->with('error', 'Not sent: ' . $e->friendly());
+        }
+
+        $msg = WaMessage::create([
+            'whatsapp_account_id' => $account->id,
+            'agent_id'            => $account->agent_id,
+            'crm_prospect_id'     => $prospect?->id,
+            'direction'           => 'out',
+            'type'                => 'template',
+            'phone'               => $phone,
+            'body'                => TemplateParser::render((string) $template->body, $values),
+            'variables'           => $values,
+            'status'              => 'sent',
+            'wamid'               => $wamid,
+            'sent_at'             => now(),
+            'repeat_ok'           => true,
+        ]);
+        $this->wa->logToCrm($msg, 'sent', "WhatsApp template: {$template->name}");
+
+        return back()->with('success', 'Template sent. When the owner replies you can chat freely again for 24 hours.');
     }
 
     // ── Catalogues ───────────────────────────────────────────────────────

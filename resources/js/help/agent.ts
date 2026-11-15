@@ -3,6 +3,20 @@ import { Guide } from './types';
 /** Agent dashboard guides. */
 export const AGENT_GUIDES: Guide[] = [
     {
+        id: 'phone-alerts',
+        category: 'Getting started',
+        title: 'Get alerts on your phone or computer',
+        summary: 'New leads, WhatsApp replies and other alerts, even when Property Basket is closed.',
+        steps: [
+            'Click the bell at the top right and switch on Alerts on this device (or tap Turn on when the site offers it).',
+            'Allow notifications when your browser asks. Use Send test to check one arrives.',
+            'On an Android phone, use Chrome’s menu → Install app / Add to Home screen so it opens like an app.',
+            'On an iPhone or iPad, open the site in Safari, tap Share → Add to Home Screen, open it from the new icon, then switch alerts on there. iPhones only allow alerts from the Home Screen app.',
+            'Tap an alert to jump straight to the lead, chat or request it’s about.',
+        ],
+        tips: ['Switch it on once on each device you use.', 'Signing out stops alerts to that device; they come back when you sign in again.'],
+    },
+    {
         id: 'dashboard',
         category: 'Getting started',
         title: 'Your dashboard at a glance',
@@ -145,7 +159,7 @@ export const AGENT_GUIDES: Guide[] = [
             'Owners’ voice notes play right in the chat.',
             'Use Send to pipeline on the owner’s record beside the chat to add a warm owner as a seller lead in the New column.',
         ],
-        tips: ['You can reply freely for 24 hours after an owner writes. After that, start again with an approved template.'],
+        tips: ['You can reply freely for 24 hours after an owner writes. After that the chat shows Send a template: pick an approved template, fill in its blanks (Fill from… uses the owner’s record) and send it to that owner alone, no campaign needed. Templates only go out inside your sending hours, and Meta bills them like campaign messages.'],
         link: { label: 'Open WhatsApp', href: '/agent/crm/whatsapp' },
     },
     {

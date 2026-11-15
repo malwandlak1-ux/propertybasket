@@ -6,6 +6,7 @@ import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createRoot } from 'react-dom/client';
 import ErrorBoundary from '@/Components/ErrorBoundary';
 import NetworkErrorToast from '@/Components/NetworkErrorToast';
+import { PushPrompt } from '@/Components/PushNotifications';
 import { installSafeUploads } from '@/lib/safeUpload';
 
 // Every upload form: re-name files whose names the host firewall rejects (403).
@@ -37,6 +38,7 @@ createInertiaApp({
             <ErrorBoundary variant="global">
                 <App {...props} />
                 <NetworkErrorToast />
+                <PushPrompt />
             </ErrorBoundary>
         );
     },

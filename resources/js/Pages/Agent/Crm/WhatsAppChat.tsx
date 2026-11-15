@@ -5,6 +5,7 @@ import CrmTabs from '@/Components/Crm/CrmTabs';
 import { FlashBanners } from '@/Components/Dashboard/Charts';
 import WaShell, { ChatList, WaThread, initials } from '@/Components/Crm/WaShell';
 import { Catalogue, CatalogueIcon } from '@/Components/Crm/WaCatalogues';
+import TemplateSend, { ChatTemplate, OwnerField, SendHours } from '@/Components/Crm/WaTemplateSend';
 import { Spinner } from '@/Components/Skeleton';
 import { safeUploadFile } from '@/lib/safeUpload';
 import { canRecordVoice, startVoiceNote, type VoiceSession } from '@/lib/voiceNote';
@@ -30,7 +31,7 @@ function fmtSize(b: number) {
 
 type Panel = { prospect: Prospect; scheme: Scheme; suburb: Suburb; history: Activity[] };
 
-export default function Chat({ agent, phone, display, prospect, window_open_until, messages, panel, profile, threads, catalogues }: {
+export default function Chat({ agent, phone, display, prospect, window_open_until, messages, panel, profile, threads, catalogues, templates, fields, send_hours }: {
     agent: { agency_name: string };
     phone: string;
     display: string;
@@ -41,6 +42,9 @@ export default function Chat({ agent, phone, display, prospect, window_open_unti
     profile: Profile;
     threads: WaThread[];
     catalogues: Catalogue[];
+    templates: ChatTemplate[];
+    fields: OwnerField[];
+    send_hours: SendHours;
 }) {
     const { flash } = usePage<{ flash?: { success?: string | null; error?: string | null } }>().props;
     const { data, setData, post, processing, reset, errors, progress } = useForm<{ phone: string; body: string; attachment: File | null; voice: boolean; catalogue_id: number | null }>({ phone, body: '', attachment: null, voice: false, catalogue_id: null });
@@ -310,9 +314,7 @@ export default function Chat({ agent, phone, display, prospect, window_open_unti
                                     <p className="text-[10.5px] text-ink-400 mt-1 px-1">You can reply freely until {window_open_until}.</p>
                                 </>
                             ) : (
-                                <p className="text-[12.5px] text-ink-500 px-1 py-1.5">
-                                    WhatsApp only allows free replies within 24 hours of the owner’s last message. To reach them again, include them in a template campaign.
-                                </p>
+                                <TemplateSend phone={phone} templates={templates} fields={fields} hours={send_hours} optedOut={!!prospect?.opted_out} />
                             )}
                         </form>
                     </section>

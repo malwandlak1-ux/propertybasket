@@ -27,6 +27,10 @@ use Illuminate\Support\Facades\Route;
 // registered first: their host-constrained routes reuse portal paths like /properties.
 require __DIR__.'/sites.php';
 
+// Installable app + service worker (web push alerts while the site is closed).
+Route::get('manifest.webmanifest', [\App\Http\Controllers\PushController::class, 'manifest'])->name('pwa.manifest');
+Route::get('sw.js', [\App\Http\Controllers\PushController::class, 'serviceWorker'])->name('pwa.sw');
+
 // Public property portal — switched off per site with PUBLIC_SITE=false (careline),
 // which redirects these pages to the login screen.
 Route::middleware(\App\Http\Middleware\EnsurePublicSite::class)->group(function () {
@@ -108,6 +112,11 @@ Route::middleware('auth')->group(function () {
     Route::get('contractors', [ContractorController::class, 'index'])->name('contractors.index');
 
     Route::post('notifications/{id}/read', [\App\Http\Controllers\NotificationsController::class, 'markRead'])->name('notifications.read');
+    // Web push: switch alerts on/off for this browser.
+    Route::get('push/key', [\App\Http\Controllers\PushController::class, 'key'])->name('push.key');
+    Route::post('push/subscriptions', [\App\Http\Controllers\PushController::class, 'store'])->middleware('throttle:30,1')->name('push.subscribe');
+    Route::delete('push/subscriptions', [\App\Http\Controllers\PushController::class, 'destroy'])->name('push.unsubscribe');
+    Route::post('push/test', [\App\Http\Controllers\PushController::class, 'test'])->middleware('throttle:6,1')->name('push.test');
     Route::post('notifications/read-all',  [\App\Http\Controllers\NotificationsController::class, 'markAllRead'])->name('notifications.read-all');
 
     // Settings → Appearance (every dashboard role): accent colour + custom logo.
@@ -274,6 +283,7 @@ Route::middleware('auth')->group(function () {
         Route::post('crm/whatsapp/campaigns/{campaign}/cancel', [Agent\WhatsAppController::class, 'cancelCampaign'])->name('crm.whatsapp.campaigns.cancel');
         Route::get('crm/whatsapp/chat', [Agent\WhatsAppController::class, 'chat'])->name('crm.whatsapp.chat');
         Route::post('crm/whatsapp/chat', [Agent\WhatsAppController::class, 'reply'])->name('crm.whatsapp.reply');
+        Route::post('crm/whatsapp/chat/template', [Agent\WhatsAppController::class, 'sendChatTemplate'])->name('crm.whatsapp.chat.template');
         Route::get('crm/whatsapp/media/{message}', [Agent\WhatsAppController::class, 'media'])->name('crm.whatsapp.media');
         Route::post('crm/whatsapp/catalogues', [Agent\WhatsAppController::class, 'storeCatalogue'])->name('crm.whatsapp.catalogues.store');
         Route::delete('crm/whatsapp/catalogues/{catalogue}', [Agent\WhatsAppController::class, 'destroyCatalogue'])->name('crm.whatsapp.catalogues.destroy');

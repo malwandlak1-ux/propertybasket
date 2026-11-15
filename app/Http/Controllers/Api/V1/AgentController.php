@@ -8,7 +8,6 @@ use App\Http\Controllers\Agent\CrmController;
 use App\Http\Controllers\Agent\DashboardController;
 use App\Http\Controllers\Agent\FfcController;
 use App\Http\Controllers\Agent\InspectionsController;
-use App\Http\Controllers\Agent\ListingsController;
 use App\Http\Controllers\Agent\MaintenanceController;
 use App\Http\Controllers\Agent\MessagesController;
 use App\Http\Controllers\Agent\PipelineController;
@@ -39,11 +38,6 @@ class AgentController extends Controller
     public function overview(Request $request, DashboardController $web): JsonResponse
     {
         return $this->inertiaJson($request, $web->overview($request));
-    }
-
-    public function listings(Request $request, ListingsController $web): JsonResponse
-    {
-        return $this->inertiaJson($request, $web->index($request));
     }
 
     public function tenants(Request $request, TenantsController $web): JsonResponse

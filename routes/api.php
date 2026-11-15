@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\V1\AgentCalendarController;
 use App\Http\Controllers\Api\V1\AgentController;
+use App\Http\Controllers\Api\V1\AgentListingsController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\PushTokenController;
 use App\Http\Controllers\Api\V1\TenantController;
@@ -41,7 +42,18 @@ Route::prefix('v1')->group(function () {
         Route::prefix('agent')->middleware([EnsureRoleEnabled::class . ':agent', 'ffc'])->group(function () {
             Route::get('overview',  [AgentController::class, 'overview']);
             Route::get('pipeline',  [AgentController::class, 'pipeline']);
-            Route::get('listings',  [AgentController::class, 'listings']);
+            Route::get('listings',              [AgentListingsController::class, 'index']);
+            Route::get('listings/form',         [AgentListingsController::class, 'form']);
+            Route::get('listings/{listing}',    [AgentListingsController::class, 'show'])->whereNumber('listing');
+            Route::delete('listings/{listing}', [AgentListingsController::class, 'destroy']);
+            // Marketing property needs a valid agency FFC, as on the web.
+            Route::middleware('agency_ffc')->group(function () {
+                Route::post('listings',                       [AgentListingsController::class, 'store']);
+                Route::post('listings/{listing}',             [AgentListingsController::class, 'update']);
+                Route::post('listings/{listing}/reactivate',  [AgentListingsController::class, 'reactivate']);
+                Route::post('listings/{listing}/mark-sold',   [AgentListingsController::class, 'markSold']);
+                Route::post('listings/{listing}/mark-leased', [AgentListingsController::class, 'markLeased']);
+            });
             Route::post('pipeline/leads', [AgentController::class, 'storeLead']);
             Route::patch('pipeline/leads/{inquiry}/status', [AgentController::class, 'updateLeadStatus']);
             Route::patch('pipeline/leads/{inquiry}/viewing', [AgentController::class, 'scheduleLeadViewing']);

@@ -10,7 +10,10 @@ import { onPushOpened } from './push';
 import ComingSoonScreen from './screens/ComingSoonScreen';
 import LoginScreen from './screens/LoginScreen';
 import AgentCalendarScreen from './screens/agent/CalendarScreen';
+import AgentCommissionScreen from './screens/agent/CommissionScreen';
+import AgentFfcScreen from './screens/agent/FfcScreen';
 import AgentListingsScreen from './screens/agent/ListingsScreen';
+import AgentMaintenanceScreen from './screens/agent/MaintenanceScreen';
 import AgentMessagesScreen, { AgentConversationScreen } from './screens/agent/MessagesScreen';
 import MoreScreen, { MORE_ITEMS, MoreStackParams } from './screens/agent/MoreScreen';
 import AgentOverviewScreen from './screens/agent/OverviewScreen';
@@ -42,6 +45,9 @@ const BUILT: Partial<Record<keyof MoreStackParams, React.ComponentType<any>>> = 
   Leads: AgentPipelineScreen,
   Messages: AgentMessagesScreen,
   Tenants: AgentTenantsScreen,
+  Maintenance: AgentMaintenanceScreen,
+  Commission: AgentCommissionScreen,
+  'FFC & Compliance': AgentFfcScreen,
 };
 
 function AgentMoreStack() {

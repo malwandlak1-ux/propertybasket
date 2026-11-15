@@ -1,5 +1,6 @@
 import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import { api, getToken, setToken } from './api';
+import { registerForPush, unregisterPush } from './push';
 
 export interface AuthUser {
   id: number;
@@ -35,6 +36,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (await getToken()) {
           const { user } = await api.get<{ user: AuthUser }>('/me');
           setUser(user);
+          registerForPush();
         }
       } catch {
         await setToken(null); // stale/revoked token
@@ -52,9 +54,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
     await setToken(res.token);
     setUser(res.user);
+    registerForPush();
   }, []);
 
   const logout = useCallback(async () => {
+    await unregisterPush();
     try {
       await api.post('/auth/logout');
     } catch {

@@ -64,7 +64,17 @@ export const api = {
   get: <T>(path: string) => request<T>('GET', path),
   post: <T>(path: string, body?: unknown) => request<T>('POST', path, body),
   patch: <T>(path: string, body?: unknown) => request<T>('PATCH', path, body),
+  del: <T>(path: string, body?: unknown) => request<T>('DELETE', path, body),
 };
+
+/** First validation message from a 422, else the error's message. */
+export function errorText(e: unknown, fallback = 'Something went wrong.'): string {
+  if (e instanceof ApiError && e.errors) {
+    const first = Object.values(e.errors)[0]?.[0];
+    if (first) return first;
+  }
+  return (e as Error)?.message ?? fallback;
+}
 
 /** Envelope every dashboard GET returns: the web page's Inertia props. */
 export interface PageResponse<T> {

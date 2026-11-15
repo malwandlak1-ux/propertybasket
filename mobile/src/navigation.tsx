@@ -1,12 +1,17 @@
 import { Ionicons } from '@expo/vector-icons';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { DefaultTheme, NavigationContainer } from '@react-navigation/native';
-import React from 'react';
+import { createNavigationContainerRef, DefaultTheme, NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import React, { useEffect } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useAuth } from './auth';
-import { Avatar } from './components/ui';
+import { Avatar, UnderHeaderContext } from './components/ui';
+import { onPushOpened } from './push';
+import ComingSoonScreen from './screens/ComingSoonScreen';
 import LoginScreen from './screens/LoginScreen';
+import AgentCalendarScreen from './screens/agent/CalendarScreen';
 import AgentListingsScreen from './screens/agent/ListingsScreen';
+import MoreScreen, { MORE_ITEMS, MoreStackParams } from './screens/agent/MoreScreen';
 import AgentOverviewScreen from './screens/agent/OverviewScreen';
 import AgentPipelineScreen from './screens/agent/PipelineScreen';
 import TenantMaintenanceScreen from './screens/tenant/MaintenanceScreen';
@@ -15,6 +20,8 @@ import TenantPaymentsScreen from './screens/tenant/PaymentsScreen';
 import { colors, fonts } from './theme';
 
 const Tab = createBottomTabNavigator();
+const MoreStack = createNativeStackNavigator<MoreStackParams>();
+const navigationRef = createNavigationContainerRef<any>();
 
 const navTheme = {
   ...DefaultTheme,
@@ -27,6 +34,33 @@ const navTheme = {
     border: colors.ink200,
   },
 };
+
+/** Screens behind "More" that already have a real implementation. */
+const BUILT: Partial<Record<keyof MoreStackParams, React.ComponentType<any>>> = {
+  Leads: AgentPipelineScreen,
+};
+
+function AgentMoreStack() {
+  return (
+    <MoreStack.Navigator
+      screenOptions={{
+        headerTitleStyle: { fontFamily: fonts.display, color: colors.ink900 },
+        headerTintColor: colors.brand600,
+        headerShadowVisible: false,
+        headerStyle: { backgroundColor: colors.ink50 },
+        contentStyle: { backgroundColor: colors.ink50 },
+        headerBackButtonDisplayMode: 'minimal',
+      }}
+      // Sub-screens sit under a header, so they skip the status-bar inset.
+      screenLayout={({ children }) => <UnderHeaderContext.Provider value>{children}</UnderHeaderContext.Provider>}
+    >
+      <MoreStack.Screen name="More" component={MoreScreen} />
+      {MORE_ITEMS.map((item) => (
+        <MoreStack.Screen key={item.name} name={item.name} component={BUILT[item.name] ?? ComingSoonScreen} />
+      ))}
+    </MoreStack.Navigator>
+  );
+}
 
 function ProfileScreen() {
   const { user, logout } = useAuth();
@@ -53,6 +87,20 @@ const icon =
 
 export default function Navigation() {
   const { user, booting } = useAuth();
+  const isAgent = !!user?.roles.includes('agent');
+
+  // Tapping a push opens the right place: reminder → that day, lead → Leads.
+  useEffect(() => {
+    if (!isAgent) return;
+    return onPushOpened((data) => {
+      const go = () => {
+        if (data.type === 'reminder') navigationRef.navigate('Calendar', { date: data.date });
+        else navigationRef.navigate('MoreTab', { screen: 'Leads' });
+      };
+      if (navigationRef.isReady()) go();
+      else setTimeout(go, 500);
+    });
+  }, [isAgent]);
 
   if (booting) {
     return (
@@ -64,10 +112,8 @@ export default function Navigation() {
 
   if (!user) return <LoginScreen />;
 
-  const isAgent = user.roles.includes('agent');
-
   return (
-    <NavigationContainer theme={navTheme}>
+    <NavigationContainer theme={navTheme} ref={navigationRef}>
       <Tab.Navigator
         screenOptions={{
           headerShown: false,
@@ -79,46 +125,24 @@ export default function Navigation() {
       >
         {isAgent ? (
           <>
+            <Tab.Screen name="Dashboard" component={AgentOverviewScreen} options={{ tabBarIcon: icon('grid-outline') }} />
+            <Tab.Screen name="CRM" component={ComingSoonScreen} options={{ tabBarIcon: icon('people-circle-outline') }} />
+            <Tab.Screen name="Calendar" component={AgentCalendarScreen} options={{ tabBarIcon: icon('calendar-outline') }} />
+            <Tab.Screen name="Listings" component={AgentListingsScreen} options={{ tabBarIcon: icon('home-outline') }} />
             <Tab.Screen
-              name="Overview"
-              component={AgentOverviewScreen}
-              options={{ tabBarIcon: icon('grid-outline') }}
-            />
-            <Tab.Screen
-              name="Pipeline"
-              component={AgentPipelineScreen}
-              options={{ tabBarIcon: icon('funnel-outline') }}
-            />
-            <Tab.Screen
-              name="Listings"
-              component={AgentListingsScreen}
-              options={{ tabBarIcon: icon('home-outline') }}
+              name="MoreTab"
+              component={AgentMoreStack}
+              options={{ title: 'More', tabBarIcon: icon('menu-outline') }}
             />
           </>
         ) : (
           <>
-            <Tab.Screen
-              name="Home"
-              component={TenantOverviewScreen}
-              options={{ tabBarIcon: icon('home-outline') }}
-            />
-            <Tab.Screen
-              name="Payments"
-              component={TenantPaymentsScreen}
-              options={{ tabBarIcon: icon('card-outline') }}
-            />
-            <Tab.Screen
-              name="Maintenance"
-              component={TenantMaintenanceScreen}
-              options={{ tabBarIcon: icon('construct-outline') }}
-            />
+            <Tab.Screen name="Home" component={TenantOverviewScreen} options={{ tabBarIcon: icon('home-outline') }} />
+            <Tab.Screen name="Payments" component={TenantPaymentsScreen} options={{ tabBarIcon: icon('card-outline') }} />
+            <Tab.Screen name="Maintenance" component={TenantMaintenanceScreen} options={{ tabBarIcon: icon('construct-outline') }} />
+            <Tab.Screen name="Profile" component={ProfileScreen} options={{ tabBarIcon: icon('person-circle-outline') }} />
           </>
         )}
-        <Tab.Screen
-          name="Profile"
-          component={ProfileScreen}
-          options={{ tabBarIcon: icon('person-circle-outline') }}
-        />
       </Tab.Navigator>
     </NavigationContainer>
   );

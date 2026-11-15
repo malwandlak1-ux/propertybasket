@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   RefreshControl,
@@ -11,6 +11,18 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, fonts, radius, shadowCard, spacing } from '../theme';
+
+/**
+ * True inside a stack that shows its own header (the "More" stack): the
+ * header already clears the status bar, so screens must not add the top inset.
+ */
+export const UnderHeaderContext = createContext(false);
+
+/** Top padding a screen's scroll content needs. */
+export function useTopPadding(): number {
+  const insets = useSafeAreaInsets();
+  return useContext(UnderHeaderContext) ? spacing(4) : insets.top + spacing(4);
+}
 
 /** White card with the site's shadow-soft. */
 export function Card({ style, children }: { style?: ViewStyle; children: React.ReactNode }) {
@@ -85,7 +97,7 @@ export function DataScreen<T>({
   const [refreshing, setRefreshing] = useState(false);
   // Keeps content clear of the iOS notch / Dynamic Island and Android
   // edge-to-edge status bar (headers are hidden, so screens own the top inset).
-  const insets = useSafeAreaInsets();
+  const topPadding = useTopPadding();
 
   const load = useCallback(async () => {
     try {
@@ -129,7 +141,7 @@ export function DataScreen<T>({
   return (
     <ScrollView
       style={styles.page}
-      contentContainerStyle={[styles.pageContent, { paddingTop: insets.top + spacing(4) }]}
+      contentContainerStyle={[styles.pageContent, { paddingTop: topPadding }]}
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.brand} />}
     >
       {children(data, load)}

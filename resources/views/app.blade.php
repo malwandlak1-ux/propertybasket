@@ -19,6 +19,15 @@
     <link rel="icon" type="image/png" href="{{ $icon }}">
     <link rel="apple-touch-icon" sizes="180x180" href="{{ $icon }}">
     <link rel="shortcut icon" href="{{ $icon }}" type="image/png">
+    {{-- Installable app (web push alerts while the site is closed). Not on agency websites. --}}
+    @unless(isset($siteMeta))
+        <link rel="manifest" href="/manifest.webmanifest">
+        <meta name="theme-color" content="{{ $brand['color'] }}">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-title" content="{{ $brand['name'] }}">
+        <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    @endunless
 
     {{-- Per-page SEO: server-rendered so social scrapers & search crawlers
          (which don't run our client JS) see OpenGraph, Twitter cards and

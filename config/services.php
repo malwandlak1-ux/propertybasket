@@ -35,6 +35,15 @@ return [
         ],
     ],
 
+    // Web push (browser notifications). Leave the keys empty to have them generated
+    // once into storage/app/webpush-vapid.json.
+    'webpush' => [
+        'public_key'  => env('VAPID_PUBLIC_KEY'),
+        'private_key' => env('VAPID_PRIVATE_KEY'),
+        'subject'     => env('VAPID_SUBJECT'),
+        'enabled'     => (bool) env('WEBPUSH_ENABLED', true),
+    ],
+
     'paystack' => [
         'base_url'   => env('PAYSTACK_BASE_URL', 'https://api.paystack.co'),
         'public_key' => env('PAYSTACK_PUBLIC_KEY'),

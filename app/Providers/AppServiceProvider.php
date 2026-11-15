@@ -18,6 +18,38 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        // Every alert that rings the bell also goes to the user's devices as a web push
+        // (shown by the service worker even when the site is closed).
+        \Illuminate\Support\Facades\Event::listen(\Illuminate\Notifications\Events\NotificationSent::class, function ($event) {
+            if ($event->channel !== 'database' || ! $event->notifiable instanceof \App\Models\User
+                || ! $event->response instanceof \Illuminate\Notifications\DatabaseNotification || ! config('services.webpush.enabled', true)) {
+                return;
+            }
+            $user = $event->notifiable;
+            $n = $event->response;
+            if (! \App\Models\PushSubscription::where('user_id', $user->id)->exists()) {
+                return;
+            }
+            $f = app(\App\Http\Middleware\HandleInertiaRequests::class)->formatNotification($n->type, (array) $n->data);
+            $payload = [
+                'title' => mb_substr((string) $f['title'], 0, 80),
+                'body'  => mb_substr((string) $f['body'], 0, 140),
+                'url'   => $f['href'] ?: '/dashboard',
+                'tag'   => 'n-' . $n->id,
+            ];
+            $send = fn () => app(\App\Services\WebPush\WebPush::class)->toUser($user, $payload);
+            // In a web request, push after the response so pages stay fast.
+            $this->app->runningInConsole() ? $send() : $this->app->terminating($send);
+        });
+
+        // Signing out stops alerts to this device.
+        \Illuminate\Support\Facades\Event::listen(\Illuminate\Auth\Events\Logout::class, function ($event) {
+            $hash = request()->hasSession() ? request()->session()->get('push_endpoint_hash') : null;
+            if ($hash && $event->user) {
+                \App\Models\PushSubscription::where('user_id', $event->user->id)->where('endpoint_hash', $hash)->delete();
+            }
+        });
+
         Gate::policy(Listing::class, ListingPolicy::class);
         Gate::define('create_sale_listing', [ListingPolicy::class, 'createSale']);
 

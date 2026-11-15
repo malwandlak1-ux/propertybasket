@@ -6,7 +6,8 @@
  * — see HandleInertiaRequests::notifications().
  */
 import { useEffect, useRef, useState } from 'react';
-import { router, usePoll } from '@inertiajs/react';
+import { router, usePage, usePoll } from '@inertiajs/react';
+import { PushToggle } from '@/Components/PushNotifications';
 
 /** How often the bell re-checks for new notifications (e.g. an owner's WhatsApp reply). */
 const POLL_MS = 15_000;
@@ -28,6 +29,7 @@ type Props = {
 };
 
 export default function NotificationBell({ notifications }: Props) {
+    const userId = usePage<{ auth?: { user?: { id: number } | null } }>().props.auth?.user?.id;
     const [open, setOpen] = useState(false);
     const ref             = useRef<HTMLDivElement>(null);
     const unread          = notifications?.unread_count ?? 0;
@@ -152,6 +154,11 @@ export default function NotificationBell({ notifications }: Props) {
                             })
                         )}
                     </div>
+                    {userId && (
+                        <div className="px-4 py-3 border-t border-ink-100 bg-ink-50/60">
+                            <PushToggle userId={userId} />
+                        </div>
+                    )}
                 </div>
             )}
         </div>

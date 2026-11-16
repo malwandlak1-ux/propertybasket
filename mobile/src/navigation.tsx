@@ -10,11 +10,13 @@ import { Avatar, UnderHeaderContext } from './components/ui';
 import { onPushOpened } from './push';
 import ComingSoonScreen from './screens/ComingSoonScreen';
 import LoginScreen from './screens/LoginScreen';
+import AgentAnalyticsScreen from './screens/agent/AnalyticsScreen';
 import AgentCalendarScreen from './screens/agent/CalendarScreen';
 import AgentCommissionScreen from './screens/agent/CommissionScreen';
 import AgentCrmScreen from './screens/agent/CrmScreen';
 import AgentFarmingScreen from './screens/agent/FarmingScreen';
 import AgentFfcScreen from './screens/agent/FfcScreen';
+import AgentHelpScreen from './screens/agent/HelpScreen';
 import AgentListingFormScreen from './screens/agent/ListingFormScreen';
 import AgentListingsScreen, { ListingsStackParams } from './screens/agent/ListingsScreen';
 import AgentMaintenanceScreen from './screens/agent/MaintenanceScreen';
@@ -22,6 +24,7 @@ import AgentMessagesScreen, { AgentConversationScreen } from './screens/agent/Me
 import MoreScreen, { MORE_ITEMS, MoreStackParams } from './screens/agent/MoreScreen';
 import AgentOverviewScreen from './screens/agent/OverviewScreen';
 import AgentPipelineScreen from './screens/agent/PipelineScreen';
+import AgentSettingsScreen from './screens/agent/SettingsScreen';
 import AgentTenantsScreen from './screens/agent/TenantsScreen';
 import AgentWhatsAppScreen, { AgentWhatsAppChatScreen } from './screens/agent/WhatsAppScreen';
 import TenantMaintenanceScreen from './screens/tenant/MaintenanceScreen';
@@ -55,6 +58,9 @@ const BUILT: Partial<Record<keyof MoreStackParams, React.ComponentType<any>>> = 
   Maintenance: AgentMaintenanceScreen,
   Commission: AgentCommissionScreen,
   'FFC & Compliance': AgentFfcScreen,
+  Analytics: AgentAnalyticsScreen,
+  Settings: AgentSettingsScreen,
+  'Help & Support': AgentHelpScreen,
 };
 
 const stackHeader = {

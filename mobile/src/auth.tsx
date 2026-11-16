@@ -16,6 +16,8 @@ interface AuthState {
   booting: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
+  /** Re-read the signed-in user (after a profile change). */
+  refresh: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthState>({
@@ -23,6 +25,7 @@ const AuthContext = createContext<AuthState>({
   booting: true,
   login: async () => {},
   logout: async () => {},
+  refresh: async () => {},
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -68,8 +71,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(null);
   }, []);
 
+  const refresh = useCallback(async () => {
+    const res = await api.get<{ user: AuthUser }>('/me');
+    setUser(res.user);
+  }, []);
+
   return (
-    <AuthContext.Provider value={{ user, booting, login, logout }}>{children}</AuthContext.Provider>
+    <AuthContext.Provider value={{ user, booting, login, logout, refresh }}>{children}</AuthContext.Provider>
   );
 }
 

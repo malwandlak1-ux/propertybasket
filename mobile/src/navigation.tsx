@@ -5,12 +5,15 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import React, { useEffect } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useAuth } from './auth';
+import { CrmStackParams } from './crm';
 import { Avatar, UnderHeaderContext } from './components/ui';
 import { onPushOpened } from './push';
 import ComingSoonScreen from './screens/ComingSoonScreen';
 import LoginScreen from './screens/LoginScreen';
 import AgentCalendarScreen from './screens/agent/CalendarScreen';
 import AgentCommissionScreen from './screens/agent/CommissionScreen';
+import AgentCrmScreen from './screens/agent/CrmScreen';
+import AgentFarmingScreen from './screens/agent/FarmingScreen';
 import AgentFfcScreen from './screens/agent/FfcScreen';
 import AgentListingFormScreen from './screens/agent/ListingFormScreen';
 import AgentListingsScreen, { ListingsStackParams } from './screens/agent/ListingsScreen';
@@ -20,6 +23,7 @@ import MoreScreen, { MORE_ITEMS, MoreStackParams } from './screens/agent/MoreScr
 import AgentOverviewScreen from './screens/agent/OverviewScreen';
 import AgentPipelineScreen from './screens/agent/PipelineScreen';
 import AgentTenantsScreen from './screens/agent/TenantsScreen';
+import AgentWhatsAppScreen, { AgentWhatsAppChatScreen } from './screens/agent/WhatsAppScreen';
 import TenantMaintenanceScreen from './screens/tenant/MaintenanceScreen';
 import TenantOverviewScreen from './screens/tenant/OverviewScreen';
 import TenantPaymentsScreen from './screens/tenant/PaymentsScreen';
@@ -28,6 +32,7 @@ import { colors, fonts } from './theme';
 const Tab = createBottomTabNavigator();
 const MoreStack = createNativeStackNavigator<MoreStackParams>();
 const ListingsStack = createNativeStackNavigator<ListingsStackParams>();
+const CrmStack = createNativeStackNavigator<CrmStackParams>();
 const navigationRef = createNavigationContainerRef<any>();
 
 const navTheme = {
@@ -68,6 +73,27 @@ function AgentListingsStack() {
       <ListingsStack.Screen name="ListingsHome" component={AgentListingsScreen} options={{ headerShown: false, title: 'Listings' }} />
       <ListingsStack.Screen name="ListingForm" component={AgentListingFormScreen} options={{ title: 'Listing' }} />
     </ListingsStack.Navigator>
+  );
+}
+
+/** CRM tab: overview (no header), then farming drill-down and the WhatsApp inbox. */
+function AgentCrmStack() {
+  return (
+    <CrmStack.Navigator
+      screenOptions={stackHeader}
+      screenLayout={({ children, route }) => (
+        <UnderHeaderContext.Provider value={route.name !== 'CrmHome'}>{children}</UnderHeaderContext.Provider>
+      )}
+    >
+      <CrmStack.Screen name="CrmHome" component={AgentCrmScreen} options={{ headerShown: false, title: 'CRM' }} />
+      <CrmStack.Screen name="Farming" component={AgentFarmingScreen} options={{ title: 'Property farming' }} />
+      <CrmStack.Screen name="WhatsApp" component={AgentWhatsAppScreen} options={{ title: 'WhatsApp inbox' }} />
+      <CrmStack.Screen
+        name="WhatsAppChat"
+        component={AgentWhatsAppChatScreen}
+        options={({ route }) => ({ title: route.params.title })}
+      />
+    </CrmStack.Navigator>
   );
 }
 
@@ -155,7 +181,7 @@ export default function Navigation() {
         {isAgent ? (
           <>
             <Tab.Screen name="Dashboard" component={AgentOverviewScreen} options={{ tabBarIcon: icon('grid-outline') }} />
-            <Tab.Screen name="CRM" component={ComingSoonScreen} options={{ tabBarIcon: icon('people-circle-outline') }} />
+            <Tab.Screen name="CRM" component={AgentCrmStack} options={{ tabBarIcon: icon('people-circle-outline') }} />
             <Tab.Screen name="Calendar" component={AgentCalendarScreen} options={{ tabBarIcon: icon('calendar-outline') }} />
             <Tab.Screen name="Listings" component={AgentListingsStack} options={{ tabBarIcon: icon('home-outline') }} />
             <Tab.Screen

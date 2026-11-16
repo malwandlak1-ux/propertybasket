@@ -107,6 +107,7 @@ export function Chips({
             style={[styles.chip, on && styles.chipOn]}
             onPress={() => onToggle(o.value)}
             accessibilityRole="button"
+            accessibilityLabel={o.label}
             accessibilityState={{ selected: on }}
           >
             <Text style={[styles.chipText, on && styles.chipTextOn]}>{o.label}</Text>

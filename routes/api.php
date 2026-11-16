@@ -69,6 +69,10 @@ Route::prefix('v1')->group(function () {
             Route::get('inspections', [AgentController::class, 'inspections']);
             Route::get('ffc',         [AgentController::class, 'ffc']);
             Route::get('settings',    [AgentController::class, 'settings']);
+            Route::post('settings/profile',       [AgentController::class, 'updateProfile']);
+            Route::post('settings/password',      [AgentController::class, 'updatePassword']);
+            Route::post('settings/notifications', [AgentController::class, 'updateNotifications']);
+            Route::get('help',        [AgentController::class, 'help']);
 
             Route::get('crm',                                [AgentCrmController::class, 'overview']);
             Route::get('crm/farming',                        [AgentCrmController::class, 'farming']);

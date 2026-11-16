@@ -70,7 +70,7 @@ class ApiV1AgentTabsTest extends TestCase
             ['calendar', 'Agent/Viewings'], ['messages', 'Agent/Messages'], ['tenants', 'Agent/Tenants'],
             ['maintenance', 'Agent/Maintenance'], ['commission', 'Agent/Commission'], ['analytics', 'Agent/Analytics'],
             ['inspections', 'Agent/Inspections'], ['ffc', 'Agent/FfcCompliance'], ['settings', 'Agent/Settings'],
-            ['crm', 'Agent/Crm/Overview'],
+            ['crm', 'Agent/Crm/Overview'], ['help', 'Agent/Help'],
         ];
     }
 
@@ -176,5 +176,32 @@ class ApiV1AgentTabsTest extends TestCase
         $this->postJson("/api/v1/agent/messages/{$conv->id}", ['body' => ''])->assertStatus(422);
         $this->postJson("/api/v1/agent/messages/{$private->id}", ['body' => 'Let me in'])->assertForbidden();
         $this->getJson("/api/v1/agent/messages?conversation_id={$private->id}")->assertOk()->assertJsonPath('data.active', null);
+    }
+
+    #[Test]
+    public function an_agent_updates_profile_password_and_notification_settings(): void
+    {
+        $this->agent->update(['password' => \Illuminate\Support\Facades\Hash::make('old-password')]);
+
+        Sanctum::actingAs($this->agent);
+
+        $this->postJson('/api/v1/agent/settings/profile', ['name' => 'Sipho D', 'email' => $this->agent->email, 'phone' => '0825550000'])
+            ->assertOk()->assertJsonPath('user.phone', '0825550000');
+        $this->postJson('/api/v1/agent/settings/profile', ['name' => 'X', 'email' => $this->other->email])
+            ->assertStatus(422)->assertJsonValidationErrors(['email']);
+
+        $this->postJson('/api/v1/agent/settings/password', ['current_password' => 'wrong', 'password' => 'new-password-1', 'password_confirmation' => 'new-password-1'])
+            ->assertStatus(422)->assertJsonValidationErrors(['current_password']);
+        $this->postJson('/api/v1/agent/settings/password', ['current_password' => 'old-password', 'password' => 'new-password-1', 'password_confirmation' => 'nope'])
+            ->assertStatus(422)->assertJsonValidationErrors(['password']);
+        $this->postJson('/api/v1/agent/settings/password', ['current_password' => 'old-password', 'password' => 'new-password-1', 'password_confirmation' => 'new-password-1'])
+            ->assertOk();
+        $this->assertTrue(\Illuminate\Support\Facades\Hash::check('new-password-1', $this->agent->fresh()->password));
+
+        $this->postJson('/api/v1/agent/settings/notifications', ['channels' => ['new_lead' => true, 'viewing_scheduled' => false]])->assertOk();
+        $this->getJson('/api/v1/agent/settings')->assertOk()
+            ->assertJsonPath('data.notifications.values.new_lead', true)
+            ->assertJsonPath('data.notifications.values.viewing_scheduled', false)
+            ->assertJsonPath('data.notifications.values.commission_payout', false);
     }
 }

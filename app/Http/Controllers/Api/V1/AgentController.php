@@ -128,4 +128,36 @@ class AgentController extends Controller
 
         return response()->json(['message' => 'Sent.'], 201);
     }
+
+    /* ---------- Settings + help ---------- */
+
+    public function updateProfile(Request $request, SettingsController $web): JsonResponse
+    {
+        $message = $this->webWrite(fn () => $web->updateProfile($request), 'Profile updated.');
+
+        return response()->json(['message' => $message, 'user' => $request->user()->fresh()->only(['name', 'email', 'phone'])]);
+    }
+
+    public function updatePassword(Request $request, SettingsController $web): JsonResponse
+    {
+        // The web action reports a wrong current password with back()->withErrors(),
+        // which the app can't read, so it's checked here as a normal validation error.
+        if (is_string($request->input('current_password'))
+            && ! \Illuminate\Support\Facades\Hash::check($request->input('current_password'), $request->user()->password)) {
+            throw \Illuminate\Validation\ValidationException::withMessages(['current_password' => 'Current password is incorrect.']);
+        }
+
+        return response()->json(['message' => $this->webWrite(fn () => $web->updatePassword($request), 'Password updated.')]);
+    }
+
+    public function updateNotifications(Request $request, SettingsController $web): JsonResponse
+    {
+        return response()->json(['message' => $this->webWrite(fn () => $web->updateNotifications($request), 'Notification preferences saved.')]);
+    }
+
+    /** GET /agent/help — who to contact; the how-to content ships inside the app. */
+    public function help(Request $request, \App\Http\Controllers\HelpController $web): JsonResponse
+    {
+        return $this->inertiaJson($request, $web->agent($request));
+    }
 }

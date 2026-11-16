@@ -99,7 +99,7 @@ class ApiV1AgentListingsTest extends TestCase
         $this->post('/api/v1/agent/listings', $this->payload([
             'primary_image'  => UploadedFile::fake()->image('cover.jpg', 800, 600),
             'gallery_images' => [UploadedFile::fake()->image('a.jpg'), UploadedFile::fake()->image('b.jpg')],
-        ]), ['Accept' => 'application/json'])->assertCreated();
+        ]), ['Accept' => 'application/json'])->assertCreated()->assertJsonStructure(['id']);
 
         $listing = Listing::where('title', 'Family home in Rynfield')->firstOrFail();
         $this->assertSame($this->agent->id, (int) $listing->agent_id);

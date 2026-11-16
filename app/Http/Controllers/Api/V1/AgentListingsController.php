@@ -39,9 +39,15 @@ class AgentListingsController extends Controller
 
     public function store(Request $request, ListingsController $web): JsonResponse
     {
+        $before = (int) Listing::max('id');
+
         $web->store($request);
 
-        return response()->json(['message' => 'Listing created.'], 201);
+        // The web action redirects without the new id; the app needs it to add
+        // gallery photos in follow-up requests.
+        $id = Listing::where('agent_id', $request->user()->id)->where('id', '>', $before)->max('id');
+
+        return response()->json(['message' => 'Listing created.', 'id' => $id], 201);
     }
 
     public function update(Request $request, Listing $listing, ListingsController $web): JsonResponse

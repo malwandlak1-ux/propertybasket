@@ -12,7 +12,8 @@ import LoginScreen from './screens/LoginScreen';
 import AgentCalendarScreen from './screens/agent/CalendarScreen';
 import AgentCommissionScreen from './screens/agent/CommissionScreen';
 import AgentFfcScreen from './screens/agent/FfcScreen';
-import AgentListingsScreen from './screens/agent/ListingsScreen';
+import AgentListingFormScreen from './screens/agent/ListingFormScreen';
+import AgentListingsScreen, { ListingsStackParams } from './screens/agent/ListingsScreen';
 import AgentMaintenanceScreen from './screens/agent/MaintenanceScreen';
 import AgentMessagesScreen, { AgentConversationScreen } from './screens/agent/MessagesScreen';
 import MoreScreen, { MORE_ITEMS, MoreStackParams } from './screens/agent/MoreScreen';
@@ -26,6 +27,7 @@ import { colors, fonts } from './theme';
 
 const Tab = createBottomTabNavigator();
 const MoreStack = createNativeStackNavigator<MoreStackParams>();
+const ListingsStack = createNativeStackNavigator<ListingsStackParams>();
 const navigationRef = createNavigationContainerRef<any>();
 
 const navTheme = {
@@ -50,17 +52,29 @@ const BUILT: Partial<Record<keyof MoreStackParams, React.ComponentType<any>>> = 
   'FFC & Compliance': AgentFfcScreen,
 };
 
+const stackHeader = {
+  headerTitleStyle: { fontFamily: fonts.display, color: colors.ink900 },
+  headerTintColor: colors.brand600,
+  headerShadowVisible: false,
+  headerStyle: { backgroundColor: colors.ink50 },
+  contentStyle: { backgroundColor: colors.ink50 },
+  headerBackButtonDisplayMode: 'minimal',
+} as const;
+
+/** Listings tab: the list (no header, owns the status-bar inset) and the create / edit form. */
+function AgentListingsStack() {
+  return (
+    <ListingsStack.Navigator screenOptions={stackHeader}>
+      <ListingsStack.Screen name="ListingsHome" component={AgentListingsScreen} options={{ headerShown: false, title: 'Listings' }} />
+      <ListingsStack.Screen name="ListingForm" component={AgentListingFormScreen} options={{ title: 'Listing' }} />
+    </ListingsStack.Navigator>
+  );
+}
+
 function AgentMoreStack() {
   return (
     <MoreStack.Navigator
-      screenOptions={{
-        headerTitleStyle: { fontFamily: fonts.display, color: colors.ink900 },
-        headerTintColor: colors.brand600,
-        headerShadowVisible: false,
-        headerStyle: { backgroundColor: colors.ink50 },
-        contentStyle: { backgroundColor: colors.ink50 },
-        headerBackButtonDisplayMode: 'minimal',
-      }}
+      screenOptions={stackHeader}
       // Sub-screens sit under a header, so they skip the status-bar inset.
       screenLayout={({ children }) => <UnderHeaderContext.Provider value>{children}</UnderHeaderContext.Provider>}
     >
@@ -143,7 +157,7 @@ export default function Navigation() {
             <Tab.Screen name="Dashboard" component={AgentOverviewScreen} options={{ tabBarIcon: icon('grid-outline') }} />
             <Tab.Screen name="CRM" component={ComingSoonScreen} options={{ tabBarIcon: icon('people-circle-outline') }} />
             <Tab.Screen name="Calendar" component={AgentCalendarScreen} options={{ tabBarIcon: icon('calendar-outline') }} />
-            <Tab.Screen name="Listings" component={AgentListingsScreen} options={{ tabBarIcon: icon('home-outline') }} />
+            <Tab.Screen name="Listings" component={AgentListingsStack} options={{ tabBarIcon: icon('home-outline') }} />
             <Tab.Screen
               name="MoreTab"
               component={AgentMoreStack}

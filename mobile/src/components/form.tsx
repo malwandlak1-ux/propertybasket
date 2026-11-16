@@ -87,6 +87,36 @@ export function Segmented<T extends string>({
   );
 }
 
+/** Wrap-around pill choices. Pass `multi` to allow several. */
+export function Chips({
+  options,
+  selected,
+  onToggle,
+}: {
+  options: { value: string; label: string }[];
+  selected: string[];
+  onToggle: (value: string) => void;
+}) {
+  return (
+    <View style={styles.chips}>
+      {options.map((o) => {
+        const on = selected.includes(o.value);
+        return (
+          <Pressable
+            key={o.value}
+            style={[styles.chip, on && styles.chipOn]}
+            onPress={() => onToggle(o.value)}
+            accessibilityRole="button"
+            accessibilityState={{ selected: on }}
+          >
+            <Text style={[styles.chipText, on && styles.chipTextOn]}>{o.label}</Text>
+          </Pressable>
+        );
+      })}
+    </View>
+  );
+}
+
 /** Bottom sheet over a dimmed backdrop; tapping the backdrop closes it. */
 export function Sheet({
   visible,
@@ -158,6 +188,18 @@ const styles = StyleSheet.create({
   segmentActive: { backgroundColor: colors.white },
   segmentText: { fontFamily: fonts.sansSemiBold, fontSize: 13, color: colors.ink500 },
   segmentTextActive: { color: colors.brand700 },
+  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing(2) },
+  chip: {
+    borderRadius: radius.full,
+    borderWidth: 1,
+    borderColor: colors.ink200,
+    backgroundColor: colors.white,
+    paddingHorizontal: spacing(3),
+    paddingVertical: spacing(2),
+  },
+  chipOn: { backgroundColor: colors.brand50, borderColor: colors.brand },
+  chipText: { fontFamily: fonts.sansMedium, fontSize: 13, color: colors.ink500 },
+  chipTextOn: { color: colors.brand700 },
   backdrop: { flex: 1, backgroundColor: 'rgba(11,11,15,0.5)', justifyContent: 'flex-end' },
   sheet: {
     backgroundColor: colors.white,

@@ -37,6 +37,14 @@
           "color": "#F26A1B",
           "defaultChannel": "default"
         }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "cameraPermission": "Property Basket uses the camera to take photos of your listings and inspections.",
+          "photosPermission": "Property Basket lets you choose listing photos from your gallery.",
+          "microphonePermission": false
+        }
       ]
     ]
   }

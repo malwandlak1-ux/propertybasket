@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\V1\AgentCalendarController;
 use App\Http\Controllers\Api\V1\AgentController;
+use App\Http\Controllers\Api\V1\AgentCrmController;
 use App\Http\Controllers\Api\V1\AgentListingsController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\PushTokenController;
@@ -68,7 +69,17 @@ Route::prefix('v1')->group(function () {
             Route::get('inspections', [AgentController::class, 'inspections']);
             Route::get('ffc',         [AgentController::class, 'ffc']);
             Route::get('settings',    [AgentController::class, 'settings']);
-            Route::get('crm',         [AgentController::class, 'crm']);
+
+            Route::get('crm',                                [AgentCrmController::class, 'overview']);
+            Route::get('crm/farming',                        [AgentCrmController::class, 'farming']);
+            Route::post('crm/schemes/{scheme}/prospects',    [AgentCrmController::class, 'storeProspect']);
+            Route::patch('crm/prospects/{prospect}',         [AgentCrmController::class, 'updateProspect']);
+            Route::patch('crm/prospects/{prospect}/status',  [AgentCrmController::class, 'updateProspectStatus']);
+            Route::post('crm/prospects/{prospect}/pipeline', [AgentCrmController::class, 'sendToPipeline']);
+            Route::post('crm/activities',                    [AgentCrmController::class, 'storeActivity']);
+            Route::get('crm/whatsapp',                       [AgentCrmController::class, 'whatsapp']);
+            Route::get('crm/whatsapp/chat',                  [AgentCrmController::class, 'whatsappChat']);
+            Route::post('crm/whatsapp/chat',                 [AgentCrmController::class, 'whatsappReply']);
 
             Route::get('calendar',                         [AgentCalendarController::class, 'index']);
             Route::post('calendar/viewings',               [AgentCalendarController::class, 'storeViewing']);

@@ -30,4 +30,26 @@ trait RendersInertiaJson
             'data'      => $data['props'] ?? [],
         ]);
     }
+
+    /**
+     * Runs a web controller write and returns its success message.
+     *
+     * Web actions refuse some writes with `back()->with('error', …)`: a
+     * redirect the app can't read. The flash lands in the session store even
+     * though API requests carry no session, so we pull it and answer 422 JSON
+     * with the same wording the website shows.
+     */
+    protected function webWrite(callable $action, string $fallback = 'Saved.'): string
+    {
+        $session = app('session.store');
+        $session->forget(['error', 'success']);
+
+        $action();
+
+        if ($error = $session->pull('error')) {
+            abort(422, (string) $error);
+        }
+
+        return (string) ($session->pull('success') ?: $fallback);
+    }
 }

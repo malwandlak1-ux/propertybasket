@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Agent\AnalyticsController;
 use App\Http\Controllers\Agent\CommissionController;
-use App\Http\Controllers\Agent\CrmController;
 use App\Http\Controllers\Agent\DashboardController;
 use App\Http\Controllers\Agent\FfcController;
 use App\Http\Controllers\Agent\InspectionsController;
@@ -76,11 +75,6 @@ class AgentController extends Controller
     public function settings(Request $request, SettingsController $web): JsonResponse
     {
         return $this->inertiaJson($request, $web->index($request));
-    }
-
-    public function crm(Request $request, CrmController $web): JsonResponse
-    {
-        return $this->inertiaJson($request, $web->overview($request));
     }
 
     /* ---------- Leads (pipeline) ---------- */

@@ -6,7 +6,6 @@ use App\Http\Controllers\Agent\AnalyticsController;
 use App\Http\Controllers\Agent\CommissionController;
 use App\Http\Controllers\Agent\DashboardController;
 use App\Http\Controllers\Agent\FfcController;
-use App\Http\Controllers\Agent\InspectionsController;
 use App\Http\Controllers\Agent\MaintenanceController;
 use App\Http\Controllers\Agent\MessagesController;
 use App\Http\Controllers\Agent\PipelineController;
@@ -59,11 +58,6 @@ class AgentController extends Controller
         // The web action streams a CSV when ?export is set; the app only reads.
         $request->query->remove('export');
 
-        return $this->inertiaJson($request, $web->index($request));
-    }
-
-    public function inspections(Request $request, InspectionsController $web): JsonResponse
-    {
         return $this->inertiaJson($request, $web->index($request));
     }
 

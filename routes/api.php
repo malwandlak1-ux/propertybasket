@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\V1\AgentCalendarController;
 use App\Http\Controllers\Api\V1\AgentController;
 use App\Http\Controllers\Api\V1\AgentCrmController;
+use App\Http\Controllers\Api\V1\AgentInspectionsController;
 use App\Http\Controllers\Api\V1\AgentListingsController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\PushTokenController;
@@ -66,7 +67,11 @@ Route::prefix('v1')->group(function () {
             Route::get('maintenance', [AgentController::class, 'maintenance']);
             Route::get('commission',  [AgentController::class, 'commission']);
             Route::get('analytics',   [AgentController::class, 'analytics']);
-            Route::get('inspections', [AgentController::class, 'inspections']);
+            Route::get('inspections',               [AgentInspectionsController::class, 'index']);
+            Route::get('inspections/form',          [AgentInspectionsController::class, 'form']);
+            Route::get('inspections/{inspection}',  [AgentInspectionsController::class, 'show'])->whereNumber('inspection');
+            Route::post('inspections',              [AgentInspectionsController::class, 'store']);
+            Route::post('inspections/{inspection}/rooms/{room}/photos', [AgentInspectionsController::class, 'addPhoto'])->whereNumber('room');
             Route::get('ffc',         [AgentController::class, 'ffc']);
             Route::get('settings',    [AgentController::class, 'settings']);
             Route::post('settings/profile',       [AgentController::class, 'updateProfile']);

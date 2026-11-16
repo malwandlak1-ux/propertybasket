@@ -17,6 +17,8 @@ import AgentCrmScreen from './screens/agent/CrmScreen';
 import AgentFarmingScreen from './screens/agent/FarmingScreen';
 import AgentFfcScreen from './screens/agent/FfcScreen';
 import AgentHelpScreen from './screens/agent/HelpScreen';
+import AgentInspectionFormScreen from './screens/agent/InspectionFormScreen';
+import AgentInspectionsScreen, { AgentInspectionDetailScreen } from './screens/agent/InspectionsScreen';
 import AgentListingFormScreen from './screens/agent/ListingFormScreen';
 import AgentListingsScreen, { ListingsStackParams } from './screens/agent/ListingsScreen';
 import AgentMaintenanceScreen from './screens/agent/MaintenanceScreen';
@@ -55,6 +57,7 @@ const BUILT: Partial<Record<keyof MoreStackParams, React.ComponentType<any>>> = 
   Leads: AgentPipelineScreen,
   Messages: AgentMessagesScreen,
   Tenants: AgentTenantsScreen,
+  Inspections: AgentInspectionsScreen,
   Maintenance: AgentMaintenanceScreen,
   Commission: AgentCommissionScreen,
   'FFC & Compliance': AgentFfcScreen,
@@ -114,6 +117,8 @@ function AgentMoreStack() {
       {MORE_ITEMS.map((item) => (
         <MoreStack.Screen key={item.name} name={item.name} component={BUILT[item.name] ?? ComingSoonScreen} />
       ))}
+      <MoreStack.Screen name="InspectionDetail" component={AgentInspectionDetailScreen} options={{ title: 'Inspection' }} />
+      <MoreStack.Screen name="InspectionForm" component={AgentInspectionFormScreen} options={{ title: 'Inspection' }} />
       <MoreStack.Screen
         name="Conversation"
         component={AgentConversationScreen}

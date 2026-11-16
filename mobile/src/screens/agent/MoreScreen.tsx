@@ -6,6 +6,7 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useAuth } from '../../auth';
 import { Avatar, Card } from '../../components/ui';
 import { colors, fonts, radius, spacing } from '../../theme';
+import { InspectionStackParams } from './InspectionsScreen';
 
 /** Agent tabs that live under "More" (same names as the website sidebar). */
 export const MORE_ITEMS = [
@@ -21,7 +22,7 @@ export const MORE_ITEMS = [
   { name: 'Help & Support', icon: 'help-buoy-outline' },
 ] as const;
 
-export type MoreStackParams = { More: undefined; Conversation: { id: number; title: string } } & { [K in (typeof MORE_ITEMS)[number]['name']]: undefined };
+export type MoreStackParams = { More: undefined; Conversation: { id: number; title: string } } & InspectionStackParams & { [K in (typeof MORE_ITEMS)[number]['name']]: undefined };
 
 export default function MoreScreen() {
   const nav = useNavigation<NativeStackNavigationProp<MoreStackParams>>();

@@ -2,6 +2,7 @@
   "expo": {
     "name": "Property Basket",
     "slug": "property-basket",
+    "owner": "property-basket",
     "scheme": "propertybasket",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -46,6 +47,11 @@
           "microphonePermission": false
         }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "2dd97831-b662-4078-aa43-2627f460239e"
+      }
+    }
   }
 }

@@ -1,0 +1,20 @@
+# What EAS Build uploads when building the mobile app (mobile/).
+# The repo root is the Laravel site; the app only needs its own folder.
+# When this file exists EAS ignores .gitignore, so build junk is listed here too.
+
+/*
+!/mobile
+
+mobile/node_modules
+mobile/.expo
+mobile/dist
+mobile/web-build
+mobile/android
+mobile/ios
+mobile/.env
+mobile/.env.local
+mobile/*.jks
+mobile/*.p8
+mobile/*.p12
+mobile/*.key
+mobile/*.mobileprovision

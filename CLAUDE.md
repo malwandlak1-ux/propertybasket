@@ -585,6 +585,34 @@ Set in `app/Http/Middleware/HandleInertiaRequests.php` — available to every pa
 
 ---
 
+## Mobile API (/api/v1) + Agent App (mobile/)
+
+Built on branch `android-agent-app`. The app is for the **agent** role (tenant screens from an earlier draft are still present but not maintained).
+
+### API
+
+- `routes/api.php` (registered as `api:` in `bootstrap/app.php`). **Laravel Sanctum** bearer tokens: `POST /api/v1/auth/login` returns `{token, user}`, `logout` revokes the current token, `GET /me`. Protected routes use `['auth:sanctum', 'active.api']` (`EnsureApiUserActive` rejects a suspended user even with a live token). Agent routes also use `EnsureRoleEnabled:agent` + `ffc`, and listing writes `agency_ffc`, exactly like the web. Both FFC middlewares answer API clients with **422 JSON** instead of a redirect.
+- **One code path for web and app.** Controllers in `app/Http/Controllers/Api/V1/` are thin wrappers around the web controllers (`Concerns/RendersInertiaJson`):
+  - `inertiaJson($request, $web->index($request))`: a GET returns the web page's Inertia props as `{component, data}`. Change a web controller's props and the app gets the same change.
+  - `webWrite(fn () => $web->store($request))`: runs the web write (same validation and rules) and turns a `back()->with('error', …)` flash into **422 JSON** with the same wording. Validation errors are already 422 JSON because the request expects JSON.
+  - A guard the web expresses with `back()->withErrors()` or by silently returning must be re-checked in the API controller (see `AgentController::updatePassword`, `updateLeadStatus`).
+- Controllers: `AuthController`, `PushTokenController`, `AgentController` (dashboard, leads, messages, tenants, maintenance, commission, analytics, FFC, settings, help), `AgentCalendarController`, `AgentListingsController`, `AgentCrmController` (farming + WhatsApp inbox), `AgentInspectionsController`.
+- **Uploads go one file per request** from the app: listing gallery photos re-post the listing fields with one photo each; inspection photos use the API-only `POST inspections/{inspection}/rooms/{room}/photos` (own inspection, within 6 hours, max 10 per room). This keeps every request under PHP's `upload_max_filesize` / `post_max_size`.
+- **Phone push**: `push_tokens` table, `App\Notifications\Channels\ExpoPushChannel` (sends through `exp.host`, drops `DeviceNotRegistered` tokens, never throws). A notification opts in with `...ExpoPushChannel::for($notifiable)` in `via()` plus `toExpoPush()`. Wired on `ReminderDue` and `InquiryReceived`. This is separate from browser web push (`push_subscriptions`).
+- Tests: `tests/Feature/ApiV1*.php` (auth, tabs, calendar, listings, CRM, inspections).
+
+### App
+
+- `mobile/` is an **Expo SDK 57** React Native app in TypeScript. Read `mobile/AGENTS.md` first: the SDK docs are versioned.
+- `src/api.ts` (fetch client, token in AsyncStorage, `api.upload` for multipart, `assetUrl()` for site-relative images, `errorText()`), `src/auth.tsx`, `src/push.ts`, `src/photos.ts` (camera/gallery, resized to 1600 px), `src/usePage.ts` (load one API page), `src/navigation.tsx`.
+- Navigation: bottom tabs **Dashboard, CRM, Calendar, Listings, More**. CRM and Listings are stacks; More is a stack listing the other ten tabs (`MORE_ITEMS` in `screens/agent/MoreScreen.tsx`, screens mapped in `BUILT` in `navigation.tsx`).
+- Shared UI: `components/ui.tsx` (Card, Badge, KpiCard, LoadState, Fab, `useTopPadding`), `components/form.tsx` (Sheet, Field, Segmented, Chips, buttons), `ContactActions`, `ListingPicker`, `DateTimeField` (+ `.web.tsx`, because the native picker has no web build). Theme tokens in `src/theme.ts` mirror `resources/css/app.css`.
+- **Deliberately website-only** for now: bank details, FFC certificate upload, WhatsApp account/templates/campaigns, farming import/export and region/suburb/scheme setup, multi-unit rent editing, inspection PDF download.
+- API host: `EXPO_PUBLIC_API_URL`; defaults to `http://10.0.2.2:8090` on the Android emulator and `http://127.0.0.1:8090` elsewhere. `mobile/eas.json`: `preview` builds an APK pointed at `manage.propertybasket.co.za`, `production` at `propertybasket.co.za`.
+- Local run: serve the API with `php -S 127.0.0.1:8090 -t public`, then `npx expo start --web --port 8083` in `mobile/` (browser preview) or `--android`. Uploaded images need `php artisan storage:link` once per checkout. Push notifications need a real device build (not Expo Go on Android) and an EAS project id (`eas init`).
+
+---
+
 ## Demo Data Wrinkle
 
 Some demo users land at `status=pending` after `migrate:fresh --seed` (Lerato the landlord, some tenants). They cannot log in until reactivated. Fix in tinker:

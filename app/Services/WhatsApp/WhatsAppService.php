@@ -74,7 +74,13 @@ class WhatsAppService
     {
         $token = $this->api->exchangeCode($code);
 
-        $account = WhatsAppAccount::firstOrNew(['agent_id' => $agent->id]);
+        // Same number again → refresh it. A different number → keep the old one as read-only history.
+        $current = WhatsAppAccount::where('agent_id', $agent->id)->where('status', '!=', 'archived')->latest('id')->first();
+        if ($current && $current->phone_number_id !== $phoneNumberId) {
+            $this->archive($current);
+            $current = null;
+        }
+        $account = $current ?? new WhatsAppAccount(['agent_id' => $agent->id]);
         $account->fill([
             'agency_id'       => $agencyId,
             'waba_id'         => $wabaId,
@@ -112,6 +118,18 @@ class WhatsAppService
         $this->refresh($account);
 
         return $account;
+    }
+
+    /**
+     * Keep a number the agent moved away from as read-only history: its chats
+     * stay (labelled with that number), replies that still arrive on it are
+     * saved, but nothing is sent from it any more.
+     */
+    public function archive(WhatsAppAccount $account): void
+    {
+        $account->forceFill(['status' => 'archived'])->save();
+        WaCampaign::where('whatsapp_account_id', $account->id)->whereIn('status', ['queued', 'sending'])
+            ->get()->each(fn ($c) => $this->pause($c, 'You switched to a new WhatsApp number; this one is kept as history.'));
     }
 
     /** Check the credentials with Meta and pull the number's details + templates. */

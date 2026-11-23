@@ -65,7 +65,7 @@ class CrmController extends Controller
         $agency = $this->resolveAgency($request);
         [$agents, $agentId, $ids] = $this->scope($request, $agency);
 
-        $accounts = WhatsAppAccount::where('agency_id', $agency->id)->whereIn('agent_id', $ids)->get()->keyBy('agent_id');
+        $accounts = WhatsAppAccount::where('agency_id', $agency->id)->whereIn('agent_id', $ids)->where('status', '!=', 'archived')->get()->keyBy('agent_id');
         $campaigns = WaCampaign::where('agency_id', $agency->id)->whereIn('agent_id', $ids)
             ->with('agent:id,name')->latest()->limit(100)->get();
         $stats = $wa->stats($campaigns->pluck('id')->all());

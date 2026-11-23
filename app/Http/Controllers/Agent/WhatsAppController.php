@@ -60,7 +60,8 @@ class WhatsAppController extends Controller
             'templates' => $account ? $account->templates()->orderByRaw("CASE status WHEN 'APPROVED' THEN 0 ELSE 1 END")->orderBy('name')->get()
                 ->map(fn (WaTemplate $t) => $this->templateRow($t)) : [],
             'campaigns' => $campaigns->map(fn (WaCampaign $c) => $this->campaignRow($c, $stats[$c->id] ?? [])),
-            'threads'   => $account ? $this->threads($account) : [],
+            'threads'   => $this->threads($this->numbers($request)),
+            'numbers'   => $this->numberRows($request),
             'catalogues' => $this->catalogues($request),
             // "Connect WhatsApp" (Meta Embedded Signup, incl. the WhatsApp Business app QR scan).
             'embedded'  => self::embeddedConfig(),
@@ -84,6 +85,15 @@ class WhatsAppController extends Controller
             'phone_number_id.regex' => 'The Phone number ID is the long number shown under API Setup (not the phone number itself).',
         ]);
 
+        if ($existing && $existing->phone_number_id !== $data['phone_number_id']) {
+            // A different number: keep the old one's chats as read-only history instead of overwriting it.
+            $this->wa->archive($existing);
+            $existing = null;
+            $data['access_token'] = $data['access_token'] ?? null;
+            if (empty($data['access_token'])) {
+                throw ValidationException::withMessages(['access_token' => 'Enter the access token for the new number.']);
+            }
+        }
         $account = $existing ?? new WhatsAppAccount(['agent_id' => $request->user()->id, 'agency_id' => $record->agency_id]);
         $account->fill([
             'waba_id'         => $data['waba_id'],
@@ -384,7 +394,10 @@ class WhatsAppController extends Controller
     public function chat(Request $request): Response
     {
         $record = $this->resolveAgentRecord($request);
-        $account = $this->account($request) ?? abort(404);
+        $numbers = $this->numbers($request);
+        $account = ($request->filled('account') ? $numbers->firstWhere('id', (int) $request->query('account')) : null)
+            ?? $this->account($request) ?? abort(404);
+        $readOnly = $account->status === 'archived';
         $phone = Phone::waZa((string) $request->query('phone')) ?? abort(404);
 
         $messages = WaMessage::where('whatsapp_account_id', $account->id)->where('phone', $phone)
@@ -409,12 +422,15 @@ class WhatsAppController extends Controller
             // The owner's farming record, shown as a side panel (log a contact, pipeline, details).
             'panel'    => $prospect ? app(CrmService::class)->prospectPanel($prospect) : null,
             'profile'  => ['name' => $user->name, 'agency' => $record->agency->name, 'phone' => $user->phone],
-            'window_open_until' => $lastIn && $lastIn->sent_at?->gt(now()->subDay()) ? $lastIn->sent_at->addDay()->format('d M H:i') : null,
-            // The chat list beside the conversation (WhatsApp Web style).
-            'threads'  => $this->threads($account),
+            // An old number kept as history is read-only: no replies, templates or catalogues from it.
+            'window_open_until' => ! $readOnly && $lastIn && $lastIn->sent_at?->gt(now()->subDay()) ? $lastIn->sent_at->addDay()->format('d M H:i') : null,
+            'number'   => ['id' => $account->id, 'display' => $account->display_phone, 'read_only' => $readOnly],
+            'numbers'  => $this->numberRows($request),
+            // The chat list beside the conversation (WhatsApp Web style), across every number.
+            'threads'  => $this->threads($numbers),
             'catalogues' => $this->catalogues($request),
             // Outside the 24-hour window: approved templates to send one-to-one, pre-filled for this owner.
-            ...$this->chatTemplates($account, $request->user(), $record->agency->name, $prospect),
+            ...($readOnly ? ['templates' => [], 'fields' => [], 'send_hours' => SendSchedule::describe($account)] : $this->chatTemplates($account, $request->user(), $record->agency->name, $prospect)),
             'messages' => $messages->map(fn (WaMessage $m) => [
                 'id'        => $m->id,
                 'direction' => $m->direction,
@@ -751,9 +767,27 @@ class WhatsAppController extends Controller
 
     private function account(Request $request, bool $withDisconnected = false): ?WhatsAppAccount
     {
-        $a = WhatsAppAccount::where('agent_id', $request->user()->id)->first();
+        // The live number. Earlier numbers kept as read-only history are "archived".
+        $a = WhatsAppAccount::where('agent_id', $request->user()->id)->where('status', '!=', 'archived')->latest('id')->first();
 
         return $a && ($withDisconnected || $a->status !== 'disconnected') ? $a : null;
+    }
+
+    /** Every number the agent has used (live first, then read-only history), for Chats. */
+    private function numbers(Request $request)
+    {
+        return WhatsAppAccount::where('agent_id', $request->user()->id)->whereIn('status', ['connected', 'error', 'archived'])
+            ->orderByRaw("CASE WHEN status = 'archived' THEN 1 ELSE 0 END")->latest('id')->get();
+    }
+
+    private function numberRows(Request $request): array
+    {
+        return $this->numbers($request)->map(fn (WhatsAppAccount $a) => [
+            'id'        => $a->id,
+            'display'   => $a->display_phone ?? $a->phone_number_id,
+            'read_only' => $a->status === 'archived',
+            'chats'     => WaMessage::where('whatsapp_account_id', $a->id)->distinct()->count('phone'),
+        ])->values()->all();
     }
 
     private function connected(Request $request): WhatsAppAccount
@@ -882,23 +916,33 @@ class WhatsAppController extends Controller
     }
 
     /** Latest conversation per number (owners who replied). */
-    private function threads(WhatsAppAccount $account): array
+    private function threads($accounts): array
     {
-        $latest = WaMessage::where('whatsapp_account_id', $account->id)->where('direction', 'in')
-            ->selectRaw('phone, MAX(id) AS last_id, COUNT(*) AS n')->groupBy('phone')
-            ->orderByDesc('last_id')->limit(30)->get();
+        $accounts = $accounts instanceof WhatsAppAccount ? collect([$accounts]) : collect($accounts);
+        if ($accounts->isEmpty()) {
+            return [];
+        }
+        $byId = $accounts->keyBy('id');
+        $latest = WaMessage::whereIn('whatsapp_account_id', $byId->keys())->where('direction', 'in')
+            ->selectRaw('whatsapp_account_id, phone, MAX(id) AS last_id, COUNT(*) AS n')->groupBy('whatsapp_account_id', 'phone')
+            ->orderByDesc('last_id')->limit(60)->get();
         $msgs = WaMessage::whereIn('id', $latest->pluck('last_id'))->with('prospect:id,owner_name')->get()->keyBy('id');
 
-        return $latest->map(function ($row) use ($msgs) {
+        return $latest->map(function ($row) use ($msgs, $byId) {
             $m = $msgs->get($row->last_id);
+            $acc = $byId->get($row->whatsapp_account_id);
+            $readOnly = $acc?->status === 'archived';
 
             return [
+                'account_id' => (int) $row->whatsapp_account_id,
+                'number'     => $acc?->display_phone,
+                'read_only'  => $readOnly,
                 'phone'   => $row->phone,
                 'display' => Phone::local($row->phone),
                 'owner'   => $m?->prospect?->owner_name,
                 'last'    => $m?->body ?: ($m?->wa_media_id || $m?->media_path ? WaMessage::mediaLabel($m) : null),
                 'at'      => $m?->sent_at?->diffForHumans(),
-                'open'    => (bool) $m?->sent_at?->gt(now()->subDay()),
+                'open'    => ! $readOnly && (bool) $m?->sent_at?->gt(now()->subDay()),
             ];
         })->all();
     }

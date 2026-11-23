@@ -29,6 +29,7 @@ class WhatsAppMessageReceived extends Notification
         return [
             'wa_message_id' => $this->message->id,
             'phone'         => $this->message->phone,
+            'account_id'    => $this->message->whatsapp_account_id,
             'display'       => Phone::local($this->message->phone),
             'owner_name'    => $this->ownerName,
             'preview'       => mb_strimwidth((string) ($this->message->body ?: \App\Models\WaMessage::mediaLabel($this->message)), 0, 120, '…'),

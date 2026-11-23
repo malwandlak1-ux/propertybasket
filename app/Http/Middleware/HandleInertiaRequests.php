@@ -283,7 +283,7 @@ class HandleInertiaRequests extends Middleware
                 'title' => ($data['opted_out'] ?? false) ? 'WhatsApp opt-out' : 'New WhatsApp message',
                 'body'  => ($data['owner_name'] ?? $data['display'] ?? 'An owner')
                     . (($data['opted_out'] ?? false) ? ' replied STOP and was opted out.' : ': “' . ($data['preview'] ?? '') . '”'),
-                'href'  => '/agent/crm/whatsapp/chat?phone=' . urlencode((string) ($data['phone'] ?? '')),
+                'href'  => '/agent/crm/whatsapp/chat?phone=' . urlencode((string) ($data['phone'] ?? '')) . (! empty($data['account_id']) ? '&account=' . (int) $data['account_id'] : ''),
                 'tone'  => ($data['opted_out'] ?? false) ? 'muted' : 'success',
             ],
             \App\Notifications\InquiryReceived::class => [

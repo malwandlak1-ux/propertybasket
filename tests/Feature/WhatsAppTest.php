@@ -498,7 +498,7 @@ class WhatsAppTest extends TestCase
         $this->actingAs($this->agent)->get('/agent/crm/whatsapp')->assertOk()
             ->assertInertia(fn (Assert $p) => $p->where('notifications.unread_count', 1)
                 ->where('notifications.recent.0.title', 'New WhatsApp message')
-                ->where('notifications.recent.0.href', '/agent/crm/whatsapp/chat?phone=27821112222')
+                ->where('notifications.recent.0.href', fn ($h) => str_starts_with($h, '/agent/crm/whatsapp/chat?phone=27821112222&account='))
                 ->where('notifications.recent.0.body', fn ($b) => str_contains($b, 'NKOSI THABO') && str_contains($b, 'yes please send the valuation')));
         $this->assertSame(0, $this->other->fresh()->unreadNotifications()->count(), 'Only the number\'s own agent is notified');
 
@@ -967,5 +967,58 @@ class WhatsAppTest extends TestCase
         $this->call('POST', '/webhooks/whatsapp/platform', [], [], [], ['HTTP_X_HUB_SIGNATURE_256' => 'sha256=bad', 'CONTENT_TYPE' => 'application/json'], $raw)->assertForbidden();
         $this->get('/webhooks/whatsapp/platform?hub_mode=subscribe&hub_verify_token=verify-me&hub_challenge=42')->assertOk()->assertSee('42');
         $this->get('/webhooks/whatsapp/platform?hub_mode=subscribe&hub_verify_token=nope&hub_challenge=42')->assertForbidden();
+    }
+
+    #[Test]
+    public function switching_to_a_new_number_keeps_the_old_one_as_read_only_history(): void
+    {
+        config(['whatsapp.app_id' => '1736151707455174', 'whatsapp.app_secret' => 'platform-app-secret-123456', 'whatsapp.embedded_config_id' => '99887766']);
+        Http::fake([
+            'graph.facebook.com/v23.0/oauth/access_token*' => Http::response(['access_token' => 'EAAG-business-token-abcdef123456']),
+            'graph.facebook.com/v23.0/3333333333/smb_app_data' => Http::response(['success' => true]),
+            'graph.facebook.com/v23.0/4444444444/subscribed_apps' => Http::response(['success' => true]),
+            'graph.facebook.com/v23.0/4444444444/message_templates*' => Http::response(['data' => []]),
+            'graph.facebook.com/v23.0/3333333333*' => Http::response(['display_phone_number' => '+27 70 333 5854', 'verified_name' => 'Sipho', 'quality_rating' => 'GREEN', 'platform_type' => 'CLOUD_API']),
+        ]);
+        // The 074 number with an old chat and a running campaign.
+        $old = $this->account(['display_phone' => '+27 74 832 9393', 'app_secret' => 'platform-app-secret-123456']);
+        WaMessage::create(['whatsapp_account_id' => $old->id, 'agent_id' => $this->agent->id, 'direction' => 'in', 'type' => 'text',
+            'phone' => '27821112222', 'body' => 'Old chat on 074', 'status' => 'received', 'sent_at' => now()->subHour()]);
+        $t = $this->template($old);
+        $campaign = WaCampaign::create(['agency_id' => $this->agency->id, 'agent_id' => $this->agent->id, 'whatsapp_account_id' => $old->id, 'wa_template_id' => $t->id,
+            'name' => 'Running', 'template_name' => $t->name, 'template_language' => 'en', 'variable_map' => [], 'status' => 'sending', 'total' => 5]);
+
+        $this->actingAs($this->agent)->post('/agent/crm/whatsapp/embedded', ['code' => 'c', 'waba_id' => '4444444444', 'phone_number_id' => '3333333333', 'coexistence' => true])
+            ->assertSessionHas('success');
+
+        $old->refresh();
+        $new = WhatsAppAccount::where('agent_id', $this->agent->id)->where('status', 'connected')->firstOrFail();
+        $this->assertNotSame($old->id, $new->id);
+        $this->assertSame('archived', $old->status);
+        $this->assertSame('1111111111', $old->waba_id); // untouched
+        $this->assertSame('paused', $campaign->fresh()->status);
+        $this->assertSame('Old chat on 074', WaMessage::where('whatsapp_account_id', $old->id)->value('body'));
+
+        // Chats lists both numbers, labelled; the old chat opens read-only.
+        $this->actingAs($this->agent)->get('/agent/crm/whatsapp')->assertInertia(fn (Assert $p) => $p
+            ->where('account.display_phone', '+27 70 333 5854')
+            ->where('numbers', fn ($n) => count($n) === 2 && collect($n)->firstWhere('id', $old->id)['read_only'] === true)
+            ->where('threads.0.account_id', $old->id)->where('threads.0.read_only', true));
+        $this->actingAs($this->agent)->get("/agent/crm/whatsapp/chat?phone=27821112222&account={$old->id}")->assertOk()
+            ->assertInertia(fn (Assert $p) => $p->where('number.read_only', true)->where('window_open_until', null)->where('templates', [])
+                ->where('messages.0.body', 'Old chat on 074'));
+        // Another agent can't open it by guessing the id (falls back to their own number, or 404).
+        $this->actingAs($this->other)->get("/agent/crm/whatsapp/chat?phone=27821112222&account={$old->id}")->assertNotFound();
+
+        // A late reply to 074 is still saved on the old number, with a bell link to that chat.
+        $payload = ['object' => 'whatsapp_business_account', 'entry' => [['id' => '1111111111', 'changes' => [['field' => 'messages', 'value' => [
+            'metadata' => ['phone_number_id' => '2222222222'],
+            'messages' => [['from' => '27821112222', 'id' => 'wamid.LATE', 'timestamp' => (string) now()->timestamp, 'type' => 'text', 'text' => ['body' => 'Sorry for the late reply']]],
+        ]]]]]];
+        $raw = json_encode($payload);
+        $this->call('POST', "/webhooks/whatsapp/{$old->webhook_key}", [], [], [], ['HTTP_X_HUB_SIGNATURE_256' => 'sha256=' . hash_hmac('sha256', $raw, 'platform-app-secret-123456'), 'CONTENT_TYPE' => 'application/json'], $raw)->assertOk();
+        $this->assertSame($old->id, WaMessage::where('wamid', 'wamid.LATE')->value('whatsapp_account_id'));
+        $this->actingAs($this->agent)->get('/agent/crm/whatsapp')->assertInertia(fn (Assert $p) => $p
+            ->where('notifications.recent.0.href', "/agent/crm/whatsapp/chat?phone=27821112222&account={$old->id}"));
     }
 }

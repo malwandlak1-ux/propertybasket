@@ -5,7 +5,7 @@ import CrmTabs from '@/Components/Crm/CrmTabs';
 import { FlashBanners, PageHeader, SummaryStrip, btnOutline, btnPrimary, thRowCls } from '@/Components/Dashboard/Charts';
 import { Spinner } from '@/Components/Skeleton';
 import { CampaignRow, CampaignStatus, CopyField, Progress, Quality, Schedule, Step } from '@/Components/Crm/waParts';
-import WaShell, { ChatList, NoChatSelected, WaSection, waHref } from '@/Components/Crm/WaShell';
+import WaShell, { ChatList, NoChatSelected, WaNumber, WaSection, WaThread, waHref } from '@/Components/Crm/WaShell';
 import CatalogueLibrary, { Catalogue } from '@/Components/Crm/WaCatalogues';
 import WaEmbeddedSignup, { EmbeddedConfig } from '@/Components/Crm/WaEmbeddedSignup';
 
@@ -18,7 +18,6 @@ type Account = {
     onboarding: 'manual' | 'embedded' | 'coexistence';
 };
 type Template = { id: number; name: string; language: string; category: string | null; status: string; body: string | null; footer: string | null; params: string[]; sendable: boolean; reason: string | null };
-type Thread = { phone: string; display: string; owner: string | null; last: string | null; at: string | null; open: boolean };
 
 type Props = {
     agent: { name: string; agency_name: string };
@@ -26,7 +25,8 @@ type Props = {
     stub: boolean;
     templates: Template[];
     campaigns: CampaignRow[];
-    threads: Thread[];
+    threads: WaThread[];
+    numbers: WaNumber[];
     catalogues: Catalogue[];
     embedded: EmbeddedConfig;
 };
@@ -34,7 +34,7 @@ type Props = {
 const input = 'w-full bg-white border border-ink-200 rounded-xl px-3.5 py-2.5 text-[13.5px] focus:outline-none focus:border-brand-300 focus:ring-4 focus:ring-brand-100';
 const label = 'text-[12px] font-semibold text-ink-700 mb-1.5 block';
 
-export default function AgentCrmWhatsApp({ agent, account, stub, templates, campaigns, threads, catalogues, embedded }: Props) {
+export default function AgentCrmWhatsApp({ agent, account, stub, templates, campaigns, threads, numbers, catalogues, embedded }: Props) {
     const { flash } = usePage<{ flash?: { success?: string | null; error?: string | null } }>().props;
     const [editing, setEditing] = useState(!account);
     const [newTemplate, setNewTemplate] = useState(false);
@@ -91,7 +91,7 @@ export default function AgentCrmWhatsApp({ agent, account, stub, templates, camp
                     {section === 'chats' && (
                         connected || threads.length ? (
                             <>
-                                <ChatList threads={threads} query={query} setQuery={setQuery} filter={filter} setFilter={setFilter} className="w-full md:w-[340px] lg:w-[380px] shrink-0" />
+                                <ChatList threads={threads} numbers={numbers} query={query} setQuery={setQuery} filter={filter} setFilter={setFilter} className="w-full md:w-[340px] lg:w-[380px] shrink-0" />
                                 <NoChatSelected connected={connected} />
                             </>
                         ) : <NeedsConnection onConnect={() => select('connection')} />
@@ -223,6 +223,9 @@ export default function AgentCrmWhatsApp({ agent, account, stub, templates, camp
                                     )}
                                     <section className="max-w-2xl rounded-2xl border border-ink-200/60 bg-white p-5 space-y-3">
                                         <dl className="text-[12.5px] space-y-1.5">
+                                            {numbers.filter((n) => n.read_only).map((n) => (
+                                                <Row key={n.id} k="Previous number (read-only)" v={`${n.display} · ${n.chats} chat${n.chats === 1 ? '' : 's'} kept`} />
+                                            ))}
                                             <Row k="Connected with" v={account.onboarding === 'coexistence' ? 'WhatsApp Business app (QR code)' : account.onboarding === 'embedded' ? 'Connect WhatsApp (Facebook)' : 'Manual setup'} />
                                             <Row k="Business account ID" v={account.waba_id} />
                                             <Row k="Phone number ID" v={account.phone_number_id} />

@@ -885,4 +885,87 @@ class WhatsAppTest extends TestCase
         $this->assertSame(0, WaMessage::where('direction', 'out')->count());
         Http::assertNotSent(fn ($r) => str_ends_with($r->url(), '/messages'));
     }
+
+    #[Test]
+    public function connect_whatsapp_with_facebook_links_a_business_app_number_by_qr(): void
+    {
+        config(['whatsapp.app_id' => '1736151707455174', 'whatsapp.app_secret' => 'platform-app-secret-123456', 'whatsapp.embedded_config_id' => '99887766']);
+        Http::fake([
+            'graph.facebook.com/v23.0/oauth/access_token*' => Http::response(['access_token' => 'EAAG-business-token-abcdef123456', 'token_type' => 'bearer']),
+            'graph.facebook.com/v23.0/3333333333/smb_app_data' => Http::response(['success' => true]),
+            'graph.facebook.com/v23.0/4444444444/subscribed_apps' => Http::response(['success' => true]),
+            'graph.facebook.com/v23.0/4444444444/message_templates*' => Http::response(['data' => []]),
+            'graph.facebook.com/v23.0/3333333333*' => Http::response(['display_phone_number' => '+27 70 333 5854', 'verified_name' => 'Sipho Dlamini', 'quality_rating' => 'GREEN', 'platform_type' => 'CLOUD_API']),
+        ]);
+
+        $this->actingAs($this->agent)->get('/agent/crm/whatsapp')->assertInertia(fn (Assert $p) => $p->where('embedded.app_id', '1736151707455174')->where('embedded.config_id', '99887766'));
+
+        $this->actingAs($this->agent)->post('/agent/crm/whatsapp/embedded', ['code' => 'one-time-code', 'waba_id' => '4444444444', 'phone_number_id' => '3333333333', 'coexistence' => true])
+            ->assertSessionHasNoErrors()->assertSessionHas('success');
+
+        $a = WhatsAppAccount::where('agent_id', $this->agent->id)->firstOrFail();
+        $this->assertSame('coexistence', $a->onboarding);
+        $this->assertSame('EAAG-business-token-abcdef123456', $a->access_token);
+        $this->assertSame('platform-app-secret-123456', $a->app_secret);
+        $this->assertSame('+27 70 333 5854', $a->display_phone);
+        Http::assertSent(fn ($r) => str_contains($r->url(), 'oauth/access_token') && str_contains($r->url(), 'code=one-time-code') && str_contains($r->url(), 'client_secret=platform-app-secret-123456'));
+        Http::assertSent(fn ($r) => str_ends_with($r->url(), '/smb_app_data') && $r['sync_type'] === 'history');
+        Http::assertNotSent(fn ($r) => str_ends_with($r->url(), '/register')); // the number stays on the phone app
+
+        // Without the platform app configured the endpoint doesn't exist.
+        config(['whatsapp.embedded_config_id' => null]);
+        $this->actingAs($this->agent)->post('/agent/crm/whatsapp/embedded', ['code' => 'x', 'waba_id' => '4444444444', 'phone_number_id' => '3333333333'])->assertNotFound();
+    }
+
+    #[Test]
+    public function one_app_webhook_routes_entries_to_each_number_and_records_phone_sent_and_past_messages(): void
+    {
+        config(['whatsapp.app_secret' => 'platform-app-secret-123456', 'whatsapp.platform_verify_token' => 'verify-me']);
+        $mine = $this->account(['app_secret' => 'platform-app-secret-123456']);
+        $other = WhatsAppAccount::create(['agent_id' => $this->other->id, 'agency_id' => $this->agency->id, 'waba_id' => '4444444444', 'phone_number_id' => '3333333333',
+            'display_phone' => '+27 70 333 5854', 'access_token' => 'EAAG-other-token-1234567890', 'app_secret' => 'platform-app-secret-123456', 'status' => 'connected', 'onboarding' => 'coexistence']);
+        $foreign = WhatsAppAccount::create(['agent_id' => User::factory()->create(['role' => Role::Agent])->id, 'agency_id' => $this->agency->id, 'waba_id' => '5555555555', 'phone_number_id' => '6666666666',
+            'access_token' => 'EAAG-foreign-token-1234567890', 'app_secret' => 'someone-elses-own-app-secret', 'status' => 'connected']);
+
+        $payload = ['object' => 'whatsapp_business_account', 'entry' => [
+            ['id' => '4444444444', 'changes' => [['field' => 'smb_message_echoes', 'value' => [
+                'metadata' => ['display_phone_number' => '27703335854', 'phone_number_id' => '3333333333'],
+                'message_echoes' => [['from' => '27703335854', 'to' => '27821112222', 'id' => 'wamid.ECHO1', 'timestamp' => (string) now()->timestamp, 'type' => 'text', 'text' => ['body' => 'Sent from my phone']]],
+            ]]]],
+            ['id' => '4444444444', 'changes' => [['field' => 'history', 'value' => [
+                'metadata' => ['display_phone_number' => '27703335854', 'phone_number_id' => '3333333333'],
+                'history' => [['metadata' => ['phase' => 0], 'threads' => [['id' => '27829998888', 'messages' => [
+                    ['from' => '27829998888', 'id' => 'wamid.H1', 'timestamp' => (string) now()->subMonth()->timestamp, 'type' => 'text', 'text' => ['body' => 'Is the flat still available?']],
+                    ['from' => '27703335854', 'id' => 'wamid.H2', 'timestamp' => (string) now()->subMonth()->addMinute()->timestamp, 'type' => 'text', 'text' => ['body' => 'Yes it is']],
+                ]]]]],
+            ]]]],
+            // An entry for a number on someone's own Meta app must not be accepted on this app's signature.
+            ['id' => '5555555555', 'changes' => [['field' => 'smb_message_echoes', 'value' => [
+                'metadata' => ['phone_number_id' => '6666666666'],
+                'message_echoes' => [['from' => '27', 'to' => '27821112222', 'id' => 'wamid.FORGED', 'type' => 'text', 'text' => ['body' => 'x']]],
+            ]]]],
+        ]];
+        $raw = json_encode($payload);
+        $sig = 'sha256=' . hash_hmac('sha256', $raw, 'platform-app-secret-123456');
+
+        // Arrives on the original agent's keyed URL (the app's single callback) …
+        $this->call('POST', "/webhooks/whatsapp/{$mine->webhook_key}", [], [], [], ['HTTP_X_HUB_SIGNATURE_256' => $sig, 'CONTENT_TYPE' => 'application/json'], $raw)->assertOk();
+
+        $echo = WaMessage::where('wamid', 'wamid.ECHO1')->firstOrFail();
+        $this->assertSame($other->id, $echo->whatsapp_account_id);
+        $this->assertSame('out', $echo->direction);
+        $this->assertSame('Sent from my phone', $echo->body);
+        $this->assertSame('in', WaMessage::where('wamid', 'wamid.H1')->value('direction'));
+        $this->assertSame('out', WaMessage::where('wamid', 'wamid.H2')->value('direction'));
+        $this->assertNotNull($other->fresh()->history_synced_at);
+        $this->assertFalse(WaMessage::where('wamid', 'wamid.FORGED')->exists());
+        $this->assertSame(0, WaMessage::where('whatsapp_account_id', $mine->id)->count());
+
+        // … or on the platform URL. Replays are ignored; bad signatures are refused.
+        $this->call('POST', '/webhooks/whatsapp/platform', [], [], [], ['HTTP_X_HUB_SIGNATURE_256' => $sig, 'CONTENT_TYPE' => 'application/json'], $raw)->assertOk();
+        $this->assertSame(1, WaMessage::where('wamid', 'wamid.ECHO1')->count());
+        $this->call('POST', '/webhooks/whatsapp/platform', [], [], [], ['HTTP_X_HUB_SIGNATURE_256' => 'sha256=bad', 'CONTENT_TYPE' => 'application/json'], $raw)->assertForbidden();
+        $this->get('/webhooks/whatsapp/platform?hub_mode=subscribe&hub_verify_token=verify-me&hub_challenge=42')->assertOk()->assertSee('42');
+        $this->get('/webhooks/whatsapp/platform?hub_mode=subscribe&hub_verify_token=nope&hub_challenge=42')->assertForbidden();
+    }
 }

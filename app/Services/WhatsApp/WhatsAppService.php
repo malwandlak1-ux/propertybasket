@@ -65,6 +65,55 @@ class WhatsAppService
         $this->refresh($account);
     }
 
+    /**
+     * Finish an Embedded Signup: the agent logged in with Facebook, picked or
+     * created their WhatsApp Business account and number (or scanned the QR
+     * code in the WhatsApp Business app for a coexistence number).
+     */
+    public function connectEmbedded(User $agent, int $agencyId, string $code, string $wabaId, string $phoneNumberId, bool $coexistence): WhatsAppAccount
+    {
+        $token = $this->api->exchangeCode($code);
+
+        $account = WhatsAppAccount::firstOrNew(['agent_id' => $agent->id]);
+        $account->fill([
+            'agency_id'       => $agencyId,
+            'waba_id'         => $wabaId,
+            'phone_number_id' => $phoneNumberId,
+            'status'          => 'connected',
+            'onboarding'      => $coexistence ? 'coexistence' : 'embedded',
+            'last_error'      => null,
+        ]);
+        $account->access_token = $token;
+        $account->app_secret = config('whatsapp.app_secret'); // the platform app signs this number's webhooks
+        $account->save();
+
+        if (! $coexistence) {
+            // A new number must be registered for the Cloud API; an already registered one just errors here.
+            $info = $this->api->phoneNumber($account);
+            if (($info['platform_type'] ?? 'CLOUD_API') !== 'CLOUD_API') {
+                $this->api->register($account, (string) random_int(100000, 999999));
+            }
+        }
+        try {
+            $this->api->subscribeApp($account);
+        } catch (\Throwable $e) {
+            report($e);
+        }
+        if ($coexistence) {
+            // Bring the phone's contacts and recent chats into Property Basket (Meta allows this once, within 24 hours).
+            foreach (['smb_app_state_sync', 'history'] as $type) {
+                try {
+                    $this->api->requestSync($account, $type);
+                } catch (\Throwable $e) {
+                    report($e);
+                }
+            }
+        }
+        $this->refresh($account);
+
+        return $account;
+    }
+
     /** Check the credentials with Meta and pull the number's details + templates. */
     public function refresh(WhatsAppAccount $account): void
     {

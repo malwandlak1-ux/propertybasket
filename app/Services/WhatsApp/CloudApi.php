@@ -42,6 +42,40 @@ class CloudApi
         $this->post($a, "{$a->phone_number_id}/register", ['messaging_product' => 'whatsapp', 'pin' => $pin]);
     }
 
+    /**
+     * Embedded Signup: swap the one-time code from the Facebook login popup for
+     * a business access token on the agent's WhatsApp Business account.
+     */
+    public function exchangeCode(string $code): string
+    {
+        if ($this->isStub()) {
+            return 'EAAG-stub-' . Str::random(24);
+        }
+        $json = $this->handle(Http::acceptJson()->timeout(20)->get($this->url('oauth/access_token'), [
+            'client_id'     => config('whatsapp.app_id'),
+            'client_secret' => config('whatsapp.app_secret'),
+            'code'          => $code,
+        ]));
+        if (empty($json['access_token'])) {
+            throw new WhatsAppApiException('Meta did not return an access token.', 0);
+        }
+
+        return $json['access_token'];
+    }
+
+    /**
+     * Coexistence: ask Meta to send the WhatsApp Business app's contacts
+     * ('smb_app_state_sync') or up to 6 months of chats ('history') as webhooks.
+     * Only allowed within 24 hours of onboarding.
+     */
+    public function requestSync(WhatsAppAccount $a, string $type): void
+    {
+        if ($this->isStub()) {
+            return;
+        }
+        $this->post($a, "{$a->phone_number_id}/smb_app_data", ['messaging_product' => 'whatsapp', 'sync_type' => $type]);
+    }
+
     /** Subscribe the app to the WhatsApp Business account so Meta sends it webhooks. */
     public function subscribeApp(WhatsAppAccount $a): void
     {

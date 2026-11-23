@@ -1,1 +1,0 @@
-import{a as o,b as s}from"./app-CXx_Q0h-.js";function f(){const[e,t]=o.useState(!1);return o.useEffect(()=>{const n=s.on("start",()=>t(!0)),r=s.on("finish",()=>t(!1));return()=>{n(),r()}},[]),e}export{f as u};

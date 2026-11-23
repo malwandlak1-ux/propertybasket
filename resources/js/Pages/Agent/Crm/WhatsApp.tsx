@@ -7,6 +7,7 @@ import { Spinner } from '@/Components/Skeleton';
 import { CampaignRow, CampaignStatus, CopyField, Progress, Quality, Schedule, Step } from '@/Components/Crm/waParts';
 import WaShell, { ChatList, NoChatSelected, WaSection, waHref } from '@/Components/Crm/WaShell';
 import CatalogueLibrary, { Catalogue } from '@/Components/Crm/WaCatalogues';
+import WaEmbeddedSignup, { EmbeddedConfig } from '@/Components/Crm/WaEmbeddedSignup';
 
 type Account = {
     waba_id: string; phone_number_id: string; display_phone: string | null; verified_name: string | null;
@@ -14,6 +15,7 @@ type Account = {
     last_error: string | null; last_synced_at: string | null; token_hint: string | null; has_app_secret: boolean;
     webhook_url: string; verify_token: string;
     send_from: string | null; send_until: string | null; send_saturdays: boolean; schedule: Schedule;
+    onboarding: 'manual' | 'embedded' | 'coexistence';
 };
 type Template = { id: number; name: string; language: string; category: string | null; status: string; body: string | null; footer: string | null; params: string[]; sendable: boolean; reason: string | null };
 type Thread = { phone: string; display: string; owner: string | null; last: string | null; at: string | null; open: boolean };
@@ -26,12 +28,13 @@ type Props = {
     campaigns: CampaignRow[];
     threads: Thread[];
     catalogues: Catalogue[];
+    embedded: EmbeddedConfig;
 };
 
 const input = 'w-full bg-white border border-ink-200 rounded-xl px-3.5 py-2.5 text-[13.5px] focus:outline-none focus:border-brand-300 focus:ring-4 focus:ring-brand-100';
 const label = 'text-[12px] font-semibold text-ink-700 mb-1.5 block';
 
-export default function AgentCrmWhatsApp({ agent, account, stub, templates, campaigns, threads, catalogues }: Props) {
+export default function AgentCrmWhatsApp({ agent, account, stub, templates, campaigns, threads, catalogues, embedded }: Props) {
     const { flash } = usePage<{ flash?: { success?: string | null; error?: string | null } }>().props;
     const [editing, setEditing] = useState(!account);
     const [newTemplate, setNewTemplate] = useState(false);
@@ -185,7 +188,22 @@ export default function AgentCrmWhatsApp({ agent, account, stub, templates, camp
                                 </div>
                             )}
                             {(!account || !connected || editing) ? (
-                                <ConnectSection account={account} onDone={() => setEditing(false)} onCancel={connected ? () => setEditing(false) : undefined} />
+                                embedded ? (
+                                    <div className="space-y-4">
+                                        <WaEmbeddedSignup config={embedded} />
+                                        <details className="group" open={!!account && account.onboarding === 'manual'}>
+                                            <summary className="cursor-pointer text-[12.5px] font-semibold text-ink-600 hover:text-ink-900 list-none">
+                                                <span className="group-open:hidden">▸</span><span className="hidden group-open:inline">▾</span> Set up manually instead (Business Account ID, Phone number ID and token)
+                                            </summary>
+                                            <div className="mt-3">
+                                                <ConnectSection account={account} onDone={() => setEditing(false)} onCancel={connected ? () => setEditing(false) : undefined} />
+                                            </div>
+                                        </details>
+                                        {connected && <button type="button" onClick={() => setEditing(false)} className={`${btnOutline} !py-2 !text-[12px]`}>Cancel</button>}
+                                    </div>
+                                ) : (
+                                    <ConnectSection account={account} onDone={() => setEditing(false)} onCancel={connected ? () => setEditing(false) : undefined} />
+                                )
                             ) : (
                                 <>
                                     <SummaryStrip
@@ -205,14 +223,21 @@ export default function AgentCrmWhatsApp({ agent, account, stub, templates, camp
                                     )}
                                     <section className="max-w-2xl rounded-2xl border border-ink-200/60 bg-white p-5 space-y-3">
                                         <dl className="text-[12.5px] space-y-1.5">
+                                            <Row k="Connected with" v={account.onboarding === 'coexistence' ? 'WhatsApp Business app (QR code)' : account.onboarding === 'embedded' ? 'Connect WhatsApp (Facebook)' : 'Manual setup'} />
                                             <Row k="Business account ID" v={account.waba_id} />
                                             <Row k="Phone number ID" v={account.phone_number_id} />
                                             <Row k="Access token" v={account.token_hint ?? '—'} />
                                             <Row k="App secret" v={account.has_app_secret ? 'Saved' : 'Missing'} />
                                         </dl>
-                                        <p className="text-[12px] text-ink-500 pt-1">Paste these into Meta → WhatsApp → Configuration → Webhook, then subscribe to <b>messages</b>:</p>
-                                        <CopyField label="Callback URL" value={account.webhook_url} />
-                                        <CopyField label="Verify token" value={account.verify_token} />
+                                        {account.onboarding === 'manual' ? (
+                                            <>
+                                                <p className="text-[12px] text-ink-500 pt-1">Paste these into Meta → WhatsApp → Configuration → Webhook, then subscribe to <b>messages</b>:</p>
+                                                <CopyField label="Callback URL" value={account.webhook_url} />
+                                                <CopyField label="Verify token" value={account.verify_token} />
+                                            </>
+                                        ) : (
+                                            <p className="text-[12px] text-ink-500 pt-1">Delivery ticks and replies come through Property Basket’s Meta app automatically; nothing to set up in Meta.</p>
+                                        )}
                                         <div className="flex gap-2 pt-1">
                                             <button type="button" onClick={() => setEditing(true)} className={`${btnOutline} !py-2 !text-[12px]`}>Update details</button>
                                             <button type="button" onClick={() => confirm('Disconnect WhatsApp? Running campaigns will pause.') && router.delete('/agent/crm/whatsapp/account')}

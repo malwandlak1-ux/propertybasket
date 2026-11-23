@@ -10,6 +10,16 @@ return [
     'graph_url'     => env('WHATSAPP_GRAPH_URL', 'https://graph.facebook.com'),
     'graph_version' => env('WHATSAPP_GRAPH_VERSION', 'v23.0'),
 
+    // Embedded Signup ("Connect WhatsApp" button): the platform's own Meta app.
+    // Agents log in with Facebook and, for a number already on the WhatsApp
+    // Business app, scan a QR code in the app (coexistence). All three must be
+    // set for the button to show; the app secret also verifies webhooks.
+    'app_id'              => env('WHATSAPP_APP_ID'),
+    'app_secret'          => env('WHATSAPP_APP_SECRET'),
+    'embedded_config_id'  => env('WHATSAPP_ES_CONFIG_ID'),
+    // Verify token for the platform webhook URL (/webhooks/whatsapp/platform).
+    'platform_verify_token' => env('WHATSAPP_VERIFY_TOKEN'),
+
     // Fake every Meta call (local demos, tests). Never on in production.
     'stub' => (bool) env('WHATSAPP_STUB', false),
 

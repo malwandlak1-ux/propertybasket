@@ -62,6 +62,8 @@ class WhatsAppController extends Controller
             'campaigns' => $campaigns->map(fn (WaCampaign $c) => $this->campaignRow($c, $stats[$c->id] ?? [])),
             'threads'   => $account ? $this->threads($account) : [],
             'catalogues' => $this->catalogues($request),
+            // "Connect WhatsApp" (Meta Embedded Signup, incl. the WhatsApp Business app QR scan).
+            'embedded'  => self::embeddedConfig(),
         ]);
     }
 
@@ -105,6 +107,42 @@ class WhatsAppController extends Controller
         }
 
         return back()->with('success', 'WhatsApp connected: ' . ($account->display_phone ?? 'number verified') . '. ' . $account->templates()->count() . ' templates synced.');
+    }
+
+    /** Public settings for the Embedded Signup button, or null when the platform app isn't configured. */
+    public static function embeddedConfig(): ?array
+    {
+        $appId = config('whatsapp.app_id');
+        $configId = config('whatsapp.embedded_config_id');
+
+        return $appId && $configId && config('whatsapp.app_secret')
+            ? ['app_id' => (string) $appId, 'config_id' => (string) $configId, 'graph_version' => config('whatsapp.graph_version')]
+            : null;
+    }
+
+    /**
+     * POST /agent/crm/whatsapp/embedded — finish "Connect WhatsApp": the code from
+     * Facebook's login popup plus the WABA + phone number IDs it reported.
+     */
+    public function connectEmbedded(Request $request): RedirectResponse
+    {
+        $record = $this->resolveAgentRecord($request);
+        abort_unless(self::embeddedConfig(), 404);
+        $data = $request->validate([
+            'code'            => ['required', 'string', 'max:2000'],
+            'waba_id'         => ['required', 'regex:/^\d{5,25}$/'],
+            'phone_number_id' => ['required', 'regex:/^\d{5,25}$/'],
+            'coexistence'     => ['nullable', 'boolean'],
+        ]);
+
+        try {
+            $account = $this->wa->connectEmbedded($request->user(), (int) $record->agency_id, $data['code'], $data['waba_id'], $data['phone_number_id'], (bool) ($data['coexistence'] ?? false));
+        } catch (WhatsAppApiException $e) {
+            return back()->with('error', 'Meta couldn’t finish connecting your number: ' . $e->friendly());
+        }
+
+        return back()->with('success', 'WhatsApp connected: ' . ($account->display_phone ?? 'your number') . '.'
+            . ($account->onboarding === 'coexistence' ? ' Keep using the WhatsApp Business app on your phone; your recent chats are being copied into Chats.' : ''));
     }
 
     /** The agent's own sending hours — may only narrow the platform (CPA) schedule. */
@@ -794,6 +832,7 @@ class WhatsAppController extends Controller
             'last_synced_at'  => $a->last_synced_at?->diffForHumans(),
             'token_hint'      => $a->access_token ? '••••' . substr($a->access_token, -4) : null,
             'has_app_secret'  => (bool) $a->app_secret,
+            'onboarding'      => $a->onboarding ?? 'manual',
             'webhook_url'     => url("/webhooks/whatsapp/{$a->webhook_key}"),
             'verify_token'    => $a->verify_token,
             'send_from'       => $a->send_from,

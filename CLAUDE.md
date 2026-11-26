@@ -474,6 +474,8 @@ Production config template: `.env.production.example` — copy to `.env` on the 
 
 Zero-downtime deploys: `deploy.sh` in the repo root. Pulls latest, installs deps, builds assets, migrates, re-caches, restarts queue + FPM. Use on manual-VPS hosts. Forge/Ploi users paste the inner commands into their host's deploy-script panel.
 
+**Hostinger (current hosting)**: one git branch per site (`careline`, `manage` = staging, `prod` = propertybasket.co.za), each deployed by its own `deploy-hostinger*.sh` from a codeload zip of the branch. These scripts copy code, the committed `public/build` bundle and migrations, but **do not run composer**. When `composer.json` gains a package, first copy `composer.json` + `composer.lock` into the site's app directory on the server and run `composer install --no-interaction --optimize-autoloader` there, *then* deploy; otherwise the new code fatals on a missing class (this happened with Sanctum for the mobile API). Prod has prod-only commits, so promote by merging `manage` into `prod` and rebuilding `public/build`, never by resetting.
+
 PDF-attaching notifications (`RentPaymentReceived`, `InspectionCompleted`) `implements ShouldQueue` so they don't block HTTP requests — requires a queue worker running in production. See DEPLOYMENT.md §4.7 for Supervisor config.
 
 ## FFC / EAAB Compliance Gating (two layers)
@@ -558,6 +560,23 @@ Every agency can publish a branded website from `/agency/website`, served on `{s
 - `push_subscriptions` table (one row per browser, unique `endpoint_hash`). `PushController`: `GET push/key`, `POST/DELETE push/subscriptions`, `POST push/test`, plus public `GET /manifest.webmanifest` and `GET /sw.js` (Blade view `pwa/sw.blade.php`, served with `Service-Worker-Allowed: /`). Icons in `public/images/pwa/`.
 - Signing out deletes that device's subscription (`Logout` listener + `push_endpoint_hash` in the session); `resyncPush()` re-links it on the next sign-in if the user had alerts on there.
 - Front end: `resources/js/lib/push.ts`, `Components/PushNotifications.tsx` (`PushPrompt` mounted in `app.tsx`, `PushToggle` in the bell). iPhone/iPad only support it from a Home Screen install. Tests: `tests/Feature/WebPushTest.php`.
+
+---
+
+## WhatsApp CRM (Meta Cloud API)
+
+Each agent sends and receives WhatsApp from **their own WhatsApp Business number** through Meta's Cloud API (Agent → CRM → WhatsApp). Agencies see a per-agent summary in their CRM; archived numbers are excluded there.
+
+- **Backend**: `app/Services/WhatsApp/` — `CloudApi` (Graph calls, incl. `exchangeCode()`, `requestSync()`), `WhatsAppService` (connect, refresh, campaigns, `archive()`), `WebhookHandler` (messages, statuses, STOP/START opt-outs, quality and template updates, coexistence `smb_message_echoes` + `history`), `TemplateParser`, `SendSchedule` (legal sending hours: weekdays 08:00–20:00, Saturday 09:00–13:00, no Sundays/public holidays, SAST). Models `WhatsAppAccount`, `WaMessage`, `WaTemplate`, `WaCampaign`, `WaCatalogue`. Controller `Agent\WhatsAppController`; config `config/whatsapp.php`.
+- **Campaigns** go out from the queue-less `whatsapp:dispatch` command (scheduled every minute, also nudged on requests). Sending pauses automatically when the number's quality is RED/FLAGGED or the number is archived. One message per owner per `WHATSAPP_FREQUENCY_DAYS`.
+- **24-hour rule**: free-form replies only within 24 h of the owner's last message; after that only an approved template (`POST crm/whatsapp/chat/template`, `Components/Crm/WaTemplateSend.tsx`, pre-filled from the last campaign's variable map). **Catalogues** (PDF/image brochures uploaded once, `wa_catalogues`) can be sent from any open chat.
+- **UI** is WhatsApp Web-style: `Components/Crm/WaShell.tsx` (icon rail: Chats, Campaigns, Catalogues, Meta templates, Sending hours, Connection; `ChatList`), pages `Pages/Agent/Crm/WhatsApp.tsx` (`?section=`), `WhatsAppChat.tsx`, `WhatsAppCampaign*.tsx`.
+- **Connecting a number**, two ways:
+  - *Manual*: the agent pastes WABA id, phone number id, token and app secret; each account gets its own webhook URL `/webhooks/whatsapp/{webhook_key}`.
+  - *Connect with Facebook* (Embedded Signup, `Components/Crm/WaEmbeddedSignup.tsx` → `POST crm/whatsapp/embedded`): "I use the WhatsApp Business app" (QR, coexistence: the phone app keeps working and recent chats sync) or "A new number". Shown only when `WHATSAPP_APP_ID`, `WHATSAPP_APP_SECRET` and `WHATSAPP_ES_CONFIG_ID` are set (manage has them; prod not yet). The page's domain must be in the Meta app's JS SDK allowed domains. Platform webhook `/webhooks/whatsapp/platform` (verify token `WHATSAPP_VERIFY_TOKEN`) routes entries by WABA, only to accounts signed with the platform app secret.
+- **Several numbers per agent**: connecting a different number sets the old account to `status=archived`. Its chats stay in Chats (labelled, number filter, lock icon), open read-only, and late replies to it are still saved. `account()` always returns the live number; `?account=` picks a chat's number.
+- **Meta status (Nov 2026)**: app "Property Basket CRM" (1736151707455174) is an Independent Tech Provider; App Review for advanced `whatsapp_business_messaging` / `whatsapp_business_management` was submitted 26 Nov 2026. Until it is approved, Embedded Signup shows "can't onboard customers"; use manual setup.
+- Tests: `tests/Feature/WhatsAppTest.php` (uses `Http::fake()` for the Graph API).
 
 ---
 

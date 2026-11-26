@@ -22,6 +22,9 @@ Schedule::command('debit:collect')->hourly();
 // inside the send window). Also runs after web requests if no cron is set up.
 Schedule::command('whatsapp:dispatch')->everyMinute()->withoutOverlapping();
 
+// Every minute: download photo links that came with imported listings.
+Schedule::command('listings:fetch-photos')->everyMinute()->withoutOverlapping();
+
 // Every minute: ring the bell for agents' calendar reminders that are due.
 Schedule::command('reminders:send')->everyMinute()->withoutOverlapping();
 

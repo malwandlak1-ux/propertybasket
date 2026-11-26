@@ -105,6 +105,16 @@ export default function ListingsAllocation({ agency, cards, agents, next_up, lea
                             )}
                         </p>
                     </div>
+                    <div className="flex flex-wrap items-center gap-2">
+                    <Link
+                        href="/agency/listings/import"
+                        className="px-3.5 py-2 text-[13px] border border-ink-900/70 text-ink-900 bg-white/60 rounded-full hover:bg-white flex items-center gap-2 transition"
+                    >
+                        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+                            <path d="M12 3v12M7 10l5 5 5-5M5 21h14" />
+                        </svg>
+                        Import listings
+                    </Link>
                     <Link
                         href="/agency/listings/create"
                         className="px-3.5 py-2 text-[13px] bg-brand-700 text-white rounded-full hover:bg-brand-800 flex items-center gap-2 transition"
@@ -114,6 +124,7 @@ export default function ListingsAllocation({ agency, cards, agents, next_up, lea
                         </svg>
                         New Listing
                     </Link>
+                    </div>
                 </div>
 
                 {flash?.success && (

@@ -18,6 +18,7 @@ class Listing extends Model
         'ulid', 'owner_type', 'owner_id', 'agent_id',
         'managed_landlord_id', 'landlord_split_percent', 'agency_split_percent', 'agent_split_percent',
         'title', 'slug', 'description',
+        'external_ref', 'import_source', 'imported_at', 'pending_photo_urls',
         'listing_type', 'property_type', 'status',
         'sale_price', 'negotiator_protocol',
         'monthly_rent', 'listing_structure',
@@ -34,6 +35,8 @@ class Listing extends Model
         return [
             'amenities' => 'array',
             'gallery_images' => 'array',
+            'pending_photo_urls' => 'array',
+            'imported_at' => 'datetime',
             'negotiator_protocol' => 'boolean',
             'sale_price' => 'decimal:2',
             'monthly_rent' => 'decimal:2',

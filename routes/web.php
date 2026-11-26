@@ -217,8 +217,14 @@ Route::middleware('auth')->group(function () {
 
         Route::get('listings', [\App\Http\Controllers\Agency\ListingsAllocationController::class, 'index'])->name('listings.index');
         Route::get('listings/create', [\App\Http\Controllers\Agency\ListingsController::class, 'create'])->name('listings.create');
+        // Import listings from another CRM's export (Entegral, Prop Data, spreadsheet).
+        Route::get('listings/import', [\App\Http\Controllers\Agency\ListingImportController::class, 'index'])->name('listings.import');
 
         Route::middleware('agency_ffc')->group(function () {
+            Route::post('listings/import', [\App\Http\Controllers\Agency\ListingImportController::class, 'store'])->middleware('throttle:120,1')->name('listings.import.store');
+            Route::post('listings/import/publish', [\App\Http\Controllers\Agency\ListingImportController::class, 'publish'])->name('listings.import.publish');
+            Route::post('listings/import/discard', [\App\Http\Controllers\Agency\ListingImportController::class, 'discard'])->name('listings.import.discard');
+            Route::post('listings/import/{listing}/photo', [\App\Http\Controllers\Agency\ListingImportController::class, 'photo'])->middleware('throttle:600,1')->name('listings.import.photo');
             Route::post('listings', [\App\Http\Controllers\Agency\ListingsController::class, 'store'])->name('listings.store');
             Route::post('listings/{listing}/assign', [\App\Http\Controllers\Agency\ListingsAllocationController::class, 'assignListing'])->name('listings.assign');
             Route::post('listings/{listing}/auto-assign', [\App\Http\Controllers\Agency\ListingsAllocationController::class, 'autoAssignListing'])->name('listings.auto-assign');

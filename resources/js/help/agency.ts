@@ -93,6 +93,21 @@ export const AGENCY_GUIDES: Guide[] = [
         link: { label: 'Open Listings & Leads', href: '/agency/listings' },
     },
     {
+        id: 'import-listings',
+        category: 'Listings & leads',
+        title: 'Import listings from Entegral, Prop Data or a spreadsheet',
+        summary: 'Bring your existing stock over without capturing it again.',
+        steps: [
+            'In your current CRM, export your listings to Excel or CSV (usually Listings → Export).',
+            'Optional: put the photos in a ZIP, one folder per listing named after its listing reference (for example ENT-101/1.jpg).',
+            'Go to Listings & Leads → Import listings and drop in the file (and the ZIP).',
+            'Check the column matches, choose a default agent, and click Import.',
+            'Review the imported drafts at the bottom of the page, then select them and click Publish.',
+            'Importing the same file again later updates those listings instead of duplicating them.',
+        ],
+        link: { label: 'Import listings', href: '/agency/listings/import' },
+    },
+    {
         id: 'leads',
         category: 'Listings & leads',
         title: 'How leads are allocated',

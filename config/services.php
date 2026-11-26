@@ -35,6 +35,12 @@ return [
         ],
     ],
 
+    // Expo push (mobile app). The access token is only needed if "enhanced
+    // push security" is switched on for the Expo project.
+    'expo' => [
+        'access_token' => env('EXPO_ACCESS_TOKEN'),
+    ],
+
     // Web push (browser notifications). Leave the keys empty to have them generated
     // once into storage/app/webpush-vapid.json.
     'webpush' => [

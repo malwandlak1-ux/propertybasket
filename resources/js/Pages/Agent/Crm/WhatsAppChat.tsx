@@ -3,7 +3,7 @@ import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import AgentLayout from '@/Layouts/AgentLayout';
 import CrmTabs from '@/Components/Crm/CrmTabs';
 import { FlashBanners } from '@/Components/Dashboard/Charts';
-import WaShell, { ChatList, WaThread, initials } from '@/Components/Crm/WaShell';
+import WaShell, { ChatList, WaNumber, WaThread, initials } from '@/Components/Crm/WaShell';
 import { Catalogue, CatalogueIcon } from '@/Components/Crm/WaCatalogues';
 import TemplateSend, { ChatTemplate, OwnerField, SendHours } from '@/Components/Crm/WaTemplateSend';
 import { Spinner } from '@/Components/Skeleton';
@@ -31,7 +31,7 @@ function fmtSize(b: number) {
 
 type Panel = { prospect: Prospect; scheme: Scheme; suburb: Suburb; history: Activity[] };
 
-export default function Chat({ agent, phone, display, prospect, window_open_until, messages, panel, profile, threads, catalogues, templates, fields, send_hours }: {
+export default function Chat({ agent, phone, display, prospect, window_open_until, messages, panel, profile, threads, numbers, number, catalogues, templates, fields, send_hours }: {
     agent: { agency_name: string };
     phone: string;
     display: string;
@@ -41,6 +41,8 @@ export default function Chat({ agent, phone, display, prospect, window_open_unti
     panel: Panel | null;
     profile: Profile;
     threads: WaThread[];
+    numbers: WaNumber[];
+    number: { id: number; display: string | null; read_only: boolean };
     catalogues: Catalogue[];
     templates: ChatTemplate[];
     fields: OwnerField[];
@@ -154,7 +156,7 @@ export default function Chat({ agent, phone, display, prospect, window_open_unti
                 <FlashBanners flash={flash} />
 
                 <WaShell active="chats" badges={{ chats: threads.filter((t) => t.open).length }}>
-                    <ChatList threads={threads} activePhone={phone} query={query} setQuery={setQuery} filter={filter} setFilter={setFilter}
+                    <ChatList threads={threads} numbers={numbers} activePhone={phone} activeAccount={number.id} query={query} setQuery={setQuery} filter={filter} setFilter={setFilter}
                         className="hidden lg:flex w-[290px] xl:w-[330px] shrink-0" />
 
                     <section className="flex-1 min-w-0 flex flex-col">
@@ -183,6 +185,12 @@ export default function Chat({ agent, phone, display, prospect, window_open_unti
                             </button>
                         </div>
 
+                        {number.read_only && (
+                            <div className="px-4 py-2 bg-ink-100 border-b border-ink-200 text-ink-700 text-[12.5px] flex items-center gap-2">
+                                <svg className="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} aria-hidden><rect x="5" y="11" width="14" height="10" rx="2" /><path d="M8 11V7a4 4 0 0 1 8 0v4" /></svg>
+                                <span>This chat is on your old number <b>{number.display}</b>, kept as read-only history. New replies to it are still saved here.</span>
+                            </div>
+                        )}
                         {prospect?.opted_out && <div className="px-4 py-2 bg-danger/10 border-b border-danger/30 text-danger text-[12.5px]">This owner replied STOP. They won’t get campaign messages again.</div>}
 
                         {/* Messages */}
@@ -205,7 +213,11 @@ export default function Chat({ agent, phone, display, prospect, window_open_unti
 
                         {/* Composer */}
                         <form onSubmit={send} className="shrink-0 px-3 py-2.5 bg-[#F0F2F5] border-t border-ink-200">
-                            {window_open_until ? (
+                            {number.read_only ? (
+                                <p className="text-[12.5px] text-ink-500 px-1 py-1.5">
+                                    Read-only: this is your old number. To reach this owner, message them from your current number (start a chat or include them in a campaign).
+                                </p>
+                            ) : window_open_until ? (
                                 <>
                                     {data.attachment && data.voice && previewUrl && (
                                         <div className="mb-2 flex flex-wrap items-center gap-2 bg-[#D9FDD3] border border-ink-200 rounded-xl pl-3 pr-1.5 py-1.5 text-[12.5px] max-w-full">

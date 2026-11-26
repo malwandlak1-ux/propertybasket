@@ -43,14 +43,21 @@ class EnsureValidAgencyFfc
             return $next($request);
         }
 
+        $error = $agency->eaab_ffc_expires_at
+            ? "Agency FFC expired on {$agency->eaab_ffc_expires_at->format('d M Y')}. The agency owner must upload a current certificate before any listing can be created."
+            : "Your agency must upload a valid Fidelity Fund Certificate before listings can be created. The agency owner can do this under Compliance & FFC.";
+
+        // Mobile API clients get a straight 422; there's no page to redirect to.
+        if ($request->expectsJson() && ! $request->header('X-Inertia')) {
+            return response()->json(['message' => $error], 422);
+        }
+
         $redirectRoute = Agency::where('user_id', $user->id)->exists()
             ? 'agency.compliance.show'
             : 'agent.listings.index';
 
         return redirect()
             ->route($redirectRoute)
-            ->with('error', $agency->eaab_ffc_expires_at
-                ? "Agency FFC expired on {$agency->eaab_ffc_expires_at->format('d M Y')}. The agency owner must upload a current certificate before any listing can be created."
-                : "Your agency must upload a valid Fidelity Fund Certificate before listings can be created. The agency owner can do this under Compliance & FFC.");
+            ->with('error', $error);
     }
 }

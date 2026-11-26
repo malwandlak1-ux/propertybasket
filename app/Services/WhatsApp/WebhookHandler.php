@@ -31,6 +31,44 @@ class WebhookHandler
         return hash_equals('sha256=' . hash_hmac('sha256', $raw, $secret), $header);
     }
 
+    /**
+     * Deliver each entry to the number it belongs to. One Meta app (and so one
+     * callback URL) serves every number connected through it, so an entry goes
+     * to the account whose WABA it names, but only among accounts verified by
+     * the same app secret (an agent's own app can't post into someone else's).
+     */
+    public function route(array $payload, ?string $secret, ?WhatsAppAccount $fallback = null): void
+    {
+        foreach ($payload['entry'] ?? [] as $entry) {
+            $target = null;
+            if (! empty($entry['id'])) {
+                $target = WhatsAppAccount::where('waba_id', (string) $entry['id'])->where('status', '!=', 'disconnected')->get()
+                    ->first(fn (WhatsAppAccount $a) => $secret && hash_equals((string) $a->app_secret, $secret)
+                        && $this->ownsEntry($a, $entry));
+            }
+            // The keyed URL's own account only takes entries for its own WABA (or none named).
+            if (! $target && $fallback && (empty($entry['id']) || (string) $entry['id'] === (string) $fallback->waba_id)) {
+                $target = $fallback;
+            }
+            if ($target) {
+                $this->handle($target, ['entry' => [$entry]]);
+            }
+        }
+    }
+
+    /** Several numbers can share a WABA: match the phone number id when the entry has one. */
+    private function ownsEntry(WhatsAppAccount $a, array $entry): bool
+    {
+        foreach ($entry['changes'] ?? [] as $c) {
+            $pnid = $c['value']['metadata']['phone_number_id'] ?? null;
+            if ($pnid) {
+                return (string) $pnid === (string) $a->phone_number_id;
+            }
+        }
+
+        return true;
+    }
+
     public function handle(WhatsAppAccount $account, array $payload): void
     {
         foreach ($payload['entry'] ?? [] as $entry) {
@@ -40,6 +78,10 @@ class WebhookHandler
                     'messages'                       => $this->messages($account, $value),
                     'phone_number_quality_update'    => $this->quality($account, $value),
                     'message_template_status_update' => $this->templateStatus($account, $value),
+                    // WhatsApp Business app numbers (coexistence): messages the agent sends from the phone,
+                    // and the chat history Meta replays after onboarding.
+                    'smb_message_echoes'             => $this->echoes($account, $value),
+                    'history'                        => $this->history($account, $value),
                     default                          => null,
                 };
             }
@@ -60,6 +102,97 @@ class WebhookHandler
         foreach ($value['messages'] ?? [] as $m) {
             $this->inbound($account, $m);
         }
+    }
+
+    /** A message the agent sent from the WhatsApp Business app on their phone. */
+    private function echoes(WhatsAppAccount $account, array $value): void
+    {
+        if (! $this->forThisNumber($account, $value)) {
+            return;
+        }
+        foreach ($value['message_echoes'] ?? [] as $m) {
+            $this->storeOutgoing($account, $m, (string) ($m['to'] ?? ''), 'sent');
+        }
+    }
+
+    /** Past chats from the phone (up to 6 months), replayed once after a coexistence onboarding. */
+    private function history(WhatsAppAccount $account, array $value): void
+    {
+        if (! $this->forThisNumber($account, $value)) {
+            return;
+        }
+        $business = preg_replace('/\D/', '', (string) ($value['metadata']['display_phone_number'] ?? $account->display_phone ?? ''));
+        foreach ($value['history'] ?? [] as $chunk) {
+            foreach ($chunk['threads'] ?? [] as $thread) {
+                $customer = (string) ($thread['id'] ?? '');
+                foreach ($thread['messages'] ?? [] as $m) {
+                    $from = preg_replace('/\D/', '', (string) ($m['from'] ?? ''));
+                    if ($business !== '' && $from === $business) {
+                        $this->storeOutgoing($account, $m, $customer, 'delivered');
+                    } else {
+                        $this->storeIncoming($account, $m, $customer !== '' ? $customer : $from);
+                    }
+                }
+            }
+        }
+        $account->forceFill(['history_synced_at' => now()])->save();
+    }
+
+    private function forThisNumber(WhatsAppAccount $account, array $value): bool
+    {
+        $pnid = $value['metadata']['phone_number_id'] ?? null;
+
+        return ! $pnid || (string) $pnid === (string) $account->phone_number_id;
+    }
+
+    private function storeOutgoing(WhatsAppAccount $account, array $m, string $to, string $status): void
+    {
+        $phone = Phone::waZa('+' . ltrim($to, '+')) ?? $to;
+        if ($phone === '' || WaMessage::where('whatsapp_account_id', $account->id)->where('wamid', $m['id'] ?? '')->exists()) {
+            return;
+        }
+        $type = (string) ($m['type'] ?? 'text');
+        WaMessage::create([
+            'whatsapp_account_id' => $account->id,
+            'agent_id'            => $account->agent_id,
+            'crm_prospect_id'     => $this->prospectsFor($account, $phone)->first()?->id,
+            'direction'           => 'out',
+            'type'                => $type === 'text' ? 'text' : $type,
+            'phone'               => $phone,
+            'body'                => self::textOf($m),
+            'wamid'               => $m['id'] ?? null,
+            'status'              => $status,
+            'sent_at'             => isset($m['timestamp']) ? Carbon::createFromTimestamp((int) $m['timestamp'], config('app.timezone')) : now(),
+        ]);
+    }
+
+    /** An owner's past message from the history replay (no alerts: it's old news). */
+    private function storeIncoming(WhatsAppAccount $account, array $m, string $from): void
+    {
+        $phone = Phone::waZa('+' . ltrim($from, '+')) ?? $from;
+        if ($phone === '' || WaMessage::where('whatsapp_account_id', $account->id)->where('wamid', $m['id'] ?? '')->exists()) {
+            return;
+        }
+        WaMessage::create([
+            'whatsapp_account_id' => $account->id,
+            'agent_id'            => $account->agent_id,
+            'crm_prospect_id'     => $this->prospectsFor($account, $phone)->first()?->id,
+            'direction'           => 'in',
+            'type'                => (string) ($m['type'] ?? 'text'),
+            'phone'               => $phone,
+            'body'                => self::textOf($m),
+            'wamid'               => $m['id'] ?? null,
+            'status'              => 'received',
+            'sent_at'             => isset($m['timestamp']) ? Carbon::createFromTimestamp((int) $m['timestamp'], config('app.timezone')) : now(),
+        ]);
+    }
+
+    private static function textOf(array $m): ?string
+    {
+        $type = (string) ($m['type'] ?? 'text');
+        $t = $m['text']['body'] ?? ($m[$type]['caption'] ?? null) ?? ($type !== 'text' ? '[' . $type . ']' : null);
+
+        return $t === null || trim((string) $t) === '' ? null : mb_substr((string) $t, 0, 4000);
     }
 
     private function status(WhatsAppAccount $account, array $s): void

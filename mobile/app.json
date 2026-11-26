@@ -1,0 +1,51 @@
+{
+  "expo": {
+    "name": "Property Basket",
+    "slug": "property-basket",
+    "scheme": "propertybasket",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "backgroundColor": "#F9FAFB",
+    "primaryColor": "#F26A1B",
+    "ios": {
+      "bundleIdentifier": "co.za.propertybasket.app",
+      "buildNumber": "1",
+      "supportsTablet": true,
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
+    },
+    "android": {
+      "package": "co.za.propertybasket.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#FFF4EC",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      [
+        "expo-notifications",
+        {
+          "color": "#F26A1B",
+          "defaultChannel": "default"
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "cameraPermission": "Property Basket uses the camera to take photos of your listings and inspections.",
+          "photosPermission": "Property Basket lets you choose listing photos from your gallery.",
+          "microphonePermission": false
+        }
+      ]
+    ]
+  }
+}

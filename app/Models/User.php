@@ -13,12 +13,13 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, HasRoles, Notifiable, SoftDeletes;
+    use HasApiTokens, HasFactory, HasRoles, Notifiable, SoftDeletes;
 
     protected $fillable = [
         'name',
@@ -103,6 +104,12 @@ class User extends Authenticatable
     public function inquiriesAssigned(): HasMany
     {
         return $this->hasMany(Inquiry::class, 'assigned_to');
+    }
+
+    /** Expo push tokens — one per device signed in to the mobile app. */
+    public function pushTokens(): HasMany
+    {
+        return $this->hasMany(PushToken::class);
     }
 
     public function leasesAsTenant(): HasMany

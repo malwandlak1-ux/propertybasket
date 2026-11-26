@@ -1,0 +1,84 @@
+import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import { api, getToken, setToken } from './api';
+import { registerForPush, unregisterPush } from './push';
+
+export interface AuthUser {
+  id: number;
+  name: string;
+  email: string;
+  phone: string | null;
+  roles: string[];
+  initials: string;
+}
+
+interface AuthState {
+  user: AuthUser | null;
+  booting: boolean;
+  login: (email: string, password: string) => Promise<void>;
+  logout: () => Promise<void>;
+  /** Re-read the signed-in user (after a profile change). */
+  refresh: () => Promise<void>;
+}
+
+const AuthContext = createContext<AuthState>({
+  user: null,
+  booting: true,
+  login: async () => {},
+  logout: async () => {},
+  refresh: async () => {},
+});
+
+export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const [user, setUser] = useState<AuthUser | null>(null);
+  const [booting, setBooting] = useState(true);
+
+  // Restore session on cold start.
+  useEffect(() => {
+    (async () => {
+      try {
+        if (await getToken()) {
+          const { user } = await api.get<{ user: AuthUser }>('/me');
+          setUser(user);
+          registerForPush();
+        }
+      } catch {
+        await setToken(null); // stale/revoked token
+      } finally {
+        setBooting(false);
+      }
+    })();
+  }, []);
+
+  const login = useCallback(async (email: string, password: string) => {
+    const res = await api.post<{ token: string; user: AuthUser }>('/auth/login', {
+      email,
+      password,
+      device_name: 'property-basket-app',
+    });
+    await setToken(res.token);
+    setUser(res.user);
+    registerForPush();
+  }, []);
+
+  const logout = useCallback(async () => {
+    await unregisterPush();
+    try {
+      await api.post('/auth/logout');
+    } catch {
+      // Token already dead server-side — still clear locally.
+    }
+    await setToken(null);
+    setUser(null);
+  }, []);
+
+  const refresh = useCallback(async () => {
+    const res = await api.get<{ user: AuthUser }>('/me');
+    setUser(res.user);
+  }, []);
+
+  return (
+    <AuthContext.Provider value={{ user, booting, login, logout, refresh }}>{children}</AuthContext.Provider>
+  );
+}
+
+export const useAuth = () => useContext(AuthContext);

@@ -271,6 +271,7 @@ Route::middleware('auth')->group(function () {
         // CRM → WhatsApp: the agent's own WhatsApp Business (Cloud API) number.
         Route::get('crm/whatsapp', [Agent\WhatsAppController::class, 'index'])->name('crm.whatsapp');
         Route::post('crm/whatsapp/account', [Agent\WhatsAppController::class, 'connect'])->name('crm.whatsapp.connect');
+        Route::post('crm/whatsapp/embedded', [Agent\WhatsAppController::class, 'connectEmbedded'])->middleware('throttle:10,1')->name('crm.whatsapp.embedded');
         Route::delete('crm/whatsapp/account', [Agent\WhatsAppController::class, 'disconnect'])->name('crm.whatsapp.disconnect');
         Route::post('crm/whatsapp/schedule', [Agent\WhatsAppController::class, 'updateSchedule'])->name('crm.whatsapp.schedule');
         Route::post('crm/whatsapp/templates/sync', [Agent\WhatsAppController::class, 'syncTemplates'])->name('crm.whatsapp.templates.sync');

@@ -42,9 +42,41 @@ class WhatsAppWebhookController extends Controller
         }
 
         try {
-            $handler->handle($account, json_decode($raw, true) ?? []);
+            // Numbers connected through the same Meta app share this callback: route each entry to its own number.
+            $handler->route(json_decode($raw, true) ?? [], $account->app_secret, $account);
         } catch (\Throwable $e) {
             report($e); // still 200 so Meta doesn't retry a payload we can't process
+        }
+
+        return response('ok', 200);
+    }
+
+    /** GET /webhooks/whatsapp/platform — handshake for the platform's own Meta app. */
+    public function verifyPlatform(Request $request): Response
+    {
+        $token = (string) config('whatsapp.platform_verify_token');
+        if ($token !== '' && $request->query('hub_mode') === 'subscribe'
+            && hash_equals($token, (string) $request->query('hub_verify_token'))) {
+            return response((string) $request->query('hub_challenge'), 200, ['Content-Type' => 'text/plain']);
+        }
+
+        return response('Verification failed', 403);
+    }
+
+    /** POST /webhooks/whatsapp/platform — deliveries for every number connected with "Connect WhatsApp". */
+    public function receivePlatform(Request $request, WebhookHandler $handler): Response
+    {
+        $raw = $request->getContent();
+        $secret = (string) config('whatsapp.app_secret');
+        if (! WebhookHandler::validSignature($raw, $request->header('X-Hub-Signature-256'), $secret)) {
+            Log::warning('WhatsApp platform webhook rejected: bad or missing signature');
+
+            return response('Invalid signature', 403);
+        }
+        try {
+            $handler->route(json_decode($raw, true) ?? [], $secret);
+        } catch (\Throwable $e) {
+            report($e);
         }
 
         return response('ok', 200);

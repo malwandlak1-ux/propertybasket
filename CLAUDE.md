@@ -563,6 +563,17 @@ Every agency can publish a branded website from `/agency/website`, served on `{s
 
 ---
 
+## Listing Import (from another CRM)
+
+Agency → Listings & Leads → **Import listings** (`/agency/listings/import`) brings stock over from Entegral, Prop Data, PropCtrl or any spreadsheet export, with no partnership needed.
+
+- **Browser side** (`resources/js/lib/listingImport.ts`, page `Pages/Agency/ListingImport.tsx`): SheetJS (vendored, lazy-loaded) reads xlsx/xls/csv; `guessMapping()` finds the header row and guesses columns from header synonyms (editable); rows post in batches of 50. The optional photos ZIP is opened with SheetJS's `CFB` reader; photos match a listing when a folder or the file name equals its reference (`ENT-101/1.jpg`, `ENT-101_1.jpg`, `ENT-101 (2).jpg`), are resized to 1600 px and uploaded one per request. A CSV template downloads from the page.
+- **Server** (`Agency\ListingImportController`, `App\Services\ListingImport\ListingImporter`): cleans values (`R 1 250 000`, To Let, Sectional title, KZN…), matches agents by email (else the chosen default agent, which must belong to the agency), and creates or updates by `listings.external_ref` (else address + type), so re-importing never duplicates. New on-market rows become `draft` (or `available` with "Publish straight away"); CRM sold/let/withdrawn rows keep `sold`/`leased`/`archived`. Imported drafts are listed on the page to publish or delete. Routes sit behind `agency_ffc`.
+- **Photo links** in the export go to `listings.pending_photo_urls`; `listings:fetch-photos` (every minute, 30 per run) downloads them via `ListingPhotoStore`, which only accepts images ≤ 10 MB from public hosts and re-checks every redirect (no private/metadata addresses).
+- Columns added: `external_ref`, `import_source`, `imported_at`, `pending_photo_urls`. Seller contact details are deliberately not imported (POPIA). Tests: `tests/Feature/ListingImportTest.php`.
+
+---
+
 ## WhatsApp CRM (Meta Cloud API)
 
 Each agent sends and receives WhatsApp from **their own WhatsApp Business number** through Meta's Cloud API (Agent → CRM → WhatsApp). Agencies see a per-agent summary in their CRM; archived numbers are excluded there.
